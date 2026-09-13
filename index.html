@@ -506,6 +506,7 @@
               if (data[tab] && Array.isArray(data[tab])) {
                 store[tab] = data[tab].map(r => ({
                   topicNum: r["Topic Number"] || r["Topic"] || r["SL"] || "",
+                  headline: r["Topic Headline"] || r["Headline"] || r["Title"] || "",
                   text: r["Malayalam News Text"] || r["News"] || r["Text"] || "",
                   imgUrl: r["Image URLs"] || r["Image"] || r["URL"] || ""
                 }));
@@ -657,22 +658,59 @@
 
     function renderTableRows() {
       const tbody = document.getElementById('table-body');
+      const thead = document.querySelector('#data-table thead');
+      if (!tbody) return;
+
+      const isMovie = (activeTab === 'Movie Updates');
+
+      if (thead) {
+        if (isMovie) {
+          thead.innerHTML = `
+            <tr>
+              <th style="width: 70px;">Topic #</th>
+              <th style="width: 220px;">Topic Headline (Col D)</th>
+              <th>Malayalam News Text / Description</th>
+              <th style="width: 220px;">Image URL(s)</th>
+              <th style="width: 70px;">Action</th>
+            </tr>`;
+        } else {
+          thead.innerHTML = `
+            <tr>
+              <th style="width: 80px;">Topic #</th>
+              <th>Malayalam News Text / Description</th>
+              <th style="width: 250px;">Image URL(s)</th>
+              <th style="width: 80px;">Action</th>
+            </tr>`;
+        }
+      }
+
       tbody.innerHTML = '';
 
       let rows = store[activeTab] || [];
       if (rows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #888;">No topics found in this sheet. Click "+ Add New Row" or paste a table above.</td></tr>';
+        let colSpan = isMovie ? 5 : 4;
+        tbody.innerHTML = `<tr><td colspan="${colSpan}" style="text-align: center; color: #888;">No topics found in this sheet. Click "+ Add New Row" or paste a table above.</td></tr>`;
         return;
       }
 
       rows.forEach((row, idx) => {
         let tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><input type="text" value="${escapeHtml(row.topicNum)}" onchange="updateRow(${idx}, 'topicNum', this.value)"></td>
-          <td><textarea onchange="updateRow(${idx}, 'text', this.value)">${escapeHtml(row.text)}</textarea></td>
-          <td><input type="text" value="${escapeHtml(row.imgUrl)}" onchange="updateRow(${idx}, 'imgUrl', this.value)"></td>
-          <td><button class="btn btn-danger" onclick="deleteRow(${idx})">Delete</button></td>
-        `;
+        if (isMovie) {
+          tr.innerHTML = `
+            <td><input type="text" value="${escapeHtml(row.topicNum)}" onchange="updateRow(${idx}, 'topicNum', this.value)"></td>
+            <td><input type="text" value="${escapeHtml(row.headline || '')}" placeholder="Headline (Col D)" onchange="updateRow(${idx}, 'headline', this.value)"></td>
+            <td><textarea onchange="updateRow(${idx}, 'text', this.value)">${escapeHtml(row.text)}</textarea></td>
+            <td><input type="text" value="${escapeHtml(row.imgUrl)}" onchange="updateRow(${idx}, 'imgUrl', this.value)"></td>
+            <td><button class="btn btn-danger" onclick="deleteRow(${idx})">Delete</button></td>
+          `;
+        } else {
+          tr.innerHTML = `
+            <td><input type="text" value="${escapeHtml(row.topicNum)}" onchange="updateRow(${idx}, 'topicNum', this.value)"></td>
+            <td><textarea onchange="updateRow(${idx}, 'text', this.value)">${escapeHtml(row.text)}</textarea></td>
+            <td><input type="text" value="${escapeHtml(row.imgUrl)}" onchange="updateRow(${idx}, 'imgUrl', this.value)"></td>
+            <td><button class="btn btn-danger" onclick="deleteRow(${idx})">Delete</button></td>
+          `;
+        }
         tbody.appendChild(tr);
       });
     }
@@ -720,19 +758,34 @@
         let tNum = "";
         let tText = "";
         let tImg = "";
+        let tHeadline = "";
 
         if (cleanLine.includes('|')) {
-          // ChatGPT Markdown Table Format (| Topic | News Text | Image URL |)
+          // ChatGPT Markdown Table Format (| Topic | Headline | News Text | Image URL |)
           let parts = cleanLine.split('|').map(p => p.trim()).filter(p => p !== "");
           if (parts.length === 0) return;
 
-          // Skip header row if present
           let p0Low = parts[0].toLowerCase();
-          if (p0Low.includes('topic') || p0Low.includes('sl') || p0Low.includes('no') || p0Low.includes('news') || p0Low.includes('description') || p0Low.includes('poster') || p0Low.includes('headline')) {
+          if (p0Low.includes('topic') || p0Low.includes('sl') || p0Low.includes('no') || p0Low.includes('news') || p0Low.includes('description') || p0Low.includes('poster')) {
             return;
           }
 
-          if (parts.length >= 3) {
+          if (parts.length >= 4) {
+            tNum = parts[0];
+            if (parts[3].toLowerCase().startsWith('http')) {
+              tHeadline = parts[1];
+              tText = parts[2];
+              tImg = parts[3];
+            } else if (parts[2].toLowerCase().startsWith('http')) {
+              tText = parts[1];
+              tImg = parts[2];
+              tHeadline = parts[3];
+            } else {
+              tHeadline = parts[1];
+              tText = parts[2];
+              tImg = parts[3];
+            }
+          } else if (parts.length === 3) {
             tNum = parts[0];
             tText = parts[1];
             tImg = parts[2];
@@ -755,7 +808,22 @@
           let p0Low = parts[0].toLowerCase();
           if (p0Low.includes('topic') || p0Low.includes('sl') || p0Low.includes('no') || p0Low.includes('news')) return;
 
-          if (parts.length >= 3) {
+          if (parts.length >= 4) {
+            tNum = parts[0];
+            if (parts[3].toLowerCase().startsWith('http')) {
+              tHeadline = parts[1];
+              tText = parts[2];
+              tImg = parts[3];
+            } else if (parts[2].toLowerCase().startsWith('http')) {
+              tText = parts[1];
+              tImg = parts[2];
+              tHeadline = parts[3];
+            } else {
+              tHeadline = parts[1];
+              tText = parts[2];
+              tImg = parts[3];
+            }
+          } else if (parts.length === 3) {
             tNum = parts[0];
             tText = parts[1];
             tImg = parts[2];
@@ -773,14 +841,12 @@
             tText = parts[0];
           }
         } else {
-          // Non-tab plain text: extract image URL if present
           let urlMatch = cleanLine.match(/https?:\/\/[^\s]+/i);
           if (urlMatch) {
             tImg = urlMatch[0];
             cleanLine = cleanLine.replace(tImg, '').trim();
           }
 
-          // Check if line starts with topic number
           let numMatch = cleanLine.match(/^(\d+)[\.\s\:\,-]+/);
           if (numMatch) {
             tNum = numMatch[1];
@@ -791,14 +857,14 @@
           }
         }
 
-        // Clean any residual pipe characters
         tNum = (tNum || "").replace(/\|/g, '').trim();
         tText = (tText || "").replace(/\|/g, '').trim();
         tImg = (tImg || "").replace(/\|/g, '').trim();
+        tHeadline = (tHeadline || "").replace(/\|/g, '').trim();
 
         if (!tNum) tNum = validCount.toString();
         if (tText && tText.toLowerCase() !== 'nan') {
-          newRows.push({ topicNum: tNum, text: tText, imgUrl: tImg });
+          newRows.push({ topicNum: tNum, headline: tHeadline, text: tText, imgUrl: tImg });
           validCount++;
         }
       });
@@ -825,6 +891,7 @@
         tab_name: activeTab,
         rows: store[activeTab].map(r => ({
           "Topic Number": r.topicNum,
+          "Topic Headline": r.headline || "",
           "Malayalam News Text": r.text,
           "Image URLs": r.imgUrl
         }))

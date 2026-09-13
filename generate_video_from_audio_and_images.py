@@ -430,6 +430,37 @@ def get_font(size: int, bold: bool = True):
         return ImageFont.load_default()
 
 
+def create_headline_banner_overlay(headline_text: str, output_path: str, width: int = 750, height: int = 110) -> str:
+    """
+    Creates a broadcast PNG lower-third headline banner image with transparent background.
+    Used exclusively for Movie Updates slide animation.
+    """
+    canvas = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(canvas)
+
+    # 1. Dark semi-transparent rounded container
+    rect = [0, 0, width, height]
+    draw.rounded_rectangle(rect, radius=12, fill=(18, 18, 35, 235), outline=(255, 42, 75), width=3)
+
+    # 2. Left vertical red accent bar
+    draw.rounded_rectangle([0, 0, 14, height], radius=6, fill=(255, 42, 75))
+
+    # 3. Small Category Badge: "CINEMA UPDATE"
+    badge_font = get_font(18, bold=True)
+    draw.text((30, 14), "CINEMA UPDATE", font=badge_font, fill=(255, 215, 0))
+
+    # 4. Headline Text
+    title_font = get_font(30, bold=True)
+    display_text = headline_text.strip()
+    if len(display_text) > 42:
+        display_text = display_text[:40] + "..."
+
+    draw.text((30, 48), display_text, font=title_font, fill=(255, 255, 255))
+
+    canvas.save(output_path, "PNG")
+    return str(output_path)
+
+
 def create_table_slide(topic_text: str, image_paths: list, output_path: str, section_slug: str, width: int = 1920, height: int = 1080) -> str:
     """
     Renders a broadcast 2-row table card slide:
@@ -622,7 +653,8 @@ def generate_video(
                 create_fitted_banner_slide(INTRO_BANNER_PATH, slide_img_path)
             elif seg_type in ["transition", "section_intro"]:
                 create_fitted_banner_slide(TRANSITION_BANNER_PATH, slide_img_path)
-            else:
+            banner_overlay_path = None
+            if seg_type not in ["intro", "outro", "transition", "section_intro"]:
                 all_imgs = item_data.get("image_paths", [])
                 if not all_imgs:
                     p_path = item_data.get("movie_poster_path")
@@ -632,26 +664,38 @@ def generate_video(
 
                 sec_slug = str(item_data.get("section_slug", "")).lower()
                 topic_text = item_data.get("topic_text", "")
+                topic_headline = item_data.get("topic_headline", "").strip()
 
                 if sec_slug in ["release_updates", "ott_updates"]:
                     create_table_slide(topic_text, valid_imgs, slide_img_path, sec_slug)
                 else:
                     create_actor_collage_slide(valid_imgs, slide_img_path)
+                    if topic_headline:
+                        overlay_png = str(slides_dir / f"headline_banner_{i+1}.png")
+                        create_headline_banner_overlay(topic_headline, overlay_png)
+                        banner_overlay_path = overlay_png
 
             visual_entries.append({
                 "kind": "slide",
                 "image": slide_img_path,
                 "duration": seg_duration,
-                "segment_index": i
+                "segment_index": i,
+                "banner_overlay": banner_overlay_path
             })
 
-    # 2. Group visual entries into consecutive chunks (video intro chunks and slide concat chunks)
+    # 2. Group visual entries into consecutive chunks
     chunks = []
     for entry in visual_entries:
         if entry["kind"] == "video":
             chunks.append({
                 "kind": "video",
                 "vpath": entry["vpath"],
+                "duration": entry["duration"]
+            })
+        elif entry.get("banner_overlay"):
+            chunks.append({
+                "kind": "animated_slide",
+                "slides": [entry],
                 "duration": entry["duration"]
             })
         else:
@@ -691,6 +735,36 @@ def generate_video(
                 chunk_mp4
             ]
             subprocess.run(cmd, check=True)
+
+        elif chunk["kind"] == "animated_slide":
+            slide_entry = chunk["slides"][0]
+            dur = chunk_dur
+            banner_img = slide_entry["banner_overlay"].replace("\\", "/")
+            slide_img = slide_entry["image"].replace("\\", "/")
+            
+            t_out = max(1.5, dur - 1.0)
+            t_out_end = max(1.9, dur - 0.6)
+            
+            filter_str = (
+                f"[0:v]scale=1920:1080,fps=30,setsar=1[bg];"
+                f"[1:v]scale=750:110[banner];"
+                f"[bg][banner]overlay=x='if(lt(t,1.0),-800,if(lt(t,1.4),-800+(t-1.0)*2100,if(lt(t,{t_out:.2f}),40,if(lt(t,{t_out_end:.2f}),40-(t-{t_out:.2f})*2100,-800))))':y=920:shortest=1[v]"
+            )
+            print(f"    - Chunk {k:02d} [ANIMATED HEADLINE SLIDE]: ({dur:.2f}s, Left Slide Banner)")
+            cmd = [
+                "ffmpeg", "-y",
+                "-loop", "1", "-t", f"{dur:.4f}", "-i", slide_img,
+                "-i", banner_img,
+                "-filter_complex", filter_str,
+                "-map", "[v]",
+                "-t", f"{dur:.4f}",
+                "-c:v", "libx264",
+                "-pix_fmt", "yuv420p",
+                "-r", "30",
+                chunk_mp4
+            ]
+            subprocess.run(cmd, check=True)
+
         else:
             concat_txt = str(slides_dir / f"concat_chunk_{k:02d}.txt")
             with open(concat_txt, "w", encoding="utf-8") as f:

@@ -121,9 +121,9 @@ class GoogleSheetManager:
         return self.data_cache
 
     def normalize_dataframe(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Standardizes DataFrame to 3 columns: Topic Number, Malayalam News Text, Image URLs."""
+        """Standardizes DataFrame columns: Topic Number, Malayalam News Text, Image URLs, Topic Headline."""
         if df.empty:
-            return pd.DataFrame(columns=STANDARD_COLUMNS)
+            return pd.DataFrame(columns=["Topic Number", "Malayalam News Text", "Image URLs", "Topic Headline"])
 
         cols = [str(c).strip() for c in df.columns]
         
@@ -133,7 +133,7 @@ class GoogleSheetManager:
             c_low = c.lower()
             if any(k in c_low for k in ['number', 'sl', 'no', 'id', 'num']):
                 continue
-            if c_low == 'topic' or 'news' in c_low or 'headline' in c_low or 'text' in c_low:
+            if c_low == 'topic' or 'news' in c_low or 'text' in c_low:
                 topic_col = c
                 break
 
@@ -145,23 +145,37 @@ class GoogleSheetManager:
                 img_col = c
                 break
 
+        # Identify Headline / Title col (Column D or index 3 if available)
+        headline_col = None
+        if len(cols) >= 4:
+            headline_col = cols[3]
+        for c in cols:
+            c_low = c.lower()
+            if 'headline' in c_low or 'title' in c_low or 'col d' in c_low or 'column d' in c_low:
+                headline_col = c
+                break
+
         clean_rows = []
         for idx, (df_idx, row) in enumerate(df.iterrows(), start=1):
             text_val = str(row[topic_col]).strip() if pd.notna(row[topic_col]) else ""
             img_val = str(row[img_col]).strip() if img_col and pd.notna(row[img_col]) else ""
+            headline_val = str(row[headline_col]).strip() if headline_col and pd.notna(row[headline_col]) else ""
             
             if not text_val or text_val.lower() == "nan":
                 continue
             if img_val.lower() == "nan":
                 img_val = ""
+            if headline_val.lower() == "nan":
+                headline_val = ""
 
             clean_rows.append({
                 "Topic Number": str(idx),
                 "Malayalam News Text": text_val,
-                "Image URLs": img_val
+                "Image URLs": img_val,
+                "Topic Headline": headline_val
             })
 
-        return pd.DataFrame(clean_rows, columns=STANDARD_COLUMNS)
+        return pd.DataFrame(clean_rows, columns=["Topic Number", "Malayalam News Text", "Image URLs", "Topic Headline"])
 
     def parse_pasted_table(self, pasted_text: str) -> pd.DataFrame:
         """

@@ -204,6 +204,15 @@ def fetch_all_sheets_data(sheet_url: str) -> Tuple[Dict[str, List[Dict[str, Any]
                 img_col = c
                 break
 
+        headline_col = None
+        if len(cols) >= 4:
+            headline_col = cols[3]
+        for c in cols:
+            c_low = c.lower()
+            if 'headline' in c_low or 'title' in c_low or 'col d' in c_low or 'column d' in c_low:
+                headline_col = c
+                break
+
         topics_data = []
         valid_topic_idx = 0
 
@@ -213,6 +222,9 @@ def fetch_all_sheets_data(sheet_url: str) -> Tuple[Dict[str, List[Dict[str, Any]
         for row_idx, (df_idx, row) in enumerate(df.iterrows(), start=2): # 1-based header row
             topic_val = str(row[topic_col]).strip() if pd.notna(row[topic_col]) else ""
             img_val = str(row[img_col]).strip() if img_col and pd.notna(row[img_col]) else ""
+            headline_val = str(row[headline_col]).strip() if headline_col and pd.notna(row[headline_col]) else ""
+            if headline_val.lower() == "nan":
+                headline_val = ""
 
             if not topic_val or topic_val.lower() == "nan":
                 w_log = f"[WARNING] {sec_name} - Row {row_idx} skipped: Topic is empty"
@@ -249,6 +261,7 @@ def fetch_all_sheets_data(sheet_url: str) -> Tuple[Dict[str, List[Dict[str, Any]
                 "topic_number": valid_topic_idx,
                 "source_row": row_idx,
                 "topic_text": topic_val,
+                "topic_headline": headline_val,
                 "image_urls": image_urls,
                 "image_paths": downloaded_paths,
                 "movie_poster_path": downloaded_paths[0] if downloaded_paths else None,
