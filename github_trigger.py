@@ -8,7 +8,10 @@ import os
 import sys
 import subprocess
 import requests
+import urllib3
 from typing import Dict, Any
+
+urllib3.disable_warnings()
 
 REPO_OWNER = "YoutubeVideoUploader"
 REPO_NAME = "auto-youtube-poster"
@@ -78,7 +81,7 @@ def trigger_github_workflow(
                     "drive_thumbnail_url": drive_thumbnail_url
                 }
             }
-            r = requests.post(url, headers=headers, json=payload, timeout=10)
+            r = requests.post(url, headers=headers, json=payload, timeout=10, verify=False)
             if r.status_code in [200, 204]:
                 return {
                     "status": "success",
