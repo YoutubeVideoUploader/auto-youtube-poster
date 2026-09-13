@@ -291,6 +291,7 @@
     <!-- Top Section Switch -->
     <div class="section-nav">
       <button class="section-btn active" id="sec-input-btn" onclick="switchSection('input')">📥 Input & Data Editor</button>
+      <button class="section-btn" id="sec-thumb-btn" onclick="switchSection('thumbnail')">🖼️ Thumbnail Studio</button>
       <button class="section-btn" id="sec-output-btn" onclick="switchSection('output')">📺 Output & Slide Preview</button>
     </div>
 
@@ -346,6 +347,39 @@
       <div id="sync-status" class="status-toast"></div>
     </div>
 
+    <!-- SECTION 3: THUMBNAIL STUDIO -->
+    <div id="section-thumbnail" class="card" style="display: none;">
+      <div class="card-title">🖼️ Auto YouTube Thumbnail Studio (1280x720 Collage)</div>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
+        Select which movie poster images from your news topics to combine into a professional 1280x720 broadcast YouTube thumbnail collage.
+      </p>
+
+      <div style="background: #171728; border: 1px solid #33334d; border-radius: 10px; padding: 18px; margin-bottom: 20px;">
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+          <div style="flex: 1; min-width: 280px;">
+            <label style="font-size: 13px; font-weight: 600; color: #ff2a4b;">🏷️ Banner Headline Title Text:</label>
+            <input type="text" id="thumb-title-input" value="LATEST MALAYALAM MOVIE UPDATES" style="width: 100%; padding: 10px; background: #0d0d16; border: 1px solid var(--accent-red); color: #fff; border-radius: 6px; font-weight: bold; margin-top: 6px;">
+          </div>
+          <div style="background: #0d0d16; padding: 10px 16px; border-radius: 8px; border: 1px solid #2b2b40;">
+            <span style="font-size: 13px; color: #aaa;">Status:</span>
+            <span id="selected-posters-badge" style="font-size: 14px; font-weight: bold; color: #4eff8c; margin-left: 8px;">📸 0 Posters Selected</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+        <h4 style="color: #fff;">Available Poster Images from All Topics:</h4>
+        <div>
+          <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="selectAllPosters(true)">✓ Select All</button>
+          <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px; background: #282838;" onclick="selectAllPosters(false)">✗ Unselect All</button>
+        </div>
+      </div>
+
+      <div id="thumbnail-posters-grid" class="preview-grid" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
     <!-- SECTION 2: OUTPUT & SLIDE PREVIEW -->
     <div id="section-output" class="card" style="display: none;">
       <div class="card-title">📺 Topic Previews: <span id="output-tab-name">Movie Updates</span></div>
@@ -354,16 +388,18 @@
       <!-- Video Action Control Panel -->
       <div style="background: #171728; border: 1px solid var(--accent-red); border-radius: 10px; padding: 20px; margin-bottom: 25px;">
         <div style="font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 5px;">🎬 24/7 Cloud Video Render & YouTube Auto Uploader</div>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">Triggers GitHub Actions in the cloud to synthesize voice, render 1080p MP4 video, and upload directly to YouTube even when your PC is turned off!</p>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">Triggers GitHub Actions in the cloud to synthesize voice, render 1080p MP4 video, create 1280x720 thumbnail collage, and upload directly to YouTube!</p>
 
         <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
-          <div style="flex: 1; min-width: 240px;">
-            <label style="font-size: 13px; font-weight: 600; color: #aaa;">📁 Google Drive Thumbnail Link (Optional):</label>
-            <input type="text" id="drive-thumb-url" placeholder="https://drive.google.com/file/d/.../view" style="width: 100%; padding: 8px; background: #0d0d16; border: 1px solid #33334d; color: #fff; border-radius: 5px; margin-top: 4px;">
+          <div style="flex: 1; min-width: 280px;">
+            <label style="font-size: 13px; font-weight: 600; color: #aaa;">📸 Auto YouTube Thumbnail Collage:</label>
+            <div id="cloud-thumb-summary" style="padding: 10px; background: #0d0d16; border: 1px solid #33334d; color: #4eff8c; border-radius: 5px; font-size: 13px; font-weight: bold; margin-top: 4px;">
+              ✨ Automatic Collage (Selected posters from Thumbnail Studio)
+            </div>
           </div>
           <div style="width: 150px;">
             <label style="font-size: 13px; font-weight: 600; color: #aaa;">🔒 Privacy Status:</label>
-            <select id="privacy-select" style="width: 100%; padding: 8px; background: #0d0d16; border: 1px solid #33334d; color: #fff; border-radius: 5px; margin-top: 4px;">
+            <select id="privacy-select" style="width: 100%; padding: 10px; background: #0d0d16; border: 1px solid #33334d; color: #fff; border-radius: 5px; margin-top: 4px;">
               <option value="unlisted">Unlisted</option>
               <option value="private">Private</option>
               <option value="public">Public</option>
@@ -490,16 +526,119 @@
 
     let activeSection = "input";
     let activeTab = "Movie Updates";
+    let selectedPosterUrls = [];
 
     function switchSection(sec) {
       activeSection = sec;
       document.getElementById('sec-input-btn').className = (sec === 'input') ? 'section-btn active' : 'section-btn';
+      document.getElementById('sec-thumb-btn').className = (sec === 'thumbnail') ? 'section-btn active' : 'section-btn';
       document.getElementById('sec-output-btn').className = (sec === 'output') ? 'section-btn active' : 'section-btn';
 
       document.getElementById('section-input').style.display = (sec === 'input') ? 'block' : 'none';
+      document.getElementById('section-thumbnail').style.display = (sec === 'thumbnail') ? 'block' : 'none';
       document.getElementById('section-output').style.display = (sec === 'output') ? 'block' : 'none';
 
+      if (sec === 'thumbnail') renderThumbnailStudio();
       if (sec === 'output') renderOutputPreviews();
+    }
+
+    function renderThumbnailStudio() {
+      const grid = document.getElementById('thumbnail-posters-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      let allPosters = [];
+      ['Movie Updates', 'Release Updates', 'OTT Updates'].forEach(tab => {
+        let rows = store[tab] || [];
+        rows.forEach(r => {
+          let urls = (r.imgUrl || "").split(/[\r\n,]+/).map(u => u.trim()).filter(u => u.toLowerCase().startsWith('http'));
+          urls.forEach(u => {
+            allPosters.push({
+              tab: tab,
+              topicNum: r.topicNum,
+              text: r.text,
+              url: u
+            });
+          });
+        });
+      });
+
+      if (allPosters.length === 0) {
+        grid.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1;">No poster images found in any topics. Add image URLs in Input section.</p>';
+        updateThumbnailSummary();
+        return;
+      }
+
+      // Default selection to first 4 images if none selected yet
+      if (selectedPosterUrls.length === 0) {
+        selectedPosterUrls = allPosters.slice(0, 4).map(p => p.url);
+      }
+
+      allPosters.forEach((p, idx) => {
+        let card = document.createElement('div');
+        card.className = 'preview-card';
+        card.style.padding = '12px';
+
+        let isChecked = selectedPosterUrls.includes(p.url);
+
+        card.innerHTML = `
+          <div style="position: relative;">
+            <img class="preview-poster" src="${p.url}" onerror="this.src='https://via.placeholder.com/220x160/161625/a0a0b5?text=Poster'" style="height: 160px; border-radius: 6px;" alt="Poster">
+            <input type="checkbox" id="poster-chk-${idx}" ${isChecked ? 'checked' : ''} onchange="togglePosterSelection('${escapeJs(p.url)}', this.checked)" style="position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; accent-color: #ff2a4b; cursor: pointer;">
+          </div>
+          <div class="badge" style="font-size: 11px;">${p.tab} • Topic #${p.topicNum}</div>
+          <div class="preview-text" style="font-size: 12px; height: 36px; overflow: hidden; margin-top: 6px;">${escapeHtml((p.text || "").substring(0, 65))}...</div>
+        `;
+        grid.appendChild(card);
+      });
+
+      updateThumbnailSummary();
+    }
+
+    function escapeJs(str) {
+      return (str || "").replace(/'/g, "\\'").replace(/"/g, '\\"');
+    }
+
+    function togglePosterSelection(url, isChecked) {
+      if (isChecked) {
+        if (!selectedPosterUrls.includes(url)) selectedPosterUrls.push(url);
+      } else {
+        selectedPosterUrls = selectedPosterUrls.filter(u => u !== url);
+      }
+      updateThumbnailSummary();
+    }
+
+    function selectAllPosters(selectState) {
+      if (selectState) {
+        let urls = [];
+        ['Movie Updates', 'Release Updates', 'OTT Updates'].forEach(tab => {
+          (store[tab] || []).forEach(r => {
+            (r.imgUrl || "").split(/[\r\n,]+/).forEach(u => {
+              let clean = u.trim();
+              if (clean.toLowerCase().startsWith('http') && !urls.includes(clean)) urls.push(clean);
+            });
+          });
+        });
+        selectedPosterUrls = urls;
+      } else {
+        selectedPosterUrls = [];
+      }
+      renderThumbnailStudio();
+    }
+
+    function updateThumbnailSummary() {
+      const badge = document.getElementById('selected-posters-badge');
+      const cloudSummary = document.getElementById('cloud-thumb-summary');
+      const count = selectedPosterUrls.length;
+
+      if (badge) badge.innerText = `📸 ${count} Posters Selected`;
+      if (cloudSummary) {
+        if (count > 0) {
+          cloudSummary.innerHTML = `✨ <b>Automatic Collage</b> (${count} Selected Poster Images attached)`;
+        } else {
+          cloudSummary.innerHTML = `✨ <b>Automatic Collage</b> (Defaulting to top posters from active topics)`;
+        }
+      }
     }
 
     function switchTab(tabName) {
@@ -708,7 +847,7 @@
     }
 
     function triggerCloudYouTubeUpload() {
-      const driveUrl = document.getElementById('drive-thumb-url') ? document.getElementById('drive-thumb-url').value.trim() : "";
+      const selectedUrls = selectedPosterUrls.length > 0 ? selectedPosterUrls.join(",") : "";
       const privacy = document.getElementById('privacy-select') ? document.getElementById('privacy-select').value : "unlisted";
       const patToken = document.getElementById('github-pat-token') ? document.getElementById('github-pat-token').value.trim() : "";
       const statusBox = document.getElementById('cloud-upload-status');
@@ -728,7 +867,7 @@
       const payload = {
         action: "trigger_github",
         privacy_status: privacy,
-        drive_thumbnail_url: driveUrl,
+        drive_thumbnail_url: selectedUrls,
         token: patToken
       };
 
@@ -743,11 +882,11 @@
           statusBox.className = 'status-toast toast-success';
           statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render & YouTube Upload Triggered Successfully!</b><br>The cloud runner is generating audio, rendering 1080p video, and posting to YouTube (${privacy.toUpperCase()}).<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
         } else {
-          dispatchClientSideGitHub(privacy, driveUrl, patToken, statusBox);
+          dispatchClientSideGitHub(privacy, selectedUrls, patToken, statusBox);
         }
       })
       .catch(err => {
-        dispatchClientSideGitHub(privacy, driveUrl, patToken, statusBox);
+        dispatchClientSideGitHub(privacy, selectedUrls, patToken, statusBox);
       });
     }
 

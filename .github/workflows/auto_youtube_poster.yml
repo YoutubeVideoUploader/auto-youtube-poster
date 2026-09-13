@@ -71,7 +71,7 @@ jobs:
           tags = generate_youtube_tags()
 
           drive_url = '$DRIVE_THUMB_URL'
-          thumb_path = download_thumbnail_from_drive(drive_url) if drive_url else None
+          thumb_path = download_thumbnail_from_drive(drive_url, sheet_data=data)
 
           uploader = YouTubeUploader()
           res = uploader.upload_video(

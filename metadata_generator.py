@@ -40,27 +40,62 @@ def convert_drive_link_to_direct_download(drive_url: str) -> str:
     return drive_url
 
 
-def download_thumbnail_from_drive(drive_url: str, save_filename: str = "custom_thumbnail.jpg") -> Optional[str]:
-    """Downloads thumbnail image from Google Drive link into outputs/youtube_thumbnails."""
-    if not drive_url or not drive_url.strip():
-        return None
+def download_thumbnail_from_drive(
+    drive_url: str = "",
+    save_filename: str = "custom_thumbnail.jpg",
+    sheet_data: Optional[Dict[str, List[Dict[str, Any]]]] = None
+) -> Optional[str]:
+    """
+    Downloads thumbnail image from Google Drive link, or generates an automated 1280x720 
+    collage thumbnail if given image URLs or sheet topic data.
+    """
+    drive_url = (drive_url or "").strip()
 
-    direct_url = convert_drive_link_to_direct_download(drive_url)
-    save_path = THUMBNAIL_DIR / save_filename
+    # 1. If drive_url is a Google Drive shareable link, download directly
+    if "drive.google.com" in drive_url or "/file/d/" in drive_url:
+        direct_url = convert_drive_link_to_direct_download(drive_url)
+        save_path = THUMBNAIL_DIR / save_filename
 
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-    }
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+        try:
+            r = requests.get(direct_url, headers=headers, verify=False, timeout=25)
+            if r.status_code == 200 and len(r.content) > 1000:
+                with open(save_path, 'wb') as f:
+                    f.write(r.content)
+                print(f"[OK] Thumbnail downloaded from Google Drive: {save_path}")
+                return str(save_path)
+        except Exception as e:
+            print(f"[!] Error downloading thumbnail from Drive: {e}")
 
-    try:
-        r = requests.get(direct_url, headers=headers, verify=False, timeout=25)
-        if r.status_code == 200 and len(r.content) > 1000:
-            with open(save_path, 'wb') as f:
-                f.write(r.content)
-            print(f"[✓] Thumbnail downloaded from Google Drive: {save_path}")
-            return str(save_path)
-    except Exception as e:
-        print(f"[!] Error downloading thumbnail from Drive: {e}")
+    # 2. If drive_url contains comma/newline separated image URLs (from Thumbnail Studio)
+    image_urls = []
+    if drive_url and "http" in drive_url:
+        for u in re.split(r'[\r\n,]+', drive_url):
+            u_clean = u.strip()
+            if u_clean.startswith("http"):
+                image_urls.append(u_clean)
+
+    # 3. If no explicit URLs passed, extract poster images from sheet data
+    if not image_urls and sheet_data:
+        for tab_name, rows in sheet_data.items():
+            for row in rows:
+                raw_img = row.get("Image URLs", "") or row.get("Image", "") or row.get("URL", "")
+                if raw_img:
+                    for u in re.split(r'[\r\n,]+', str(raw_img)):
+                        u_clean = u.strip()
+                        if u_clean.startswith("http") and u_clean not in image_urls:
+                            image_urls.append(u_clean)
+
+    # 4. Generate Automated 1280x720 YouTube Thumbnail Collage
+    if image_urls:
+        try:
+            from thumbnail_generator import create_collage_thumbnail
+            print(f"[📷] Generating Automated YouTube Thumbnail Collage from {len(image_urls)} image(s)...")
+            return create_collage_thumbnail(image_urls, "LATEST MALAYALAM MOVIE UPDATES", save_filename)
+        except Exception as e:
+            print(f"[!] Warning generating thumbnail collage: {e}")
 
     return None
 
