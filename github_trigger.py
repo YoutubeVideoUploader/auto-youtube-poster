@@ -29,7 +29,7 @@ def trigger_github_workflow(
     Parameters:
         privacy_status: 'unlisted', 'private', or 'public'
         drive_thumbnail_url: Optional shareable link to custom thumbnail on Google Drive
-        github_token: Optional Personal Access Token (classic token or fine-grained PAT) with workflow/repo permissions
+        github_token: Optional Personal Access Token with workflow/repo permissions
         
     Returns:
         Dict with status, message, privacy_status, and actions_url.
@@ -41,7 +41,39 @@ def trigger_github_workflow(
     drive_thumbnail_url = (drive_thumbnail_url or "").strip()
     actions_url = f"https://github.com/{REPO_OWNER}/{REPO_NAME}/actions"
 
-    # Strategy 1: Attempt triggering via installed GitHub CLI (gh)
+    token = (github_token or "").strip() or os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+
+    # Strategy 1: Attempt GitHub REST API workflow_dispatch directly with token if provided or in env
+    if token:
+        try:
+            url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/actions/workflows/{WORKFLOW_FILE}/dispatches"
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Accept": "application/vnd.github.v3+json"
+            }
+            payload = {
+                "ref": "main",
+                "inputs": {
+                    "privacy_status": privacy_status,
+                    "drive_thumbnail_url": drive_thumbnail_url
+                }
+            }
+            r = requests.post(url, headers=headers, json=payload, timeout=10, verify=False)
+            if r.status_code in [200, 204]:
+                return {
+                    "status": "success",
+                    "method": "github_api",
+                    "privacy_status": privacy_status,
+                    "drive_thumbnail_url": drive_thumbnail_url,
+                    "actions_url": actions_url,
+                    "message": f"Successfully triggered 24/7 Cloud Render via GitHub API! (Privacy: '{privacy_status}')"
+                }
+            else:
+                print(f"[!] GitHub API returned status code {r.status_code}: {r.text}")
+        except Exception as e:
+            print(f"[!] GitHub REST API dispatch warning: {e}")
+
+    # Strategy 2: Fallback to installed GitHub CLI (gh)
     try:
         cmd = [
             "gh", "workflow", "run", WORKFLOW_FILE,
@@ -65,58 +97,13 @@ def trigger_github_workflow(
     except Exception as e:
         print(f"[!] GH CLI trigger note: {e}")
 
-    # Strategy 2: GitHub REST API repository_dispatch / workflow_dispatch
-    token = (github_token or "").strip() or os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
-    if token:
-        try:
-            url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/actions/workflows/{WORKFLOW_FILE}/dispatches"
-            headers = {
-                "Authorization": f"Bearer {token}",
-                "Accept": "application/vnd.github.v3+json"
-            }
-            payload = {
-                "ref": "main",
-                "inputs": {
-                    "privacy_status": privacy_status,
-                    "drive_thumbnail_url": drive_thumbnail_url
-                }
-            }
-            r = requests.post(url, headers=headers, json=payload, timeout=10, verify=False)
-            if r.status_code in [200, 204]:
-                return {
-                    "status": "success",
-                    "method": "github_api",
-                    "privacy_status": privacy_status,
-                    "drive_thumbnail_url": drive_thumbnail_url,
-                    "actions_url": actions_url,
-                    "message": f"Successfully triggered 24/7 Cloud Render via GitHub REST API! (Privacy: '{privacy_status}')"
-                }
-            else:
-                print(f"[!] GitHub API returned status code {r.status_code}: {r.text}")
-                return {
-                    "status": "error",
-                    "method": "github_api",
-                    "privacy_status": privacy_status,
-                    "actions_url": actions_url,
-                    "message": f"GitHub API Error (HTTP {r.status_code}): {r.json().get('message', r.text)}"
-                }
-        except Exception as e:
-            print(f"[!] GitHub REST API dispatch warning: {e}")
-            return {
-                "status": "error",
-                "method": "github_api",
-                "privacy_status": privacy_status,
-                "actions_url": actions_url,
-                "message": f"Network Error contacting GitHub API: {e}"
-            }
-
     return {
         "status": "error",
         "method": "failed",
         "privacy_status": privacy_status,
         "actions_url": actions_url,
         "message": (
-            "Authentication required! Please provide a GitHub Personal Access Token (PAT) with `workflow` permission or run `gh auth login`."
+            "Authentication required! Please enter your GitHub Personal Access Token (PAT) with `workflow` permission."
         )
     }
 

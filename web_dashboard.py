@@ -349,7 +349,7 @@ elif st.session_state.current_section == "📺 Output & Video Slide Preview":
                 "🔑 GitHub Personal Access Token (PAT) [Optional if `gh` CLI logged in]",
                 value="",
                 type="password",
-                help="Enter GitHub Personal Access Token (ghp_...) with workflow scope if triggering from remote server",
+                help="Enter your GitHub Personal Access Token (ghp_...) with workflow scope",
                 key="cloud_token_input"
             )
 
