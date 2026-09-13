@@ -4,7 +4,7 @@
 // ==============================================================================
 
 function doGet(e) {
-  return HtmlService.createHtmlOutputFromFile('dashboard_apps_script')
+  return HtmlService.createHtmlOutputFromFile('Index')
     .setTitle('Malayalam Movie News Studio')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
@@ -13,7 +13,7 @@ function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
 
-    // 1. Handle GitHub Action Trigger Request
+    // 1. Handle GitHub Action Trigger Request from Web App / Website
     if (data.action === "trigger_github") {
       return triggerGitHubActionHandler(data.privacy_status, data.drive_thumbnail_url, data.token);
     }
@@ -64,7 +64,9 @@ function savePastedData(category, rawText) {
 }
 
 function triggerGitHubAction(privacyStatus, driveUrl, userToken) {
-  var token = userToken;
+  var storedToken = PropertiesService.getScriptProperties().getProperty("GITHUB_TOKEN");
+  var token = (userToken && userToken.trim()) ? userToken.trim() : storedToken;
+
   var url = "https://api.github.com/repos/YoutubeVideoUploader/auto-youtube-poster/actions/workflows/auto_youtube_poster.yml/dispatches";
   
   var payload = {
@@ -100,4 +102,10 @@ function triggerGitHubActionHandler(privacyStatus, driveUrl, userToken) {
   var res = triggerGitHubAction(privacyStatus, driveUrl, userToken);
   return ContentService.createTextOutput(JSON.stringify(res))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// Helper to set stored GITHUB_TOKEN property in Apps Script
+function setGitHubTokenProperty(tokenString) {
+  PropertiesService.getScriptProperties().setProperty("GITHUB_TOKEN", tokenString.trim());
+  return "Successfully saved GITHUB_TOKEN property in Apps Script!";
 }

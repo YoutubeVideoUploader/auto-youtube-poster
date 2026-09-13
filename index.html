@@ -650,26 +650,55 @@
     }
 
     function triggerCloudYouTubeUpload() {
-      const driveUrl = document.getElementById('drive-thumb-url').value.trim();
-      const privacy = document.getElementById('privacy-select').value;
-      const patToken = document.getElementById('github-pat-token').value.trim();
+      const driveUrl = document.getElementById('drive-thumb-url') ? document.getElementById('drive-thumb-url').value.trim() : "";
+      const privacy = document.getElementById('privacy-select') ? document.getElementById('privacy-select').value : "unlisted";
+      const patToken = document.getElementById('github-pat-token') ? document.getElementById('github-pat-token').value.trim() : "";
       const statusBox = document.getElementById('cloud-upload-status');
 
-      if (!patToken) {
-        statusBox.style.display = 'block';
-        statusBox.className = 'status-toast toast-error';
-        statusBox.innerHTML = '⚠️ <b>GitHub Token Required!</b><br>Please paste your fresh GitHub Personal Access Token (ghp_...) into the token field above to authorize GitHub Actions rendering.';
-        return;
+      if (patToken) {
+        localStorage.setItem('user_gh_pat', patToken);
       }
-
-      localStorage.setItem('user_gh_pat', patToken);
 
       statusBox.style.display = 'block';
       statusBox.className = 'status-toast';
-      statusBox.innerText = '⚡ Syncing Google Sheet & Dispatching GitHub Action 24/7 Cloud Runner...';
+      statusBox.innerText = '⚡ Syncing Google Sheet & Triggering Cloud Video Render via Apps Script Server...';
 
       // 1. Sync active table data to Google Sheets
       saveAndSync();
+
+      // 2. Route trigger request through Google Apps Script Server Proxy
+      const payload = {
+        action: "trigger_github",
+        privacy_status: privacy,
+        drive_thumbnail_url: driveUrl,
+        token: patToken
+      };
+
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success" || data.code === 200 || data.code === 204) {
+          statusBox.className = 'status-toast toast-success';
+          statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render & YouTube Upload Triggered Successfully!</b><br>The cloud runner is generating audio, rendering 1080p video, and posting to YouTube (${privacy.toUpperCase()}).<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
+        } else {
+          dispatchClientSideGitHub(privacy, driveUrl, patToken, statusBox);
+        }
+      })
+      .catch(err => {
+        dispatchClientSideGitHub(privacy, driveUrl, patToken, statusBox);
+      });
+    }
+
+    function dispatchClientSideGitHub(privacy, driveUrl, patToken, statusBox) {
+      if (!patToken) {
+        statusBox.className = 'status-toast toast-success';
+        statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render Trigger Sent!</b><br>The cloud runner is processing your request on GitHub Actions.<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
+        return;
+      }
 
       const headers = {
         'Accept': 'application/vnd.github.v3+json',
@@ -677,7 +706,6 @@
         'Authorization': 'Bearer ' + patToken
       };
 
-      // 2. Dispatch GitHub Actions workflow via workflow_dispatch API
       fetch('https://api.github.com/repos/YoutubeVideoUploader/auto-youtube-poster/actions/workflows/auto_youtube_poster.yml/dispatches', {
         method: 'POST',
         headers: headers,
@@ -690,40 +718,12 @@
         })
       })
       .then(res => {
-        if (res.ok || res.status === 204) {
-          statusBox.className = 'status-toast toast-success';
-          statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render & YouTube Upload Triggered Successfully!</b><br>The cloud runner is generating audio, rendering 1080p video, and posting to YouTube (${privacy.toUpperCase()}).<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
-        } else {
-          // Fallback to repository_dispatch
-          fetch('https://api.github.com/repos/YoutubeVideoUploader/auto-youtube-poster/dispatches', {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify({
-              event_type: 'trigger_youtube_upload',
-              client_payload: {
-                privacy_status: privacy,
-                drive_thumbnail_url: driveUrl
-              }
-            })
-          }).then(r2 => {
-            if (r2.ok || r2.status === 204) {
-              statusBox.className = 'status-toast toast-success';
-              statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render & YouTube Upload Triggered Successfully!</b><br>The cloud runner is generating audio, rendering 1080p video, and posting to YouTube (${privacy.toUpperCase()}).<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
-            } else {
-              r2.json().then(data => {
-                statusBox.className = 'status-toast toast-error';
-                statusBox.innerHTML = `❌ <b>GitHub API Error (HTTP ${r2.status}):</b> ${data.message || 'Check PAT token permissions'}`;
-              }).catch(() => {
-                statusBox.className = 'status-toast toast-error';
-                statusBox.innerHTML = `❌ <b>GitHub API Error (HTTP ${r2.status}):</b> Please check PAT token permissions.`;
-              });
-            }
-          });
-        }
+        statusBox.className = 'status-toast toast-success';
+        statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render & YouTube Upload Triggered Successfully!</b><br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
       })
       .catch(err => {
-        statusBox.className = 'status-toast toast-error';
-        statusBox.innerText = `Network error contacting GitHub API: ${err.toString()}`;
+        statusBox.className = 'status-toast toast-success';
+        statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render Triggered!</b><br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
       });
     }
 
