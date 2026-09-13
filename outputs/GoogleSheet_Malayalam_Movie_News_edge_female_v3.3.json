@@ -1,0 +1,326 @@
+{
+  "presenter_version": "3.3",
+  "audio_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\GoogleSheet_Malayalam_Movie_News_edge_female_v3.3.wav",
+  "qa_report_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\GoogleSheet_Malayalam_Movie_News_edge_female_v3.3_qa_report.json",
+  "overall_quality_score": 99.9,
+  "total_segments": 9,
+  "script_metadata": [
+    {
+      "sentence_id": 1,
+      "text": "നമസ്കാരം! മലയാള സിനിമയിലെ ഏറ്റവും പുതിയ അപ്ഡേറ്റുകളിലേക്ക് എല്ലാവർക്കും സ്വാഗതം.",
+      "type": "intro",
+      "importance": 0.85,
+      "speed": 1.08,
+      "energy_boost_db": 1.0,
+      "pause_before": 100,
+      "pause_after": 400,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "നമസ്കാരം!",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "മലയാള സിനിമയിലെ ഏറ്റവും പുതിയ അപ്ഡേറ്റുകളിലേക്ക് എല്ലാവർക്കും സ്വാഗതം.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 2,
+      "text": "ഒന്നാമതായി, ‘വരവ്’ ഇന്ന് മുതൽ ഒടിടിയിൽ കാണാം. ജോജു ജോർജിനെ നായകനാക്കി ഷാജി കൈലാസ് സംവിധാനം ചെയ്ത ചിത്രം സെപ്റ്റംബർ 11 മുതൽ ZEE5ലാണ് സ്ട്രീമിംഗ് ആരംഭിച്ചിരിക്കുന്നത്.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "സെപ്റ്റംബർ 11"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [
+          "സെപ്റ്റംബർ 11"
+        ],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഒന്നാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "‘വരവ്’ ഇന്ന് മുതൽ ഒടിടിയിൽ കാണാം. ജോജു ജോർജിനെ നായകനാക്കി ഷാജി കൈലാസ് സംവിധാനം ചെയ്ത ചിത്രം സെപ്റ്റംബർ 11 മുതൽ ZEE5ലാണ് സ്ട്രീമിംഗ് ആരംഭിച്ചിരിക്കുന്നത്.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 3,
+      "text": "അടുത്തത്,",
+      "type": "transition",
+      "importance": 0.7,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 150,
+      "pause_after": 400,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "അടുത്തത്,",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 4,
+      "text": "രണ്ടാമതായി, ‘ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ്’ ബോക്സ് ഓഫീസിൽ മികച്ച പ്രകടനം തുടരുകയാണ്. 21-ാം ദിവസം ചിത്രം ഇന്ത്യയിൽ നിന്ന് 2.30 കോടി രൂപ നേടിയതായും ആകെ ഇന്ത്യ നെറ്റ് കളക്ഷൻ 135.45 കോടി രൂപയിലെത്തിയതായും റിപ്പോർട്ടുകൾ.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "21-ാം"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [
+          "21-ാം"
+        ],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "രണ്ടാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "‘ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ്’ ബോക്സ് ഓഫീസിൽ മികച്ച പ്രകടനം തുടരുകയാണ്. 21-ാം ദിവസം ചിത്രം ഇന്ത്യയിൽ നിന്ന് 2.30 കോടി രൂപ നേടിയതായും ആകെ ഇന്ത്യ നെറ്റ് കളക്ഷൻ 135.45 കോടി രൂപയിലെത്തിയതായും റിപ്പോർട്ടുകൾ.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 5,
+      "text": "അടുത്തത്,",
+      "type": "transition",
+      "importance": 0.7,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 150,
+      "pause_after": 400,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "അടുത്തത്,",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 6,
+      "text": "മൂന്നാമതായി, നിവിൻ പോളിയുടെ ‘NP 51’ൽ കന്നഡ താരം രുക്മിണി വസന്തും എത്തുന്നു. മലയാള സിനിമയിലേക്കുള്ള രുക്മിണിയുടെ അരങ്ങേറ്റം കൂടിയാണിത്. നിവിൻ പോളി മൈസൂർപാക്ക് നൽകി താരത്തെ ചിത്രത്തിലേക്ക് സ്വാഗതം ചെയ്തതും ശ്രദ്ധ നേടിയിരുന്നു.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "നിവിൻ പോളി"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [
+          "നിവിൻ പോളി"
+        ],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "മൂന്നാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "നിവിൻ പോളിയുടെ ‘NP 51’ൽ കന്നഡ താരം രുക്മിണി വസന്തും എത്തുന്നു. മലയാള സിനിമയിലേക്കുള്ള രുക്മിണിയുടെ അരങ്ങേറ്റം കൂടിയാണിത്. നിവിൻ പോളി മൈസൂർപാക്ക് നൽകി താരത്തെ ചിത്രത്തിലേക്ക് സ്വാഗതം ചെയ്തതും ശ്രദ്ധ നേടിയിരുന്നു.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 7,
+      "text": "അടുത്തത്,",
+      "type": "transition",
+      "importance": 0.7,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 150,
+      "pause_after": 400,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "അടുത്തത്,",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 8,
+      "text": "നാലാമതായി, സൂര്യ നായകനായ ‘വിശ്വനാഥ് ആൻഡ് സൺസ്’ ഇന്ന് മുതൽ നെറ്റ്ഫ്ലിക്സിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. മമിത ബൈജുവും ചിത്രത്തിൽ പ്രധാന വേഷത്തിലെത്തുന്നുണ്ട്.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "മമിത ബൈജു",
+        "നെറ്റ്ഫ്ലിക്സിൽ"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [
+          "മമിത ബൈജു"
+        ],
+        "directors": [],
+        "dates": [],
+        "ott": [
+          "നെറ്റ്ഫ്ലിക്സിൽ"
+        ],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "നാലാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "സൂര്യ നായകനായ ‘വിശ്വനാഥ് ആൻഡ് സൺസ്’ ഇന്ന് മുതൽ നെറ്റ്ഫ്ലിക്സിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. മമിത ബൈജുവും ചിത്രത്തിൽ പ്രധാന വേഷത്തിലെത്തുന്നുണ്ട്.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 9,
+      "text": "കൂടുതൽ സിനിമ വിശേഷങ്ങൾക്കായി ചാനൽ സബ്സ്ക്രൈബ് ചെയ്യൂ. അടുത്ത വാർത്തകളുമായി വീണ്ടും കാണാം, നന്ദി!",
+      "type": "outro",
+      "importance": 0.9,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 500,
+      "emphasis": [
+        "സബ്സ്ക്രൈബ് ചെയ്യൂ"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": [
+          "സബ്സ്ക്രൈബ് ചെയ്യൂ"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "കൂടുതൽ സിനിമ വിശേഷങ്ങൾക്കായി ചാനൽ സബ്സ്ക്രൈബ് ചെയ്യൂ. അടുത്ത വാർത്തകളുമായി വീണ്ടും കാണാം,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "നന്ദി!",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ]
+    }
+  ]
+}

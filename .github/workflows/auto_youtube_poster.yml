@@ -1,0 +1,86 @@
+name: Auto YouTube Video Render & Uploader
+
+on:
+  workflow_dispatch:
+    inputs:
+      drive_thumbnail_url:
+        description: 'Google Drive Thumbnail Link (Optional)'
+        required: false
+        default: ''
+      privacy_status:
+        description: 'YouTube Privacy Status (unlisted, private, public)'
+        required: true
+        default: 'unlisted'
+  repository_dispatch:
+    types: [trigger_youtube_upload]
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 🎬 Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: 📦 Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas requests pillow edge-tts soundfile google-api-python-client google-auth-oauthlib google-auth-httplib2 xlsxwriter
+
+      - name: 🔑 Restore YouTube OAuth Token
+        env:
+          YOUTUBE_TOKEN_DATA: ${{ secrets.YOUTUBE_TOKEN_JSON }}
+        run: |
+          mkdir -p outputs
+          echo "$YOUTUBE_TOKEN_DATA" > outputs/youtube_token.json
+
+      - name: 🎙️ 1. Synthesize Malayalam Voice Audio from Google Sheets
+        run: |
+          python generate_from_google_sheet.py edge_female
+
+      - name: 🎞️ 2. Render 1080p Full HD MP4 Presentation Video
+        run: |
+          python generate_video_from_audio_and_images.py
+
+      - name: 🚀 3. Upload Video to YouTube
+        env:
+          DRIVE_THUMB_URL: ${{ github.event.inputs.drive_thumbnail_url || github.event.client_payload.drive_thumbnail_url }}
+          PRIVACY_STATUS: ${{ github.event.inputs.privacy_status || github.event.client_payload.privacy_status || 'unlisted' }}
+        run: |
+          python -c "
+          from youtube_uploader import YouTubeUploader
+          from metadata_generator import generate_english_title, generate_youtube_description, generate_youtube_tags, download_thumbnail_from_drive
+          from google_sheet_manager import GoogleSheetManager
+          from pathlib import Path
+
+          mgr = GoogleSheetManager()
+          data = mgr.fetch_all_tabs(force_refresh=True)
+
+          title = generate_english_title()
+          desc = generate_youtube_description(data)
+          tags = generate_youtube_tags()
+
+          drive_url = '$DRIVE_THUMB_URL'
+          thumb_path = download_thumbnail_from_drive(drive_url) if drive_url else None
+
+          uploader = YouTubeUploader()
+          res = uploader.upload_video(
+              video_path='outputs/Malayalam_Movie_News_Presenter_1080p.mp4',
+              title=title,
+              description=desc,
+              tags=tags,
+              privacy_status='$PRIVACY_STATUS',
+              thumbnail_path=thumb_path
+          )
+          print('YOUTUBE UPLOAD SUCCESSFUL:', res)
+          "

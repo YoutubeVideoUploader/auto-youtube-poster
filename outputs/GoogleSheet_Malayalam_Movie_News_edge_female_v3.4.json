@@ -1,0 +1,867 @@
+{
+  "presenter_version": "3.3",
+  "audio_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\GoogleSheet_Malayalam_Movie_News_edge_female_v3.4.wav",
+  "qa_report_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\GoogleSheet_Malayalam_Movie_News_edge_female_v3.4_qa_report.json",
+  "overall_quality_score": 99.7,
+  "total_segments": 14,
+  "script_metadata": [
+    {
+      "sentence_id": 1,
+      "text": "നമസ്കാരം! മലയാള സിനിമയിലെ ഏറ്റവും പുതിയ അപ്ഡേറ്റുകളിലേക്ക് എല്ലാവർക്കും സ്വാഗതം.",
+      "type": "intro",
+      "importance": 0.85,
+      "speed": 1.08,
+      "energy_boost_db": 1.0,
+      "pause_before": 100,
+      "pause_after": 400,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "നമസ്കാരം!",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "മലയാള സിനിമയിലെ ഏറ്റവും പുതിയ അപ്ഡേറ്റുകളിലേക്ക് എല്ലാവർക്കും സ്വാഗതം.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 6.85
+    },
+    {
+      "sentence_id": 2,
+      "text": "ഒന്നാമതായി, ‘ആശ’ തിയേറ്ററുകളിൽ എത്തി. ഉർവശിയും ജോജു ജോർജും ആദ്യമായി ഒന്നിക്കുന്ന ചിത്രം സെപ്റ്റംബർ 11ന് റിലീസ് ചെയ്തു. സഫർ സനൽ സംവിധാനം ചെയ്ത ഡാർക്ക് സസ്പെൻസ് ത്രില്ലറാണ് ചിത്രം. ഐശ്വര്യ ലക്ഷ്മിയും വിജയരാഘവനും പ്രധാന വേഷങ്ങളിലുണ്ട്.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "സഫർ സനൽ",
+        "ആശ",
+        "റിലീസ് ചെയ്തു",
+        "സെപ്റ്റംബർ 11",
+        "ഉർവശി",
+        "ഐശ്വര്യ ലക്ഷ്മി"
+      ],
+      "entities": {
+        "movies": [
+          "ആശ"
+        ],
+        "actors": [
+          "ഐശ്വര്യ ലക്ഷ്മി",
+          "ഉർവശി"
+        ],
+        "directors": [
+          "സഫർ സനൽ"
+        ],
+        "dates": [
+          "സെപ്റ്റംബർ 11"
+        ],
+        "ott": [],
+        "announcements": [
+          "റിലീസ് ചെയ്തു"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഒന്നാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "‘ആശ’ തിയേറ്ററുകളിൽ എത്തി. ഉർവശിയും ജോജു ജോർജും ആദ്യമായി ഒന്നിക്കുന്ന",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "ചിത്രം സെപ്റ്റംബർ 11ന് റിലീസ് ചെയ്തു. സഫർ സനൽ സംവിധാനം ചെയ്ത ഡാർക്ക് സസ്പെൻസ് ത്രില്ലറാണ് ചിത്രം. ഐശ്വര്യ ലക്ഷ്മിയും വിജയരാഘവനും പ്രധാന വേഷങ്ങളിലുണ്ട്.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ],
+      "duration": 17.124
+    },
+    {
+      "sentence_id": 3,
+      "text": "രണ്ടാമതായി, ‘വരവ്’ ഒടിടിയിൽ എത്തി. ഷാജി കൈലാസ് സംവിധാനം ചെയ്ത ജോജു ജോർജ് ചിത്രം സെപ്റ്റംബർ 11 മുതൽ ZEE5ൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. വാണി വിശ്വനാഥ്, മുരളി ഗോപി എന്നിവരും ചിത്രത്തിലുണ്ട്.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "സെപ്റ്റംബർ 11",
+        "ജോജു ജോർജ്"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [
+          "ജോജു ജോർജ്"
+        ],
+        "directors": [],
+        "dates": [
+          "സെപ്റ്റംബർ 11"
+        ],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "രണ്ടാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "‘വരവ്’ ഒടിടിയിൽ എത്തി. ഷാജി കൈലാസ് സംവിധാനം ചെയ്ത ജോജു ജോർജ് ചിത്രം സെപ്റ്റംബർ 11 മുതൽ ZEE5ൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. വാണി വിശ്വനാഥ്,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "മുരളി ഗോപി എന്നിവരും ചിത്രത്തിലുണ്ട്.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 13.908
+    },
+    {
+      "sentence_id": 4,
+      "text": "മൂന്നാമതായി, നിവിൻ പോളിയുടെ ‘NP 51’ൽ രുക്മിണി വസന്തിന്റെ മലയാള അരങ്ങേറ്റം. നഷീദ് ഫാമി സംവിധാനം ചെയ്യുന്ന ചിത്രത്തിൽ രുക്മിണി വസന്ത്, അജു വർഗീസ് എന്നിവരും അഭിനയിക്കുന്നു. സെപ്റ്റംബർ 10ന് ചിത്രത്തിന്റെ സെറ്റിൽ ഒരു ക്രൂ അംഗം വൈദ്യുതാഘാതത്തിൽ മരിച്ചതിനെ തുടർന്ന് നിവിൻ അനുശോചനം രേഖപ്പെടുത്തി",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "നിവിൻ പോളി",
+        "സെപ്റ്റംബർ 10"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [
+          "നിവിൻ പോളി"
+        ],
+        "directors": [],
+        "dates": [
+          "സെപ്റ്റംബർ 10"
+        ],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "മൂന്നാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "നിവിൻ പോളിയുടെ ‘NP 51’ൽ രുക്മിണി വസന്തിന്റെ മലയാള അരങ്ങേറ്റം. നഷീദ് ഫാമി സംവിധാനം ചെയ്യുന്ന",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "ചിത്രത്തിൽ രുക്മിണി വസന്ത്,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 4,
+          "text": "അജു വർഗീസ് എന്നിവരും അഭിനയിക്കുന്നു. സെപ്റ്റംബർ 10ന് ചിത്രത്തിന്റെ സെറ്റിൽ ഒരു ക്രൂ അംഗം വൈദ്യുതാഘാതത്തിൽ മരിച്ചതിനെ തുടർന്ന് നിവിൻ അനുശോചനം രേഖപ്പെടുത്തി",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ],
+      "duration": 19.86
+    },
+    {
+      "sentence_id": 5,
+      "text": "ഷൂട്ടിംഗ് പിന്നീട് പുനരാരംഭിച്ചു. ചിത്രം 2027 വിഷു റിലീസായി പ്രതീക്ഷിക്കുന്നു.",
+      "type": "detail",
+      "importance": 0.66,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 100,
+      "pause_after": 300,
+      "emphasis": [
+        "2027"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [
+          "2027"
+        ],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഷൂട്ടിംഗ് പിന്നീട് പുനരാരംഭിച്ചു. ചിത്രം 2027 വിഷു റിലീസായി പ്രതീക്ഷിക്കുന്നു.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ],
+      "duration": 6.894
+    },
+    {
+      "sentence_id": 6,
+      "text": "നാലാമതായി, ‘ഒഴിയാതെ’ തിയേറ്ററുകളിൽ എത്തി. ഫറൂഖ് അബ്ദുൾ റഹിമാൻ രചനയും സംവിധാനവും നിർവഹിച്ച ചിത്രം സെപ്റ്റംബർ 11ന് റിലീസ് ചെയ്തു. 1975ലെ അടിയന്തരാവസ്ഥക്കാലത്ത് പാലക്കാട് സ്കൂളിൽ നിന്ന് 19 കുട്ടികളെ അറസ്റ്റ് ചെയ്ത് 21 ദിവസം തടവിലിട്ട സംഭവമാണ് ചിത്രത്തിന്റെ പശ്ചാത്തലം.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "റിലീസ് ചെയ്തു",
+        "സെപ്റ്റംബർ 11"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [
+          "സെപ്റ്റംബർ 11"
+        ],
+        "ott": [],
+        "announcements": [
+          "റിലീസ് ചെയ്തു"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "നാലാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "‘ഒഴിയാതെ’ തിയേറ്ററുകളിൽ എത്തി. ഫറൂഖ് അബ്ദുൾ റഹിമാൻ രചനയും സംവിധാനവും നിർവഹിച്ച ചിത്രം സെപ്റ്റംബർ 11ന് റിലീസ് ചെയ്തു. 1975ലെ അടിയന്തരാവസ്ഥക്കാലത്ത് പാലക്കാട് സ്കൂളിൽ നിന്ന് 19 കുട്ടികളെ അറസ്റ്റ് ചെയ്ത് 21 ദിവസം തടവിലിട്ട സംഭവമാണ് ചിത്രത്തിന്റെ പശ്ചാത്തലം.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ],
+      "duration": 19.62
+    },
+    {
+      "sentence_id": 7,
+      "text": "അഞ്ചാമതായി, ‘വിശ്വനാഥ് ആൻഡ് സൺസ്’ നെറ്റ്ഫ്ലിക്സിൽ എത്തി. സൂര്യ നായകനായ വെങ്കി അറ്റ്ലൂരി ചിത്രം സെപ്റ്റംബർ 11 മുതൽ Netflixൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. തിയേറ്റർ റൺ അവസാനിക്കുമ്പോൾ ചിത്രം ആഗോള ബോക്സ് ഓഫീസിൽ ₹260 കോടിയിലധികം നേടിയതായി റിപ്പോർട്ടുകൾ പറയുന്നു. മമിത ബൈജുവാണ് പ്രധാന വേഷത്തിൽ.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "നെറ്റ്ഫ്ലിക്സിൽ",
+        "സെപ്റ്റംബർ 11",
+        "Netflix",
+        "മമിത ബൈജു"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [
+          "മമിത ബൈജു"
+        ],
+        "directors": [],
+        "dates": [
+          "സെപ്റ്റംബർ 11"
+        ],
+        "ott": [
+          "നെറ്റ്ഫ്ലിക്സിൽ",
+          "Netflix"
+        ],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "അഞ്ചാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "‘വിശ്വനാഥ് ആൻഡ് സൺസ്’ നെറ്റ്ഫ്ലിക്സിൽ എത്തി. സൂര്യ നായകനായ വെങ്കി അറ്റ്ലൂരി ചിത്രം സെപ്റ്റംബർ 11 മുതൽ Netflixൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. തിയേറ്റർ റൺ അവസാനിക്കുമ്പോൾ ചിത്രം ആഗോള ബോക്സ് ഓഫീസിൽ ₹260 കോടിയിലധികം നേടിയതായി റിപ്പോർട്ടുകൾ പറയുന്നു. മമിത ബൈജുവാണ് പ്രധാന വേഷത്തിൽ.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ],
+      "duration": 20.7
+    },
+    {
+      "sentence_id": 8,
+      "text": "ആറാമതായി, ‘അവറാച്ചൻ ആൻഡ് സൺസ്’ റിലീസ് തീയതി പ്രഖ്യാപിച്ചു. ബിജു മേനോൻ നായകനാകുന്ന ചിത്രം ഒക്ടോബർ 2ന് തിയേറ്ററുകളിലെത്തും. നവാഗതനായ തമ്പിയാണ് സംവിധാനം ചെയ്യുന്നത്. ഗണപതി, ശ്രീനാഥ് ഭാസി, അഖില ഭാർഗവൻ, പാർവതി ബാബു തുടങ്ങിയവരും പ്രധാന വേഷങ്ങളിലുണ്ട്.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "ഒക്ടോബർ 2",
+        "പ്രഖ്യാപിച്ചു"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [
+          "ഒക്ടോബർ 2"
+        ],
+        "ott": [],
+        "announcements": [
+          "പ്രഖ്യാപിച്ചു"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ആറാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "‘അവറാച്ചൻ ആൻഡ് സൺസ്’ റിലീസ് തീയതി പ്രഖ്യാപിച്ചു. ബിജു മേനോൻ നായകനാകുന്ന ചിത്രം ഒക്ടോബർ 2ന് തിയേറ്ററുകളിലെത്തും. നവാഗതനായ തമ്പിയാണ് സംവിധാനം ചെയ്യുന്നത്. ഗണപതി,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "ശ്രീനാഥ് ഭാസി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 4,
+          "text": "അഖില ഭാർഗവൻ,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 5,
+          "text": "പാർവതി ബാബു തുടങ്ങിയവരും പ്രധാന വേഷങ്ങളിലുണ്ട്.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 18.924
+    },
+    {
+      "sentence_id": 9,
+      "text": "ഏഴാമതായി, ‘ധൂമകേതു’ റിലീസ് മാറ്റി. സജിൻ ഗോപുവും നിഖില വിമലും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ചിത്രം നേരത്തെ സെപ്റ്റംബർ 11ന് റിലീസ് ചെയ്യാനായിരുന്നു തീരുമാനിച്ചിരുന്നത്. ഇപ്പോൾ സെപ്റ്റംബർ 25 ആണ് പുതിയ റിലീസ് തീയതി. സുധി മാഡിസൺ ആണ് സംവിധാനം.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "സെപ്റ്റംബർ 11",
+        "സെപ്റ്റംബർ 25"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [
+          "സെപ്റ്റംബർ 25",
+          "സെപ്റ്റംബർ 11"
+        ],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഏഴാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "‘ധൂമകേതു’ റിലീസ് മാറ്റി. സജിൻ ഗോപുവും നിഖില വിമലും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ചിത്രം നേരത്തെ സെപ്റ്റംബർ 11ന് റിലീസ് ചെയ്യാനായിരുന്നു തീരുമാനിച്ചിരുന്നത്. ഇപ്പോൾ സെപ്റ്റംബർ 25 ആണ് പുതിയ റിലീസ് തീയതി. സുധി മാഡിസൺ ആണ് സംവിധാനം.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ],
+      "duration": 18.012
+    },
+    {
+      "sentence_id": 10,
+      "text": "എട്ടാമതായി, ‘L370’ന്റെ പേരിലുള്ള വ്യാജ ഓഡിഷനുകൾക്കെതിരെ മുന്നറിയിപ്പ്. മോഹൻലാലിനെ നായകനാക്കി ജൂഡ് ആന്തണി ജോസഫ് സംവിധാനം ചെയ്യുന്ന ചിത്രത്തിന്റെ നിർമ്മാണം ആഷിഖ് ഉസ്മാനാണ്. ചിത്രത്തിനായി ഔദ്യോഗിക ഓഡിഷനുകളൊന്നും പ്രഖ്യാപിച്ചിട്ടില്ലെന്ന് ജൂഡ് വ്യക്തമാക്കി. വ്യാജ ഓഡിഷൻ പോസ്റ്ററുകൾ, സന്ദേശങ്ങൾ, കോളുകൾ എന്നിവയിൽ വ്യക്തിഗത വിവരങ്ങളോ പണമോ നൽകരുതെന്നും മുന്നറിയിപ്പ് നൽകി.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "ജൂഡ് ആന്തണി ജോസഫ്",
+        "L370",
+        "മോഹൻലാലിനെ"
+      ],
+      "entities": {
+        "movies": [
+          "L370"
+        ],
+        "actors": [
+          "മോഹൻലാലിനെ"
+        ],
+        "directors": [
+          "ജൂഡ് ആന്തണി ജോസഫ്"
+        ],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "എട്ടാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "‘L370’ന്റെ പേരിലുള്ള വ്യാജ ഓഡിഷനുകൾക്കെതിരെ മുന്നറിയിപ്പ്. മോഹൻലാലിനെ നായകനാക്കി ജൂഡ് ആന്തണി ജോസഫ് സംവിധാനം ചെയ്യുന്ന",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "ചിത്രത്തിന്റെ നിർമ്മാണം ആഷിഖ് ഉസ്മാനാണ്. ചിത്രത്തിനായി ഔദ്യോഗിക ഓഡിഷനുകളൊന്നും പ്രഖ്യാപിച്ചിട്ടില്ലെന്ന് ജൂഡ് വ്യക്തമാക്കി. വ്യാജ ഓഡിഷൻ പോസ്റ്ററുകൾ,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 4,
+          "text": "സന്ദേശങ്ങൾ,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 5,
+          "text": "കോളുകൾ എന്നിവയിൽ വ്യക്തിഗത വിവരങ്ങളോ പണമോ നൽകരുതെന്നും മുന്നറിയിപ്പ് നൽകി.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 25.02
+    },
+    {
+      "sentence_id": 11,
+      "text": "ഒമ്പതാമതായി, സൂര്യ–ജിത്തു മാധവൻ ചിത്രം ‘സീൻ’. സൂര്യ 47 എന്ന താൽക്കാലിക പേരിൽ അറിയപ്പെട്ടിരുന്ന ചിത്രത്തിന് ഇപ്പോൾ ‘Scene’ എന്ന് പേര് പ്രഖ്യാപിച്ചു. ജിത്തു മാധവൻ സംവിധാനം ചെയ്യുന്ന ചിത്രത്തിൽ നസ്‌ലിൻ പ്രധാന വേഷത്തിലും നസ്രിയ നസിം നായികയായും എത്തുന്നു. 2026 നവംബർ 6ന് ദീപാവലി റിലീസ്.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "2026",
+        "നവംബർ 6",
+        "പ്രഖ്യാപിച്ചു"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [
+          "2026",
+          "നവംബർ 6"
+        ],
+        "ott": [],
+        "announcements": [
+          "പ്രഖ്യാപിച്ചു"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഒമ്പതാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "സൂര്യ–",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "ജിത്തു മാധവൻ ചിത്രം ‘സീൻ’. സൂര്യ 47 എന്ന താൽക്കാലിക പേരിൽ അറിയപ്പെട്ടിരുന്ന ചിത്രത്തിന് ഇപ്പോൾ ‘Scene’ എന്ന് പേര് പ്രഖ്യാപിച്ചു. ജിത്തു മാധവൻ സംവിധാനം ചെയ്യുന്ന",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 4,
+          "text": "ചിത്രത്തിൽ നസ്‌ലിൻ പ്രധാന വേഷത്തിലും നസ്രിയ നസിം നായികയായും എത്തുന്നു. 2026 നവംബർ 6ന് ദീപാവലി റിലീസ്.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ],
+      "duration": 20.82
+    },
+    {
+      "sentence_id": 12,
+      "text": "പത്താമതായി, സംവൃത സുനിൽ സിനിമയിലേക്ക് തിരിച്ചെത്തുന്നു. ദീർഘ ഇടവേളയ്ക്ക് ശേഷം ഷാഹിദ് അറഫാത്ത് സംവിധാനം ചെയ്യുന്ന പുതിയ ചിത്രത്തിലൂടെയാണ് തിരിച്ചുവരവ്. ദിലീഷ് പോത്തനും അൽഫോൺസ് പുത്രനും പ്രധാന വേഷങ്ങളിലുണ്ട്. ഔദ്യോഗിക പേര് ഇതുവരെ പ്രഖ്യാപിച്ചിട്ടില്ല",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "ദിലീഷ് പോത്തനും",
+        "തിരിച്ചെത്തുന്നു",
+        "സംവൃത സുനിൽ",
+        "ഷാഹിദ് അറഫാത്ത്",
+        "അൽഫോൺസ് പുത്രനും"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [
+          "ദിലീഷ് പോത്തനും",
+          "സംവൃത സുനിൽ"
+        ],
+        "directors": [
+          "അൽഫോൺസ് പുത്രനും",
+          "ഷാഹിദ് അറഫാത്ത്"
+        ],
+        "dates": [],
+        "ott": [],
+        "announcements": [
+          "തിരിച്ചെത്തുന്നു"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "പത്താമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "സംവൃത സുനിൽ സിനിമയിലേക്ക് തിരിച്ചെത്തുന്നു. ദീർഘ ഇടവേളയ്ക്ക് ശേഷം ഷാഹിദ് അറഫാത്ത് സംവിധാനം ചെയ്യുന്ന",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "പുതിയ ചിത്രത്തിലൂടെയാണ് തിരിച്ചുവരവ്. ദിലീഷ് പോത്തനും അൽഫോൺസ് പുത്രനും പ്രധാന വേഷങ്ങളിലുണ്ട്. ഔദ്യോഗിക പേര് ഇതുവരെ പ്രഖ്യാപിച്ചിട്ടില്ല",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ],
+      "duration": 17.148
+    },
+    {
+      "sentence_id": 13,
+      "text": "Navarasa Production No. 3 എന്ന പേരിലാണ് ഇപ്പോൾ അറിയപ്പെടുന്നത്. ചിത്രീകരണം ഇടുക്കിയിൽ പുരോഗമിക്കുകയാണ്.",
+      "type": "detail",
+      "importance": 0.6,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 100,
+      "pause_after": 300,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "Navarasa Production No. 3 എന്ന പേരിലാണ് ഇപ്പോൾ അറിയപ്പെടുന്നത്. ചിത്രീകരണം ഇടുക്കിയിൽ പുരോഗമിക്കുകയാണ്.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 8.094
+    },
+    {
+      "sentence_id": 14,
+      "text": "കൂടുതൽ സിനിമ വിശേഷങ്ങൾക്കായി ചാനൽ സബ്സ്ക്രൈബ് ചെയ്യൂ. അടുത്ത വാർത്തകളുമായി വീണ്ടും കാണാം, നന്ദി!",
+      "type": "outro",
+      "importance": 0.9,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 500,
+      "emphasis": [
+        "സബ്സ്ക്രൈബ് ചെയ്യൂ"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": [
+          "സബ്സ്ക്രൈബ് ചെയ്യൂ"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "കൂടുതൽ സിനിമ വിശേഷങ്ങൾക്കായി ചാനൽ സബ്സ്ക്രൈബ് ചെയ്യൂ. അടുത്ത വാർത്തകളുമായി വീണ്ടും കാണാം,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "നന്ദി!",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 7.886
+    }
+  ],
+  "topic_items": [
+    {
+      "topic_index": 1,
+      "topic_text": "‘ആശ’ തിയേറ്ററുകളിൽ എത്തി. ഉർവശിയും ജോജു ജോർജും ആദ്യമായി ഒന്നിക്കുന്ന ചിത്രം സെപ്റ്റംബർ 11ന് റിലീസ് ചെയ്തു. സഫർ സനൽ സംവിധാനം ചെയ്ത ഡാർക്ക് സസ്പെൻസ് ത്രില്ലറാണ് ചിത്രം. ഐശ്വര്യ ലക്ഷ്മിയും വിജയരാഘവനും പ്രധാന വേഷങ്ങളിലുണ്ട്.",
+      "people_names": [
+        "https://img-mm.manoramaonline.com/content/dam/mm/mo/archive/movies/movie-news/images/2025/12/26/joju.jpg?h=583&w=1120"
+      ],
+      "movie_name": "ആശ",
+      "image_keywords": "",
+      "movie_poster_path": null,
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_1.jpg"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_1.jpg"
+      ],
+      "primary_image": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_1.jpg"
+    },
+    {
+      "topic_index": 2,
+      "topic_text": "‘വരവ്’ ഒടിടിയിൽ എത്തി. ഷാജി കൈലാസ് സംവിധാനം ചെയ്ത ജോജു ജോർജ് ചിത്രം സെപ്റ്റംബർ 11 മുതൽ ZEE5ൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. വാണി വിശ്വനാഥ്, മുരളി ഗോപി എന്നിവരും ചിത്രത്തിലുണ്ട്.",
+      "people_names": [
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-09-05%2Fm2xo45v6%2FVaravu.jpg?auto=format%2Ccompress&fit=max&w=480"
+      ],
+      "movie_name": "വരവ്",
+      "image_keywords": "",
+      "movie_poster_path": null,
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_2.jpg"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_2.jpg"
+      ],
+      "primary_image": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_2.jpg"
+    },
+    {
+      "topic_index": 3,
+      "topic_text": "നിവിൻ പോളിയുടെ ‘NP 51’ൽ രുക്മിണി വസന്തിന്റെ മലയാള അരങ്ങേറ്റം. നഷീദ് ഫാമി സംവിധാനം ചെയ്യുന്ന ചിത്രത്തിൽ രുക്മിണി വസന്ത്, അജു വർഗീസ് എന്നിവരും അഭിനയിക്കുന്നു. സെപ്റ്റംബർ 10ന് ചിത്രത്തിന്റെ സെറ്റിൽ ഒരു ക്രൂ അംഗം വൈദ്യുതാഘാതത്തിൽ മരിച്ചതിനെ തുടർന്ന് നിവിൻ അനുശോചനം രേഖപ്പെടുത്തി; ഷൂട്ടിംഗ് പിന്നീട് പുനരാരംഭിച്ചു. ചിത്രം 2027 വിഷു റിലീസായി പ്രതീക്ഷിക്കുന്നു.",
+      "people_names": [
+        "https://img.onmanorama.com/content/dam/mm/en/archive/entertainment/entertainment-news/images/2026/9/9/nivin-rukmini.jpg?h=583&w=1120"
+      ],
+      "movie_name": "NP 51",
+      "image_keywords": "",
+      "movie_poster_path": null,
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_3.jpg"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_3.jpg"
+      ],
+      "primary_image": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_3.jpg"
+    },
+    {
+      "topic_index": 4,
+      "topic_text": "‘ഒഴിയാതെ’ തിയേറ്ററുകളിൽ എത്തി. ഫറൂഖ് അബ്ദുൾ റഹിമാൻ രചനയും സംവിധാനവും നിർവഹിച്ച ചിത്രം സെപ്റ്റംബർ 11ന് റിലീസ് ചെയ്തു. 1975ലെ അടിയന്തരാവസ്ഥക്കാലത്ത് പാലക്കാട് സ്കൂളിൽ നിന്ന് 19 കുട്ടികളെ അറസ്റ്റ് ചെയ്ത് 21 ദിവസം തടവിലിട്ട സംഭവമാണ് ചിത്രത്തിന്റെ പശ്ചാത്തലം.",
+      "people_names": [
+        "https://cf-images.assettype.com/newindianexpress%2F2026-06-13%2Fjpf6kb0h%2F1001166787.jpg?auto=format%2Ccompress&fit=max&rect=0%2C157%2C1600%2C900&w=480"
+      ],
+      "movie_name": "ഒഴിയാതെ",
+      "image_keywords": "",
+      "movie_poster_path": null,
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_4.jpg"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_4.jpg"
+      ],
+      "primary_image": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_4.jpg"
+    },
+    {
+      "topic_index": 5,
+      "topic_text": "‘വിശ്വനാഥ് ആൻഡ് സൺസ്’ നെറ്റ്ഫ്ലിക്സിൽ എത്തി. സൂര്യ നായകനായ വെങ്കി അറ്റ്ലൂരി ചിത്രം സെപ്റ്റംബർ 11 മുതൽ Netflixൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. തിയേറ്റർ റൺ അവസാനിക്കുമ്പോൾ ചിത്രം ആഗോള ബോക്സ് ഓഫീസിൽ ₹260 കോടിയിലധികം നേടിയതായി റിപ്പോർട്ടുകൾ പറയുന്നു. മമിത ബൈജുവാണ് പ്രധാന വേഷത്തിൽ.",
+      "people_names": [
+        "https://img.mathrubhumi.com/view/acePublic/alias/contentid/1sz4ivnko3nq4rnxdt3/0/vishwanath-and-sons-jpg.webp?f=3%3A2&q=0.75&w=900"
+      ],
+      "movie_name": "വിശ്വനാഥ് ആൻഡ് സൺസ്",
+      "image_keywords": "",
+      "movie_poster_path": null,
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_5.jpg"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_5.jpg"
+      ],
+      "primary_image": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_5.jpg"
+    },
+    {
+      "topic_index": 6,
+      "topic_text": "‘അവറാച്ചൻ ആൻഡ് സൺസ്’ റിലീസ് തീയതി പ്രഖ്യാപിച്ചു. ബിജു മേനോൻ നായകനാകുന്ന ചിത്രം ഒക്ടോബർ 2ന് തിയേറ്ററുകളിലെത്തും. നവാഗതനായ തമ്പിയാണ് സംവിധാനം ചെയ്യുന്നത്. ഗണപതി, ശ്രീനാഥ് ഭാസി, അഖില ഭാർഗവൻ, പാർവതി ബാബു തുടങ്ങിയവരും പ്രധാന വേഷങ്ങളിലുണ്ട്.",
+      "people_names": [
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-09-11%2Fgz6elxc8%2FAvarachan.jpg?auto=format%2Ccompress&fit=max&w=480"
+      ],
+      "movie_name": "അവറാച്ചൻ ആൻഡ് സൺസ്",
+      "image_keywords": "",
+      "movie_poster_path": null,
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_6.jpg"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_6.jpg"
+      ],
+      "primary_image": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_6.jpg"
+    },
+    {
+      "topic_index": 7,
+      "topic_text": "‘ധൂമകേതു’ റിലീസ് മാറ്റി. സജിൻ ഗോപുവും നിഖില വിമലും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ചിത്രം നേരത്തെ സെപ്റ്റംബർ 11ന് റിലീസ് ചെയ്യാനായിരുന്നു തീരുമാനിച്ചിരുന്നത്. ഇപ്പോൾ സെപ്റ്റംബർ 25 ആണ് പുതിയ റിലീസ് തീയതി. സുധി മാഡിസൺ ആണ് സംവിധാനം.",
+      "people_names": [
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-09-08%2F8c9mjggo%2FDhoomakethuposter.jpg?auto=format%2Ccompress&fit=max&w=480"
+      ],
+      "movie_name": "ധൂമകേതു",
+      "image_keywords": "",
+      "movie_poster_path": null,
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_7.jpg"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_7.jpg"
+      ],
+      "primary_image": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_7.jpg"
+    },
+    {
+      "topic_index": 8,
+      "topic_text": "‘L370’ന്റെ പേരിലുള്ള വ്യാജ ഓഡിഷനുകൾക്കെതിരെ മുന്നറിയിപ്പ്. മോഹൻലാലിനെ നായകനാക്കി ജൂഡ് ആന്തണി ജോസഫ് സംവിധാനം ചെയ്യുന്ന ചിത്രത്തിന്റെ നിർമ്മാണം ആഷിഖ് ഉസ്മാനാണ്. ചിത്രത്തിനായി ഔദ്യോഗിക ഓഡിഷനുകളൊന്നും പ്രഖ്യാപിച്ചിട്ടില്ലെന്ന് ജൂഡ് വ്യക്തമാക്കി. വ്യാജ ഓഡിഷൻ പോസ്റ്ററുകൾ, സന്ദേശങ്ങൾ, കോളുകൾ എന്നിവയിൽ വ്യക്തിഗത വിവരങ്ങളോ പണമോ നൽകരുതെന്നും മുന്നറിയിപ്പ് നൽകി.",
+      "people_names": [
+        "https://cf-images.assettype.com/outlookindia/2026-09-10/ylcw42bc/Jude-Anthony-Mohanlal.jpg?auto=format%2Ccompress&dpr=1.0&fit=max&format=webp&w=801"
+      ],
+      "movie_name": "L370",
+      "image_keywords": "",
+      "movie_poster_path": null,
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_8.jpg"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_8.jpg"
+      ],
+      "primary_image": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_8.jpg"
+    },
+    {
+      "topic_index": 9,
+      "topic_text": "സൂര്യ–ജിത്തു മാധവൻ ചിത്രം ‘സീൻ’. സൂര്യ 47 എന്ന താൽക്കാലിക പേരിൽ അറിയപ്പെട്ടിരുന്ന ചിത്രത്തിന് ഇപ്പോൾ ‘Scene’ എന്ന് പേര് പ്രഖ്യാപിച്ചു. ജിത്തു മാധവൻ സംവിധാനം ചെയ്യുന്ന ചിത്രത്തിൽ നസ്‌ലിൻ പ്രധാന വേഷത്തിലും നസ്രിയ നസിം നായികയായും എത്തുന്നു. 2026 നവംബർ 6ന് ദീപാവലി റിലീസ്.",
+      "people_names": [
+        "https://img-mm.manoramaonline.com/content/dam/mm/mo/archive/movies/movie-news/images/2026/9/10/scene-teaser.jpg?h=583&w=1120"
+      ],
+      "movie_name": "സീൻ",
+      "image_keywords": "",
+      "movie_poster_path": null,
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_9.jpg"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_9.jpg"
+      ],
+      "primary_image": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_9.jpg"
+    },
+    {
+      "topic_index": 10,
+      "topic_text": "സംവൃത സുനിൽ സിനിമയിലേക്ക് തിരിച്ചെത്തുന്നു. ദീർഘ ഇടവേളയ്ക്ക് ശേഷം ഷാഹിദ് അറഫാത്ത് സംവിധാനം ചെയ്യുന്ന പുതിയ ചിത്രത്തിലൂടെയാണ് തിരിച്ചുവരവ്. ദിലീഷ് പോത്തനും അൽഫോൺസ് പുത്രനും പ്രധാന വേഷങ്ങളിലുണ്ട്. ഔദ്യോഗിക പേര് ഇതുവരെ പ്രഖ്യാപിച്ചിട്ടില്ല; Navarasa Production No. 3 എന്ന പേരിലാണ് ഇപ്പോൾ അറിയപ്പെടുന്നത്. ചിത്രീകരണം ഇടുക്കിയിൽ പുരോഗമിക്കുകയാണ്.",
+      "people_names": [
+        "https://static.toiimg.com/thumb/msid-133957787%2Cimgsize-313299%2Cwidth-400%2Cheight-225%2Cresizemode-4/samvritha-sunil-ends-long-acting-hiatus-with-shahid-arafaths-next-joins-dileesh-pothan-and-alphonse-puthren-in-yet-to-be-titled-malayalam-film.jpg"
+      ],
+      "movie_name": "",
+      "image_keywords": "",
+      "movie_poster_path": null,
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_10.jpg"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_10.jpg"
+      ],
+      "primary_image": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\topic_10.jpg"
+    }
+  ]
+}

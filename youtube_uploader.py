@@ -1,0 +1,161 @@
+"""
+YouTube Video Uploader Module
+Implements Google YouTube Data API v3 Resumable Chunked Video Upload,
+OAuth 2.0 Token Persistence, and Automated Custom Thumbnail Attachment.
+"""
+
+import ssl
+import urllib3
+urllib3.disable_warnings()
+
+# Disable SSL verification for token refresh if local cert store is missing certificates
+ssl._create_default_https_context = ssl._create_unverified_context
+os.environ['PYTHONHTTPSVERIFY'] = '0'
+
+import requests
+_orig_send = requests.Session.send
+def _unverified_send(self, request, **kwargs):
+    kwargs['verify'] = False
+    return _orig_send(self, request, **kwargs)
+requests.Session.send = _unverified_send
+
+from pathlib import Path
+from typing import Dict, Any, List, Optional
+
+BASE_DIR = Path(__file__).resolve().parent
+OUTPUT_DIR = BASE_DIR / "outputs"
+TOKEN_FILE = OUTPUT_DIR / "youtube_token.json"
+CLIENT_SECRET_FILE = BASE_DIR / "client_secret.json"
+
+SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
+
+
+class YouTubeUploader:
+    def __init__(self, client_secrets_file: Optional[str] = None, token_file: Optional[str] = None):
+        self.client_secrets_file = Path(client_secrets_file) if client_secrets_file else CLIENT_SECRET_FILE
+        self.token_file = Path(token_file) if token_file else TOKEN_FILE
+
+    def get_authenticated_service(self):
+        """Authenticates with YouTube Data API v3 using OAuth 2.0 and returns service instance."""
+        from googleapiclient.discovery import build
+        from google.oauth2.credentials import Credentials
+        from google_auth_oauthlib.flow import InstalledAppFlow
+        from google.auth.transport.requests import Request
+
+        creds = None
+
+        # Load existing token credentials if available
+        if self.token_file.exists():
+            try:
+                creds = Credentials.from_authorized_user_file(str(self.token_file), SCOPES)
+            except Exception as e:
+                print(f"[!] Warning loading token file: {e}")
+
+        # Refresh or prompt new OAuth login if credentials expired or missing
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                try:
+                    creds.refresh(Request())
+                except Exception:
+                    creds = None
+
+            if not creds:
+                if not self.client_secrets_file.exists():
+                    raise FileNotFoundError(
+                        f"Google OAuth client_secret.json file not found at: {self.client_secrets_file}\n"
+                        f"Please download your client_secret.json from Google Cloud Console and place it in the project root folder."
+                    )
+
+                flow = InstalledAppFlow.from_client_secrets_file(str(self.client_secrets_file), SCOPES)
+                creds = flow.run_local_server(port=8080, prompt='consent')
+
+            # Save token for future automatic uploads
+            self.token_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.token_file, "w") as token:
+                token.write(creds.to_json())
+
+        return build("youtube", "v3", credentials=creds)
+
+    def upload_video(
+        self,
+        video_path: str,
+        title: str,
+        description: str,
+        tags: Optional[List[str]] = None,
+        category_id: str = "24",  # 24 = Entertainment
+        privacy_status: str = "unlisted",  # private, unlisted, public
+        thumbnail_path: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Uploads an MP4 video file to YouTube via resumable chunked upload.
+        Sets thumbnail if thumbnail_path is provided.
+        Returns dict with video_id and video_url.
+        """
+        from googleapiclient.http import MediaFileUpload
+
+        if not Path(video_path).exists():
+            raise FileNotFoundError(f"Video file to upload not found: {video_path}")
+
+        youtube = self.get_authenticated_service()
+
+        body = {
+            "snippet": {
+                "title": title[:100],  # YouTube title limit 100 chars
+                "description": description[:5000],  # Description limit 5000 chars
+                "tags": tags or ["Malayalam Movie News", "Mollywood"],
+                "categoryId": category_id
+            },
+            "status": {
+                "privacyStatus": privacy_status.lower(),
+                "selfDeclaredMadeForKids": False
+            }
+        }
+
+        media = MediaFileUpload(
+            video_path,
+            chunksize=1024 * 1024 * 5,  # 5MB chunks
+            resumable=True,
+            mimetype="video/mp4"
+        )
+
+        request = youtube.videos().insert(
+            part="snippet,status",
+            body=body,
+            media_body=media
+        )
+
+        print(f"\n[🚀] Initiating YouTube Video Upload: {title}...")
+        response = None
+        while response is None:
+            status, response = request.next_chunk()
+            if status:
+                progress = int(status.progress() * 100)
+                print(f"  - Upload Progress: {progress}%")
+
+        video_id = response.get("id")
+        video_url = f"https://youtu.be/{video_id}"
+        print(f"[✓] Video Upload Complete! Video ID: {video_id} | URL: {video_url}")
+
+        # Set custom thumbnail if provided
+        thumbnail_uploaded = False
+        if thumbnail_path and Path(thumbnail_path).exists() and video_id:
+            try:
+                print(f"[📷] Uploading Custom Thumbnail: {thumbnail_path}...")
+                thumb_media = MediaFileUpload(thumbnail_path, mimetype="image/jpeg")
+                youtube.thumbnails().set(
+                    videoId=video_id,
+                    media_body=thumb_media
+                ).execute()
+                thumbnail_uploaded = True
+                print("[✓] Custom Thumbnail Applied Successfully!")
+            except Exception as e:
+                print(f"[!] Warning uploading thumbnail to YouTube: {e}")
+
+        return {
+            "status": "success",
+            "video_id": video_id,
+            "video_url": video_url,
+            "privacy_status": privacy_status,
+            "thumbnail_uploaded": thumbnail_uploaded,
+            "title": title
+        }

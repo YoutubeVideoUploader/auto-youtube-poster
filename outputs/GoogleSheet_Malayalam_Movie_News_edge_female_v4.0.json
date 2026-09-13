@@ -1,0 +1,1448 @@
+{
+  "presenter_version": "3.3",
+  "audio_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\GoogleSheet_Malayalam_Movie_News_edge_female_v4.0.wav",
+  "qa_report_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\GoogleSheet_Malayalam_Movie_News_edge_female_v4.0_qa_report.json",
+  "overall_quality_score": 99.6,
+  "total_segments": 26,
+  "script_metadata": [
+    {
+      "sentence_id": 1,
+      "text": "എല്ലാവർക്കും സിനിമാലോകത്തെ പുത്തുപുത്തൻ വാർത്തകളിലേക്ക് സ്വാഗതം",
+      "type": "intro",
+      "importance": 0.85,
+      "speed": 1.08,
+      "energy_boost_db": 1.0,
+      "pause_before": 100,
+      "pause_after": 400,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "എല്ലാവർക്കും സിനിമാലോകത്തെ പുത്തുപുത്തൻ വാർത്തകളിലേക്ക് സ്വാഗതം",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 4.69
+    },
+    {
+      "sentence_id": 2,
+      "text": "ആദ്യം, പുതിയ മലയാള സിനിമാ അപ്ഡേറ്റുകളിലേക്ക് കടക്കാം.",
+      "type": "section_intro",
+      "importance": 0.65,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 100,
+      "pause_after": 300,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ആദ്യം,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "പുതിയ മലയാള സിനിമാ അപ്ഡേറ്റുകളിലേക്ക് കടക്കാം.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 4.302
+    },
+    {
+      "sentence_id": 3,
+      "text": "ഒന്നാമതായി, മമ്മൂട്ടിയുടെ എഴുപത്തിയഞ്ചാം പിറന്നാൾ ദിനത്തിൽ നിതീഷ് സഹദേവ് സംവിധാനം ചെയ്യുന്ന പുതിയ ചിത്രത്തിന് ‘മേള’ എന്ന പേര് പ്രഖ്യാപിച്ച് ഫസ്റ്റ് ലുക്ക് പുറത്തിറക്കി. ജൂലൈയിൽ ചിത്രീകരണം ആരംഭിച്ച സിനിമയിൽ മമ്മൂട്ടി വ്യത്യസ്തമായ ഗെറ്റപ്പിലാണ് എത്തുന്നത്.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "മമ്മൂട്ടി",
+        "മേള",
+        "മമ്മൂട്ടിയുടെ",
+        "ഫസ്റ്റ് ലുക്ക്",
+        "നിതീഷ് സഹദേവ്"
+      ],
+      "entities": {
+        "movies": [
+          "മേള"
+        ],
+        "actors": [
+          "മമ്മൂട്ടിയുടെ",
+          "മമ്മൂട്ടി"
+        ],
+        "directors": [
+          "നിതീഷ് സഹദേവ്"
+        ],
+        "dates": [],
+        "ott": [],
+        "announcements": [
+          "ഫസ്റ്റ് ലുക്ക്"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഒന്നാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "മമ്മൂട്ടിയുടെ എഴുപത്തിയഞ്ചാം പിറന്നാൾ ദിനത്തിൽ നിതീഷ് സഹദേവ് സംവിധാനം ചെയ്യുന്ന",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "പുതിയ ചിത്രത്തിന് ‘മേള’ എന്ന പേര് പ്രഖ്യാപിച്ച് ഫസ്റ്റ് ലുക്ക് പുറത്തിറക്കി. ജൂലൈയിൽ ചിത്രീകരണം ആരംഭിച്ച സിനിമയിൽ മമ്മൂട്ടി വ്യത്യസ്തമായ ഗെറ്റപ്പിലാണ് എത്തുന്നത്.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ],
+      "duration": 15.012
+    },
+    {
+      "sentence_id": 4,
+      "text": "രണ്ടാമതായി, സംവിധായകൻ വിനയൻ ഒരുക്കുന്ന പുതിയ ഫാന്റസി ചിത്രത്തിന്റെ ചിത്രീകരണം ഒക്ടോബറിൽ ആരംഭിക്കും. സാഗർ സൂര്യയും ഗിന്നസ് പക്രുവും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ചിത്രത്തിൽ ഇരുന്നൂറോളം ഉയരം കുറഞ്ഞ കലാകാരന്മാരും ഭാഗമാകുമെന്ന് വിനയൻ വ്യക്തമാക്കി.",
+      "type": "headline",
+      "importance": 0.95,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "രണ്ടാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "സംവിധായകൻ വിനയൻ ഒരുക്കുന്ന പുതിയ ഫാന്റസി ചിത്രത്തിന്റെ ചിത്രീകരണം ഒക്ടോബറിൽ ആരംഭിക്കും. സാഗർ സൂര്യയും ഗിന്നസ് പക്രുവും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ചിത്രത്തിൽ ഇരുന്നൂറോളം ഉയരം കുറഞ്ഞ കലാകാരന്മാരും ഭാഗമാകുമെന്ന് വിനയൻ വ്യക്തമാക്കി.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 14.82
+    },
+    {
+      "sentence_id": 5,
+      "text": "മൂന്നാമതായി, നടി അമല പോൾ എം. പത്മകുമാർ സംവിധാനം ചെയ്യുന്ന പുതിയ ചിത്രത്തിൽ നായികയായി എത്തുന്നു. ചിത്രത്തിന്റെ പൂജയും സ്വിച്ചോൺ ചടങ്ങും പൂർത്തിയായി, എന്നാൽ സിനിമയുടെ പേരും കൂടുതൽ വിശദാംശങ്ങളും അണിയറപ്രവർത്തകർ ഇതുവരെ പ്രഖ്യാപിച്ചിട്ടില്ല.",
+      "type": "headline",
+      "importance": 0.95,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "മൂന്നാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "നടി അമല പോൾ എം. പത്മകുമാർ സംവിധാനം ചെയ്യുന്ന",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "പുതിയ ചിത്രത്തിൽ നായികയായി എത്തുന്നു. ചിത്രത്തിന്റെ പൂജയും സ്വിച്ചോൺ ചടങ്ങും പൂർത്തിയായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 4,
+          "text": "എന്നാൽ സിനിമയുടെ പേരും കൂടുതൽ വിശദാംശങ്ങളും അണിയറപ്രവർത്തകർ ഇതുവരെ പ്രഖ്യാപിച്ചിട്ടില്ല.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 15.42
+    },
+    {
+      "sentence_id": 6,
+      "text": "നാലാമതായി, ആന്റണി വർഗീസ് പെപ്പെ ആദ്യമായി കഥയെഴുതുന്ന ‘വിശുദ്ധ സെമിനാരി’ എന്ന പുതിയ ചിത്രത്തിൽ നായകനായും എത്തുന്നു. കിച്ചു ടെല്ലസാണ് ചിത്രത്തിന്റെ തിരക്കഥ ഒരുക്കുന്നത്.",
+      "type": "headline",
+      "importance": 0.95,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "നാലാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "ആന്റണി വർഗീസ് പെപ്പെ ആദ്യമായി കഥയെഴുതുന്ന ‘വിശുദ്ധ സെമിനാരി’ എന്ന പുതിയ ചിത്രത്തിൽ നായകനായും എത്തുന്നു. കിച്ചു ടെല്ലസാണ് ചിത്രത്തിന്റെ തിരക്കഥ ഒരുക്കുന്നത്.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 11.028
+    },
+    {
+      "sentence_id": 7,
+      "text": "അഞ്ചാമതായി, ബംഗാളി സിനിമകളിലൂടെ ശ്രദ്ധ നേടിയ നന്ദി മൂവീസ് മലയാള സിനിമയിലേക്ക് എത്തുന്നു. സൂരജ് സോമചന്ദ്രൻ സംവിധാനം ചെയ്യുന്ന ഹൊറർ ത്രില്ലറാണ് കമ്പനിയുടെ ആദ്യ മലയാള ചിത്രം.",
+      "type": "headline",
+      "importance": 0.95,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "അഞ്ചാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "ബംഗാളി സിനിമകളിലൂടെ ശ്രദ്ധ നേടിയ നന്ദി മൂവീസ് മലയാള സിനിമയിലേക്ക് എത്തുന്നു. സൂരജ് സോമചന്ദ്രൻ സംവിധാനം ചെയ്യുന്ന",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "ഹൊറർ ത്രില്ലറാണ് കമ്പനിയുടെ ആദ്യ മലയാള ചിത്രം.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 11.892
+    },
+    {
+      "sentence_id": 8,
+      "text": "ആറാമതായി, മോഹൻലാലും ജൂഡ് ആന്റണി ജോസഫും ഒന്നിക്കുന്ന ‘എൽ 370’ ചിത്രത്തിന്റെ നിർമ്മാതാവായി ആഷിഖ് ഉസ്മാൻ എത്തുന്നു. മോഹൻലാലും ജൂഡും വീണ്ടും ഒരുമിക്കുന്ന ചിത്രമാണിത്.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "എൽ 370",
+        "മോഹൻലാലും"
+      ],
+      "entities": {
+        "movies": [
+          "എൽ 370"
+        ],
+        "actors": [
+          "മോഹൻലാലും"
+        ],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ആറാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "മോഹൻലാലും ജൂഡ് ആന്റണി ജോസഫും ഒന്നിക്കുന്ന",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "‘എൽ 370’ ചിത്രത്തിന്റെ നിർമ്മാതാവായി ആഷിഖ് ഉസ്മാൻ എത്തുന്നു. മോഹൻലാലും ജൂഡും വീണ്ടും ഒരുമിക്കുന്ന ചിത്രമാണിത്.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ],
+      "duration": 12.108
+    },
+    {
+      "sentence_id": 9,
+      "text": "ഏഴാമതായി, നിവിൻ പോളിയും മമിത ബൈജുവും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ്’ കേരള ബോക്സ് ഓഫീസിൽ ഈ വർഷത്തെ പുതിയ ഇൻഡസ്ട്രി ഹിറ്റായി മാറി. കേരളത്തിൽ ചിത്രം നൂറ്റിമുപ്പത് കോടിയിലധികം നേടിയതായി റിപ്പോർട്ടുകൾ പറയുന്നു.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "നിവിൻ പോളി",
+        "മമിത ബൈജു"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [
+          "നിവിൻ പോളി",
+          "മമിത ബൈജു"
+        ],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഏഴാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "നിവിൻ പോളിയും മമിത ബൈജുവും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ്’ കേരള ബോക്സ് ഓഫീസിൽ ഈ വർഷത്തെ പുതിയ ഇൻഡസ്ട്രി ഹിറ്റായി മാറി. കേരളത്തിൽ ചിത്രം നൂറ്റിമുപ്പത് കോടിയിലധികം നേടിയതായി റിപ്പോർട്ടുകൾ പറയുന്നു.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ],
+      "duration": 14.268
+    },
+    {
+      "sentence_id": 10,
+      "text": "ഇനി അടുത്തതായി, റിലീസിന് ഒരുങ്ങുന്ന സിനിമകളുടെ അപ്ഡേറ്റുകളിലേക്ക്.",
+      "type": "section_intro",
+      "importance": 0.65,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 100,
+      "pause_after": 300,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഇനി അടുത്തതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "റിലീസിന് ഒരുങ്ങുന്ന സിനിമകളുടെ അപ്ഡേറ്റുകളിലേക്ക്.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 4.902
+    },
+    {
+      "sentence_id": 11,
+      "text": "ഒന്നാമതായി, സജിൻ ഗോപുവും നിഖില വിമലും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ധൂമകേതു’ സെപ്റ്റംബർ ഇരുപത്തിയഞ്ചിന് തിയേറ്ററുകളിലെത്തും. സുധി മാഡിസൺ സംവിധാനം ചെയ്യുന്ന ചിത്രത്തിന്റെ റിലീസ് നേരത്തെ സെപ്റ്റംബർ പതിനൊന്നിനായിരുന്നു തീരുമാനിച്ചിരുന്നത്, പിന്നീട് മാറ്റുകയായിരുന്നു.",
+      "type": "headline",
+      "importance": 0.95,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഒന്നാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "സജിൻ ഗോപുവും നിഖില വിമലും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ധൂമകേതു’ സെപ്റ്റംബർ ഇരുപത്തിയഞ്ചിന് തിയേറ്ററുകളിലെത്തും. സുധി മാഡിസൺ സംവിധാനം ചെയ്യുന്ന",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "ചിത്രത്തിന്റെ റിലീസ് നേരത്തെ സെപ്റ്റംബർ പതിനൊന്നിനായിരുന്നു തീരുമാനിച്ചിരുന്നത്,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 4,
+          "text": "പിന്നീട് മാറ്റുകയായിരുന്നു.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 15.228
+    },
+    {
+      "sentence_id": 12,
+      "text": "രണ്ടാമതായി, സംഗീത് പ്രതാപും ഷറഫുദ്ദീനും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ഇറ്റ്സ് എ മെഡിക്കൽ മിറക്കിൾ’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. ചിത്രത്തിന്റെ ഔദ്യോഗിക ട്രെയിലറും പുറത്തിറങ്ങി.",
+      "type": "headline",
+      "importance": 0.95,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "രണ്ടാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "സംഗീത് പ്രതാപും ഷറഫുദ്ദീനും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ഇറ്റ്സ് എ മെഡിക്കൽ മിറക്കിൾ’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. ചിത്രത്തിന്റെ ഔദ്യോഗിക ട്രെയിലറും പുറത്തിറങ്ങി.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 11.388
+    },
+    {
+      "sentence_id": 13,
+      "text": "മൂന്നാമതായി, വിഷ്ണു ഉണ്ണികൃഷ്ണൻ നായകനാകുന്ന ‘ഓട്ടംതുള്ളൽ’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. ജി. മാർത്താണ്ഡൻ സംവിധാനം ചെയ്യുന്ന ചിത്രത്തിന്റെ റിലീസ് നേരത്തെ പലതവണ മാറ്റിവെച്ചിരുന്നു.",
+      "type": "headline",
+      "importance": 0.95,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "മൂന്നാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "വിഷ്ണു ഉണ്ണികൃഷ്ണൻ നായകനാകുന്ന ‘ഓട്ടംതുള്ളൽ’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. ജി. മാർത്താണ്ഡൻ സംവിധാനം ചെയ്യുന്ന",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "ചിത്രത്തിന്റെ റിലീസ് നേരത്തെ പലതവണ മാറ്റിവെച്ചിരുന്നു.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 12.636
+    },
+    {
+      "sentence_id": 14,
+      "text": "നാലാമതായി, സൈജു കുറുപ്പ് നായകനാകുന്ന ‘ആരം’ സെപ്റ്റംബർ ഇരുപത്തിയഞ്ചിന് തിയേറ്ററുകളിലെത്തും. രാജേഷ് പരമേശ്വരൻ സംവിധാനം ചെയ്യുന്ന ഇൻവെസ്റ്റിഗേറ്റീവ് ക്രൈം ത്രില്ലറാണ് ചിത്രം.",
+      "type": "headline",
+      "importance": 0.95,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "നാലാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "സൈജു കുറുപ്പ് നായകനാകുന്ന ‘ആരം’ സെപ്റ്റംബർ ഇരുപത്തിയഞ്ചിന് തിയേറ്ററുകളിലെത്തും. രാജേഷ് പരമേശ്വരൻ സംവിധാനം ചെയ്യുന്ന",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "ഇൻവെസ്റ്റിഗേറ്റീവ് ക്രൈം ത്രില്ലറാണ് ചിത്രം.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 11.244
+    },
+    {
+      "sentence_id": 15,
+      "text": "അഞ്ചാമതായി, പ്രകാശ് വർമ്മയെ നായകനാക്കി രഞ്ജിത്ത് സംവിധാനം ചെയ്യുന്ന ‘ലോ ആൻഡ് ഓർഡർ’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. ചിത്രത്തിന്റെ പുതിയ ട്രെയിലറും പുറത്തിറങ്ങി, മമ്മൂട്ടിയുടെ അതിഥി വേഷത്തിനും ട്രെയിലറിൽ സൂചനയുണ്ട്.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "മമ്മൂട്ടി",
+        "മമ്മൂട്ടിയുടെ"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [
+          "മമ്മൂട്ടിയുടെ",
+          "മമ്മൂട്ടി"
+        ],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "അഞ്ചാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "പ്രകാശ് വർമ്മയെ നായകനാക്കി രഞ്ജിത്ത് സംവിധാനം ചെയ്യുന്ന",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "‘ലോ ആൻഡ് ഓർഡർ’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. ചിത്രത്തിന്റെ പുതിയ ട്രെയിലറും പുറത്തിറങ്ങി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 4,
+          "text": "മമ്മൂട്ടിയുടെ അതിഥി വേഷത്തിനും ട്രെയിലറിൽ സൂചനയുണ്ട്.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ],
+      "duration": 13.62
+    },
+    {
+      "sentence_id": 16,
+      "text": "ആറാമതായി, റൂപേഷ് പീതാംബരൻ സംവിധാനം ചെയ്ത് നായകനാകുന്ന ‘ഭാസ്കരാഭരണം’ സെപ്റ്റംബർ ഇരുപത്തിയഞ്ചിന് തിയേറ്ററുകളിലെത്തും. അജയ് പവിത്രനും സോണിക മീനാക്ഷിയും ചിത്രത്തിൽ പ്രധാന വേഷങ്ങളിലുണ്ട്.",
+      "type": "headline",
+      "importance": 0.95,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ആറാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "റൂപേഷ് പീതാംബരൻ സംവിധാനം ചെയ്ത് നായകനാകുന്ന ‘ഭാസ്കരാഭരണം’ സെപ്റ്റംബർ ഇരുപത്തിയഞ്ചിന് തിയേറ്ററുകളിലെത്തും. അജയ് പവിത്രനും സോണിക മീനാക്ഷിയും ചിത്രത്തിൽ പ്രധാന വേഷങ്ങളിലുണ്ട്.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 12.276
+    },
+    {
+      "sentence_id": 17,
+      "text": "ഏഴാമതായി, ബിജു മേനോൻ നായകനാകുന്ന ‘അവറാച്ചൻ ആൻഡ് സൺസ്’ ഒക്ടോബർ രണ്ടിന് തിയേറ്ററുകളിലെത്തും. നവാഗതനായ തമ്പിയാണ് ചിത്രം സംവിധാനം ചെയ്യുന്നത്.",
+      "type": "headline",
+      "importance": 0.95,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഏഴാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "ബിജു മേനോൻ നായകനാകുന്ന ‘അവറാച്ചൻ ആൻഡ് സൺസ്’ ഒക്ടോബർ രണ്ടിന് തിയേറ്ററുകളിലെത്തും. നവാഗതനായ തമ്പിയാണ് ചിത്രം സംവിധാനം ചെയ്യുന്നത്.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 10.116
+    },
+    {
+      "sentence_id": 18,
+      "text": "എട്ടാമതായി, മോഹൻലാലും ശോഭനയും പ്രധാന വേഷങ്ങളിലെത്തിയ ക്ലാസിക് ചിത്രം ‘തേന്മാവിൻ കൊമ്പത്ത്’ ഒക്ടോബർ ഒന്നിന് ഫോർകെ ഡോൾബി അറ്റ്മോസ് പതിപ്പിൽ വീണ്ടും തിയേറ്ററുകളിലെത്തും. പുനഃസംസ്കരിച്ച പതിപ്പിന്റെ റിലീസ് തീയതി പ്രഖ്യാപിച്ചു.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "പ്രഖ്യാപിച്ചു",
+        "മോഹൻലാലും"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [
+          "മോഹൻലാലും"
+        ],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": [
+          "പ്രഖ്യാപിച്ചു"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "എട്ടാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "മോഹൻലാലും ശോഭനയും പ്രധാന വേഷങ്ങളിലെത്തിയ ക്ലാസിക് ചിത്രം ‘തേന്മാവിൻ കൊമ്പത്ത്’ ഒക്ടോബർ ഒന്നിന് ഫോർകെ ഡോൾബി അറ്റ്മോസ് പതിപ്പിൽ വീണ്ടും തിയേറ്ററുകളിലെത്തും. പുനഃസംസ്കരിച്ച പതിപ്പിന്റെ റിലീസ് തീയതി പ്രഖ്യാപിച്ചു.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ],
+      "duration": 13.596
+    },
+    {
+      "sentence_id": 19,
+      "text": "ഇനി അടുത്തതായി, ഒടിടി റിലീസുകളുടെയും സ്ട്രീമിംഗ് അപ്ഡേറ്റുകളുടെയും വിശേഷങ്ങളിലേക്ക്.",
+      "type": "section_intro",
+      "importance": 0.65,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 100,
+      "pause_after": 300,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഇനി അടുത്തതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "ഒടിടി റിലീസുകളുടെയും സ്ട്രീമിംഗ് അപ്ഡേറ്റുകളുടെയും വിശേഷങ്ങളിലേക്ക്.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 5.718
+    },
+    {
+      "sentence_id": 20,
+      "text": "ഒന്നാമതായി, നാദിർഷ സംവിധാനം ചെയ്ത വിഷ്ണു ഉണ്ണികൃഷ്ണൻ ചിത്രം ‘മാജിക് മഷ്റൂംസ്’ സെപ്റ്റംബർ ഒൻപത് മുതൽ പ്രൈം വീഡിയോയിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. വിഷ്ണു ഉണ്ണികൃഷ്ണനും അക്ഷയ ഉദയകുമാറുമാണ് പ്രധാന വേഷങ്ങളിൽ.",
+      "type": "headline",
+      "importance": 0.95,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഒന്നാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "നാദിർഷ സംവിധാനം ചെയ്ത വിഷ്ണു ഉണ്ണികൃഷ്ണൻ ചിത്രം ‘മാജിക് മഷ്റൂംസ്’ സെപ്റ്റംബർ ഒൻപത് മുതൽ പ്രൈം വീഡിയോയിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. വിഷ്ണു ഉണ്ണികൃഷ്ണനും അക്ഷയ ഉദയകുമാറുമാണ് പ്രധാന വേഷങ്ങളിൽ.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 12.756
+    },
+    {
+      "sentence_id": 21,
+      "text": "രണ്ടാമതായി, ജോജു ജോർജിനെ നായകനാക്കി ഷാജി കൈലാസ് സംവിധാനം ചെയ്ത ‘വരവ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ സീ ഫൈവിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. ചിത്രത്തിൽ വാണി വിശ്വനാഥും മുരളി ഗോപിയും പ്രധാന വേഷങ്ങളിലുണ്ട്.",
+      "type": "headline",
+      "importance": 0.95,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "രണ്ടാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "ജോജു ജോർജിനെ നായകനാക്കി ഷാജി കൈലാസ് സംവിധാനം ചെയ്ത ‘വരവ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ സീ ഫൈവിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. ചിത്രത്തിൽ വാണി വിശ്വനാഥും മുരളി ഗോപിയും പ്രധാന വേഷങ്ങളിലുണ്ട്.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 13.212
+    },
+    {
+      "sentence_id": 22,
+      "text": "മൂന്നാമതായി, സൂര്യ നായകനായ ‘വിശ്വനാഥ് ആൻഡ് സൺസ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ നെറ്റ്ഫ്ലിക്സിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. മമിത ബൈജുവും ചിത്രത്തിലെ പ്രധാന വേഷത്തിലെത്തുന്നുണ്ട്.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "നെറ്റ്ഫ്ലിക്സിൽ",
+        "മമിത ബൈജു"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [
+          "മമിത ബൈജു"
+        ],
+        "directors": [],
+        "dates": [],
+        "ott": [
+          "നെറ്റ്ഫ്ലിക്സിൽ"
+        ],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "മൂന്നാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "സൂര്യ നായകനായ ‘വിശ്വനാഥ് ആൻഡ് സൺസ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ നെറ്റ്ഫ്ലിക്സിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. മമിത ബൈജുവും ചിത്രത്തിലെ പ്രധാന വേഷത്തിലെത്തുന്നുണ്ട്.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ],
+      "duration": 10.884
+    },
+    {
+      "sentence_id": 23,
+      "text": "നാലാമതായി, ഡെയ്ൻ ഡേവിസ് പ്രധാന വേഷത്തിലെത്തുന്ന ‘പ്രിൻസ് ഓഫ് മോളിവുഡ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ ജിയോ ഹോട്ട്സ്റ്റാറിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. ഷാനി ഖാദറാണ് പരമ്പരയുടെ രചനയും സംവിധാനവും നിർവഹിച്ചിരിക്കുന്നത്.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "ജിയോ ഹോട്ട്സ്റ്റാറിൽ"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [
+          "ജിയോ ഹോട്ട്സ്റ്റാറിൽ"
+        ],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "നാലാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "ഡെയ്ൻ ഡേവിസ് പ്രധാന വേഷത്തിലെത്തുന്ന ‘പ്രിൻസ് ഓഫ് മോളിവുഡ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ ജിയോ ഹോട്ട്സ്റ്റാറിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. ഷാനി ഖാദറാണ് പരമ്പരയുടെ രചനയും സംവിധാനവും നിർവഹിച്ചിരിക്കുന്നത്.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ],
+      "duration": 12.852
+    },
+    {
+      "sentence_id": 24,
+      "text": "അഞ്ചാമതായി, ധ്യാൻ ശ്രീനിവാസൻ പ്രധാന വേഷത്തിലെത്തുന്ന ‘വിവാഹ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ സൺ നെക്സ്റ്റിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. ബ്ലെസ്സൺ എൽസയാണ് ചിത്രം സംവിധാനം ചെയ്തത്.",
+      "type": "headline",
+      "importance": 0.95,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "അഞ്ചാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "ധ്യാൻ ശ്രീനിവാസൻ പ്രധാന വേഷത്തിലെത്തുന്ന ‘വിവാഹ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ സൺ നെക്സ്റ്റിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. ബ്ലെസ്സൺ എൽസയാണ് ചിത്രം സംവിധാനം ചെയ്തത്.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 10.86
+    },
+    {
+      "sentence_id": 25,
+      "text": "ആറാമതായി, വിസ്മയ മോഹൻലാൽ നായികയായ ‘തുടക്കം’ സെപ്റ്റംബർ പതിനെട്ട് മുതൽ ജിയോ ഹോട്ട്സ്റ്റാറിൽ സ്ട്രീമിംഗ് ആരംഭിക്കും. ജൂഡ് ആന്റണി ജോസഫ് സംവിധാനം ചെയ്ത ചിത്രത്തിൽ ആശിഷ് ജോ ആന്റണിയും പ്രധാന വേഷത്തിലെത്തുന്നു.",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "ജിയോ ഹോട്ട്സ്റ്റാറിൽ",
+        "വിസ്മയ മോഹൻലാൽ",
+        "ആശ",
+        "സ്ട്രീമിംഗ് ആരംഭിക്കും",
+        "തുടക്കം",
+        "മോഹൻലാൽ"
+      ],
+      "entities": {
+        "movies": [
+          "തുടക്കം",
+          "ആശ"
+        ],
+        "actors": [
+          "വിസ്മയ മോഹൻലാൽ",
+          "മോഹൻലാൽ"
+        ],
+        "directors": [],
+        "dates": [],
+        "ott": [
+          "ജിയോ ഹോട്ട്സ്റ്റാറിൽ"
+        ],
+        "announcements": [
+          "സ്ട്രീമിംഗ് ആരംഭിക്കും"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ആറാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "വിസ്മയ മോഹൻലാൽ നായികയായ ‘തുടക്കം’ സെപ്റ്റംബർ പതിനെട്ട് മുതൽ ജിയോ ഹോട്ട്സ്റ്റാറിൽ സ്ട്രീമിംഗ് ആരംഭിക്കും. ജൂഡ് ആന്റണി ജോസഫ് സംവിധാനം ചെയ്ത ചിത്രത്തിൽ ആശിഷ് ജോ ആന്റണിയും പ്രധാന വേഷത്തിലെത്തുന്നു.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ],
+      "duration": 13.404
+    },
+    {
+      "sentence_id": 26,
+      "text": "ഇന്നത്തെ മലയാള സിനിമയിലെ പ്രധാന അപ്ഡേറ്റുകൾ ഇത്രയുമാണ്. വീണ്ടും പുതിയ സിനിമാ വാർത്തകളുമായി കാണാം. എല്ലാവർക്കും നന്ദി.",
+      "type": "outro",
+      "importance": 0.85,
+      "speed": 1.08,
+      "energy_boost_db": 1.0,
+      "pause_before": 200,
+      "pause_after": 500,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഇന്നത്തെ മലയാള സിനിമയിലെ പ്രധാന അപ്ഡേറ്റുകൾ ഇത്രയുമാണ്. വീണ്ടും പുതിയ സിനിമാ വാർത്തകളുമായി കാണാം. എല്ലാവർക്കും നന്ദി.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ],
+      "duration": 9.374
+    }
+  ],
+  "topic_items": [
+    {
+      "section": "Movie Updates",
+      "section_slug": "movie_updates",
+      "topic_number": 1,
+      "source_row": 2,
+      "topic_text": "മമ്മൂട്ടിയുടെ എഴുപത്തിയഞ്ചാം പിറന്നാൾ ദിനത്തിൽ നിതീഷ് സഹദേവ് സംവിധാനം ചെയ്യുന്ന പുതിയ ചിത്രത്തിന് ‘മേള’ എന്ന പേര് പ്രഖ്യാപിച്ച് ഫസ്റ്റ് ലുക്ക് പുറത്തിറക്കി. ജൂലൈയിൽ ചിത്രീകരണം ആരംഭിച്ച സിനിമയിൽ മമ്മൂട്ടി വ്യത്യസ്തമായ ഗെറ്റപ്പിലാണ് എത്തുന്നത്.",
+      "image_urls": [
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-09-07%2Fqoyeyn8q%2FMammoottyMelafirstlook.jpg?auto=format%2Ccompress&fit=max&w=480",
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-08-24%2Fe3cpckk2%2Fbethlehemspoiler.jpg?auto=format%2Ccompress&fit=max&w=480",
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-08-24%2Fe3cpckk2%2Fbethlehemspoiler.jpg?auto=format%2Ccompress&fit=max&w=480"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_01\\image_01.jpg",
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_01\\image_02.jpg",
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_01\\image_03.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_01\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_01\\image_02.jpg",
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_01\\image_03.jpg"
+      ]
+    },
+    {
+      "section": "Movie Updates",
+      "section_slug": "movie_updates",
+      "topic_number": 2,
+      "source_row": 3,
+      "topic_text": "സംവിധായകൻ വിനയൻ ഒരുക്കുന്ന പുതിയ ഫാന്റസി ചിത്രത്തിന്റെ ചിത്രീകരണം ഒക്ടോബറിൽ ആരംഭിക്കും. സാഗർ സൂര്യയും ഗിന്നസ് പക്രുവും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ചിത്രത്തിൽ ഇരുന്നൂറോളം ഉയരം കുറഞ്ഞ കലാകാരന്മാരും ഭാഗമാകുമെന്ന് വിനയൻ വ്യക്തമാക്കി.",
+      "image_urls": [
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-09-12%2Fe40s25kb%2FVinayan.jpg?auto=format%2Ccompress&fit=max&w=480",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxGYuzs3G8LKr475x9QhdavSC2LJD2GluP23nmRS5eKA&s=10"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_02\\image_01.jpg",
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_02\\image_02.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_02\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_02\\image_02.jpg"
+      ]
+    },
+    {
+      "section": "Movie Updates",
+      "section_slug": "movie_updates",
+      "topic_number": 3,
+      "source_row": 4,
+      "topic_text": "നടി അമല പോൾ എം. പത്മകുമാർ സംവിധാനം ചെയ്യുന്ന പുതിയ ചിത്രത്തിൽ നായികയായി എത്തുന്നു. ചിത്രത്തിന്റെ പൂജയും സ്വിച്ചോൺ ചടങ്ങും പൂർത്തിയായി, എന്നാൽ സിനിമയുടെ പേരും കൂടുതൽ വിശദാംശങ്ങളും അണിയറപ്രവർത്തകർ ഇതുവരെ പ്രഖ്യാപിച്ചിട്ടില്ല.",
+      "image_urls": [
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-09-11%2Fv8gzh8n0%2FAmala-Paul.jpg?auto=format%2Ccompress&fit=max&w=480"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_03\\image_01.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_03\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_03\\image_01.jpg"
+      ]
+    },
+    {
+      "section": "Movie Updates",
+      "section_slug": "movie_updates",
+      "topic_number": 4,
+      "source_row": 5,
+      "topic_text": "ആന്റണി വർഗീസ് പെപ്പെ ആദ്യമായി കഥയെഴുതുന്ന ‘വിശുദ്ധ സെമിനാരി’ എന്ന പുതിയ ചിത്രത്തിൽ നായകനായും എത്തുന്നു. കിച്ചു ടെല്ലസാണ് ചിത്രത്തിന്റെ തിരക്കഥ ഒരുക്കുന്നത്.",
+      "image_urls": [
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-09-10%2F5tkosl17%2FAntony-Varghese-Pepe.jpg?auto=format%2Ccompress&fit=max&w=480"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_04\\image_01.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_04\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_04\\image_01.jpg"
+      ]
+    },
+    {
+      "section": "Movie Updates",
+      "section_slug": "movie_updates",
+      "topic_number": 5,
+      "source_row": 6,
+      "topic_text": "ബംഗാളി സിനിമകളിലൂടെ ശ്രദ്ധ നേടിയ നന്ദി മൂവീസ് മലയാള സിനിമയിലേക്ക് എത്തുന്നു. സൂരജ് സോമചന്ദ്രൻ സംവിധാനം ചെയ്യുന്ന ഹൊറർ ത്രില്ലറാണ് കമ്പനിയുടെ ആദ്യ മലയാള ചിത്രം.",
+      "image_urls": [
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-09-10%2Fucg1lcqx%2FPradeep-Kumar-Nandy.jpg?auto=format%2Ccompress&fit=max&w=480"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_05\\image_01.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_05\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_05\\image_01.jpg"
+      ]
+    },
+    {
+      "section": "Movie Updates",
+      "section_slug": "movie_updates",
+      "topic_number": 6,
+      "source_row": 7,
+      "topic_text": "മോഹൻലാലും ജൂഡ് ആന്റണി ജോസഫും ഒന്നിക്കുന്ന ‘എൽ 370’ ചിത്രത്തിന്റെ നിർമ്മാതാവായി ആഷിഖ് ഉസ്മാൻ എത്തുന്നു. മോഹൻലാലും ജൂഡും വീണ്ടും ഒരുമിക്കുന്ന ചിത്രമാണിത്.",
+      "image_urls": [
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-09-09%2F4w8y89vz%2FAshiq-Usman-Mohanlal-Jude-Anthany-Joseph-L-R.jpg?auto=format%2Ccompress&fit=max&w=480"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_06\\image_01.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_06\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_06\\image_01.jpg"
+      ]
+    },
+    {
+      "section": "Movie Updates",
+      "section_slug": "movie_updates",
+      "topic_number": 7,
+      "source_row": 8,
+      "topic_text": "നിവിൻ പോളിയും മമിത ബൈജുവും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ്’ കേരള ബോക്സ് ഓഫീസിൽ ഈ വർഷത്തെ പുതിയ ഇൻഡസ്ട്രി ഹിറ്റായി മാറി. കേരളത്തിൽ ചിത്രം നൂറ്റിമുപ്പത് കോടിയിലധികം നേടിയതായി റിപ്പോർട്ടുകൾ പറയുന്നു.",
+      "image_urls": [
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-08-24%2Fe3cpckk2%2Fbethlehemspoiler.jpg?auto=format%2Ccompress&fit=max&w=480"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_07\\image_01.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_07\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\movie_updates\\topic_07\\image_01.jpg"
+      ]
+    },
+    {
+      "section": "Release Updates",
+      "section_slug": "release_updates",
+      "topic_number": 1,
+      "source_row": 2,
+      "topic_text": "സജിൻ ഗോപുവും നിഖില വിമലും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ധൂമകേതു’ സെപ്റ്റംബർ ഇരുപത്തിയഞ്ചിന് തിയേറ്ററുകളിലെത്തും. സുധി മാഡിസൺ സംവിധാനം ചെയ്യുന്ന ചിത്രത്തിന്റെ റിലീസ് നേരത്തെ സെപ്റ്റംബർ പതിനൊന്നിനായിരുന്നു തീരുമാനിച്ചിരുന്നത്, പിന്നീട് മാറ്റുകയായിരുന്നു.",
+      "image_urls": [
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-09-08%2F8c9mjggo%2FDhoomakethuposter.jpg?auto=format%2Ccompress&fit=max&w=480"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_01\\image_01.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_01\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_01\\image_01.jpg"
+      ]
+    },
+    {
+      "section": "Release Updates",
+      "section_slug": "release_updates",
+      "topic_number": 2,
+      "source_row": 3,
+      "topic_text": "സംഗീത് പ്രതാപും ഷറഫുദ്ദീനും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ഇറ്റ്സ് എ മെഡിക്കൽ മിറക്കിൾ’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. ചിത്രത്തിന്റെ ഔദ്യോഗിക ട്രെയിലറും പുറത്തിറങ്ങി.",
+      "image_urls": [
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-09-10%2F0ewgpq3y%2FIts-a-Medical-Miracle-Sangeeth-Prathap.png?auto=format%2Ccompress&fit=max&w=480"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_02\\image_01.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_02\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_02\\image_01.jpg"
+      ]
+    },
+    {
+      "section": "Release Updates",
+      "section_slug": "release_updates",
+      "topic_number": 3,
+      "source_row": 4,
+      "topic_text": "വിഷ്ണു ഉണ്ണികൃഷ്ണൻ നായകനാകുന്ന ‘ഓട്ടംതുള്ളൽ’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. ജി. മാർത്താണ്ഡൻ സംവിധാനം ചെയ്യുന്ന ചിത്രത്തിന്റെ റിലീസ് നേരത്തെ പലതവണ മാറ്റിവെച്ചിരുന്നു.",
+      "image_urls": [
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-08-25%2Ffpnfdwcg%2Fcinemaexpress2026-07-05sby7feprVishnuunnikrishnanottamthullal.avif?auto=format%2Ccompress&fit=max&w=480"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_03\\image_01.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_03\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_03\\image_01.jpg"
+      ]
+    },
+    {
+      "section": "Release Updates",
+      "section_slug": "release_updates",
+      "topic_number": 4,
+      "source_row": 5,
+      "topic_text": "സൈജു കുറുപ്പ് നായകനാകുന്ന ‘ആരം’ സെപ്റ്റംബർ ഇരുപത്തിയഞ്ചിന് തിയേറ്ററുകളിലെത്തും. രാജേഷ് പരമേശ്വരൻ സംവിധാനം ചെയ്യുന്ന ഇൻവെസ്റ്റിഗേറ്റീവ് ക്രൈം ത്രില്ലറാണ് ചിത്രം.",
+      "image_urls": [
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-09-02%2Fxnr4859d%2FSaiju-Kurup-in-Aaram.jpg?auto=format%2Ccompress&fit=max&w=480"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_04\\image_01.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_04\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_04\\image_01.jpg"
+      ]
+    },
+    {
+      "section": "Release Updates",
+      "section_slug": "release_updates",
+      "topic_number": 5,
+      "source_row": 6,
+      "topic_text": "പ്രകാശ് വർമ്മയെ നായകനാക്കി രഞ്ജിത്ത് സംവിധാനം ചെയ്യുന്ന ‘ലോ ആൻഡ് ഓർഡർ’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. ചിത്രത്തിന്റെ പുതിയ ട്രെയിലറും പുറത്തിറങ്ങി, മമ്മൂട്ടിയുടെ അതിഥി വേഷത്തിനും ട്രെയിലറിൽ സൂചനയുണ്ട്.",
+      "image_urls": [
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-09-12%2F8lxmh6o5%2Fshots-from-law-and-order-trailer.jpg?auto=format%2Ccompress&fit=max&w=480"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_05\\image_01.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_05\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_05\\image_01.jpg"
+      ]
+    },
+    {
+      "section": "Release Updates",
+      "section_slug": "release_updates",
+      "topic_number": 6,
+      "source_row": 7,
+      "topic_text": "റൂപേഷ് പീതാംബരൻ സംവിധാനം ചെയ്ത് നായകനാകുന്ന ‘ഭാസ്കരാഭരണം’ സെപ്റ്റംബർ ഇരുപത്തിയഞ്ചിന് തിയേറ്ററുകളിലെത്തും. അജയ് പവിത്രനും സോണിക മീനാക്ഷിയും ചിത്രത്തിൽ പ്രധാന വേഷങ്ങളിലുണ്ട്.",
+      "image_urls": [
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-08-22%2Flj9qnqua%2FBhaskarabharanam-poster.jpg?auto=format%2Ccompress&fit=max&w=480"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_06\\image_01.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_06\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_06\\image_01.jpg"
+      ]
+    },
+    {
+      "section": "Release Updates",
+      "section_slug": "release_updates",
+      "topic_number": 7,
+      "source_row": 8,
+      "topic_text": "ബിജു മേനോൻ നായകനാകുന്ന ‘അവറാച്ചൻ ആൻഡ് സൺസ്’ ഒക്ടോബർ രണ്ടിന് തിയേറ്ററുകളിലെത്തും. നവാഗതനായ തമ്പിയാണ് ചിത്രം സംവിധാനം ചെയ്യുന്നത്.",
+      "image_urls": [
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-09-11%2Fgz6elxc8%2FAvarachan.jpg?auto=format%2Ccompress&fit=max&w=480"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_07\\image_01.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_07\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_07\\image_01.jpg"
+      ]
+    },
+    {
+      "section": "Release Updates",
+      "section_slug": "release_updates",
+      "topic_number": 8,
+      "source_row": 9,
+      "topic_text": "മോഹൻലാലും ശോഭനയും പ്രധാന വേഷങ്ങളിലെത്തിയ ക്ലാസിക് ചിത്രം ‘തേന്മാവിൻ കൊമ്പത്ത്’ ഒക്ടോബർ ഒന്നിന് ഫോർകെ ഡോൾബി അറ്റ്മോസ് പതിപ്പിൽ വീണ്ടും തിയേറ്ററുകളിലെത്തും. പുനഃസംസ്കരിച്ച പതിപ്പിന്റെ റിലീസ് തീയതി പ്രഖ്യാപിച്ചു.",
+      "image_urls": [
+        "https://cf-images.assettype.com/cinemaexpress%2F2026-09-12%2Fq3ws8ozt%2FThenmavin-Kombath.jpg?auto=format%2Ccompress&fit=max&w=480"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_08\\image_01.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_08\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\release_updates\\topic_08\\image_01.jpg"
+      ]
+    },
+    {
+      "section": "OTT Updates",
+      "section_slug": "ott_updates",
+      "topic_number": 1,
+      "source_row": 2,
+      "topic_text": "നാദിർഷ സംവിധാനം ചെയ്ത വിഷ്ണു ഉണ്ണികൃഷ്ണൻ ചിത്രം ‘മാജിക് മഷ്റൂംസ്’ സെപ്റ്റംബർ ഒൻപത് മുതൽ പ്രൈം വീഡിയോയിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. വിഷ്ണു ഉണ്ണികൃഷ്ണനും അക്ഷയ ഉദയകുമാറുമാണ് പ്രധാന വേഷങ്ങളിൽ.",
+      "image_urls": [
+        "https://www.keralatv.in/media/2026/01/Magic-Mushrooms-Movie-720x720.jpg"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\ott_updates\\topic_01\\image_01.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\ott_updates\\topic_01\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\ott_updates\\topic_01\\image_01.jpg"
+      ]
+    },
+    {
+      "section": "OTT Updates",
+      "section_slug": "ott_updates",
+      "topic_number": 2,
+      "source_row": 3,
+      "topic_text": "ജോജു ജോർജിനെ നായകനാക്കി ഷാജി കൈലാസ് സംവിധാനം ചെയ്ത ‘വരവ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ സീ ഫൈവിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. ചിത്രത്തിൽ വാണി വിശ്വനാഥും മുരളി ഗോപിയും പ്രധാന വേഷങ്ങളിലുണ്ട്.",
+      "image_urls": [
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYkJHKN6Jq-HZdGSKeU1bzgg98qiMF-ikLOlsLImGm1A&s=10"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\ott_updates\\topic_02\\image_01.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\ott_updates\\topic_02\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\ott_updates\\topic_02\\image_01.jpg"
+      ]
+    },
+    {
+      "section": "OTT Updates",
+      "section_slug": "ott_updates",
+      "topic_number": 3,
+      "source_row": 4,
+      "topic_text": "സൂര്യ നായകനായ ‘വിശ്വനാഥ് ആൻഡ് സൺസ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ നെറ്റ്ഫ്ലിക്സിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. മമിത ബൈജുവും ചിത്രത്തിലെ പ്രധാന വേഷത്തിലെത്തുന്നുണ്ട്.",
+      "image_urls": [
+        "https://o4tsjj6hn4noqurq.public.blob.vercel-storage.com/films/vishwanath-and-sons/poster-1786473228381-PAFV6MTiw4dvGptv5KVpB19oYk6e65.jpg"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\ott_updates\\topic_03\\image_01.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\ott_updates\\topic_03\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\ott_updates\\topic_03\\image_01.jpg"
+      ]
+    },
+    {
+      "section": "OTT Updates",
+      "section_slug": "ott_updates",
+      "topic_number": 4,
+      "source_row": 5,
+      "topic_text": "ഡെയ്ൻ ഡേവിസ് പ്രധാന വേഷത്തിലെത്തുന്ന ‘പ്രിൻസ് ഓഫ് മോളിവുഡ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ ജിയോ ഹോട്ട്സ്റ്റാറിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. ഷാനി ഖാദറാണ് പരമ്പരയുടെ രചനയും സംവിധാനവും നിർവഹിച്ചിരിക്കുന്നത്.",
+      "image_urls": [
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzdCpSHMbndIHjW64MLJDL_19BY0Qeq_-QgKC4EQX_bg&s=10"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\ott_updates\\topic_04\\image_01.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\ott_updates\\topic_04\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\ott_updates\\topic_04\\image_01.jpg"
+      ]
+    },
+    {
+      "section": "OTT Updates",
+      "section_slug": "ott_updates",
+      "topic_number": 5,
+      "source_row": 6,
+      "topic_text": "ധ്യാൻ ശ്രീനിവാസൻ പ്രധാന വേഷത്തിലെത്തുന്ന ‘വിവാഹ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ സൺ നെക്സ്റ്റിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. ബ്ലെസ്സൺ എൽസയാണ് ചിത്രം സംവിധാനം ചെയ്തത്.",
+      "image_urls": [
+        "https://cdn.district.in/movies-assets/images/cinema/Vivaah%20%281%29-4c149470-8fd1-11f1-b89c-e9aa7554b46c.jpg"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\ott_updates\\topic_05\\image_01.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\ott_updates\\topic_05\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\ott_updates\\topic_05\\image_01.jpg"
+      ]
+    },
+    {
+      "section": "OTT Updates",
+      "section_slug": "ott_updates",
+      "topic_number": 6,
+      "source_row": 7,
+      "topic_text": "വിസ്മയ മോഹൻലാൽ നായികയായ ‘തുടക്കം’ സെപ്റ്റംബർ പതിനെട്ട് മുതൽ ജിയോ ഹോട്ട്സ്റ്റാറിൽ സ്ട്രീമിംഗ് ആരംഭിക്കും. ജൂഡ് ആന്റണി ജോസഫ് സംവിധാനം ചെയ്ത ചിത്രത്തിൽ ആശിഷ് ജോ ആന്റണിയും പ്രധാന വേഷത്തിലെത്തുന്നു.",
+      "image_urls": [
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLM03LFoA9UEYo2JWDx6hP28ZSoHwGXeQyN0iZBwdN_w&s=10"
+      ],
+      "image_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\ott_updates\\topic_06\\image_01.jpg"
+      ],
+      "movie_poster_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\ott_updates\\topic_06\\image_01.jpg",
+      "actor_photo_paths": [
+        "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\topic_images\\ott_updates\\topic_06\\image_01.jpg"
+      ]
+    }
+  ],
+  "parsed_sections": {
+    "Movie Updates": 7,
+    "Release Updates": 8,
+    "OTT Updates": 6
+  }
+}

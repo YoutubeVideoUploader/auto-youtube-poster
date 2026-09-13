@@ -1,0 +1,1541 @@
+{
+  "presenter_version": "3.3",
+  "audio_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\Malayalam_Movie_News_Presenter_xtts_v2_v3.3.wav",
+  "qa_report_path": "C:\\Users\\HP\\OneDrive\\Desktop\\VISHNU\\Auto Youtube Poster\\malayalam_voice_engine\\outputs\\Malayalam_Movie_News_Presenter_xtts_v2_v3.3_qa_report.json",
+  "overall_quality_score": 99.7,
+  "total_segments": 33,
+  "script_metadata": [
+    {
+      "sentence_id": 1,
+      "text": "നമസ്കാരം! മലയാള സിനിമയിലെ ഏറ്റവും പുതിയ അപ്ഡേറ്റുകളിലേക്ക് എല്ലാവർക്കും സ്വാഗതം.",
+      "type": "intro",
+      "importance": 0.85,
+      "speed": 1.08,
+      "energy_boost_db": 1.0,
+      "pause_before": 100,
+      "pause_after": 400,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "നമസ്കാരം!",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "മലയാള സിനിമയിലെ ഏറ്റവും പുതിയ അപ്ഡേറ്റുകളിലേക്ക് എല്ലാവർക്കും സ്വാഗതം.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 2,
+      "text": "ഒന്നാമതായി, മോഹൻലാലിന്റെ 370-ാം ചിത്രം പ്രഖ്യാപിച്ചു! ജൂഡ് ആന്റണി ജോസഫും അഷിഖ് ഉസ്മാനും ഒന്നിക്കുന്നു!",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "370-ാം",
+        "അഷിഖ് ഉസ്മാനും",
+        "മോഹൻലാലിന്റെ",
+        "പ്രഖ്യാപിച്ചു"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [
+          "മോഹൻലാലിന്റെ"
+        ],
+        "directors": [
+          "അഷിഖ് ഉസ്മാനും"
+        ],
+        "dates": [
+          "370-ാം"
+        ],
+        "ott": [],
+        "announcements": [
+          "പ്രഖ്യാപിച്ചു"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഒന്നാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "മോഹൻലാലിന്റെ 370-ാം ചിത്രം പ്രഖ്യാപിച്ചു!",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "ജൂഡ് ആന്റണി ജോസഫും അഷിഖ് ഉസ്മാനും ഒന്നിക്കുന്ന",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 4,
+          "text": "ു!",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 3,
+      "text": "മോഹൻലാലും ജൂഡ് ആന്റണി ജോസഫും വീണ്ടും ഒന്നിക്കുന്ന പുതിയ ചിത്രത്തിന് വലിയ പ്രതീക്ഷകളാണ് ലഭിക്കുന്നത്.",
+      "type": "important",
+      "importance": 0.96,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 150,
+      "pause_after": 350,
+      "emphasis": [
+        "മോഹൻലാലും"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [
+          "മോഹൻലാലും"
+        ],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "മോഹൻലാലും ജൂഡ് ആന്റണി ജോസഫും വീണ്ടും ഒന്നിക്കുന്ന",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "പുതിയ ചിത്രത്തിന് വലിയ പ്രതീക്ഷകളാണ് ലഭിക്കുന്നത്.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 4,
+      "text": "ചിത്രത്തിന്റെ നിർമ്മാണം അഷിഖ് ഉസ്മാൻ നിർവ്വഹിക്കുന്നു. മോഹൻലാലിന്റെ 370-ാമത്തെ ചിത്രമായാണ് ഇത് അറിയപ്പെടുന്നത്. ജൂഡ് ആന്റണി ജോസഫും മോഹൻലാലും ഒന്നിക്കുന്ന രണ്ടാമത്തെ ചിത്രമാണിത്. ചിത്രത്തിന്റെ കൂടുതൽ വിവരങ്ങൾ ഉടൻ പുറത്തുവരുമെന്നാണ് റിപ്പോർട്ടുകൾ.",
+      "type": "detail",
+      "importance": 0.77,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 100,
+      "pause_after": 300,
+      "emphasis": [
+        "മോഹൻലാലിന്റെ",
+        "മോഹൻലാലും",
+        "അഷിഖ് ഉസ്മാൻ"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [
+          "മോഹൻലാലിന്റെ",
+          "മോഹൻലാലും"
+        ],
+        "directors": [
+          "അഷിഖ് ഉസ്മാൻ"
+        ],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ചിത്രത്തിന്റെ നിർമ്മാണം അഷിഖ് ഉസ്മാൻ നിർവ്വഹിക്കുന്നു. മോഹൻലാലിന്റെ 370-ാമത്തെ ചിത്രമായാണ് ഇത് അറിയപ്പെടുന്നത്. ജൂഡ് ആന്റണി ജോസഫും മോഹൻലാലും ഒന്നിക്കുന്ന",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "രണ്ടാമത്തെ ചിത്രമാണിത്. ചിത്രത്തിന്റെ കൂടുതൽ വിവരങ്ങൾ ഉടൻ പുറത്തുവരുമെന്നാണ് റിപ്പോർട്ടുകൾ.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 5,
+      "text": "ഇനി അടുത്ത പ്രധാന വാർത്തയിലേക്ക് വരാം.",
+      "type": "transition",
+      "importance": 0.7,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 150,
+      "pause_after": 400,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഇനി അടുത്ത പ്രധാന വാർത്തയിലേക്ക് വരാം.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 6,
+      "text": "രണ്ടാമതായി, സംവൃത സുനിൽ തിരിച്ചെത്തുന്നു! ദിലീഷ് പോത്തനും അൽഫോൺസ് പുത്രനും ഒപ്പം പുതിയ ചിത്രം!",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "ദിലീഷ് പോത്തനും",
+        "സംവൃത സുനിൽ",
+        "അൽഫോൺസ് പുത്രനും",
+        "തിരിച്ചെത്തുന്നു"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [
+          "ദിലീഷ് പോത്തനും",
+          "സംവൃത സുനിൽ"
+        ],
+        "directors": [
+          "അൽഫോൺസ് പുത്രനും"
+        ],
+        "dates": [],
+        "ott": [],
+        "announcements": [
+          "തിരിച്ചെത്തുന്നു"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "രണ്ടാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "സംവൃത സുനിൽ തിരിച്ചെത്തുന്നു!",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "ദിലീഷ് പോത്തനും അൽഫോൺസ് പുത്രനും ഒപ്പം പുതിയ ചിത്രം!",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 7,
+      "text": "നീണ്ട ഇടവേളയ്ക്ക് ശേഷം സംവൃത സുനിൽ മലയാള സിനിമയിലേക്ക് തിരിച്ചെത്തുകയാണ്.",
+      "type": "important",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 150,
+      "pause_after": 350,
+      "emphasis": [
+        "സംവൃത സുനിൽ",
+        "തിരിച്ചെത്തുകയാണ്"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [
+          "സംവൃത സുനിൽ"
+        ],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": [
+          "തിരിച്ചെത്തുകയാണ്"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "നീണ്ട ഇടവേളയ്ക്ക് ശേഷം സംവൃത സുനിൽ മലയാള സിനിമയിലേക്ക് തിരിച്ചെത്തുകയാണ്.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 8,
+      "text": "ഷാഹിദ് അറഫാത്ത് സംവിധാനം ചെയ്യുന്ന പുതിയ ചിത്രത്തിലാണ് സംവൃത സുനിൽ പ്രധാന വേഷത്തിലെത്തുന്നത്. ദിലീഷ് പോത്തനും ചിത്രത്തിലുണ്ട്. അൽഫോൺസ് പുത്രനും ചിത്രത്തിന്റെ ഭാഗമാകുന്നു. ചിത്രത്തിന്റെ ഷൂട്ടിംഗ് ആരംഭിച്ചു കഴിഞ്ഞു.",
+      "type": "detail",
+      "importance": 0.82,
+      "speed": 1.08,
+      "energy_boost_db": 1.0,
+      "pause_before": 100,
+      "pause_after": 300,
+      "emphasis": [
+        "ദിലീഷ് പോത്തനും",
+        "സംവൃത സുനിൽ",
+        "ഷാഹിദ് അറഫാത്ത്",
+        "അൽഫോൺസ് പുത്രനും"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [
+          "ദിലീഷ് പോത്തനും",
+          "സംവൃത സുനിൽ"
+        ],
+        "directors": [
+          "അൽഫോൺസ് പുത്രനും",
+          "ഷാഹിദ് അറഫാത്ത്"
+        ],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഷാഹിദ് അറഫാത്ത് സംവിധാനം ചെയ്യുന്ന",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "പുതിയ ചിത്രത്തിലാണ് സംവൃത സുനിൽ പ്രധാന വേഷത്തിലെത്തുന്നത്. ദിലീഷ് പോത്തനും ചിത്രത്തിലുണ്ട്. അൽഫോൺസ് പുത്രനും ചിത്രത്തിന്റെ ഭാഗമാകുന്നു. ചിത്രത്തിന്റെ ഷൂട്ടിംഗ് ആരംഭിച്ചു കഴിഞ്ഞു.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 9,
+      "text": "ഇനി മൂന്നാമത്തെ പ്രധാന അപ്ഡേറ്റ്.",
+      "type": "transition",
+      "importance": 0.7,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 150,
+      "pause_after": 400,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഇനി മൂന്നാമത്തെ പ്രധാന അപ്ഡേറ്റ്.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 10,
+      "text": "മൂന്നാമതായി, മമ്മൂട്ടിയുടെ കിടിലൻ പുതിയ ലുക്ക്! മേള ഫസ്റ്റ് ലുക്ക് പുറത്ത്!",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "മമ്മൂട്ടി",
+        "ഫസ്റ്റ് ലുക്ക്",
+        "മേള",
+        "മമ്മൂട്ടിയുടെ"
+      ],
+      "entities": {
+        "movies": [
+          "മേള"
+        ],
+        "actors": [
+          "മമ്മൂട്ടിയുടെ",
+          "മമ്മൂട്ടി"
+        ],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": [
+          "ഫസ്റ്റ് ലുക്ക്"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "മൂന്നാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "മമ്മൂട്ടിയുടെ കിടിലൻ പുതിയ ലുക്ക്!",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "മേള ഫസ്റ്റ് ലുക്ക് പുറത്ത്!",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 11,
+      "text": "മമ്മൂട്ടിയുടെ 75-ാം ജന്മദിനത്തോടനുബന്ധിച്ച് പുതിയ ചിത്രമായ മേളയുടെ ടൈറ്റിലും ഫസ്റ്റ് ലുക്കും പുറത്തിറങ്ങി.",
+      "type": "important",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 150,
+      "pause_after": 350,
+      "emphasis": [
+        "മേള",
+        "മേളയുടെ",
+        "മമ്മൂട്ടി",
+        "75-ാം",
+        "മമ്മൂട്ടിയുടെ"
+      ],
+      "entities": {
+        "movies": [
+          "മേളയുടെ",
+          "മേള"
+        ],
+        "actors": [
+          "മമ്മൂട്ടിയുടെ",
+          "മമ്മൂട്ടി"
+        ],
+        "directors": [],
+        "dates": [
+          "75-ാം"
+        ],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "മമ്മൂട്ടിയുടെ 75-ാം ജന്മദിനത്തോടനുബന്ധിച്ച് പുതിയ ചിത്രമായ മേളയുടെ ടൈറ്റിലും ഫസ്റ്റ് ലുക്കും പുറത്തിറങ്ങി.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 12,
+      "text": "സംവിധാനം നിതീഷ് സഹദേവ്. തിരക്കഥ നിതീഷ് സഹദേവ്, അനുരാജ് ഒ.ബി. നിർമ്മാണം മമ്മൂട്ടി കമ്പനി. ഛായാഗ്രഹണം ജിംഷി ഖാലിദ്. നിലവിൽ കാരൈക്കുടിയിലാണ് ചിത്രീകരണം നടക്കുന്നത്. ഫസ്റ്റ് ലുക്കിലെ മമ്മൂട്ടിയുടെ പുതിയ ലുക്കിന് മികച്ച പ്രതികരണമാണ് ലഭിക്കുന്നത്.",
+      "type": "detail",
+      "importance": 0.92,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 100,
+      "pause_after": 300,
+      "emphasis": [
+        "നിതീഷ് സഹദേവ്",
+        "മമ്മൂട്ടി",
+        "മമ്മൂട്ടി കമ്പനി",
+        "അനുരാജ് ഒ.ബി.",
+        "മമ്മൂട്ടിയുടെ",
+        "ജിംഷി ഖാലിദ്"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [
+          "മമ്മൂട്ടിയുടെ",
+          "മമ്മൂട്ടി"
+        ],
+        "directors": [
+          "മമ്മൂട്ടി കമ്പനി",
+          "നിതീഷ് സഹദേവ്",
+          "അനുരാജ് ഒ.ബി.",
+          "ജിംഷി ഖാലിദ്"
+        ],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "സംവിധാനം നിതീഷ് സഹദേവ്. തിരക്കഥ നിതീഷ് സഹദേവ്,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "അനുരാജ് ഒ.ബി. നിർമ്മാണം മമ്മൂട്ടി കമ്പനി. ഛായാഗ്രഹണം ജിംഷി ഖാലിദ്. നിലവിൽ കാരൈക്കുടിയിലാണ് ചിത്രീകരണം നടക്കുന്നത്. ഫസ്റ്റ് ലുക്കിലെ മമ്മൂട്ടിയുടെ പുതിയ ലുക്കിന് മികച്ച പ്രതികരണമാണ് ലഭിക്കുന്നത്.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 13,
+      "text": "ഇനി അടുത്ത തരംഗമായ വാർത്തയിലേക്ക്.",
+      "type": "transition",
+      "importance": 0.7,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 150,
+      "pause_after": 400,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഇനി അടുത്ത തരംഗമായ വാർത്തയിലേക്ക്.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 14,
+      "text": "നാലാമതായി, ആശ ട്രെയിലർ പുറത്ത്! ഉർവശിയും ജോജു ജോർജും നേർക്കുനേർ!",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "ആശ",
+        "ഉർവശി",
+        "ട്രെയിലർ പുറത്ത്"
+      ],
+      "entities": {
+        "movies": [
+          "ആശ"
+        ],
+        "actors": [
+          "ഉർവശി"
+        ],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": [
+          "ട്രെയിലർ പുറത്ത്"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "നാലാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "ആശ ട്രെയിലർ പുറത്ത്!",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "ഉർവശിയും ജോജു ജോർജും നേർക്കുനേർ!",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 15,
+      "text": "ഉർവശി, ഐശ്വര്യ ലക്ഷ്മി, ജോജു ജോർജ്, വിജയരാഘവൻ എന്നിവർ പ്രധാന വേഷത്തിലെത്തുന്ന ആശ ചിത്രത്തിന്റെ ട്രെയിലർ പുറത്തിറങ്ങി.",
+      "type": "important",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 150,
+      "pause_after": 350,
+      "emphasis": [
+        "ട്രെയിലർ പുറത്തിറങ്ങി",
+        "ഐശ്വര്യ ലക്ഷ്മി",
+        "ഉർവശി",
+        "വിജയരാഘവൻ",
+        "ജോജു ജോർജ്",
+        "ആശ"
+      ],
+      "entities": {
+        "movies": [
+          "ആശ"
+        ],
+        "actors": [
+          "ഐശ്വര്യ ലക്ഷ്മി",
+          "ജോജു ജോർജ്",
+          "വിജയരാഘവൻ",
+          "ഉർവശി"
+        ],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": [
+          "ട്രെയിലർ പുറത്തിറങ്ങി"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഉർവശി,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "ഐശ്വര്യ ലക്ഷ്മി,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "ജോജു ജോർജ്,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 4,
+          "text": "വിജയരാഘവൻ എന്നിവർ പ്രധാന വേഷത്തിലെത്തുന്ന ആശ ചിത്രത്തിന്റെ ട്രെയിലർ പുറത്തിറങ്ങി.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 16,
+      "text": "സംവിധാനം സഫർ സനൽ. മിസ്റ്ററി ത്രില്ലർ വിഭാഗത്തിൽപ്പെടുന്ന ചിത്രം സെപ്റ്റംബർ 11ന് തിയേറ്ററുകളിൽ എത്തും. റോഡ് അപകടത്തെ തുടർന്നുണ്ടാകുന്ന നിയമപോരാട്ടമാണ് ട്രെയിലറിൽ പ്രധാനമായും കാണിക്കുന്നത്.",
+      "type": "detail",
+      "importance": 0.76,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 100,
+      "pause_after": 300,
+      "emphasis": [
+        "തിയേറ്ററുകളിൽ എത്തും",
+        "സെപ്റ്റംബർ 11",
+        "സഫർ സനൽ"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [
+          "സഫർ സനൽ"
+        ],
+        "dates": [
+          "സെപ്റ്റംബർ 11"
+        ],
+        "ott": [],
+        "announcements": [
+          "തിയേറ്ററുകളിൽ എത്തും"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "സംവിധാനം സഫർ സനൽ. മിസ്റ്ററി ത്രില്ലർ വിഭാഗത്തിൽപ്പെടുന്ന ചിത്രം സെപ്റ്റംബർ 11ന് തിയേറ്ററുകളിൽ എത്തും. റോഡ് അപകടത്തെ തുടർന്നുണ്ടാകുന്ന നിയമപോരാട്ടമാണ് ട്രെയിലറിൽ പ്രധാനമായും കാണിക്കുന്നത്.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 17,
+      "text": "ഇനി അഞ്ചാമത്തെ സിനിമ വാർത്ത.",
+      "type": "transition",
+      "importance": 0.7,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 150,
+      "pause_after": 400,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഇനി അഞ്ചാമത്തെ സിനിമ വാർത്ത.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 18,
+      "text": "അഞ്ചാമതായി, റോഷൻ മാത്യു + ദിവ്യ പ്രഭ! ഡോൺ പാലത്തറയുടെ പുതിയ ചിത്രം പ്രഖ്യാപിച്ചു!",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "ദിവ്യ പ്രഭ",
+        "റോഷൻ മാത്യു",
+        "ഡോൺ പാലത്തറ",
+        "പ്രഖ്യാപിച്ചു"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [
+          "റോഷൻ മാത്യു",
+          "ദിവ്യ പ്രഭ"
+        ],
+        "directors": [
+          "ഡോൺ പാലത്തറ"
+        ],
+        "dates": [],
+        "ott": [],
+        "announcements": [
+          "പ്രഖ്യാപിച്ചു"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "അഞ്ചാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "റോഷൻ മാത്യു + ദിവ്യ പ്രഭ!",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "ഡോൺ പാലത്തറയുടെ പുതിയ ചിത്രം പ്രഖ്യാപിച്ചു!",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 19,
+      "text": "സംവിധായകൻ ഡോൺ പാലത്തറയുടെ പുതിയ ചിത്രം ഏകദേശം ദി അൺസെർട്ടന്റി പ്രിൻസിപ്പിൾ പ്രഖ്യാപിച്ചു.",
+      "type": "important",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 150,
+      "pause_after": 350,
+      "emphasis": [
+        "പ്രഖ്യാപിച്ചു",
+        "ഏകദേശം ദി അൺസെർട്ടന്റി പ്രിൻസിപ്പിൾ",
+        "ഡോൺ പാലത്തറ",
+        "ഏകദേശം"
+      ],
+      "entities": {
+        "movies": [
+          "ഏകദേശം ദി അൺസെർട്ടന്റി പ്രിൻസിപ്പിൾ",
+          "ഏകദേശം"
+        ],
+        "actors": [],
+        "directors": [
+          "ഡോൺ പാലത്തറ"
+        ],
+        "dates": [],
+        "ott": [],
+        "announcements": [
+          "പ്രഖ്യാപിച്ചു"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "സംവിധായകൻ ഡോൺ പാലത്തറയുടെ പുതിയ ചിത്രം ഏകദേശം ദി അൺസെർട്ടന്റി പ്രിൻസിപ്പിൾ പ്രഖ്യാപിച്ചു.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 20,
+      "text": "ചിത്രത്തിൽ റോഷൻ മാത്യു, ദിവ്യ പ്രഭ, ജിതിൻ പുത്തഞ്ചേരി, വിനയ് ഫോർട്ട്, അർഷ ബൈജു, മഹേഷ് നാരായണൻ, ശാന്തി ബാലചന്ദ്രൻ എന്നിവർ അണിനിരക്കുന്നു. കൊച്ചിയുടെ പശ്ചാത്തലത്തിൽ സിനിമാരംഗത്ത് കരിയർ കെട്ടിപ്പടുക്കാൻ ശ്രമിക്കുന്ന യുവാക്കളുടെ ജീവിതമാണ് പ്രമേയം.",
+      "type": "detail",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 100,
+      "pause_after": 300,
+      "emphasis": [
+        "മഹേഷ് നാരായണൻ",
+        "റോഷൻ മാത്യു",
+        "ശാന്തി ബാലചന്ദ്രൻ",
+        "അർഷ ബൈജു",
+        "വിനയ് ഫോർട്ട്",
+        "ദിവ്യ പ്രഭ",
+        "ജിതിൻ പുത്തഞ്ചേരി"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [
+          "ജിതിൻ പുത്തഞ്ചേരി",
+          "ശാന്തി ബാലചന്ദ്രൻ",
+          "വിനയ് ഫോർട്ട്",
+          "മഹേഷ് നാരായണൻ",
+          "റോഷൻ മാത്യു",
+          "ദിവ്യ പ്രഭ",
+          "അർഷ ബൈജു"
+        ],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ചിത്രത്തിൽ റോഷൻ മാത്യു,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "ദിവ്യ പ്രഭ,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "ജിതിൻ പുത്തഞ്ചേരി,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 4,
+          "text": "വിനയ് ഫോർട്ട്,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 5,
+          "text": "അർഷ ബൈജു,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 6,
+          "text": "മഹേഷ് നാരായണൻ,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 7,
+          "text": "ശാന്തി ബാലചന്ദ്രൻ എന്നിവർ അണിനിരക്കുന്നു. കൊച്ചിയുടെ പശ്ചാത്തലത്തിൽ സിനിമാരംഗത്ത് കരിയർ കെട്ടിപ്പടുക്കാൻ ശ്രമിക്കുന്ന യുവാക്കളുടെ ജീവിതമാണ് പ്രമേയം.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 21,
+      "text": "ഇനി ആറാമത്തെ മാസ് അപ്ഡേറ്റ്.",
+      "type": "transition",
+      "importance": 0.7,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 150,
+      "pause_after": 400,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഇനി ആറാമത്തെ മാസ് അപ്ഡേറ്റ്.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 22,
+      "text": "ആറാമതായി, ഐ ആം ഗെയിം ട്രെയിലർ പുറത്ത്! ദുൽഖർ സൽമാന്റെ മാസ് തിരിച്ചുവരവ്!",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "ഐ ആം ഗെയിം",
+        "ട്രെയിലർ പുറത്ത്",
+        "ദുൽഖർ സൽമാന്റെ"
+      ],
+      "entities": {
+        "movies": [
+          "ഐ ആം ഗെയിം"
+        ],
+        "actors": [
+          "ദുൽഖർ സൽമാന്റെ"
+        ],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": [
+          "ട്രെയിലർ പുറത്ത്"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ആറാമതായി,",
+          "pause_after_ms": 120,
+          "contains_entity": false,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "ഐ ആം ഗെയിം ട്രെയിലർ പുറത്ത്!",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "ദുൽഖർ സൽമാന്റെ മാസ് തിരിച്ചുവരവ്!",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 23,
+      "text": "ദുൽഖർ സൽമാൻ നായകനായ ഐ ആം ഗെയിം സെപ്റ്റംബർ 3ന് തിയേറ്ററുകളിലെത്തി.",
+      "type": "important",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 150,
+      "pause_after": 350,
+      "emphasis": [
+        "ഐ ആം ഗെയിം",
+        "സെപ്റ്റംബർ 3",
+        "തിയേറ്ററുകളിലെത്തി",
+        "ദുൽഖർ സൽമാൻ"
+      ],
+      "entities": {
+        "movies": [
+          "ഐ ആം ഗെയിം"
+        ],
+        "actors": [
+          "ദുൽഖർ സൽമാൻ"
+        ],
+        "directors": [],
+        "dates": [
+          "സെപ്റ്റംബർ 3"
+        ],
+        "ott": [],
+        "announcements": [
+          "തിയേറ്ററുകളിലെത്തി"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ദുൽഖർ സൽമാൻ നായകനായ ഐ ആം ഗെയിം സെപ്റ്റംബർ 3ന് തിയേറ്ററുകളിലെത്തി.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 24,
+      "text": "സംവിധാനം നഹാസ് ഹിദായത്ത്. ക്രൈം ആക്ഷൻ ത്രില്ലർ വിഭാഗത്തിൽപ്പെടുന്ന ചിത്രം അഞ്ച് ഭാഷകളിലാണ് റിലീസ് ചെയ്തത്. ചിത്രത്തിന്റെ റിലീസിന് മുന്നോടിയായി അഡ്വാൻസ് ബുക്കിംഗിലും മികച്ച പ്രതികരണമാണ് ലഭിച്ചത്.",
+      "type": "detail",
+      "importance": 0.65,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 100,
+      "pause_after": 300,
+      "emphasis": [
+        "നഹാസ് ഹിദായത്ത്"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [
+          "നഹാസ് ഹിദായത്ത്"
+        ],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "സംവിധാനം നഹാസ് ഹിദായത്ത്. ക്രൈം ആക്ഷൻ ത്രില്ലർ വിഭാഗത്തിൽപ്പെടുന്ന ചിത്രം അഞ്ച് ഭാഷകളിലാണ് റിലീസ് ചെയ്തത്. ചിത്രത്തിന്റെ റിലീസിന് മുന്നോടിയായി അഡ്വാൻസ് ബുക്കിംഗിലും മികച്ച പ്രതികരണമാണ് ലഭിച്ചത്.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 25,
+      "text": "ഇനി ഉടൻ റിലീസാകുന്ന മലയാള സിനിമകളുടെ കലണ്ടർ പരിശോധിക്കാം.",
+      "type": "transition",
+      "importance": 0.7,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 150,
+      "pause_after": 400,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഇനി ഉടൻ റിലീസാകുന്ന മലയാള സിനിമകളുടെ കലണ്ടർ പരിശോധിക്കാം.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 26,
+      "text": "സെപ്റ്റംബർ 10ന് രന്താൾ. സെപ്റ്റംബർ 11ന് ആശ, പ്രഥമ ദൃഷ്ട്യാ കുറ്റക്കാർ, അമാനുഷികം, ഡോണ്ട് ട്രബിൾ ദി ട്രബിൾ, മണ്ടാടി എന്നിവ തിയേറ്ററുകളിലെത്തും. സെപ്റ്റംബർ 18ന് ബൊളഗോലം, വരാഹം, നിംറോഡ്, വൺ പ്രിൻസസ് സ്ട്രീറ്റ്, ക്രെഡിറ്റ് സ്കോർ, അവരൻ എന്നിവ റിലീസ് ചെയ്യും.",
+      "type": "detail",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 100,
+      "pause_after": 300,
+      "emphasis": [
+        "വൺ പ്രിൻസസ് സ്ട്രീറ്റ്",
+        "നിംറോഡ്",
+        "സെപ്റ്റംബർ 18",
+        "അമാനുഷികം",
+        "മണ്ടാടി",
+        "സെപ്റ്റംബർ 10",
+        "വരാഹം",
+        "സെപ്റ്റംബർ 11",
+        "രന്താൾ",
+        "ക്രെഡിറ്റ് സ്കോർ",
+        "ബൊളഗോലം",
+        "പ്രഥമ ദൃഷ്ട്യാ കുറ്റക്കാർ",
+        "ഡോണ്ട് ട്രബിൾ ദി ട്രബിൾ",
+        "ആശ"
+      ],
+      "entities": {
+        "movies": [
+          "പ്രഥമ ദൃഷ്ട്യാ കുറ്റക്കാർ",
+          "ഡോണ്ട് ട്രബിൾ ദി ട്രബിൾ",
+          "വൺ പ്രിൻസസ് സ്ട്രീറ്റ്",
+          "ക്രെഡിറ്റ് സ്കോർ",
+          "അമാനുഷികം",
+          "മണ്ടാടി",
+          "ബൊളഗോലം",
+          "നിംറോഡ്",
+          "രന്താൾ",
+          "വരാഹം",
+          "ആശ"
+        ],
+        "actors": [],
+        "directors": [],
+        "dates": [
+          "സെപ്റ്റംബർ 18",
+          "സെപ്റ്റംബർ 10",
+          "സെപ്റ്റംബർ 11"
+        ],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "സെപ്റ്റംബർ 10ന് രന്താൾ. സെപ്റ്റംബർ 11ന് ആശ,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "പ്രഥമ ദൃഷ്ട്യാ കുറ്റക്കാർ,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "അമാനുഷികം,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 4,
+          "text": "ഡോണ്ട് ട്രബിൾ ദി ട്രബിൾ,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 5,
+          "text": "മണ്ടാടി എന്നിവ തിയേറ്ററുകളിലെത്തും. സെപ്റ്റംബർ 18ന് ബൊളഗോലം,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 6,
+          "text": "വരാഹം,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 7,
+          "text": "നിംറോഡ്,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 8,
+          "text": "വൺ പ്രിൻസസ് സ്ട്രീറ്റ്,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 9,
+          "text": "ക്രെഡിറ്റ് സ്കോർ,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 10,
+          "text": "അവരൻ എന്നിവ റിലീസ് ചെയ്യും.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 27,
+      "text": "ഇനി ഒ.ടി.ടി വാർത്തയിലേക്ക് വരാം.",
+      "type": "transition",
+      "importance": 0.76,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 150,
+      "pause_after": 400,
+      "emphasis": [
+        "ഒ.ടി.ടി"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [
+          "ഒ.ടി.ടി"
+        ],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഇനി ഒ.ടി.ടി വാർത്തയിലേക്ക് വരാം.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 28,
+      "text": "തുടക്കം ഒ.ടി.ടിയിലേക്ക്!",
+      "type": "headline",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 450,
+      "emphasis": [
+        "തുടക്കം",
+        "ഒ.ടി.ടി"
+      ],
+      "entities": {
+        "movies": [
+          "തുടക്കം"
+        ],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [
+          "ഒ.ടി.ടി"
+        ],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "തുടക്കം ഒ.ടി.ടിയിലേക്ക്!",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 29,
+      "text": "മോഹൻലാലിന്റെ മകൾ വിസ്മയ മോഹൻലാൽ പ്രധാന വേഷത്തിലെത്തിയ തുടക്കം ഉടൻ ഒ.ടി.ടിയിൽ എത്തും.",
+      "type": "important",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 150,
+      "pause_after": 350,
+      "emphasis": [
+        "വിസ്മയ മോഹൻലാൽ",
+        "ഒ.ടി.ടി",
+        "ഒ.ടി.ടിയിൽ",
+        "തുടക്കം",
+        "മോഹൻലാലിന്റെ",
+        "മോഹൻലാൽ"
+      ],
+      "entities": {
+        "movies": [
+          "തുടക്കം"
+        ],
+        "actors": [
+          "വിസ്മയ മോഹൻലാൽ",
+          "മോഹൻലാലിന്റെ",
+          "മോഹൻലാൽ"
+        ],
+        "directors": [],
+        "dates": [],
+        "ott": [
+          "ഒ.ടി.ടിയിൽ",
+          "ഒ.ടി.ടി"
+        ],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "മോഹൻലാലിന്റെ മകൾ വിസ്മയ മോഹൻലാൽ പ്രധാന വേഷത്തിലെത്തിയ തുടക്കം ഉടൻ ഒ.ടി.ടിയിൽ എത്തും.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 30,
+      "text": "റിപ്പോർട്ടുകൾ പ്രകാരം സെപ്റ്റംബർ 18ന് ജിയോ ഹോട്ട്സ്റ്റാറിൽ ചിത്രം സ്ട്രീമിംഗ് ആരംഭിക്കും.",
+      "type": "detail",
+      "importance": 0.77,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 100,
+      "pause_after": 300,
+      "emphasis": [
+        "സെപ്റ്റംബർ 18",
+        "സ്ട്രീമിംഗ് ആരംഭിക്കും",
+        "ജിയോ ഹോട്ട്സ്റ്റാറിൽ"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [
+          "സെപ്റ്റംബർ 18"
+        ],
+        "ott": [
+          "ജിയോ ഹോട്ട്സ്റ്റാറിൽ"
+        ],
+        "announcements": [
+          "സ്ട്രീമിംഗ് ആരംഭിക്കും"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "റിപ്പോർട്ടുകൾ പ്രകാരം സെപ്റ്റംബർ 18ന് ജിയോ ഹോട്ട്സ്റ്റാറിൽ ചിത്രം സ്ട്രീമിംഗ് ആരംഭിക്കും.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 31,
+      "text": "ഇനി മറ്റ് പ്രധാന സിനിമാ വാർത്തകൾ ഒറ്റനോട്ടത്തിൽ.",
+      "type": "transition",
+      "importance": 0.7,
+      "speed": 1.08,
+      "energy_boost_db": 0.0,
+      "pause_before": 150,
+      "pause_after": 400,
+      "emphasis": [],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": []
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "ഇനി മറ്റ് പ്രധാന സിനിമാ വാർത്തകൾ ഒറ്റനോട്ടത്തിൽ.",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 32,
+      "text": "മോഹൻലാലിന്റെ അതി മനോഹരം ചിത്രീകരണം പൂർത്തിയാക്കി. ഡബ്ബിംഗ് ജോലികൾ പുരോഗമിക്കുകയാണ്. ഡിസംബർ 24, 2026 ആണ് റിലീസ് തീയതി. പാതിരാക്കുറുക്കൻ ചിത്രത്തിലൂടെ ജഗദീഷ്, മുകേഷ്, സിദ്ദിഖ്, അശോകൻ എന്നിവർ 16 വർഷത്തിന് ശേഷം വീണ്ടും ഒന്നിക്കുന്നു. മമ്മൂട്ടി – ധനുഷ് ചിത്രം ഓം ചാപ്റ്റർ വൺ പുതിയ ലുക്ക് പുറത്തുവന്നു. പ്രഥമ ദൃഷ്ട്യാ കുറ്റക്കാർ സെപ്റ്റംബർ 11ന് തിയേറ്ററുകളിലെത്തും.",
+      "type": "detail",
+      "importance": 1.0,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 100,
+      "pause_after": 300,
+      "emphasis": [
+        "സിദ്ദിഖ്",
+        "ചിത്രീകരണം പൂർത്തിയാക്കി",
+        "ജഗദീഷ്",
+        "അതി മനോഹരം",
+        "മമ്മൂട്ടി",
+        "മുകേഷ്",
+        "ധനുഷ്",
+        "സെപ്റ്റംബർ 11",
+        "പാതിരാക്കുറുക്കൻ",
+        "ഡിസംബർ 24, 2026",
+        "പ്രഥമ ദൃഷ്ട്യാ കുറ്റക്കാർ",
+        "മോഹൻലാലിന്റെ",
+        "ഓം ചാപ്റ്റർ വൺ",
+        "അശോകൻ",
+        "16 വർഷത്തിന് ശേഷം"
+      ],
+      "entities": {
+        "movies": [
+          "പ്രഥമ ദൃഷ്ട്യാ കുറ്റക്കാർ",
+          "പാതിരാക്കുറുക്കൻ",
+          "ഓം ചാപ്റ്റർ വൺ",
+          "അതി മനോഹരം"
+        ],
+        "actors": [
+          "മോഹൻലാലിന്റെ",
+          "മമ്മൂട്ടി",
+          "സിദ്ദിഖ്",
+          "ജഗദീഷ്",
+          "മുകേഷ്",
+          "അശോകൻ",
+          "ധനുഷ്"
+        ],
+        "directors": [],
+        "dates": [
+          "ഡിസംബർ 24, 2026",
+          "സെപ്റ്റംബർ 11",
+          "16 വർഷത്തിന് ശേഷം"
+        ],
+        "ott": [],
+        "announcements": [
+          "ചിത്രീകരണം പൂർത്തിയാക്കി"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "മോഹൻലാലിന്റെ അതി മനോഹരം ചിത്രീകരണം പൂർത്തിയാക്കി. ഡബ്ബിംഗ് ജോലികൾ പുരോഗമിക്കുകയാണ്. ഡിസംബർ 24,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "2026 ആണ് റിലീസ് തീയതി. പാതിരാക്കുറുക്കൻ ചിത്രത്തിലൂടെ ജഗദീഷ്,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 3,
+          "text": "മുകേഷ്,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 4,
+          "text": "സിദ്ദിഖ്,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 5,
+          "text": "അശോകൻ എന്നിവർ 16 വർഷത്തിന് ശേഷം വീണ്ടും ഒന്നിക്കുന്ന",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 6,
+          "text": "ു. മമ്മൂട്ടി–",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 7,
+          "text": "ധനുഷ് ചിത്രം ഓം ചാപ്റ്റർ വൺ പുതിയ ലുക്ക് പുറത്തുവന്നു. പ്രഥമ ദൃഷ്ട്യാ കുറ്റക്കാർ സെപ്റ്റംബർ 11ന് തിയേറ്ററുകളിലെത്തും.",
+          "pause_after_ms": 300,
+          "contains_entity": true,
+          "contour": "falling"
+        }
+      ]
+    },
+    {
+      "sentence_id": 33,
+      "text": "കൂടുതൽ സിനിമ വിശേഷങ്ങൾക്കായി ചാനൽ സബ്സ്ക്രൈബ് ചെയ്യൂ. അടുത്ത വാർത്തകളുമായി വീണ്ടും കാണാം, നന്ദി!",
+      "type": "outro",
+      "importance": 0.9,
+      "speed": 1.08,
+      "energy_boost_db": 1.5,
+      "pause_before": 200,
+      "pause_after": 500,
+      "emphasis": [
+        "സബ്സ്ക്രൈബ് ചെയ്യൂ"
+      ],
+      "entities": {
+        "movies": [],
+        "actors": [],
+        "directors": [],
+        "dates": [],
+        "ott": [],
+        "announcements": [
+          "സബ്സ്ക്രൈബ് ചെയ്യൂ"
+        ]
+      },
+      "phrases": [
+        {
+          "phrase_id": 1,
+          "text": "കൂടുതൽ സിനിമ വിശേഷങ്ങൾക്കായി ചാനൽ സബ്സ്ക്രൈബ് ചെയ്യൂ. അടുത്ത വാർത്തകളുമായി വീണ്ടും കാണാം,",
+          "pause_after_ms": 150,
+          "contains_entity": true,
+          "contour": "rising_flat"
+        },
+        {
+          "phrase_id": 2,
+          "text": "നന്ദി!",
+          "pause_after_ms": 300,
+          "contains_entity": false,
+          "contour": "falling"
+        }
+      ]
+    }
+  ]
+}

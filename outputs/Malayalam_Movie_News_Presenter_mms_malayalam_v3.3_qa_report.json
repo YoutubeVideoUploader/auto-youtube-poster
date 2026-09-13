@@ -1,0 +1,382 @@
+{
+  "engine_version": "3.3",
+  "overall_quality_score": 99.7,
+  "metrics": {
+    "word_accuracy": "100.0%",
+    "syllable_preservation": "99.0%",
+    "pronunciation_score": "99.5%",
+    "sentence_completeness": "100.0%",
+    "audio_integrity": "100.0%"
+  },
+  "summary": {
+    "total_sentences": 33,
+    "passed_sentences": 33,
+    "failed_sentences": 0
+  },
+  "attention_words": [],
+  "detailed_sentence_qa": [
+    {
+      "is_passed": true,
+      "text": "നമസ്കാരം! മലയാള സിനിമയിലെ ഏറ്റവും പുതിയ അപ്ഡേറ്റുകളിലേക്ക് എല്ലാവർക്കും സ്വാഗതമ്.",
+      "duration_sec": 4.96,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ഒന്നാമതായി, മോഹൻലാലിന്റെ മൂന്നൂറ്റി ഏഴുപതാം ചിത്രം പ്രഖ്യാപിച്ചു! ജൂഡ് ആന്റണി ജോസഫും അഷിഖ് ഉസ്മാനും ഒന്നിക്കുന്നു!",
+      "duration_sec": 7.7,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "മോഹൻലാലും ജൂഡ് ആന്റണി ജോസഫും വീണ്ടും ഒന്നിക്കുന്ന പുതിയ ചിത്രത്തിന് വലിയ പ്രതീക്ഷകളാണ് ലഭിക്കുന്നത്.",
+      "duration_sec": 7.57,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ചിത്രത്തിന്റെ നിർമ്മാണം അഷിഖ് ഉസ്മാൻ നിർവ്വഹിക്കുന്നു. മോഹൻലാലിന്റെ മൂന്നൂറ്റി ഏഴുപതാമത്തെ ചിത്രമായാണ് ഇത് അറിയപ്പെടുന്നത്. ജൂഡ് ആന്റണി ജോസഫും മോഹൻലാലും ഒന്നിക്കുന്ന രണ്ടാമത്തെ ചിത്രമാണിത്. ചിത്രത്തിന്റെ കൂടുതൽ വിവരങ്ങൾ ഉടൻ പുറത്തുവരുമെന്നാണ് റിപ്പോർട്ടുകൾ.",
+      "duration_sec": 17.82,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ഇനി അടുത്ത പ്രധാന വാർത്തയിലേക്ക് വരാം.",
+      "duration_sec": 2.77,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "രണ്ടാമതായി, സംവൃത സുനിൽ തിരിച്ചെത്തുന്നു! ദിലീഷ് പോത്തനും അൽഫോൺസ് പുത്രനും ഒപ്പം പുതിയ ചിത്രം!",
+      "duration_sec": 6.49,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "നീണ്ട ഇടവേളയ്ക്ക് ശേഷം സംവൃത സുനിൽ മലയാള സിനിമയിലേക്ക് തിരിച്ചെത്തുകയാണ്.",
+      "duration_sec": 5.13,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ഷാഹിദ് അറഫാത്ത് സംവിധാനം ചെയ്യുന്ന പുതിയ ചിത്രത്തിലാണ് സംവൃത സുനിൽ പ്രധാന വേഷത്തിലെത്തുന്നത്. ദിലീഷ് പോത്തനും ചിത്രത്തിലുണ്ട്. അൽഫോൺസ് പുത്രനും ചിത്രത്തിന്റെ ഭാഗമാകുന്നു. ചിത്രത്തിന്റെ ഷൂട്ടിംഗ് ആരംഭിച്ചു കഴിഞ്ഞു.",
+      "duration_sec": 14.02,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ഇനി മൂന്നാമത്തെ പ്രധാന അപ്ഡേറ്റ്.",
+      "duration_sec": 2.33,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 92.3,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "മൂന്നാമതായി, മമ്മൂട്ടിയുടെ കിടിലൻ പുതിയ ലുക്ക്! മേള ഫസ്റ്റ് ലുക്ക് പുറത്ത്!",
+      "duration_sec": 5.7,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "മമ്മൂട്ടിയുടെ ഏഴുപത്തിഅഞ്ചാം ജന്മദിനത്തോടനുബന്ധിച്ച് പുതിയ ചിത്രമായ മേളയുടെ ടൈറ്റിലും ഫസ്റ്റ് ലുക്കും പുറത്തിറങ്ങി.",
+      "duration_sec": 9.02,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "സംവിധാനം നിതീഷ് സഹദേവ്. തിരക്കഥ നിതീഷ് സഹദേവ്, അനുരാജ് ഒ.ബി. നിർമ്മാണം മമ്മൂട്ടി കമ്പനി. ഛായാഗ്രഹണം ജിംഷി ഖാലിദ്. നിലവിൽ കാരൈക്കുടിയിലാണ് ചിത്രീകരണമ് നടക്കുന്നത്. ഫസ്റ്റ് ലുക്കിലെ മമ്മൂട്ടിയുടെ പുതിയ ലുക്കിന് മികച്ച പ്രതികരണമാണ് ലഭിക്കുന്നത്.",
+      "duration_sec": 17.01,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ഇനി അടുത്ത തരംഗമായ വാർത്തയിലേക്ക്.",
+      "duration_sec": 2.62,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "നാലാമതായി, ആശ ട്രെയിലർ പുറത്ത്! ഉർവശിയും ജോജു ജോർജും നേർക്കുനേർ!",
+      "duration_sec": 4.52,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ഉർവശി, ഐശ്വര്യ ലക്ഷ്മി, ജോജു ജോർജ്, വിജയരാഘവൻ എന്നിവർ പ്രധാന വേഷത്തിലെത്തുന്ന ആശ ചിത്രത്തിന്റെ ട്രെയിലർ പുറത്തിറങ്ങി.",
+      "duration_sec": 8.52,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "സംവിധാനം സഫർ സനൽ. മിസ്റ്ററി ത്രില്ലർ വിഭാഗത്തിൽപ്പെടുന്ന ചിത്രം സെപ്റ്റംബർ പതിനൊന്നിന് തിയേറ്ററുകളിൽ എത്തുമ്. റോഡ് അപകടത്തെ തുടർന്നുണ്ടാകുന്ന നിയമപോരാട്ടമാണ് ട്രെയിലറിൽ പ്രധാനമായും കാണിക്കുന്നത്.",
+      "duration_sec": 15.14,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 97.6,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ഇനി അഞ്ചാമത്തെ സിനിമ വാർത്ത.",
+      "duration_sec": 2.19,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "അഞ്ചാമതായി, റോഷൻ മാത്യു + ദിവ്യ പ്രഭ! ഡോൺ പാലത്തറയുടെ പുതിയ ചിത്രം പ്രഖ്യാപിച്ചു!",
+      "duration_sec": 6.99,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "സംവിധായകൻ ഡോൺ പാലത്തറയുടെ പുതിയ ചിത്രം ഏകദേശം ദി അൺസെർട്ടന്റി പ്രിൻസിപ്പിൾ പ്രഖ്യാപിച്ചു.",
+      "duration_sec": 6.82,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ചിത്രത്തിൽ റോഷൻ മാത്യു, ദിവ്യ പ്രഭ, ജിതിൻ പുത്തഞ്ചേരി, വിനയ് ഫോർട്ട്, അർഷ ബൈജു, മഹേഷ് നാരായണൻ, ശാന്തി ബാലചന്ദ്രൻ എന്നിവർ അണിനിരക്കുന്നു. കൊച്ചിയുടെ പശ്ചാത്തലത്തിൽ സിനിമാരംഗത്ത് കരിയർ കെട്ടിപ്പടുക്കാൻ ശ്രമിക്കുന്ന യുവാക്കളുടെ ജീവിതമാണ് പ്രമേയം.",
+      "duration_sec": 17.69,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ഇനി ആറാമത്തെ മാസ് അപ്ഡേറ്റ്.",
+      "duration_sec": 2.15,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 91.7,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ആറാമതായി, ഐ ആം ഗെയിം ട്രെയിലർ പുറത്ത്! ദുൽഖർ സൽമാന്റെ മാസ് തിരിച്ചുവരവ്!",
+      "duration_sec": 6.62,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ദുൽഖർ സൽമാൻ നായകനായ ഐ ആം ഗെയിം സെപ്റ്റംബർ മൂന്നിന് തിയേറ്ററുകളിലെത്തി.",
+      "duration_sec": 6.12,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 94.3,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "സംവിധാനം നഹാസ് ഹിദായത്ത്. ക്രൈം ആക്ഷൻ ത്രില്ലർ വിഭാഗത്തിൽപ്പെടുന്ന ചിത്രം അഞ്ച് ഭാഷകളിലാണ് റിലീസ് ചെയ്തത്. ചിത്രത്തിന്റെ റിലീസിന് മുന്നോടിയായി അഡ്വാൻസ് ബുക്കിംഗിലും മികച്ച പ്രതികരണമാണ് ലഭിച്ചത്.",
+      "duration_sec": 13.69,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ഇനി ഉടൻ റിലീസാകുന്ന മലയാള സിനിമകളുടെ കലണ്ടർ പരിശോധിക്കാം.",
+      "duration_sec": 5.47,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "സെപ്റ്റംബർ പത്തിന് രന്താൾ. സെപ്റ്റംബർ പതിനൊന്നിന് ആശ, പ്രഥമ ദൃഷ്ട്യാ കുറ്റക്കാർ, അമാനുഷികം, ഡോണ്ട് ട്രബിൾ ദി ട്രബിൾ, മണ്ടാടി എന്നിവ തിയേറ്ററുകളിലെത്തും. സെപ്റ്റംബർ പതിനെട്ടിന് ബൊളഗോലം, വരാഹം, നിംറോഡ്, വൺ പ്രിൻസസ് സ്ട്രീറ്റ്, ക്രെഡിറ്റ് സ്കോർ, അവരൻ എന്നിവ റിലീസ് ചെയ്യും.",
+      "duration_sec": 18.62,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 97.9,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ഇനി ഒ.ടി.ടി വാർത്തയിലേക്ക് വരാം.",
+      "duration_sec": 2.08,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "തുടക്കമ് ഒ.ടി.ടിയിലേക്ക്!",
+      "duration_sec": 1.93,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "മോഹൻലാലിന്റെ മകൾ വിസ്മയ മോഹൻലാൽ പ്രധാന വേഷത്തിലെത്തിയ തുടക്കമ് ഉടൻ ഒ.ടി.ടിയിൽ എത്തുമ്.",
+      "duration_sec": 6.56,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "റിപ്പോർട്ടുകൾ പ്രകാരം സെപ്റ്റംബർ പതിനെട്ടിന് ജിയോ ഹോട്ട്സ്റ്റാറിൽ ചിത്രം സ്ട്രീമിംഗ് ആരംഭിക്കും.",
+      "duration_sec": 5.82,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 94.9,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ഇനി മറ്റ് പ്രധാന സിനിമാ വാർത്തകൾ ഒറ്റനോട്ടത്തിൽ.",
+      "duration_sec": 3.3,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "മോഹൻലാലിന്റെ അതി മനോഹരം ചിത്രീകരണമ് പൂർത്തിയാക്കി. ഡബ്ബിംഗ് ജോലികൾ പുരോഗമിക്കുകയാണ്. ഡിസംബർ ഇരുപത്തിനാല്, രണ്ട് ആയിരത്തി ഇരുപത്തിആറ് ആണ് റിലീസ് തീയതി. പാതിരാക്കുറുക്കൻ ചിത്രത്തിലൂടെ ജഗദീഷ്, മുകേഷ്, സിദ്ദിഖ്, അശോകൻ എന്നിവർ പതിനാറ് വർഷത്തിന് ശേഷം വീണ്ടും ഒന്നിക്കുന്നു. മമ്മൂട്ടി, ധനുഷ് ചിത്രം ഓം ചാപ്റ്റർ വൺ പുതിയ ലുക്ക് പുറത്തുവന്നു. പ്രഥമ ദൃഷ്ട്യാ കുറ്റക്കാർ സെപ്റ്റംബർ പതിനൊന്നിന് തിയേറ്ററുകളിലെത്തും.",
+      "duration_sec": 30.65,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 98.8,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "കൂടുതൽ സിനിമ വിശേഷങ്ങൾക്കായി ചാനൽ സബ്സ്ക്രൈബ് ചെയ്യൂ. അടുത്ത വാർത്തകളുമായി വീണ്ടും കാണാം, നന്ദി!",
+      "duration_sec": 6.0,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    }
+  ]
+}

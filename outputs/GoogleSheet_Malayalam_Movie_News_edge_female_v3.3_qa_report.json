@@ -1,0 +1,118 @@
+{
+  "engine_version": "3.3",
+  "overall_quality_score": 99.9,
+  "metrics": {
+    "word_accuracy": "100.0%",
+    "syllable_preservation": "99.7%",
+    "pronunciation_score": "99.8%",
+    "sentence_completeness": "100.0%",
+    "audio_integrity": "100.0%"
+  },
+  "summary": {
+    "total_sentences": 9,
+    "passed_sentences": 9,
+    "failed_sentences": 0
+  },
+  "attention_words": [],
+  "detailed_sentence_qa": [
+    {
+      "is_passed": true,
+      "text": "നമസ്കാരം! മലയാള സിനിമയിലെ ഏറ്റവും പുതിയ അപ്ഡേറ്റുകളിലേക്ക് എല്ലാവർക്കും സ്വാഗതമ്.",
+      "duration_sec": 6.45,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ഒന്നാമതായി, വരവ് ഇന്ന് മുതൽ ഒടിടിയിൽ കാണാം. ജോജു ജോർജിനെ നായകനാക്കി ഷാജി കൈലാസ് സംവിധാനം ചെയ്ത ചിത്രം സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ സീ ഫൈവ്ലാണ് സ്ട്രീമിംഗ് ആരംഭിച്ചിരിക്കുന്നത്.",
+      "duration_sec": 11.75,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 97.3,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "അടുത്തത്,",
+      "duration_sec": 1.51,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "രണ്ടാമതായി, ബെത്ലഹേം കുടുംബ യൂണിറ്റ് ബോക്സ് ഓഫീസിൽ മികച്ച പ്രകടനം തുടരുകയാണ്. ഇരുപത്തിഒന്നാം ദിവസം ചിത്രം ഇന്ത്യയിൽ നിന്ന് രണ്ട് ദശാംശം മൂന്ന് പൂജ്യം കോടി രൂപ നേടിയതായും ആകെ ഇന്ത്യ നെറ്റ് കളക്ഷൻ നൂറ്റി മുപ്പത്തിഅഞ്ച് ദശാംശം നാല് അഞ്ച് കോടി രൂപയിലെത്തിയതായും റിപ്പോർട്ടുകൾ.",
+      "duration_sec": 16.65,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "അടുത്തത്,",
+      "duration_sec": 1.51,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "മൂന്നാമതായി, നിവിൻ പോളിയുടെ എൻ.പി. അൻപത്തൊന്ന്ൽ കന്നഡ താരം രുക്മിണി വസന്തും എത്തുന്നു. മലയാള സിനിമയിലേക്കുള്ള രുക്മിണിയുടെ അരങ്ങേറ്റം കൂടിയാണിത്. നിവിൻ പോളി മൈസൂർപാക്ക് നൽകി താരത്തെ ചിത്രത്തിലേക്ക് സ്വാഗതമ് ചെയ്തതും ശ്രദ്ധ നേടിയിരുന്നു.",
+      "duration_sec": 15.74,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "അടുത്തത്,",
+      "duration_sec": 1.51,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "നാലാമതായി, സൂര്യ നായകനായ വിശ്വനാഥ് ആൻഡ് സൺസ് ഇന്ന് മുതൽ നെറ്റ്ഫ്ലിക്സിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. മമിത ബൈജുവും ചിത്രത്തിൽ പ്രധാന വേഷത്തിലെത്തുന്നുണ്ട്.",
+      "duration_sec": 9.71,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "കൂടുതൽ സിനിമ വിശേഷങ്ങൾക്കായി ചാനൽ സബ്സ്ക്രൈബ് ചെയ്യൂ. അടുത്ത വാർത്തകളുമായി വീണ്ടും കാണാം, നന്ദി!",
+      "duration_sec": 7.39,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+# Ignore generated media and sensitive credentials
+outputs/*.mp4
+outputs/*.mp3
+outputs/*.wav
+outputs/*.jpg
+outputs/*.png
+outputs/youtube_token.json
+client_secret.json
+__pycache__/
+*.pyc
+.env
+.venv

@@ -1,0 +1,81 @@
+{
+  "database_version": "3.3",
+  "entries": {
+    "സ്വാഗതം": {
+      "word": "സ്വാഗതം",
+      "expected_syllables": [
+        "സ്വാ",
+        "ഗ",
+        "തം"
+      ],
+      "phonetic_anchor": "സ്വാഗതമ്",
+      "phoneme_group": "dental_tha",
+      "verified": true
+    },
+    "മാത്രം": {
+      "word": "മാത്രം",
+      "expected_syllables": [
+        "മാ",
+        "ത്രം"
+      ],
+      "phonetic_anchor": "മാത്രമ്",
+      "phoneme_group": "dental_tha",
+      "verified": true
+    },
+    "എത്തും": {
+      "word": "എത്തും",
+      "expected_syllables": [
+        "എ",
+        "ത്തും"
+      ],
+      "phonetic_anchor": "എത്തുമ്",
+      "phoneme_group": "dental_tha",
+      "verified": true
+    },
+    "തീയതി": {
+      "word": "തീയതി",
+      "expected_syllables": [
+        "തീ",
+        "യ",
+        "തി"
+      ],
+      "phonetic_anchor": "തീയതി",
+      "phoneme_group": "dental_tha",
+      "verified": true
+    },
+    "അപ്ഡേറ്റ്": {
+      "word": "അപ്ഡേറ്റ്",
+      "expected_syllables": [
+        "അപ്",
+        "ഡേ",
+        "റ്റ്"
+      ],
+      "phonetic_anchor": "അപ്ഡേറ്റ്",
+      "phoneme_group": "retroflex_ta",
+      "verified": true
+    },
+    "മലയാളം": {
+      "word": "മലയാളം",
+      "expected_syllables": [
+        "മ",
+        "ല",
+        "യാ",
+        "ളം"
+      ],
+      "phonetic_anchor": "മലയാളമ്",
+      "phoneme_group": "liquid_lla",
+      "verified": true
+    },
+    "സെപ്റ്റംബർ": {
+      "word": "സെപ്റ്റംബർ",
+      "expected_syllables": [
+        "സെപ്",
+        "റ്റം",
+        "ബർ"
+      ],
+      "phonetic_anchor": "സെപ്റ്റംബർ",
+      "phoneme_group": "retroflex_ta",
+      "verified": true
+    }
+  }
+}

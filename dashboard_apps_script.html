@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <title>Malayalam Movie News - Google Sheet Web App</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #12121e; color: #e0e0e0; padding: 25px; }
+    .container { max-width: 900px; margin: 0 auto; background: #1a1a2e; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+    h1 { color: #ff2a4b; text-align: center; margin-bottom: 5px; font-size: 26px; }
+    .subtitle { text-align: center; color: #a0a0b0; margin-bottom: 25px; font-size: 14px; }
+    
+    .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+    .tab-btn { background: #25253b; color: #fff; border: 2px solid #33334d; padding: 12px 24px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
+    .tab-btn:hover { background: #2e2e4a; }
+    .tab-btn.active { background: #ff2a4b; border-color: #ff2a4b; }
+
+    .card { background: #161625; border: 1px solid #2a2a40; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; color: #d0d0e0; }
+    textarea { width: 100%; height: 160px; background: #0f0f18; color: #fff; border: 1px solid #33334d; border-radius: 6px; padding: 12px; font-family: monospace; font-size: 14px; resize: vertical; }
+    
+    .btn-submit { background: #ff2a4b; color: #fff; border: none; padding: 14px 28px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; transition: background 0.2s; }
+    .btn-submit:hover { background: #e02240; }
+    
+    .status-msg { margin-top: 15px; padding: 12px; border-radius: 6px; display: none; text-align: center; font-weight: 600; }
+    .status-success { background: #1b4d2e; color: #4eff8c; }
+    .status-error { background: #4d1b1b; color: #ff4e4e; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎬 Malayalam Movie News Studio</h1>
+    <div class="subtitle">Google Sheet Web Application (Movie Updates, Release Updates, OTT Updates)</div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" id="btn-movie" onclick="selectCategory('Movie Updates')">🎬 Movie Updates</button>
+      <button class="tab-btn" id="btn-release" onclick="selectCategory('Release Updates')">📅 Release Updates</button>
+      <button class="tab-btn" id="btn-ott" onclick="selectCategory('OTT Updates')">🍿 OTT Updates</button>
+    </div>
+
+    <div class="card">
+      <label id="tab-label">📋 Selected Worksheet: Movie Updates</label>
+      <p style="color: #8888a0; font-size: 13px; margin-bottom: 10px;">
+        Paste multi-row table copied directly from Excel or Google Sheets (Tab-Separated format):
+      </p>
+      <textarea id="table-input" placeholder="1&#9;മമ്മൂട്ടിയുടെ പുതിയ ചിത്രം മേള പ്രഖ്യാപിച്ചു...&#9;https://example.com/poster1.jpg&#10;2&#9;മോഹൻലാൽ L370 അപ്ഡേറ്റ്...&#9;https://example.com/poster2.jpg"></textarea>
+      
+      <br><br>
+      <button class="btn-submit" onclick="submitTableData()">⚡ Update Google Sheet Tab</button>
+      <div id="status-box" class="status-msg"></div>
+    </div>
+  </div>
+
+  <script>
+    var activeCategory = 'Movie Updates';
+
+    function selectCategory(name) {
+      activeCategory = name;
+      document.getElementById('tab-label').innerText = '📋 Selected Worksheet: ' + name;
+      
+      document.getElementById('btn-movie').className = (name === 'Movie Updates') ? 'tab-btn active' : 'tab-btn';
+      document.getElementById('btn-release').className = (name === 'Release Updates') ? 'tab-btn active' : 'tab-btn';
+      document.getElementById('btn-ott').className = (name === 'OTT Updates') ? 'tab-btn active' : 'tab-btn';
+    }
+
+    function submitTableData() {
+      var rawText = document.getElementById('table-input').value;
+      var statusBox = document.getElementById('status-box');
+
+      if (!rawText.trim()) {
+        alert('Please paste table content first!');
+        return;
+      }
+
+      statusBox.style.display = 'block';
+      statusBox.className = 'status-msg';
+      statusBox.innerText = 'Updating Google Sheet... Please wait...';
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(function(res) {
+            statusBox.className = 'status-msg status-success';
+            statusBox.innerText = '✓ Successfully updated ' + activeCategory + ' in Google Sheets!';
+            document.getElementById('table-input').value = '';
+          })
+          .withFailureHandler(function(err) {
+            statusBox.className = 'status-msg status-error';
+            statusBox.innerText = 'Error: ' + err.toString();
+          })
+          .savePastedData(activeCategory, rawText);
+      } else {
+        setTimeout(function() {
+          statusBox.className = 'status-msg status-success';
+          statusBox.innerText = '✓ Demo Mode: Table received for ' + activeCategory + '!';
+        }, 1000);
+      }
+    }
+  </script>
+</body>
+</html>

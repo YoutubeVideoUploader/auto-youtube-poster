@@ -1,0 +1,8 @@
+transformers>=4.33.0
+torch
+soundfile
+scipy
+gradio>=4.0.0
+librosa
+numpy
+pydub

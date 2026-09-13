@@ -1,0 +1,173 @@
+{
+  "engine_version": "3.3",
+  "overall_quality_score": 99.7,
+  "metrics": {
+    "word_accuracy": "100.0%",
+    "syllable_preservation": "99.2%",
+    "pronunciation_score": "99.6%",
+    "sentence_completeness": "100.0%",
+    "audio_integrity": "100.0%"
+  },
+  "summary": {
+    "total_sentences": 14,
+    "passed_sentences": 14,
+    "failed_sentences": 0
+  },
+  "attention_words": [],
+  "detailed_sentence_qa": [
+    {
+      "is_passed": true,
+      "text": "നമസ്കാരം! മലയാള സിനിമയിലെ ഏറ്റവും പുതിയ അപ്ഡേറ്റുകളിലേക്ക് എല്ലാവർക്കും സ്വാഗതമ്.",
+      "duration_sec": 6.45,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ഒന്നാമതായി, ആശ തിയേറ്ററുകളിൽ എത്തി. ഉർവശിയും ജോജു ജോർജും ആദ്യമായി ഒന്നിക്കുന്ന ചിത്രം സെപ്റ്റംബർ പതിനൊന്നിന് റിലീസ് ചെയ്തു. സഫർ സനൽ സംവിധാനം ചെയ്ത ഡാർക്ക് സസ്പെൻസ് ത്രില്ലറാണ് ചിത്രം. ഐശ്വര്യ ലക്ഷ്മിയും വിജയരാഘവനും പ്രധാന വേഷങ്ങളിലുണ്ട്.",
+      "duration_sec": 16.67,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 98.1,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "രണ്ടാമതായി, വരവ് ഒടിടിയിൽ എത്തി. ഷാജി കൈലാസ് സംവിധാനം ചെയ്ത ജോജു ജോർജ് ചിത്രം സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ സീ ഫൈവിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. വാണി വിശ്വനാഥ്, മുരളി ഗോപി എന്നിവരും ചിത്രത്തിലുണ്ട്.",
+      "duration_sec": 13.46,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 97.5,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "മൂന്നാമതായി, നിവിൻ പോളിയുടെ എൻ.പി. അൻപത്തൊന്ന്ൽ രുക്മിണി വസന്തിന്റെ മലയാള അരങ്ങേറ്റം. നഷീദ് ഫാമി സംവിധാനം ചെയ്യുന്ന ചിത്രത്തിൽ രുക്മിണി വസന്ത്, അജു വർഗീസ് എന്നിവരും അഭിനയിക്കുന്നു. സെപ്റ്റംബർ പത്തിന് ചിത്രത്തിന്റെ സെറ്റിൽ ഒരു ക്രൂ അംഗം വൈദ്യുതാഘാതത്തിൽ മരിച്ചതിനെ തുടർന്ന് നിവിൻ അനുശോചനം രേഖപ്പെടുത്തി",
+      "duration_sec": 19.41,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 98.3,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ഷൂട്ടിംഗ് പിന്നീട് പുനരാരംഭിച്ചു. ചിത്രം രണ്ട് ആയിരത്തി ഇരുപത്തിഏഴ് വിഷു റിലീസായി പ്രതീക്ഷിക്കുന്നു.",
+      "duration_sec": 6.59,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "നാലാമതായി, ഒഴിയാതെ തിയേറ്ററുകളിൽ എത്തി. ഫറൂഖ് അബ്ദുൾ റഹിമാൻ രചനയും സംവിധാനവും നിർവഹിച്ച ചിത്രം സെപ്റ്റംബർ പതിനൊന്നിന് റിലീസ് ചെയ്തു. 1975ലെ അടിയന്തരാവസ്ഥക്കാലത്ത് പാലക്കാട് സ്കൂളിൽ നിന്ന് പത്തൊൻപത് കുട്ടികളെ അറസ്റ്റ് ചെയ്ത് ഇരുപത്തിഒന്ന് ദിവസം തടവിലിട്ട സംഭവമാണ് ചിത്രത്തിന്റെ പശ്ചാത്തലം.",
+      "duration_sec": 19.17,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 98.4,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "അഞ്ചാമതായി, വിശ്വനാഥ് ആൻഡ് സൺസ് നെറ്റ്ഫ്ലിക്സിൽ എത്തി. സൂര്യ നായകനായ വെങ്കി അറ്റ്ലൂരി ചിത്രം സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ നെറ്റ്ഫ്ലിക്സ്ൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. തിയേറ്റർ റൺ അവസാനിക്കുമ്പോൾ ചിത്രം ആഗോള ബോക്സ് ഓഫീസിൽ ഇരുനൂറ്റി അറുപത് കോടി രൂപയിലധികം നേടിയതായി റിപ്പോർട്ടുകൾ പറയുന്നു. മമിത ബൈജുവാണ് പ്രധാന വേഷത്തിൽ.",
+      "duration_sec": 20.25,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 98.5,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ആറാമതായി, അവറാച്ചൻ ആൻഡ് സൺസ് റിലീസ് തീയതി പ്രഖ്യാപിച്ചു. ബിജു മേനോൻ നായകനാകുന്ന ചിത്രം ഒക്ടോബർ രണ്ടിന് തിയേറ്ററുകളിലെത്തും. നവാഗതനായ തമ്പിയാണ് സംവിധാനം ചെയ്യുന്നത്. ഗണപതി, ശ്രീനാഥ് ഭാസി, അഖില ഭാർഗവൻ, പാർവതി ബാബു തുടങ്ങിയവരും പ്രധാന വേഷങ്ങളിലുണ്ട്.",
+      "duration_sec": 18.47,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ഏഴാമതായി, ധൂമകേതു റിലീസ് മാറ്റി. സജിൻ ഗോപുവും നിഖില വിമലും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ചിത്രം നേരത്തെ സെപ്റ്റംബർ പതിനൊന്നിന് റിലീസ് ചെയ്യാനായിരുന്നു തീരുമാനിച്ചിരുന്നത്. ഇപ്പോൾ സെപ്റ്റംബർ ഇരുപത്തിഅഞ്ച് ആണ് പുതിയ റിലീസ് തീയതി. സുധി മാഡിസൺ ആണ് സംവിധാനം.",
+      "duration_sec": 17.56,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 97.9,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "എട്ടാമതായി, എൽ മൂന്നൂറ്റി ഏഴുപത്ന്റെ പേരിലുള്ള വ്യാജ ഓഡിഷനുകൾക്കെതിരെ മുന്നറിയിപ്പ്. മോഹൻലാലിനെ നായകനാക്കി ജൂഡ് ആന്റണി ജോസഫ് സംവിധാനം ചെയ്യുന്ന ചിത്രത്തിന്റെ നിർമ്മാണം ആഷിഖ് ഉസ്മാനാണ്. ചിത്രത്തിനായി ഔദ്യോഗിക ഓഡിഷനുകളൊന്നും പ്രഖ്യാപിച്ചിട്ടില്ലെന്ന് ജൂഡ് വ്യക്തമാക്കി. വ്യാജ ഓഡിഷൻ പോസ്റ്ററുകൾ, സന്ദേശങ്ങൾ, കോളുകൾ എന്നിവയിൽ വ്യക്തിഗത വിവരങ്ങളോ പണമോ നൽകരുതെന്നും മുന്നറിയിപ്പ് നൽകി.",
+      "duration_sec": 24.57,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "ഒമ്പതാമതായി, സൂര്യ, ജിത്തു മാധവൻ ചിത്രം സീൻ. സൂര്യ നാൽപ്പത്തിഏഴ് എന്ന താൽക്കാലിക പേരിൽ അറിയപ്പെട്ടിരുന്ന ചിത്രത്തിന് ഇപ്പോൾ Scene എന്ന് പേര് പ്രഖ്യാപിച്ചു. ജിത്തു മാധവൻ സംവിധാനം ചെയ്യുന്ന ചിത്രത്തിൽ നസ്ലിൻ പ്രധാന വേഷത്തിലും നസ്രിയ നസിം നായികയായും എത്തുന്നു. രണ്ട് ആയിരത്തി ഇരുപത്തിആറ് നവംബർ ആറിന് ദീപാവലി റിലീസ്.",
+      "duration_sec": 20.37,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "പത്താമതായി, സംവൃത സുനിൽ സിനിമയിലേക്ക് തിരിച്ചെത്തുന്നു. ദീർഘ ഇടവേളയ്ക്ക് ശേഷം ഷാഹിദ് അറഫാത്ത് സംവിധാനം ചെയ്യുന്ന പുതിയ ചിത്രത്തിലൂടെയാണ് തിരിച്ചുവരവ്. ദിലീഷ് പോത്തനും അൽഫോൺസ് പുത്രനും പ്രധാന വേഷങ്ങളിലുണ്ട്. ഔദ്യോഗിക പേര് ഇതുവരെ പ്രഖ്യാപിച്ചിട്ടില്ല",
+      "duration_sec": 16.7,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "Navarasa Production No. മൂന്ന് എന്ന പേരിലാണ് ഇപ്പോൾ അറിയപ്പെടുന്നത്. ചിത്രീകരണമ് ഇടുക്കിയിൽ പുരോഗമിക്കുകയാണ്.",
+      "duration_sec": 7.79,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    },
+    {
+      "is_passed": true,
+      "text": "കൂടുതൽ സിനിമ വിശേഷങ്ങൾക്കായി ചാനൽ സബ്സ്ക്രൈബ് ചെയ്യൂ. അടുത്ത വാർത്തകളുമായി വീണ്ടും കാണാം, നന്ദി!",
+      "duration_sec": 7.39,
+      "level1_word_match_score": 100.0,
+      "level2_syllable_preservation_score": 100.0,
+      "level3_audio_integrity_score": 100.0,
+      "phoneme_issues": [],
+      "boundary_clipped": false,
+      "attempt": 1
+    }
+  ]
+}
