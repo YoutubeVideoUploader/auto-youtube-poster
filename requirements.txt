@@ -1,8 +1,10 @@
-transformers>=4.33.0
-torch
+pandas
+requests
+pillow
+edge-tts
 soundfile
 scipy
-gradio>=4.0.0
-librosa
-numpy
-pydub
+google-api-python-client
+google-auth-oauthlib
+google-auth-httplib2
+xlsxwriter
