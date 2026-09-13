@@ -322,6 +322,54 @@ elif st.session_state.current_section == "📺 Output & Video Slide Preview":
                         except Exception as e:
                             st.error(f"YouTube Upload Error: {e}")
 
+        # GitHub Actions 24/7 Cloud Render & YouTube Uploader Section
+        with st.expander("⚡ **3. 24/7 Cloud Render & YouTube Upload (GitHub Actions)**", expanded=True):
+            st.write("Trigger cloud-based 24/7 video rendering and YouTube upload pipeline directly on GitHub Actions runners.")
+
+            from github_trigger import trigger_github_workflow
+
+            col_cloud1, col_cloud2 = st.columns([2, 1])
+            with col_cloud1:
+                cloud_drive_url = st.text_input(
+                    "📁 Custom Google Drive Thumbnail URL (Optional)",
+                    value="",
+                    help="Paste shareable link to thumbnail image stored on Google Drive",
+                    key="cloud_thumb_input"
+                )
+            with col_cloud2:
+                cloud_privacy_choice = st.selectbox(
+                    "🔒 YouTube Privacy Status",
+                    options=["unlisted", "private", "public"],
+                    index=0,
+                    help="Choose visibility mode for uploaded YouTube video",
+                    key="cloud_privacy_select"
+                )
+
+            if st.button("🚀 Trigger 24/7 Cloud Render & Upload Now", type="primary", use_container_width=True, key="btn_trigger_cloud"):
+                with st.spinner("Syncing latest sheet data & dispatching GitHub Action runner..."):
+                    try:
+                        # 1. Sync latest edited tables to Google Sheets online
+                        for t_name, df_item in st.session_state.edited_dfs.items():
+                            st.session_state.sheet_mgr.update_tab_data(t_name, df_item)
+
+                        # 2. Trigger GitHub Action Workflow
+                        res = trigger_github_workflow(
+                            privacy_status=cloud_privacy_choice,
+                            drive_thumbnail_url=cloud_drive_url
+                        )
+
+                        if res.get("status") == "success":
+                            st.balloons()
+                            st.success(f"🎉 **Cloud Pipeline Triggered Successfully!**")
+                            st.markdown(f"### 🔗 View Workflow Run Status: [{res['actions_url']}]({res['actions_url']})")
+                            st.markdown(f"- **YouTube Privacy Status**: `{res['privacy_status']}`")
+                            if res.get("drive_thumbnail_url"):
+                                st.markdown(f"- **Thumbnail URL Attached**: `{res['drive_thumbnail_url']}`")
+                        else:
+                            st.error(f"❌ {res.get('message')}")
+                    except Exception as e:
+                        st.error(f"Cloud Dispatch Error: {e}")
+
         st.markdown("---")
 
         # Display Live Preview Cards for Each Topic
