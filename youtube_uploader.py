@@ -4,6 +4,7 @@ Implements Google YouTube Data API v3 Resumable Chunked Video Upload,
 OAuth 2.0 Token Persistence, and Automated Custom Thumbnail Attachment.
 """
 
+import os
 import ssl
 import urllib3
 urllib3.disable_warnings()
