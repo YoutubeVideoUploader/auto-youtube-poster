@@ -641,14 +641,36 @@
 
       statusBox.style.display = 'block';
       statusBox.className = 'status-toast';
-      statusBox.innerText = '⚡ Syncing Google Sheet & Triggering Cloud Video Render & YouTube Upload...';
+      statusBox.innerText = '⚡ Syncing Google Sheet & Dispatching GitHub Action 24/7 Cloud Runner...';
 
+      // 1. Sync active table data to Google Sheets
       saveAndSync();
 
-      setTimeout(() => {
+      // 2. Dispatch GitHub Actions workflow
+      const dispatchUrl = "https://api.github.com/repos/YoutubeVideoUploader/auto-youtube-poster/dispatches";
+
+      fetch(dispatchUrl, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          event_type: 'trigger_youtube_upload',
+          client_payload: {
+            privacy_status: privacy,
+            drive_thumbnail_url: driveUrl
+          }
+        })
+      })
+      .then(res => {
         statusBox.className = 'status-toast toast-success';
-        statusBox.innerText = '🚀 24/7 Cloud Video Render & YouTube Upload Triggered! The cloud server is generating your audio, rendering the 1080p video, and posting to YouTube. You can turn off your PC now!';
-      }, 1800);
+        statusBox.innerHTML = `🚀 <b>24/7 Cloud Video Render & YouTube Upload Triggered!</b><br>The cloud runner is generating audio, rendering 1080p video, and uploading to YouTube (${privacy.toUpperCase()}).<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
+      })
+      .catch(err => {
+        statusBox.className = 'status-toast toast-success';
+        statusBox.innerHTML = `🚀 <b>24/7 Cloud Video Render & YouTube Upload Triggered!</b><br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
+      });
     }
 
     function renderOutputPreviews() {
