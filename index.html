@@ -336,10 +336,11 @@
         </tbody>
       </table>
 
-      <div style="display: flex; gap: 10px; margin-top: 15px;">
+      <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
         <button class="btn btn-secondary" onclick="addRow()">+ Add New Row</button>
         <button class="btn" onclick="saveAndSync()">⚡ Save & Sync to Google Sheet</button>
         <button class="btn btn-secondary" onclick="fetchLiveGoogleSheetsData()">🔄 Reload Online Sheets</button>
+        <button class="btn btn-secondary" style="background: #3a2232; color: #ff8888;" onclick="resetToDefaults()">🗑️ Reset Sample Data</button>
       </div>
 
       <div id="sync-status" class="status-toast"></div>
@@ -397,8 +398,8 @@
       }
     });
 
-    // All 21 Topics Pre-loaded from Google Sheet
-    let store = {
+    // Default initial sample topics
+    const defaultStore = {
       "Movie Updates": [
         { topicNum: "1", text: "മമ്മൂട്ടിയുടെ എഴുപത്തിയഞ്ചാം പിറന്നാൾ ദിനത്തിൽ നിതീഷ് സഹദേവ് സംവിധാനം ചെയ്യുന്ന പുതിയ ചിത്രത്തിന് ‘മേള’ എന്ന പേര് പ്രഖ്യാപിച്ച് ഫസ്റ്റ് ലുക്ക് പുറത്തിറക്കി. ജൂലൈയിൽ ചിത്രീകരണം ആരംഭിച്ച സിനിമയിൽ മമ്മൂട്ടി വ്യത്യസ്തമായ ഗെറ്റപ്പിലാണ് എത്തുന്നത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-07%2Fqoyeyn8q%2FMammoottyMelafirstlook.jpg?auto=format%2Ccompress&fit=max&w=480" },
         { topicNum: "2", text: "സംവിധായകൻ വിനയൻ ഒരുക്കുന്ന പുതിയ ഫാന്റസി ചിത്രത്തിന്റെ ചിത്രീകരണം ഒക്ടോബറിൽ ആരംഭിക്കും. സാഗർ സൂര്യയും ഗിന്നസ് പക്രുവും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ചിത്രത്തിൽ ഇരുന്നൂറോളം ഉയരം കുറഞ്ഞ കലാകാരന്മാരും ഭാഗമാകുമെന്ന് വിനയൻ വ്യക്തമാക്കി.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-12%2Fe40s25kb%2FVinayan.jpg?auto=format%2Ccompress&fit=max&w=480" },
@@ -427,6 +428,65 @@
         { topicNum: "6", text: "വിസ്മയ മോഹൻലാൽ നായികയായ ‘തുടക്കം’ സെപ്റ്റംബർ പതിനെട്ട് മുതൽ ജിയോ ഹോട്ട്സ്റ്റാറിൽ സ്ട്രീമിംഗ് ആരംഭിക്കും. ജൂഡ് ആന്തണി ജോസഫ് സംവിധാനം ചെയ്ത ചിത്രത്തിൽ ആശിഷ് ജോ ആന്റണിയും പ്രധാന വേഷത്തിലെത്തുന്നു.", imgUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLM03LFoA9UEYo2JWDx6hP28ZSoHwGXeQyN0iZBwdN_w&s=10" }
       ]
     };
+
+    // Load persisted store from browser localStorage or default
+    let store;
+    try {
+      let saved = localStorage.getItem('studio_store');
+      store = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultStore));
+    } catch (e) {
+      store = JSON.parse(JSON.stringify(defaultStore));
+    }
+
+    function saveLocalStore() {
+      try {
+        localStorage.setItem('studio_store', JSON.stringify(store));
+      } catch (e) {
+        console.error("Failed to save store to localStorage", e);
+      }
+    }
+
+    function resetToDefaults() {
+      if (confirm("Are you sure you want to reset all tabs back to initial sample topics? Your unsaved edits will be cleared.")) {
+        store = JSON.parse(JSON.stringify(defaultStore));
+        saveLocalStore();
+        renderTableRows();
+        if (activeSection === 'output') renderOutputPreviews();
+        alert("Reset to initial sample topics successfully!");
+      }
+    }
+
+    function fetchLiveGoogleSheetsData() {
+      const statusBox = document.getElementById('sync-status');
+      statusBox.style.display = 'block';
+      statusBox.className = 'status-toast';
+      statusBox.innerText = '🔄 Fetching latest live data from Google Sheets...';
+
+      fetch(WEB_APP_URL + '?action=get_data')
+        .then(res => res.json())
+        .then(data => {
+          if (data && typeof data === 'object') {
+            ['Movie Updates', 'Release Updates', 'OTT Updates'].forEach(tab => {
+              if (data[tab] && Array.isArray(data[tab])) {
+                store[tab] = data[tab].map(r => ({
+                  topicNum: r["Topic Number"] || r["Topic"] || r["SL"] || "",
+                  text: r["Malayalam News Text"] || r["News"] || r["Text"] || "",
+                  imgUrl: r["Image URLs"] || r["Image"] || r["URL"] || ""
+                }));
+              }
+            });
+            saveLocalStore();
+            renderTableRows();
+            if (activeSection === 'output') renderOutputPreviews();
+            statusBox.className = 'status-toast toast-success';
+            statusBox.innerText = '✓ Loaded latest live data from Google Sheets!';
+          }
+        })
+        .catch(err => {
+          statusBox.className = 'status-toast';
+          statusBox.innerText = '⚠️ Could not fetch live Google Sheet data. Local edits preserved.';
+        });
+    }
 
     let activeSection = "input";
     let activeTab = "Movie Updates";
@@ -485,16 +545,19 @@
 
     function updateRow(idx, field, val) {
       store[activeTab][idx][field] = val;
+      saveLocalStore();
     }
 
     function addRow() {
       let nextNum = (store[activeTab].length + 1).toString();
       store[activeTab].push({ topicNum: nextNum, text: "", imgUrl: "" });
+      saveLocalStore();
       renderTableRows();
     }
 
     function deleteRow(idx) {
       store[activeTab].splice(idx, 1);
+      saveLocalStore();
       renderTableRows();
     }
 
@@ -603,6 +666,7 @@
 
       if (newRows.length > 0) {
         store[activeTab] = newRows;
+        saveLocalStore();
         renderTableRows();
         if (activeSection === 'output') renderOutputPreviews();
         document.getElementById('bulk-paste-box').value = "";
