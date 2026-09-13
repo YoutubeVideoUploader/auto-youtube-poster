@@ -127,11 +127,26 @@ class YouTubeUploader:
 
         print(f"\n[🚀] Initiating YouTube Video Upload: {title}...")
         response = None
-        while response is None:
-            status, response = request.next_chunk()
-            if status:
-                progress = int(status.progress() * 100)
-                print(f"  - Upload Progress: {progress}%")
+        try:
+            while response is None:
+                status, response = request.next_chunk()
+                if status:
+                    progress = int(status.progress() * 100)
+                    print(f"  - Upload Progress: {progress}%")
+        except Exception as e:
+            err_str = str(e)
+            if "uploadLimitExceeded" in err_str or "exceeded the number of videos" in err_str:
+                print("\n" + "!" * 75)
+                print("⚠️ YOUTUBE DAILY UPLOAD LIMIT REACHED (uploadLimitExceeded)")
+                print("YouTube enforces a 24-hour limit on the number of videos a channel can upload.")
+                print("Your channel has reached YouTube's maximum daily upload limit for today.")
+                print("👉 Solution: Please wait 24 hours for YouTube's daily quota to reset.")
+                print("!" * 75 + "\n")
+                return {
+                    "status": "limit_exceeded",
+                    "error": "Daily YouTube video upload limit reached for this channel. Resets in 24 hours."
+                }
+            raise e
 
         video_id = response.get("id")
         video_url = f"https://youtu.be/{video_id}"
