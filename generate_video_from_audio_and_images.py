@@ -741,8 +741,8 @@ def generate_video(
 
             filter_complex = (
                 f"[2:a]atrim=0:{trimmed_bgm_dur:.2f},aloop=loop=-1:size={int(trimmed_bgm_dur * 44100)}[bgm_loop];"
-                f"[bgm_loop]volume=0.12,afade=t=out:st={fade_start:.2f}:d=5[bgm_ducked];"
-                f"[1:a]volume=1.0[voice];"
+                f"[bgm_loop]volume=0.06,afade=t=out:st={fade_start:.2f}:d=5[bgm_ducked];"
+                f"[1:a]volume=2.5[voice];"
                 f"[voice][bgm_ducked]amix=inputs=2:duration=first:dropout_transition=3[aout]"
             )
 
@@ -766,6 +766,9 @@ def generate_video(
                 "ffmpeg", "-y",
                 "-i", combined_visuals,
                 "-i", audio_path,
+                "-filter_complex", "[1:a]volume=2.5[aout]",
+                "-map", "0:v",
+                "-map", "[aout]",
                 "-c:v", "copy",
                 "-c:a", "aac",
                 "-b:a", "192k",
@@ -777,6 +780,9 @@ def generate_video(
             "ffmpeg", "-y",
             "-i", combined_visuals,
             "-i", audio_path,
+            "-filter_complex", "[1:a]volume=2.5[aout]",
+            "-map", "0:v",
+            "-map", "[aout]",
             "-c:v", "copy",
             "-c:a", "aac",
             "-b:a", "192k",
