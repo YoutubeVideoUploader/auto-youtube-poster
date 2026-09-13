@@ -345,6 +345,14 @@ elif st.session_state.current_section == "📺 Output & Video Slide Preview":
                     key="cloud_privacy_select"
                 )
 
+            cloud_github_token = st.text_input(
+                "🔑 GitHub Personal Access Token (PAT) [Optional if `gh` CLI logged in]",
+                value="",
+                type="password",
+                help="Enter GitHub Personal Access Token (ghp_...) with workflow scope if triggering from remote server",
+                key="cloud_token_input"
+            )
+
             if st.button("🚀 Trigger 24/7 Cloud Render & Upload Now", type="primary", use_container_width=True, key="btn_trigger_cloud"):
                 with st.spinner("Syncing latest sheet data & dispatching GitHub Action runner..."):
                     try:
@@ -355,7 +363,8 @@ elif st.session_state.current_section == "📺 Output & Video Slide Preview":
                         # 2. Trigger GitHub Action Workflow
                         res = trigger_github_workflow(
                             privacy_status=cloud_privacy_choice,
-                            drive_thumbnail_url=cloud_drive_url
+                            drive_thumbnail_url=cloud_drive_url,
+                            github_token=cloud_github_token
                         )
 
                         if res.get("status") == "success":
