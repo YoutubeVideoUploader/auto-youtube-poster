@@ -78,8 +78,8 @@ class AudioProcessor:
             return scaled.astype(np.float32)
         return waveform
 
-    def normalize_loudness(self, waveform: np.ndarray, target_lufs: float = -12.0, ceiling_db: float = -0.2) -> np.ndarray:
-        """Normalizes RMS loudness to target -12.0 LUFS and calibrates True Peak to -0.2 dBFS ceiling."""
+    def normalize_loudness(self, waveform: np.ndarray, target_lufs: float = -8.0, ceiling_db: float = -0.1) -> np.ndarray:
+        """Normalizes RMS loudness to target -8.0 LUFS and calibrates True Peak to -0.1 dBFS ceiling."""
         if len(waveform) == 0:
             return waveform
 
