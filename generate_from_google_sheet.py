@@ -161,21 +161,6 @@ def fetch_all_sheets_data(sheet_url: str) -> Tuple[Dict[str, List[Dict[str, Any]
 
     available_sheets = {str(k).strip().lower(): k for k in sheets_dict.keys()}
 
-    # Check required SHEET_ORDER tabs
-    missing_tabs = []
-    for s_cfg in SHEET_ORDER:
-        req_name = s_cfg["name"]
-        if req_name.lower() not in available_sheets:
-            missing_tabs.append(req_name)
-
-    if missing_tabs:
-        error_msg = (
-            f"Required worksheet tab(s) {missing_tabs} missing from Google Spreadsheet! "
-            f"Available tabs: {list(sheets_dict.keys())}"
-        )
-        print(f"\n[ERROR] {error_msg}")
-        raise ValueError(error_msg)
-
     parsed_sections = {}
     total_images_downloaded = 0
     total_images_failed = 0
@@ -184,8 +169,12 @@ def fetch_all_sheets_data(sheet_url: str) -> Tuple[Dict[str, List[Dict[str, Any]
     for s_cfg in SHEET_ORDER:
         sec_name = s_cfg["name"]
         sec_slug = s_cfg["slug"]
-        actual_tab_key = available_sheets[sec_name.lower()]
-        df = sheets_dict[actual_tab_key]
+        if sec_name.lower() in available_sheets:
+            actual_tab_key = available_sheets[sec_name.lower()]
+            df = sheets_dict[actual_tab_key]
+        else:
+            print(f"[!] Note: Tab '{sec_name}' not found in sheet workbook. Initializing empty section.")
+            df = pd.DataFrame(columns=["Title", "Details", "Image_URL"])
 
         cols = [str(c).strip() for c in df.columns]
         if not cols:
