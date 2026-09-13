@@ -409,6 +409,27 @@ def create_mini_cell_collage(image_paths: list, cell_w: int, cell_h: int) -> Ima
     return canvas.convert("RGB")
 
 
+def get_font(size: int, bold: bool = True):
+    font_candidates = [
+        "DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf",
+        "FreeSansBold.ttf" if bold else "FreeSans.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf" if bold else "/usr/share/fonts/truetype/freefont/FreeSans.ttf",
+        "arialbd.ttf" if bold else "arial.ttf",
+        "C:/Windows/Fonts/arialbd.ttf",
+        "C:/Windows/Fonts/NirmalaB.ttf"
+    ]
+    for fn in font_candidates:
+        try:
+            return ImageFont.truetype(fn, size)
+        except Exception:
+            pass
+    try:
+        return ImageFont.load_default(size=size)
+    except Exception:
+        return ImageFont.load_default()
+
+
 def create_table_slide(topic_text: str, image_paths: list, output_path: str, section_slug: str, width: int = 1920, height: int = 1080) -> str:
     """
     Renders a broadcast 2-row table card slide:
@@ -429,21 +450,10 @@ def create_table_slide(topic_text: str, image_paths: list, output_path: str, sec
 
     draw = ImageDraw.Draw(bg)
 
-    is_title_ascii = all(ord(c) < 128 for c in title_en)
-
-    try:
-        if is_title_ascii:
-            font_title = ImageFont.truetype('arialbd.ttf', 44)
-        else:
-            font_title = ImageFont.truetype('C:/Windows/Fonts/NirmalaB.ttf', 44)
-        font_label = ImageFont.truetype('arialbd.ttf', 24)
-        font_val = ImageFont.truetype('arialbd.ttf', 42)
-        font_sec = ImageFont.truetype('arialbd.ttf', 30)
-    except Exception:
-        font_title = ImageFont.load_default()
-        font_label = ImageFont.load_default()
-        font_val = ImageFont.load_default()
-        font_sec = ImageFont.load_default()
+    font_title = get_font(52, bold=True)
+    font_label = get_font(36, bold=True)
+    font_val = get_font(52, bold=True)
+    font_sec = get_font(38, bold=True)
 
     # Section Top Badge
     sec_title = 'OTT STREAMING UPDATE' if is_ott else 'THEATRICAL RELEASE UPDATE'
