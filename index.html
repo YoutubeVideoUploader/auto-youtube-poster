@@ -758,6 +758,39 @@
       }
     }
 
+    function processFetchedSheetsData(data) {
+      const statusBox = document.getElementById('sync-status');
+      if (data && typeof data === 'object') {
+        ['Movie Updates', 'Release Updates', 'OTT Updates'].forEach(tab => {
+          if (data[tab] && Array.isArray(data[tab])) {
+            store[tab] = data[tab].map(r => ({
+              topicNum: r["Topic Number"] || r["Topic"] || r["SL"] || "",
+              headline: r["Topic Headline"] || r["Headline"] || r["Title"] || "",
+              text: r["Malayalam News Text"] || r["News"] || r["Text"] || "",
+              imgUrl: r["Image URLs"] || r["Image"] || r["URL"] || ""
+            }));
+          }
+        });
+        saveLocalStore();
+        renderTableRows();
+        if (activeSection === 'output') renderOutputPreviews();
+
+        let totalCount = (store["Movie Updates"] || []).length + (store["Release Updates"] || []).length + (store["OTT Updates"] || []).length;
+        const indicator = document.getElementById('loading-indicator');
+        if (indicator) indicator.innerText = `(${totalCount} Live Topics Loaded ✓)`;
+
+        if (statusBox) {
+          statusBox.style.display = 'block';
+          statusBox.className = 'status-toast toast-success';
+          statusBox.innerText = `✓ Loaded ${totalCount} live topics from Google Sheets!`;
+        }
+      }
+    }
+
+    window.handleSheetsJsonpData = function(data) {
+      processFetchedSheetsData(data);
+    };
+
     function fetchLiveGoogleSheetsData() {
       const statusBox = document.getElementById('sync-status');
       statusBox.style.display = 'block';
@@ -767,32 +800,22 @@
       fetch(WEB_APP_URL + '?action=get_data')
         .then(res => res.json())
         .then(data => {
-          if (data && typeof data === 'object') {
-            ['Movie Updates', 'Release Updates', 'OTT Updates'].forEach(tab => {
-              if (data[tab] && Array.isArray(data[tab])) {
-                store[tab] = data[tab].map(r => ({
-                  topicNum: r["Topic Number"] || r["Topic"] || r["SL"] || "",
-                  headline: r["Topic Headline"] || r["Headline"] || r["Title"] || "",
-                  text: r["Malayalam News Text"] || r["News"] || r["Text"] || "",
-                  imgUrl: r["Image URLs"] || r["Image"] || r["URL"] || ""
-                }));
-              }
-            });
-            saveLocalStore();
-            renderTableRows();
-            if (activeSection === 'output') renderOutputPreviews();
-
-            let totalCount = (store["Movie Updates"] || []).length + (store["Release Updates"] || []).length + (store["OTT Updates"] || []).length;
-            const indicator = document.getElementById('loading-indicator');
-            if (indicator) indicator.innerText = `(${totalCount} Live Topics Loaded ✓)`;
-
-            statusBox.className = 'status-toast toast-success';
-            statusBox.innerText = `✓ Loaded ${totalCount} live topics from Google Sheets!`;
-          }
+          processFetchedSheetsData(data);
         })
         .catch(err => {
-          statusBox.className = 'status-toast';
-          statusBox.innerText = '⚠️ Could not fetch live Google Sheet data. Local edits preserved.';
+          // JSONP Fallback for adblockers / CORS restriction bypass
+          console.warn("Standard fetch failed, trying JSONP fallback script tag...", err);
+          const oldScript = document.getElementById('jsonp-sheets-script');
+          if (oldScript) oldScript.remove();
+
+          const script = document.createElement('script');
+          script.id = 'jsonp-sheets-script';
+          script.src = WEB_APP_URL + '?action=get_data&callback=handleSheetsJsonpData&ts=' + Date.now();
+          script.onerror = function() {
+            statusBox.className = 'status-toast toast-error';
+            statusBox.innerText = '⚠️ Could not fetch live Google Sheet data. Local edits preserved.';
+          };
+          document.body.appendChild(script);
         });
     }
 

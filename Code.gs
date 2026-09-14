@@ -26,9 +26,18 @@ function doGet(e) {
           result[name] = rows;
         }
       }
+      if (e.parameter.callback) {
+        var cb = e.parameter.callback;
+        return ContentService.createTextOutput(cb + "(" + JSON.stringify(result) + ");")
+          .setMimeType(ContentService.MimeType.JAVASCRIPT);
+      }
       return ContentService.createTextOutput(JSON.stringify(result))
         .setMimeType(ContentService.MimeType.JSON);
     } catch (err) {
+      if (e.parameter.callback) {
+        return ContentService.createTextOutput(e.parameter.callback + "(" + JSON.stringify({"error": err.toString()}) + ");")
+          .setMimeType(ContentService.MimeType.JAVASCRIPT);
+      }
       return ContentService.createTextOutput(JSON.stringify({"error": err.toString()}))
         .setMimeType(ContentService.MimeType.JSON);
     }
