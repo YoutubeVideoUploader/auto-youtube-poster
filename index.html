@@ -533,6 +533,19 @@
       }
     });
 
+    // Global Click Delegation for any poster image to trigger Fullscreen Modal
+    document.addEventListener('click', (e) => {
+      if (e.target && e.target.tagName === 'IMG') {
+        const isPoster = e.target.classList.contains('preview-poster') || 
+                         e.target.closest('.multi-image-grid') || 
+                         e.target.closest('#thumbnail-posters-grid') || 
+                         e.target.closest('#preview-container');
+        if (isPoster && e.target.src && !e.target.src.includes('via.placeholder.com')) {
+          openImageModal(e.target.src);
+        }
+      }
+    });
+
     // Auto restore PAT token from localStorage
     window.addEventListener('DOMContentLoaded', () => {
       const savedPat = localStorage.getItem('user_gh_pat');
@@ -1121,12 +1134,12 @@
         if (rawUrls.length > 1) {
           // Multiple Images: Render Multi-Image Grid Collage
           imgHtml = `<div class="multi-image-grid">` + 
-            rawUrls.map(u => `<img src="${u}" onerror="this.src='https://via.placeholder.com/150x120/161625/a0a0b5?text=Poster'" alt="Poster">`).join('') +
+            rawUrls.map(u => `<img src="${u}" onclick="openImageModal(this.src)" title="Click for Fullscreen View" onerror="this.src='https://via.placeholder.com/150x120/161625/a0a0b5?text=Poster'" alt="Poster">`).join('') +
             `</div>`;
           countBadge = ` • 📸 ${rawUrls.length} Images Collaged`;
         } else if (rawUrls.length === 1) {
           // Single Image: Render standard single poster image
-          imgHtml = `<img class="preview-poster" src="${rawUrls[0]}" onerror="this.src='https://via.placeholder.com/400x220/161625/a0a0b5?text=Poster+Preview'" alt="Poster">`;
+          imgHtml = `<img class="preview-poster" src="${rawUrls[0]}" onclick="openImageModal(this.src)" title="Click for Fullscreen View" onerror="this.src='https://via.placeholder.com/400x220/161625/a0a0b5?text=Poster+Preview'" alt="Poster">`;
         } else {
           // No Image
           imgHtml = `<img class="preview-poster" src="https://via.placeholder.com/400x220/161625/a0a0b5?text=No+Poster+Image" alt="Poster">`;
