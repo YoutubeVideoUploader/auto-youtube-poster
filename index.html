@@ -211,22 +211,22 @@
     /* Output Card Grid */
     .preview-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+      gap: 24px;
       margin-top: 15px;
     }
 
     .preview-card {
       background: var(--card-inner);
       border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 15px;
+      border-radius: 12px;
+      padding: 18px;
       position: relative;
     }
 
     .preview-poster {
       width: 100%;
-      height: 200px;
+      height: 320px;
       object-fit: cover;
       border-radius: 8px;
       margin-bottom: 12px;
@@ -235,19 +235,19 @@
       transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     }
     .preview-poster:hover {
-      transform: scale(1.03);
-      box-shadow: 0 4px 18px rgba(255, 42, 75, 0.4);
+      transform: scale(1.02);
+      box-shadow: 0 6px 22px rgba(255, 42, 75, 0.45);
     }
 
     .multi-image-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-      gap: 8px;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
       margin-bottom: 12px;
     }
     .multi-image-grid img {
       width: 100%;
-      height: 120px;
+      height: 180px;
       object-fit: cover;
       border-radius: 6px;
       border: 1px solid var(--border-color);
@@ -256,9 +256,9 @@
       transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     }
     .multi-image-grid img:hover {
-      transform: scale(1.05);
+      transform: scale(1.04);
       border-color: var(--accent-red) !important;
-      box-shadow: 0 4px 15px rgba(255, 42, 75, 0.5);
+      box-shadow: 0 4px 18px rgba(255, 42, 75, 0.55);
     }
 
     /* Fullscreen Image Lightbox Modal */
@@ -268,25 +268,28 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(8, 8, 16, 0.92);
-      backdrop-filter: blur(10px);
+      background: rgba(6, 6, 12, 0.95);
+      backdrop-filter: blur(12px);
       z-index: 10000;
       display: none;
       align-items: center;
       justify-content: center;
       flex-direction: column;
       animation: fadeInLightbox 0.2s ease-out;
+      padding: 10px;
     }
     @keyframes fadeInLightbox {
-      from { opacity: 0; transform: scale(0.96); }
+      from { opacity: 0; transform: scale(0.97); }
       to { opacity: 1; transform: scale(1); }
     }
     .image-modal-content {
-      max-width: 90vw;
-      max-height: 85vh;
-      border-radius: 12px;
+      max-width: 96vw;
+      max-height: 92vh;
+      width: 95vw;
+      height: 90vh;
+      border-radius: 10px;
       border: 2px solid var(--accent-red);
-      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.9);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95);
       object-fit: contain;
     }
     .image-modal-close {
@@ -704,8 +707,8 @@
 
         card.innerHTML = `
           <div style="position: relative;">
-            <img class="preview-poster" src="${p.url}" onerror="this.src='https://via.placeholder.com/220x160/161625/a0a0b5?text=Poster'" style="height: 160px; border-radius: 6px;" alt="Poster">
-            <input type="checkbox" id="poster-chk-${idx}" ${isChecked ? 'checked' : ''} onchange="togglePosterSelection('${escapeJs(p.url)}', this.checked)" style="position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; accent-color: #ff2a4b; cursor: pointer;">
+            <img class="preview-poster" src="${p.url}" onerror="this.src='https://via.placeholder.com/220x160/161625/a0a0b5?text=Poster'" style="height: 240px; border-radius: 6px;" alt="Poster">
+            <input type="checkbox" id="poster-chk-${idx}" ${isChecked ? 'checked' : ''} onchange="togglePosterSelection('${escapeJs(p.url)}', this.checked)" style="position: absolute; top: 10px; right: 10px; width: 24px; height: 24px; accent-color: #ff2a4b; cursor: pointer;">
           </div>
           <div class="badge" style="font-size: 11px;">${p.tab} • Topic #${p.topicNum}</div>
           <div class="preview-text" style="font-size: 12px; height: 36px; overflow: hidden; margin-top: 6px;">${escapeHtml((p.text || "").substring(0, 65))}...</div>
