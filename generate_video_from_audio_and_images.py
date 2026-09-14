@@ -101,14 +101,23 @@ def create_fitted_banner_slide(banner_path: str, output_path: str, width: int = 
 
 
 def scale_image_to_fit(im: Image.Image, max_w: int, max_h: int) -> Image.Image:
-    """Scales an image proportionally to fit within max_w and max_h, upscaling low-res images or downscaling high-res images."""
+    """Scales an image proportionally to fit within max_w and max_h using Lanczos resampling and subtle sharpness/vibrancy enhancement."""
     w, h = im.size
     if w <= 0 or h <= 0:
         return im
     scale = min(max_w / w, max_h / h)
     new_w = max(1, int(w * scale))
     new_h = max(1, int(h * scale))
-    return im.resize((new_w, new_h), Image.Resampling.LANCZOS)
+    resized = im.resize((new_w, new_h), Image.Resampling.LANCZOS)
+    
+    try:
+        sharpener = ImageEnhance.Sharpness(resized)
+        resized = sharpener.enhance(1.2)
+        color_enhancer = ImageEnhance.Color(resized)
+        resized = color_enhancer.enhance(1.05)
+    except Exception:
+        pass
+    return resized
 
 
 def create_actor_collage_slide(image_paths: list, output_path: str, width: int = 1920, height: int = 1080) -> str:
@@ -763,6 +772,9 @@ def generate_video(
                 "-vf", f"scale=1920:1080,fps=30,setsar=1,setpts={pts_scale:.6f}*PTS,tpad=stop_mode=clone:stop_duration={chunk_dur:.3f}",
                 "-t", f"{chunk_dur:.4f}",
                 "-c:v", "libx264",
+                "-crf", "17",
+                "-preset", "medium",
+                "-b:v", "12M",
                 "-pix_fmt", "yuv420p",
                 "-r", "30",
                 chunk_mp4
@@ -796,6 +808,9 @@ def generate_video(
                 "-map", "[v]",
                 "-t", f"{dur:.4f}",
                 "-c:v", "libx264",
+                "-crf", "17",
+                "-preset", "medium",
+                "-b:v", "12M",
                 "-pix_fmt", "yuv420p",
                 "-r", "30",
                 chunk_mp4
@@ -820,6 +835,9 @@ def generate_video(
                 "-t", f"{chunk_dur:.4f}",
                 "-vf", "scale=1920:1080,fps=30,setsar=1",
                 "-c:v", "libx264",
+                "-crf", "17",
+                "-preset", "medium",
+                "-b:v", "12M",
                 "-pix_fmt", "yuv420p",
                 "-r", "30",
                 chunk_mp4

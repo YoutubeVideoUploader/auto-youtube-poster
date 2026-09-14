@@ -36,15 +36,26 @@ def get_font(size: int) -> ImageFont.ImageFont:
     return ImageFont.load_default()
 
 
+def upgrade_image_url_quality(url: str) -> str:
+    """Upgrades web image URLs (e.g. CinemaExpress/Assettype CDN parameters) from low-res (w=480/300) to Full HD 1280p/1920p resolution."""
+    import re
+    if not url or not isinstance(url, str):
+        return url
+    if "w=480" in url or "w=300" in url or "w=600" in url or "w=350" in url:
+        return re.sub(r'w=\d+', 'w=1280', url)
+    return url
+
+
 def download_image(url: str, timeout: int = 15) -> Optional[Image.Image]:
     """Downloads an image from URL and returns a PIL Image in RGB mode."""
     if not url or not url.strip() or not url.startswith("http"):
         return None
+    url = upgrade_image_url_quality(url.strip())
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     }
     try:
-        resp = requests.get(url.strip(), headers=headers, timeout=timeout, verify=False)
+        resp = requests.get(url, headers=headers, timeout=timeout, verify=False)
         if resp.status_code == 200 and len(resp.content) > 500:
             img = Image.open(io.BytesIO(resp.content)).convert("RGB")
             return img
@@ -54,7 +65,7 @@ def download_image(url: str, timeout: int = 15) -> Optional[Image.Image]:
 
 
 def crop_center(img: Image.Image, target_width: int, target_height: int) -> Image.Image:
-    """Crops and resizes an image to fit target width and height maintaining aspect ratio."""
+    """Crops and resizes an image to fit target width and height maintaining aspect ratio with sharpness enhancement."""
     img_aspect = img.width / img.height
     target_aspect = target_width / target_height
 
@@ -69,6 +80,12 @@ def crop_center(img: Image.Image, target_width: int, target_height: int) -> Imag
 
     resized = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
     
+    try:
+        sharpener = ImageEnhance.Sharpness(resized)
+        resized = sharpener.enhance(1.25)
+    except Exception:
+        pass
+
     left = (new_width - target_width) // 2
     top = (new_height - target_height) // 2
     right = left + target_width
