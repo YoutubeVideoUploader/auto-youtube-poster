@@ -691,13 +691,14 @@
       }
     });
 
-    // Auto restore PAT token from localStorage
+    // Auto restore PAT token from localStorage & fetch live Google Sheets data
     window.addEventListener('DOMContentLoaded', () => {
       const savedPat = localStorage.getItem('user_gh_pat');
       if (savedPat) {
         const el = document.getElementById('github-pat-token');
         if (el) el.value = savedPat;
       }
+      fetchLiveGoogleSheetsData();
     });
 
     // Default initial sample topics
@@ -780,8 +781,13 @@
             saveLocalStore();
             renderTableRows();
             if (activeSection === 'output') renderOutputPreviews();
+
+            let totalCount = (store["Movie Updates"] || []).length + (store["Release Updates"] || []).length + (store["OTT Updates"] || []).length;
+            const indicator = document.getElementById('loading-indicator');
+            if (indicator) indicator.innerText = `(${totalCount} Live Topics Loaded ✓)`;
+
             statusBox.className = 'status-toast toast-success';
-            statusBox.innerText = '✓ Loaded latest live data from Google Sheets!';
+            statusBox.innerText = `✓ Loaded ${totalCount} live topics from Google Sheets!`;
           }
         })
         .catch(err => {

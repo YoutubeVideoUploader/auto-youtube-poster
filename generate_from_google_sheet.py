@@ -82,9 +82,21 @@ def extract_og_image_from_html(html: str) -> str:
     return match.group(1) if match else ''
 
 
+def upgrade_url_to_hd(url: str) -> str:
+    """Upgrades web image URLs (e.g. CinemaExpress/Assettype CDN parameters or Wikipedia thumbnails) to Full HD 1920p original images."""
+    if not url or not isinstance(url, str):
+        return url
+    url_str = url.strip()
+    if '/upload.wikimedia.org/' in url_str and '/thumb/' in url_str:
+        url_str = re.sub(r'/thumb/(.+)/[^/]+$', r'/\1', url_str)
+    if 'w=480' in url_str or 'w=300' in url_str or 'w=600' in url_str or 'w=350' in url_str or 'w=400' in url_str:
+        url_str = re.sub(r'w=\d+', 'w=1920', url_str)
+    return url_str
+
+
 def download_single_target(target_str: str, save_path: str) -> bool:
     """
-    Downloads an image target URL into save_path.
+    Downloads an image target URL into save_path with Full HD resolution upgrading.
     """
     target_clean = target_str.strip()
     if not target_clean or target_clean.lower() == 'nan':
@@ -96,6 +108,8 @@ def download_single_target(target_str: str, save_path: str) -> bool:
             qs = urllib.parse.parse_qs(parsed.query)
             if 'imgurl' in qs:
                 target_clean = qs['imgurl'][0]
+
+        target_clean = upgrade_url_to_hd(target_clean)
 
         try:
             r = requests.get(target_clean, headers=HTTP_HEADERS, verify=False, timeout=15)
