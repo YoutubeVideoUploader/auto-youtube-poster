@@ -764,10 +764,10 @@
         ['Movie Updates', 'Release Updates', 'OTT Updates'].forEach(tab => {
           if (data[tab] && Array.isArray(data[tab])) {
             store[tab] = data[tab].map(r => ({
-              topicNum: r["Topic Number"] || r["Topic"] || r["SL"] || "",
-              headline: r["Topic Headline"] || r["Headline"] || r["Title"] || "",
-              text: r["Malayalam News Text"] || r["News"] || r["Text"] || "",
-              imgUrl: r["Image URLs"] || r["Image"] || r["URL"] || ""
+              topicNum: String(r["Topic Number"] ?? r["Topic"] ?? r["SL"] ?? ""),
+              headline: String(r["Topic Headline"] ?? r["Headline"] ?? r["Title"] ?? ""),
+              text: String(r["Malayalam News Text"] ?? r["News"] ?? r["Text"] ?? ""),
+              imgUrl: String(r["Image URLs"] ?? r["Image"] ?? r["URL"] ?? "")
             }));
           }
         });
@@ -891,7 +891,8 @@
     }
 
     function escapeJs(str) {
-      return (str || "").replace(/'/g, "\\'").replace(/"/g, '\\"');
+      if (str === null || str === undefined) return "";
+      return String(str).replace(/'/g, "\\'").replace(/"/g, '\\"');
     }
 
     function togglePosterSelection(url, isChecked) {
@@ -1010,8 +1011,8 @@
     }
 
     function escapeHtml(str) {
-      if (!str) return "";
-      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      if (str === null || str === undefined) return "";
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
     function updateRow(idx, field, val) {
