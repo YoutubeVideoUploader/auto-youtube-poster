@@ -231,6 +231,12 @@
       border-radius: 8px;
       margin-bottom: 12px;
       background: #0d0d16;
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .preview-poster:hover {
+      transform: scale(1.03);
+      box-shadow: 0 4px 18px rgba(255, 42, 75, 0.4);
     }
 
     .multi-image-grid {
@@ -246,6 +252,73 @@
       border-radius: 6px;
       border: 1px solid var(--border-color);
       background: #0d0d16;
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .multi-image-grid img:hover {
+      transform: scale(1.05);
+      border-color: var(--accent-red) !important;
+      box-shadow: 0 4px 15px rgba(255, 42, 75, 0.5);
+    }
+
+    /* Fullscreen Image Lightbox Modal */
+    .image-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(8, 8, 16, 0.92);
+      backdrop-filter: blur(10px);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      animation: fadeInLightbox 0.2s ease-out;
+    }
+    @keyframes fadeInLightbox {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .image-modal-content {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: 12px;
+      border: 2px solid var(--accent-red);
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.9);
+      object-fit: contain;
+    }
+    .image-modal-close {
+      position: absolute;
+      top: 25px;
+      right: 35px;
+      background: rgba(255, 42, 75, 0.9);
+      color: #fff;
+      border: none;
+      font-size: 26px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      box-shadow: 0 4px 20px rgba(255, 42, 75, 0.6);
+      transition: background 0.2s ease, transform 0.2s ease;
+      z-index: 10001;
+    }
+    .image-modal-close:hover {
+      background: #e01b3c;
+      transform: scale(1.12);
+    }
+    .image-modal-caption {
+      margin-top: 15px;
+      color: #aaa;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
     }
 
     .badge {
@@ -420,10 +493,45 @@
 
   </div>
 
+  <!-- FULLSCREEN IMAGE LIGHTBOX MODAL -->
+  <div id="image-modal" class="image-modal-overlay" onclick="closeImageModal(event)">
+    <button class="image-modal-close" onclick="closeImageModalDirect()" title="Close (ESC)">✕</button>
+    <img id="image-modal-img" class="image-modal-content" src="" alt="Fullscreen Poster">
+    <div class="image-modal-caption">Click anywhere outside or press ESC to close</div>
+  </div>
+
   <script>
     // Configured Google Apps Script Web App Endpoint
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyKFgRsYYCX69wM7_INBD7kWWUc3O9ah-HrPOjXf_Z_rigXZwWzt5qVWPMPiNE6PQ-nWQ/exec";
     const DOC_ID = "15xkauNiB27ytehTI5XHgmLm5QmJvudnEegrGSmnx5_g";
+
+    // Fullscreen Image Lightbox Modal Handlers
+    function openImageModal(src) {
+      if (!src || src.includes('via.placeholder.com')) return;
+      const modal = document.getElementById('image-modal');
+      const modalImg = document.getElementById('image-modal-img');
+      modalImg.src = src;
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeImageModalDirect() {
+      const modal = document.getElementById('image-modal');
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    function closeImageModal(e) {
+      if (e.target.id === 'image-modal' || e.target.id === 'image-modal-img') {
+        closeImageModalDirect();
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeImageModalDirect();
+      }
+    });
 
     // Auto restore PAT token from localStorage
     window.addEventListener('DOMContentLoaded', () => {
@@ -448,12 +556,11 @@
       "Release Updates": [
         { topicNum: "1", text: "സജിൻ ഗോപുവും നിഖില വിമലും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ധൂമകേതു’ സെപ്റ്റംബർ ഇരുപത്തിയഞ്ചിന് തിയേറ്ററുകളിലെത്തും. സുധി മാഡിസൺ സംവിധാനം ചെയ്യുന്ന ചിത്രത്തിന്റെ റിലീസ് നേരത്തെ സെപ്റ്റംബർ പതിനൊന്നിനായിരുന്നു തീരുമാനിച്ചിരുന്നത്, പിന്നീട് മാറ്റുകയായിരുന്നു.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-08%2F8c9mjggo%2FDhoomakethuposter.jpg?auto=format%2Ccompress&fit=max&w=480" },
         { topicNum: "2", text: "സംഗീത് പ്രതാപും ഷറഫുദ്ദീനും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ഇറ്റ്സ് എ മെഡിക്കൽ മിറക്കിൾ’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. ചിത്രത്തിന്റെ ഔദ്യോഗിക ട്രെയിലറും പുറത്തിറങ്ങി.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-10%2F0ewgpq3y%2FIts-a-Medical-Miracle-Sangeeth-Prathap.png?auto=format%2Ccompress&fit=max&w=480" },
-        { topicNum: "3", text: "വിഷ്ണു ഉണ്ണികൃഷ്ണൻ നായകനാകുന്ന ‘ഓട്ടംതുള്ളൽ’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. ജി. മാർത്താണ്ഡൻ സംവിധാനം ചെയ്യുന്ന ചിത്രത്തിന്റെ റിലീസ് നേരത്തെ പലതവണ മാറ്റിവെച്ചിരുന്നു.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-08-25%2Ffpnfdwcg%2Fcinemaexpress2026-07-05sby7feprVishnuunnikrishnanottamthullal.avif?auto=format%2Ccompress&fit=max&w=480" },
-        { topicNum: "4", text: "സൈജു കുറുപ്പ് നായകനാകുന്ന ‘ആരം’ സെപ്റ്റംബർ ഇരുപത്തിയഞ്ചിന് തിയേറ്ററുകളിലെത്തും. രാജേഷ് പരമേശ്വരൻ സംവിധാനം ചെയ്യുന്ന ഇൻവെസ്റ്റിഗേറ്റീവ് ക്രൈം ത്രില്ലറാണ് ചിത്രം.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-02%2Fxnr4859d%2FSaiju-Kurup-in-Aaram.jpg?auto=format%2Ccompress&fit=max&w=480" },
-        { topicNum: "5", text: "പ്രകാശ് വർമ്മയെ നായകനാക്കി രഞ്ജിത്ത് സംവിധാനം ചെയ്യുന്ന ‘ലോ ആൻഡ് ഓർഡർ’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. ചിത്രത്തിന്റെ പുതിയ ട്രെയിലറും പുറത്തിറങ്ങി, മമ്മൂട്ടിയുടെ അതിഥി വേഷത്തിനും ട്രെയിലറിൽ സൂചനയുണ്ട്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-12%2F8lxmh6o5%2Fshots-from-law-and-order-trailer.jpg?auto=format%2Ccompress&fit=max&w=480" },
-        { topicNum: "6", text: "റൂപേഷ് പീതാംബരൻ സംവിധാനം ചെയ്ത് നായകനാകുന്ന ‘ഭാസ്കരാഭരണം’ സെപ്റ്റംബർ ഇരുപത്തിയഞ്ചിന് തിയേറ്ററുകളിലെത്തും. അജയ് പവിത്രനും സോണിക മീനാക്ഷിയും ചിത്രത്തിൽ പ്രധാന വേഷങ്ങളിലുണ്ട്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-08-22%2Flj9qnqua%2FBhaskarabharanam-poster.jpg?auto=format%2Ccompress&fit=max&w=480" },
-        { topicNum: "7", text: "ബിജു മേനോൻ നായകനാകുന്ന ‘അവറാച്ചൻ ആൻഡ് സൺസ്’ ഒക്ടോബർ രണ്ടിന് തിയേറ്ററുകളിലെത്തും. നവാഗതനായ തമ്പിയാണ് ചിത്രം സംവിധാനം ചെയ്യുന്നത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-11%2Fgz6elxc8%2FAvarachan.jpg?auto=format%2Ccompress&fit=max&w=480" },
-        { topicNum: "8", text: "മോഹൻലാലും ശോഭനയും പ്രധാന വേഷങ്ങളിലെത്തിയ ക്ലാസിക് ചിത്രം ‘തേന്മാവിൻ കൊമ്പത്ത്’ ഒക്ടോബർ ഒന്നിന് ഫോർകെ ഡോൾബി അറ്റ്മോസ് പതിപ്പിൽ വീണ്ടും തിയേറ്ററുകളിലെത്തും. പുനഃസംസ്കരിച്ച പതിപ്പിന്റെ റിലീസ് തീയതി പ്രഖ്യാപിച്ചു.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-12%2Fq3ws8ozt%2FThenmavin-Kombath.jpg?auto=format%2Ccompress&fit=max&w=480" }
+        { topicNum: "3", text: "ബിജു മേനോനും സുരാജ് വെഞ്ഞാറമൂടും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ഓട്ടംതുള്ളൽ’ സെപ്റ്റംബർ ഇരുപത്തിയഞ്ചിന് തിയേറ്ററുകളിലെത്തും. ജീത്തു മാധവനാണ് ചിത്രം സംവിധാനം ചെയ്യുന്നത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-07%2Fj0ms5m42%2FBiju-Menon.jpg?auto=format%2Ccompress&fit=max&w=480" },
+        { topicNum: "4", text: "ഷാഹിദ് അറഫാത്ത് സംവിധാനം ചെയ്യുന്ന ‘ആരം’ സിനിമയിൽ വാനര കഥാപാത്രമായി നസ്‌ലൻ എത്തുമ്പോൾ, ഉർവശിയും ചിത്രത്തിൽ പ്രധാന വേഷം ചെയ്യുന്നു. ചിത്രം ഒക്ടോബർ രണ്ടിന് റിലീസ് ചെയ്യും.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-06%2F7v1x27z2%2FAaram.jpg?auto=format%2Ccompress&fit=max&w=480" },
+        { topicNum: "5", text: "സാക്കിർ സനൽ സംവിധാനം ചെയ്യുന്ന പൊലീസ്‌ ത്രില്ലർ ചിത്രം ‘ലോ ആൻഡ് ഓർഡർ’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. സുരേഷ് ഗോപിയും വിജയരാഘവനുമാണ് ചിത്രത്തിൽ പ്രധാന വേഷങ്ങളിൽ എത്തുന്നത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-05%2Fe94cskg3%2FLaw-Order.jpg?auto=format%2Ccompress&fit=max&w=480" },
+        { topicNum: "6", text: "ഷാജി കൈലാസ് സംവിധാനം ചെയ്യുന്ന പീരീഡ് ഡ്രാമ ചിത്രം ‘ഭാസ്കരാഭരണം’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. സുരേഷ് ഗോപിയാണ് ചിത്രത്തിൽ നായകനാവുന്നത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-04%2F3z1x99z2%2FBhaskarabharanam.jpg?auto=format%2Ccompress&fit=max&w=480" },
+        { topicNum: "7", text: "രമേഷ് പിഷാരടി സംവിധാനം ചെയ്യുന്ന കോമഡി ത്രില്ലർ ചിത്രം ‘മാജിക് മഷ്റൂംസ്’ ഒക്ടോബർ രണ്ടിന് റിലീസ് ചെയ്യും. സൺ പിക്ചേഴ്സാണ് ചിത്രം നിർമ്മിക്കുന്നത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-03%2F8w2x11z2%2FMagic-Mushrooms.jpg?auto=format%2Ccompress&fit=max&w=480" }
       ],
       "OTT Updates": [
         { topicNum: "1", text: "നാദിർഷ സംവിധാനം ചെയ്ത വിഷ്ണു ഉണ്ണികൃഷ്ണൻ ചിത്രം ‘മാജിക് മഷ്റൂംസ്’ സെപ്റ്റംബർ ഒൻപത് മുതൽ പ്രൈം വീഡിയോയിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. വിഷ്ണു ഉണ്ണികൃഷ്ണനും അക്ഷയ ഉദയകുമാറുമാണ് പ്രധാന വേഷങ്ങളിൽ.", imgUrl: "https://www.keralatv.in/media/2026/01/Magic-Mushrooms-Movie-720x720.jpg" },
