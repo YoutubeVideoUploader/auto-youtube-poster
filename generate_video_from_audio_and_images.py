@@ -51,14 +51,29 @@ def resolve_video_for_segment(seg: dict, item_data: dict, next_item_data: dict) 
             return p
 
     elif seg_type in ["section_intro", "transition"]:
-        next_sec = str(next_item_data.get("section_slug", "")).lower()
-        sec = str(item_data.get("section_slug", "")).lower()
-
-        if "ott" in next_sec or "ott" in sec or "ഒടിടി" in seg_text or "സ്ട്രീമിംഗ്" in seg_text:
+        # 1. Match by segment text keywords first (most reliable Malayalam root stems)
+        if "ഒടിടി" in seg_text or "സ്ട്രീമിംഗ്" in seg_text or "ott" in seg_text:
             p = INTRO_DIR / "OTT update Intro.mp4"
             if p.exists():
                 return p
-        elif "release" in next_sec or "release" in sec or "റിലീസ്" in seg_text or "തിയേറ്റർ" in seg_text:
+        elif "റിലീ" in seg_text or "തിയേ" in seg_text or "release" in seg_text or "theater" in seg_text:
+            p = INTRO_DIR / "Theater Release Intro.mp4"
+            if p.exists():
+                return p
+        elif "സിനിമ" in seg_text or "വാർത്ത" in seg_text or "അപ്ഡേറ്റ്" in seg_text or "movie" in seg_text or "ആദ്യം" in seg_text:
+            p = INTRO_DIR / "Movie update Intro.mp4"
+            if p.exists():
+                return p
+
+        # 2. Fallback to section_slug inspection
+        sec = str(item_data.get("section_slug", "")).lower()
+        next_sec = str(next_item_data.get("section_slug", "")).lower()
+
+        if "ott" in sec or "ott" in next_sec:
+            p = INTRO_DIR / "OTT update Intro.mp4"
+            if p.exists():
+                return p
+        elif "release" in sec or "release" in next_sec:
             p = INTRO_DIR / "Theater Release Intro.mp4"
             if p.exists():
                 return p
@@ -411,13 +426,12 @@ def create_mini_cell_collage(image_paths: list, cell_w: int, cell_h: int) -> Ima
 
 def get_font(size: int, bold: bool = True):
     font_candidates = [
+        "C:/Windows/Fonts/NirmalaB.ttf" if bold else "C:/Windows/Fonts/Nirmala.ttf",
+        "C:/Windows/Fonts/arialbd.ttf" if bold else "C:/Windows/Fonts/arial.ttf",
         "DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf",
         "FreeSansBold.ttf" if bold else "FreeSans.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
         "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf" if bold else "/usr/share/fonts/truetype/freefont/FreeSans.ttf",
-        "arialbd.ttf" if bold else "arial.ttf",
-        "C:/Windows/Fonts/arialbd.ttf",
-        "C:/Windows/Fonts/NirmalaB.ttf"
     ]
     for fn in font_candidates:
         try:
@@ -430,35 +444,48 @@ def get_font(size: int, bold: bool = True):
         return ImageFont.load_default()
 
 
-def create_headline_banner_overlay(headline_text: str, output_path: str, width: int = 750, height: int = 110) -> str:
+def create_headline_banner_overlay(headline_text: str, output_path: str, height: int = 125) -> tuple:
     """
     Creates a broadcast PNG lower-third headline banner image with transparent background.
     Used exclusively for Movie Updates slide animation.
+    Calculates dynamic banner width based on the exact text length of headline_text so no text is truncated.
+    Returns (output_path_str, box_w).
     """
-    canvas = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    display_text = headline_text.strip()
+
+    title_font = get_font(40, bold=True)
+    badge_font = get_font(20, bold=True)
+
+    dummy_img = Image.new("RGBA", (1, 1))
+    dummy_draw = ImageDraw.Draw(dummy_img)
+
+    text_bbox = dummy_draw.textbbox((0, 0), display_text, font=title_font)
+    text_w = text_bbox[2] - text_bbox[0]
+
+    badge_bbox = dummy_draw.textbbox((0, 0), "CINEMA UPDATE", font=badge_font)
+    badge_w = badge_bbox[2] - badge_bbox[0]
+
+    content_w = max(text_w, badge_w)
+    box_w = max(420, min(1840, int(content_w) + 70))
+
+    canvas = Image.new("RGBA", (box_w, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(canvas)
 
     # 1. Dark semi-transparent rounded container
-    rect = [0, 0, width, height]
+    rect = [0, 0, box_w, height]
     draw.rounded_rectangle(rect, radius=12, fill=(18, 18, 35, 235), outline=(255, 42, 75), width=3)
 
     # 2. Left vertical red accent bar
     draw.rounded_rectangle([0, 0, 14, height], radius=6, fill=(255, 42, 75))
 
     # 3. Small Category Badge: "CINEMA UPDATE"
-    badge_font = get_font(18, bold=True)
     draw.text((30, 14), "CINEMA UPDATE", font=badge_font, fill=(255, 215, 0))
 
     # 4. Headline Text
-    title_font = get_font(30, bold=True)
-    display_text = headline_text.strip()
-    if len(display_text) > 42:
-        display_text = display_text[:40] + "..."
-
-    draw.text((30, 48), display_text, font=title_font, fill=(255, 255, 255))
+    draw.text((30, 52), display_text, font=title_font, fill=(255, 255, 255))
 
     canvas.save(output_path, "PNG")
-    return str(output_path)
+    return str(output_path), box_w
 
 
 def create_table_slide(topic_text: str, image_paths: list, output_path: str, section_slug: str, width: int = 1920, height: int = 1080) -> str:
@@ -662,6 +689,9 @@ def generate_video(
                     all_imgs = ([p_path] if p_path else []) + (a_paths if a_paths else [])
                 valid_imgs = [p for p in all_imgs if p and Path(p).exists()]
 
+            banner_overlay_path = None
+            banner_width = 750
+            if item_data:
                 sec_slug = str(item_data.get("section_slug", "")).lower()
                 topic_text = item_data.get("topic_text", "")
                 topic_headline = item_data.get("topic_headline", "").strip()
@@ -672,15 +702,17 @@ def generate_video(
                     create_actor_collage_slide(valid_imgs, slide_img_path)
                     if topic_headline:
                         overlay_png = str(slides_dir / f"headline_banner_{i+1}.png")
-                        create_headline_banner_overlay(topic_headline, overlay_png)
+                        _, banner_w = create_headline_banner_overlay(topic_headline, overlay_png)
                         banner_overlay_path = overlay_png
+                        banner_width = banner_w
 
             visual_entries.append({
                 "kind": "slide",
                 "image": slide_img_path,
                 "duration": seg_duration,
                 "segment_index": i,
-                "banner_overlay": banner_overlay_path
+                "banner_overlay": banner_overlay_path,
+                "banner_width": banner_width
             })
 
     # 2. Group visual entries into consecutive chunks
@@ -696,7 +728,8 @@ def generate_video(
             chunks.append({
                 "kind": "animated_slide",
                 "slides": [entry],
-                "duration": entry["duration"]
+                "duration": entry["duration"],
+                "banner_width": entry.get("banner_width", 750)
             })
         else:
             if chunks and chunks[-1]["kind"] == "slides":
@@ -741,20 +774,24 @@ def generate_video(
             dur = chunk_dur
             banner_img = slide_entry["banner_overlay"].replace("\\", "/")
             slide_img = slide_entry["image"].replace("\\", "/")
+            banner_w = chunk.get("banner_width", 750)
             
             t_out = max(1.5, dur - 1.0)
-            t_out_end = max(1.9, dur - 0.6)
+            t_out_end = t_out + 0.4
+            
+            offscreen_x = -(banner_w + 50)
+            slide_speed = (banner_w + 90) / 0.4
             
             filter_str = (
                 f"[0:v]scale=1920:1080,fps=30,setsar=1[bg];"
-                f"[1:v]scale=750:110[banner];"
-                f"[bg][banner]overlay=x='if(lt(t,1.0),-800,if(lt(t,1.4),-800+(t-1.0)*2100,if(lt(t,{t_out:.2f}),40,if(lt(t,{t_out_end:.2f}),40-(t-{t_out:.2f})*2100,-800))))':y=920:shortest=1[v]"
+                f"[1:v]scale={banner_w}:125[banner];"
+                f"[bg][banner]overlay=x='if(lt(t,1.0),{offscreen_x},if(lt(t,1.4),{offscreen_x}+(t-1.0)*{slide_speed:.2f},if(lt(t,{t_out:.2f}),40,if(lt(t,{t_out_end:.2f}),40-(t-{t_out:.2f})*{slide_speed:.2f},{offscreen_x}))))':y=905[v]"
             )
-            print(f"    - Chunk {k:02d} [ANIMATED HEADLINE SLIDE]: ({dur:.2f}s, Left Slide Banner)")
+            print(f"    - Chunk {k:02d} [ANIMATED HEADLINE SLIDE]: ({dur:.2f}s, Left Slide Banner width={banner_w}px)")
             cmd = [
                 "ffmpeg", "-y",
                 "-loop", "1", "-t", f"{dur:.4f}", "-i", slide_img,
-                "-i", banner_img,
+                "-loop", "1", "-t", f"{dur:.4f}", "-i", banner_img,
                 "-filter_complex", filter_str,
                 "-map", "[v]",
                 "-t", f"{dur:.4f}",

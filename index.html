@@ -727,7 +727,7 @@
 
     function addRow() {
       let nextNum = (store[activeTab].length + 1).toString();
-      store[activeTab].push({ topicNum: nextNum, text: "", imgUrl: "" });
+      store[activeTab].push({ topicNum: nextNum, headline: "", text: "", imgUrl: "" });
       saveLocalStore();
       renderTableRows();
     }

@@ -4,6 +4,36 @@
 // ==============================================================================
 
 function doGet(e) {
+  if (e && e.parameter && e.parameter.action === "get_data") {
+    try {
+      var ss = SpreadsheetApp.getActiveSpreadsheet();
+      var result = {};
+      var sheets = ss.getSheets();
+      for (var i = 0; i < sheets.length; i++) {
+        var s = sheets[i];
+        var name = s.getName();
+        var data = s.getDataRange().getValues();
+        if (data.length > 1) {
+          var headers = data[0];
+          var rows = [];
+          for (var r = 1; r < data.length; r++) {
+            var rowObj = {};
+            for (var c = 0; c < headers.length; c++) {
+              rowObj[headers[c]] = data[r][c];
+            }
+            rows.push(rowObj);
+          }
+          result[name] = rows;
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify(result))
+        .setMimeType(ContentService.MimeType.JSON);
+    } catch (err) {
+      return ContentService.createTextOutput(JSON.stringify({"error": err.toString()}))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
   return HtmlService.createHtmlOutputFromFile('Index')
     .setTitle('Malayalam Movie News Studio')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
@@ -28,14 +58,19 @@ function doPost(e) {
       sheet = ss.insertSheet(tabName);
     }
 
-    // Clear old data and set headers
+    // Clear old data and set headers (including Column D: Topic Headline)
     sheet.clearContents();
-    sheet.appendRow(["Topic Number", "Malayalam News Text", "Image URLs"]);
+    sheet.appendRow(["Topic Number", "Malayalam News Text", "Image URLs", "Topic Headline"]);
 
     // Write updated rows
     for (var i = 0; i < rows.length; i++) {
       var r = rows[i];
-      sheet.appendRow([r["Topic Number"], r["Malayalam News Text"], r["Image URLs"]]);
+      sheet.appendRow([
+        r["Topic Number"] || "",
+        r["Malayalam News Text"] || "",
+        r["Image URLs"] || "",
+        r["Topic Headline"] || ""
+      ]);
     }
 
     return ContentService.createTextOutput(JSON.stringify({"status": "success"}))
@@ -53,7 +88,7 @@ function savePastedData(category, rawText) {
     sheet = ss.insertSheet(category);
   }
   sheet.clearContents();
-  sheet.appendRow(["Topic Number", "Malayalam News Text", "Image URLs"]);
+  sheet.appendRow(["Topic Number", "Malayalam News Text", "Image URLs", "Topic Headline"]);
 
   var lines = rawText.trim().split("\n");
   for (var i = 0; i < lines.length; i++) {
