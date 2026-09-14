@@ -46,21 +46,34 @@ def upgrade_image_url_quality(url: str) -> str:
     return url
 
 
-def download_image(url: str, timeout: int = 15) -> Optional[Image.Image]:
-    """Downloads an image from URL and returns a PIL Image in RGB mode."""
-    if not url or not url.strip() or not url.startswith("http"):
+def download_image(url_or_path: str, timeout: int = 15) -> Optional[Image.Image]:
+    """Loads an image from a local file path OR downloads from HTTP URL."""
+    if not url_or_path or not str(url_or_path).strip():
         return None
-    url = upgrade_image_url_quality(url.strip())
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-    }
-    try:
-        resp = requests.get(url, headers=headers, timeout=timeout, verify=False)
-        if resp.status_code == 200 and len(resp.content) > 500:
-            img = Image.open(io.BytesIO(resp.content)).convert("RGB")
-            return img
-    except Exception as e:
-        print(f"[!] Warning: Could not download image {url[:40]}... : {e}")
+    url_or_path = str(url_or_path).strip()
+
+    # 1. Local file path support
+    p = Path(url_or_path)
+    if p.exists() and p.is_file():
+        try:
+            return Image.open(p).convert("RGB")
+        except Exception as e:
+            print(f"[!] Warning: Could not open local image {url_or_path} : {e}")
+            return None
+
+    # 2. HTTP URL download support
+    if url_or_path.startswith("http"):
+        url = upgrade_image_url_quality(url_or_path)
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+        try:
+            resp = requests.get(url, headers=headers, timeout=timeout, verify=False)
+            if resp.status_code == 200 and len(resp.content) > 500:
+                img = Image.open(io.BytesIO(resp.content)).convert("RGB")
+                return img
+        except Exception as e:
+            print(f"[!] Warning: Could not download image {url[:40]}... : {e}")
     return None
 
 

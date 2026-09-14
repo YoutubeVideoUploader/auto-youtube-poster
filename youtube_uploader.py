@@ -156,7 +156,7 @@ class YouTubeUploader:
         thumbnail_uploaded = False
         if thumbnail_path and Path(thumbnail_path).exists() and video_id:
             try:
-                print(f"[📷] Uploading Custom Thumbnail: {thumbnail_path}...")
+                print(f"[THUMBNAIL] Uploading Custom Thumbnail: {thumbnail_path}...")
                 thumb_media = MediaFileUpload(thumbnail_path, mimetype="image/jpeg")
                 youtube.thumbnails().set(
                     videoId=video_id,

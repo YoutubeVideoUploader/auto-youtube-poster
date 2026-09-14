@@ -7,6 +7,7 @@ Hashtags, SEO Tags, and Google Drive Thumbnail Downloader.
 import os
 import re
 import io
+import json
 import requests
 import datetime
 from pathlib import Path
@@ -77,27 +78,56 @@ def download_thumbnail_from_drive(
             if u_clean.startswith("http"):
                 image_urls.append(u_clean)
 
-    # 3. If no explicit URLs passed, extract poster images from sheet data
-    if not image_urls and sheet_data:
-        for tab_name, rows in sheet_data.items():
-            for row in rows:
-                raw_img = row.get("Image URLs", "") or row.get("Image", "") or row.get("URL", "")
-                if raw_img:
-                    for u in re.split(r'[\r\n,]+', str(raw_img)):
-                        u_clean = u.strip()
-                        if u_clean.startswith("http") and u_clean not in image_urls:
-                            image_urls.append(u_clean)
+    # 3. If no explicit URLs passed, try loading sheet_data from sheet_cache.json if not provided
+    if not image_urls:
+        if not sheet_data:
+            cache_file = OUTPUT_DIR / "sheet_cache.json"
+            if cache_file.exists():
+                try:
+                    with open(cache_file, 'r', encoding='utf-8') as f:
+                        sheet_data = json.load(f)
+                except Exception as e:
+                    print(f"[!] Warning reading sheet_cache.json for thumbnail: {e}")
 
-    # 4. Generate Automated 1280x720 YouTube Thumbnail Collage
+        if sheet_data and isinstance(sheet_data, dict):
+            for tab_name, rows in sheet_data.items():
+                if isinstance(rows, list):
+                    for row in rows:
+                        if isinstance(row, dict):
+                            raw_img = row.get("Image URLs", "") or row.get("Image", "") or row.get("URL", "")
+                            if raw_img:
+                                for u in re.split(r'[\r\n,]+', str(raw_img)):
+                                    u_clean = u.strip()
+                                    if u_clean.startswith("http") and u_clean not in image_urls:
+                                        image_urls.append(u_clean)
+
+    # 4. Fallback: Scan local downloaded topic_images directory if still empty
+    if not image_urls:
+        topic_img_dir = OUTPUT_DIR / "topic_images"
+        if topic_img_dir.exists():
+            for img_file in sorted(topic_img_dir.glob("**/*.[jJ][pP][gG]")):
+                image_urls.append(str(img_file))
+            for img_file in sorted(topic_img_dir.glob("**/*.[pP][nN][gG]")):
+                if str(img_file) not in image_urls:
+                    image_urls.append(str(img_file))
+
+    # 5. Generate Automated 1280x720 YouTube Thumbnail Collage
     if image_urls:
         try:
             from thumbnail_generator import create_collage_thumbnail
-            print(f"[📷] Generating Automated YouTube Thumbnail Collage from {len(image_urls)} image(s)...")
+            print(f"[THUMBNAIL] Generating Automated YouTube Thumbnail Collage from {len(image_urls)} image(s)...")
             return create_collage_thumbnail(image_urls, "LATEST MALAYALAM MOVIE UPDATES", save_filename)
         except Exception as e:
             print(f"[!] Warning generating thumbnail collage: {e}")
 
-    return None
+    # Final Fallback: Generate template collage with fallback branding
+    try:
+        from thumbnail_generator import create_collage_thumbnail
+        print("[THUMBNAIL] Generating fallback YouTube Thumbnail Collage...")
+        return create_collage_thumbnail([], "LATEST MALAYALAM MOVIE UPDATES", save_filename)
+    except Exception as e:
+        print(f"[!] Error generating fallback thumbnail collage: {e}")
+        return None
 
 
 def generate_english_title(month_year: Optional[str] = None) -> str:

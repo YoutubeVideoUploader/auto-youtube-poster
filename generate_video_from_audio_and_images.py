@@ -940,9 +940,21 @@ def generate_video(
     except Exception as e:
         print(f"[!] Cleanup warning: {e}")
 
+    # Automatically generate 1280x720 YouTube Thumbnail Collage
+    thumb_path = None
+    try:
+        from metadata_generator import download_thumbnail_from_drive
+        thumb_path = download_thumbnail_from_drive()
+        if thumb_path:
+            print(f"    🖼️ Thumbnail Path : {thumb_path}")
+    except Exception as e:
+        print(f"[!] Warning generating thumbnail after video render: {e}")
+
     print("\n" + "=" * 70)
     print(f"[SUCCESS] Presentation Video Rendered Successfully!")
     print(f"    📁 MP4 Video Path : {output_video_path}")
+    if thumb_path:
+        print(f"    🖼️ Thumbnail Path : {thumb_path}")
     print(f"    ⏱️ Video Duration : {round(total_audio_duration, 2)} seconds")
     print(f"    📺 Resolution     : 1920x1080 Full HD (30 FPS)")
     print("=" * 70)
