@@ -54,32 +54,41 @@ function doPost(e) {
 
     // 1. Handle GitHub Action Trigger Request from Web App / Website
     if (data.action === "trigger_github") {
+      if (data.drive_thumbnail_url) {
+        saveThumbnailConfigSheet(data.drive_thumbnail_url);
+      }
       return triggerGitHubActionHandler(data.privacy_status, data.drive_thumbnail_url, data.token);
     }
 
     // 2. Handle Google Sheet Table Sync Request
+    if (data.thumbnail_urls) {
+      saveThumbnailConfigSheet(data.thumbnail_urls);
+    }
+
     var tabName = data.tab_name;
     var rows = data.rows;
 
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName(tabName);
-    if (!sheet) {
-      sheet = ss.insertSheet(tabName);
-    }
+    if (tabName && rows) {
+      var ss = SpreadsheetApp.getActiveSpreadsheet();
+      var sheet = ss.getSheetByName(tabName);
+      if (!sheet) {
+        sheet = ss.insertSheet(tabName);
+      }
 
-    // Clear old data and set headers (including Column D: Topic Headline)
-    sheet.clearContents();
-    sheet.appendRow(["Topic Number", "Malayalam News Text", "Image URLs", "Topic Headline"]);
+      // Clear old data and set headers (including Column D: Topic Headline)
+      sheet.clearContents();
+      sheet.appendRow(["Topic Number", "Malayalam News Text", "Image URLs", "Topic Headline"]);
 
-    // Write updated rows
-    for (var i = 0; i < rows.length; i++) {
-      var r = rows[i];
-      sheet.appendRow([
-        r["Topic Number"] || "",
-        r["Malayalam News Text"] || "",
-        r["Image URLs"] || "",
-        r["Topic Headline"] || ""
-      ]);
+      // Write updated rows
+      for (var i = 0; i < rows.length; i++) {
+        var r = rows[i];
+        sheet.appendRow([
+          r["Topic Number"] || "",
+          r["Malayalam News Text"] || "",
+          r["Image URLs"] || "",
+          r["Topic Headline"] || ""
+        ]);
+      }
     }
 
     return ContentService.createTextOutput(JSON.stringify({"status": "success"}))
@@ -87,6 +96,28 @@ function doPost(e) {
   } catch (err) {
     return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": err.toString()}))
       .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function saveThumbnailConfigSheet(urlsString) {
+  try {
+    if (!urlsString || typeof urlsString !== 'string') return;
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName("Thumbnail Config");
+    if (!sheet) {
+      sheet = ss.insertSheet("Thumbnail Config");
+    }
+    sheet.clearContents();
+    sheet.appendRow(["Selected Image URLs"]);
+    var urls = urlsString.split(/[\r\n,]+/);
+    for (var i = 0; i < urls.length; i++) {
+      var u = urls[i].trim();
+      if (u) {
+        sheet.appendRow([u]);
+      }
+    }
+  } catch (err) {
+    Logger.log("Error saving thumbnail config sheet: " + err);
   }
 }
 

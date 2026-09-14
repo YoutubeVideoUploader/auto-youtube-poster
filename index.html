@@ -1189,7 +1189,8 @@
           "Topic Headline": r.headline || "",
           "Malayalam News Text": r.text,
           "Image URLs": r.imgUrl
-        }))
+        })),
+        thumbnail_urls: selectedPosterUrls.length > 0 ? selectedPosterUrls.join(",") : ""
       };
 
       fetch(WEB_APP_URL, {
