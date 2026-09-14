@@ -354,6 +354,146 @@
     }
     .toast-success { background: #133820; color: #4eff8c; border: 1px solid #23683a; }
     .toast-error { background: #3d1418; color: #ff4e5e; border: 1px solid #6b222a; }
+
+    /* Table Responsive Scroll Wrapper */
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-top: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+    .table-wrapper table {
+      margin-top: 0;
+      margin-bottom: 0;
+      min-width: 650px;
+    }
+
+    /* Mobile Responsive Media Queries */
+    @media (max-width: 768px) {
+      body {
+        padding: 12px 10px;
+      }
+
+      header {
+        margin-bottom: 18px;
+      }
+
+      header h1 {
+        font-size: 22px;
+      }
+
+      header p {
+        font-size: 13px;
+      }
+
+      .section-nav {
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+
+      .section-btn {
+        max-width: 100%;
+        width: 100%;
+        padding: 14px 16px;
+        font-size: 15px;
+      }
+
+      .tab-bar {
+        gap: 8px;
+      }
+
+      .tab-btn {
+        flex: 1 1 calc(33.33% - 8px);
+        text-align: center;
+        padding: 10px 8px;
+        font-size: 13px;
+        min-width: 90px;
+      }
+
+      .card {
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 18px;
+      }
+
+      .card-title {
+        font-size: 16px;
+      }
+
+      /* Prevent mobile browser auto-zoom on input focus */
+      input[type="text"], textarea, select {
+        font-size: 16px !important;
+      }
+
+      .btn {
+        width: 100%;
+        text-align: center;
+        padding: 14px 18px;
+        font-size: 15px;
+      }
+
+      .preview-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .preview-poster {
+        height: 250px;
+      }
+
+      .multi-image-grid {
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        gap: 8px;
+      }
+
+      .multi-image-grid img {
+        height: 140px;
+      }
+
+      #thumbnail-posters-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+        gap: 12px !important;
+      }
+
+      #thumbnail-posters-grid .preview-poster {
+        height: 180px !important;
+      }
+
+      .image-modal-close {
+        top: 15px;
+        right: 15px;
+        width: 44px;
+        height: 44px;
+        font-size: 24px;
+      }
+
+      .image-modal-content {
+        max-width: 98vw;
+        max-height: 88vh;
+        width: 96vw;
+        height: 85vh;
+      }
+
+      .image-modal-caption {
+        font-size: 12px;
+        text-align: center;
+        padding: 0 10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .tab-bar {
+        flex-direction: column;
+      }
+
+      .tab-btn {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -392,26 +532,28 @@
           Paste raw tables directly from <b>ChatGPT</b> (with <code>|</code> pipes), <b>Excel</b>, or <b>Google Sheets</b>. All <code>|</code> pipes and header rows are automatically cleaned!
         </p>
         <textarea id="bulk-paste-box" placeholder="| Topic # | Malayalam News Text | Image URL |\n|---|---|---|\n| 1 | മമ്മൂട്ടിയുടെ പുതിയ ചിത്രം മേള പ്രഖ്യാപിച്ചു... | https://example.com/poster.jpg"></textarea>
-        <div style="display: flex; gap: 10px;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
           <button class="btn btn-secondary" onclick="importPastedTable()">📥 Clean & Import Pasted Table</button>
           <button class="btn btn-secondary" style="background: #252538;" onclick="document.getElementById('bulk-paste-box').value=''">🧹 Clear Paste Box</button>
         </div>
       </div>
 
       <!-- Data Table -->
-      <table id="data-table">
-        <thead>
-          <tr>
-            <th style="width: 80px;">Topic #</th>
-            <th>Malayalam News Text / Description</th>
-            <th style="width: 250px;">Image URL(s)</th>
-            <th style="width: 80px;">Action</th>
-          </tr>
-        </thead>
-        <tbody id="table-body">
-          <!-- Rows dynamically rendered -->
-        </tbody>
-      </table>
+      <div class="table-wrapper">
+        <table id="data-table">
+          <thead>
+            <tr>
+              <th style="width: 80px;">Topic #</th>
+              <th>Malayalam News Text / Description</th>
+              <th style="width: 250px;">Image URL(s)</th>
+              <th style="width: 80px;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <!-- Rows dynamically rendered -->
+          </tbody>
+        </table>
+      </div>
 
       <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
         <button class="btn btn-secondary" onclick="addRow()">+ Add New Row</button>
