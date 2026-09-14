@@ -116,6 +116,12 @@ class GoogleSheetManager:
 
             parsed_tabs[name] = df_tab
 
+        # Preserve any additional worksheets like 'Thumbnail Config' if present
+        for sheet_key in sheets_raw.keys():
+            key_clean = str(sheet_key).strip()
+            if key_clean not in parsed_tabs:
+                parsed_tabs[key_clean] = sheets_raw[sheet_key]
+
         self.data_cache = parsed_tabs
         self.save_local_cache()
         return self.data_cache

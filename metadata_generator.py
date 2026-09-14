@@ -78,7 +78,7 @@ def download_thumbnail_from_drive(
             if u_clean.startswith("http"):
                 image_urls.append(u_clean)
 
-    # 3. If no explicit URLs passed, try loading sheet_data from sheet_cache.json if not provided
+    # 3. Check for selected image URLs in 'Thumbnail Config' tab in sheet_data or sheet_cache.json
     if not image_urls:
         if not sheet_data:
             cache_file = OUTPUT_DIR / "sheet_cache.json"
@@ -90,26 +90,57 @@ def download_thumbnail_from_drive(
                     print(f"[!] Warning reading sheet_cache.json for thumbnail: {e}")
 
         if sheet_data and isinstance(sheet_data, dict):
-            for tab_name, rows in sheet_data.items():
-                if isinstance(rows, list):
-                    for row in rows:
-                        if isinstance(row, dict):
-                            raw_img = row.get("Image URLs", "") or row.get("Image", "") or row.get("URL", "")
-                            if raw_img:
-                                for u in re.split(r'[\r\n,]+', str(raw_img)):
+            # Check for 'Thumbnail Config' tab (case insensitive search)
+            thumb_key = None
+            for k in sheet_data.keys():
+                if "thumb" in str(k).lower() or "config" in str(k).lower():
+                    thumb_key = k
+                    break
+
+            if thumb_key and thumb_key in sheet_data:
+                raw_val = sheet_data[thumb_key]
+                rows = raw_val.to_dict(orient="records") if hasattr(raw_val, 'to_dict') else (raw_val if isinstance(raw_val, list) else [])
+                for row in rows:
+                    if isinstance(row, dict):
+                        for col_val in row.values():
+                            if col_val and str(col_val).lower() != 'nan':
+                                for u in re.split(r'[\r\n,]+', str(col_val)):
                                     u_clean = u.strip()
                                     if u_clean.startswith("http") and u_clean not in image_urls:
                                         image_urls.append(u_clean)
 
-    # 4. Fallback: Scan local downloaded topic_images directory if still empty
+    # 4. If no Thumbnail Config tab, pick top 4 poster images from active topic sheets as default
+    if not image_urls and sheet_data and isinstance(sheet_data, dict):
+        for tab_name in ["Movie Updates", "Release Updates", "OTT Updates"]:
+            if tab_name in sheet_data:
+                raw_val = sheet_data[tab_name]
+                rows = raw_val.to_dict(orient="records") if hasattr(raw_val, 'to_dict') else (raw_val if isinstance(raw_val, list) else [])
+                for row in rows:
+                    if isinstance(row, dict):
+                        raw_img = row.get("Image URLs", "") or row.get("Image", "") or row.get("URL", "")
+                        if raw_img and str(raw_img).lower() != 'nan':
+                            for u in re.split(r'[\r\n,]+', str(raw_img)):
+                                u_clean = u.strip()
+                                if u_clean.startswith("http") and u_clean not in image_urls:
+                                    image_urls.append(u_clean)
+                                    if len(image_urls) >= 4:
+                                        break
+                    if len(image_urls) >= 4:
+                        break
+
+    # 5. Fallback: Scan local downloaded topic_images directory if still empty
     if not image_urls:
         topic_img_dir = OUTPUT_DIR / "topic_images"
         if topic_img_dir.exists():
             for img_file in sorted(topic_img_dir.glob("**/*.[jJ][pP][gG]")):
                 image_urls.append(str(img_file))
+                if len(image_urls) >= 4:
+                    break
             for img_file in sorted(topic_img_dir.glob("**/*.[pP][nN][gG]")):
                 if str(img_file) not in image_urls:
                     image_urls.append(str(img_file))
+                    if len(image_urls) >= 4:
+                        break
 
     # 5. Generate Automated 1280x720 YouTube Thumbnail Collage
     if image_urls:
