@@ -453,6 +453,69 @@ def get_font(size: int, bold: bool = True):
         return ImageFont.load_default()
 
 
+def draw_section_countdown_badge(
+    image_path: str,
+    label_text: str,
+    time_str: str,
+    border_color: tuple = (255, 215, 0),
+    accent_color: tuple = (255, 215, 0),
+    top_y: int = 40
+) -> str:
+    """
+    Draws a broadcast countdown timer badge in the top-right corner of a slide image.
+    e.g. "📅 THEATER UPDATES IN" + " 01:45"
+    """
+    if not label_text or not time_str:
+        return image_path
+
+    try:
+        img = Image.open(image_path).convert("RGBA")
+        font_badge = get_font(24, bold=True)
+        font_time = get_font(26, bold=True)
+
+        dummy = Image.new("RGBA", (1, 1))
+        d_draw = ImageDraw.Draw(dummy)
+
+        l_bbox = d_draw.textbbox((0, 0), label_text, font=font_badge)
+        l_w = l_bbox[2] - l_bbox[0]
+        l_h = l_bbox[3] - l_bbox[1]
+
+        t_bbox = d_draw.textbbox((0, 0), " " + time_str, font=font_time)
+        t_w = t_bbox[2] - t_bbox[0]
+        t_h = t_bbox[3] - t_bbox[1]
+
+        total_tw = l_w + t_w
+        th = max(l_h, t_h)
+
+        pad_x = 20
+        pad_y = 10
+        badge_w = total_tw + pad_x * 2
+        badge_h = th + pad_y * 2
+
+        width, height = img.size
+        right_x = width - 40
+        left_x = right_x - badge_w
+
+        overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+        o_draw = ImageDraw.Draw(overlay)
+
+        rect = [left_x, top_y, right_x, top_y + badge_h]
+        # Dark semi-transparent pill box with border
+        o_draw.rounded_rectangle(rect, radius=10, fill=(15, 20, 35, 235), outline=border_color, width=3)
+
+        # White label text
+        o_draw.text((left_x + pad_x, top_y + pad_y), label_text, font=font_badge, fill=(255, 255, 255))
+        # Accent-colored timer text
+        o_draw.text((left_x + pad_x + l_w, top_y + pad_y - 1), " " + time_str, font=font_time, fill=accent_color)
+
+        final_img = Image.alpha_composite(img, overlay).convert("RGB")
+        final_img.save(image_path, "JPEG", quality=95)
+    except Exception as e:
+        print(f"[!] Warning drawing countdown badge on {image_path}: {e}")
+    return image_path
+
+
+
 def create_headline_banner_overlay(headline_text: str, output_path: str, height: int = 125) -> tuple:
     """
     Creates a broadcast PNG lower-third headline banner image with transparent background.
@@ -656,14 +719,55 @@ def generate_video(
     total_segs = max(len(script_meta), 1)
     duration_per_seg = total_audio_duration / total_segs
 
-    # 1. Build visual entries for each segment (video or slide image)
-    visual_entries = []
-    current_topic_index = 0
+    # Pre-calculate cumulative start times for segments and target section start times
+    seg_start_times = []
+    curr_t = 0.0
+    for seg in script_meta:
+        seg_dur = seg.get("duration", duration_per_seg)
+        seg_start_times.append(curr_t)
+        curr_t += seg_dur
+
+    release_start_time = None
+    ott_start_time = None
+    c_idx = 0
     topic_items = meta.get("topic_items", [])
 
     for i, seg in enumerate(script_meta):
         seg_type = seg.get("type", "headline")
+        seg_text = seg.get("text", "").lower()
+        if seg_type == "headline":
+            c_idx += 1
+            t_idx = c_idx
+        else:
+            t_idx = max(c_idx, 1)
+
+        item_data = topic_items[t_idx - 1] if t_idx <= len(topic_items) else {}
+        sec_slug = str(item_data.get("section_slug", "")).lower()
+
+        if release_start_time is None:
+            if seg_type == "section_intro" and any(k in seg_text for k in ["റിലീ", "തിയേ", "release", "theater"]):
+                release_start_time = seg_start_times[i]
+            elif sec_slug == "release_updates":
+                release_start_time = seg_start_times[i]
+
+        if ott_start_time is None:
+            if seg_type == "section_intro" and any(k in seg_text for k in ["ഒടിടി", "സ്ട്രീമിംഗ്", "ott"]):
+                ott_start_time = seg_start_times[i]
+            elif sec_slug == "ott_updates":
+                ott_start_time = seg_start_times[i]
+
+    rel_str = f"{release_start_time:.1f}s" if release_start_time is not None else "N/A"
+    ott_str = f"{ott_start_time:.1f}s" if ott_start_time is not None else "N/A"
+    print(f"[*] Section Timing Targets -> Theater Updates: {rel_str} | OTT Updates: {ott_str}")
+
+    # 1. Build visual entries for each segment (video or slide image)
+    visual_entries = []
+    current_topic_index = 0
+
+    for i, seg in enumerate(script_meta):
+        seg_type = seg.get("type", "headline")
         seg_duration = seg.get("duration", duration_per_seg)
+        seg_t = seg_start_times[i]
 
         if seg_type == "headline":
             current_topic_index += 1
@@ -714,6 +818,34 @@ def generate_video(
                         _, banner_w = create_headline_banner_overlay(topic_headline, overlay_png)
                         banner_overlay_path = overlay_png
                         banner_width = banner_w
+
+                # Section Countdown Timer Overlay Badge
+                if sec_slug == "movie_updates" and release_start_time is not None and seg_t < release_start_time:
+                    rem_sec = release_start_time - seg_t
+                    mins = int(rem_sec) // 60
+                    secs = int(rem_sec) % 60
+                    time_str = f"{mins:02d}:{secs:02d}"
+                    draw_section_countdown_badge(
+                        slide_img_path,
+                        "📅 THEATER UPDATES IN",
+                        time_str,
+                        border_color=(255, 215, 0),
+                        accent_color=(255, 215, 0),
+                        top_y=40
+                    )
+                elif sec_slug == "release_updates" and ott_start_time is not None and seg_t < ott_start_time:
+                    rem_sec = ott_start_time - seg_t
+                    mins = int(rem_sec) // 60
+                    secs = int(rem_sec) % 60
+                    time_str = f"{mins:02d}:{secs:02d}"
+                    draw_section_countdown_badge(
+                        slide_img_path,
+                        "🍿 OTT UPDATES IN",
+                        time_str,
+                        border_color=(0, 229, 255),
+                        accent_color=(0, 229, 255),
+                        top_y=110
+                    )
 
             visual_entries.append({
                 "kind": "slide",
