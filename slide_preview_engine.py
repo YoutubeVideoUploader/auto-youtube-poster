@@ -42,7 +42,8 @@ class SlidePreviewEngine:
         section_name: str,
         topic_idx: int,
         topic_text: str,
-        image_urls_str: str
+        image_urls_str: str,
+        topic_headline: str = ""
     ) -> Dict[str, Any]:
         """
         Downloads topic image(s), extracts table data, and renders the 1080p preview slide image.
@@ -68,19 +69,18 @@ class SlidePreviewEngine:
                     downloaded_paths.append(img_path)
 
         is_ott = "ott" in sec_slug
-        title_en, date_en, plat_en = extract_table_data(clean_topic_text, is_ott=is_ott)
+        title_en, date_en, plat_en = extract_table_data(clean_topic_text, is_ott=is_ott, topic_headline=topic_headline)
 
         # Render 1080p Slide Graphic
         preview_slide_path = str(topic_dir / "preview_slide_1080p.jpg")
 
         try:
             create_table_slide(
-                item_title=title_en,
-                item_date=date_en,
-                item_plat=plat_en,
+                topic_text=clean_topic_text,
                 image_paths=downloaded_paths,
                 output_path=preview_slide_path,
-                is_ott=is_ott
+                section_slug=sec_slug,
+                topic_headline=topic_headline
             )
         except Exception as e:
             # Fallback to collage slide if split table slide hits edge-case format

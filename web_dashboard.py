@@ -538,6 +538,7 @@ elif st.session_state.current_section == "📺 Output & Video Slide Preview":
             topic_num = idx + 1
             topic_text = str(row.get("Malayalam News Text", "")).strip()
             img_urls = str(row.get("Image URLs", "")).strip()
+            topic_headline = str(row.get("Topic Headline", row.get("Headline", ""))).strip()
 
             if not topic_text:
                 continue
@@ -547,7 +548,8 @@ elif st.session_state.current_section == "📺 Output & Video Slide Preview":
                     section_name=active_tab,
                     topic_idx=topic_num,
                     topic_text=topic_text,
-                    image_urls_str=img_urls
+                    image_urls_str=img_urls,
+                    topic_headline=topic_headline
                 )
 
             # Topic Card UI

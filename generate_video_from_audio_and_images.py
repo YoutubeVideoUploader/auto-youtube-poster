@@ -375,29 +375,167 @@ NUMBER_WORD_MAP = {
 SORTED_NUMBER_WORDS = sorted(NUMBER_WORD_MAP.items(), key=lambda x: len(x[0]), reverse=True)
 
 
-def extract_table_data(topic_text: str, is_ott: bool = False):
-    """Extracts English Movie Name, Release Date, and OTT Platform from Malayalam topic text."""
+CONSONANTS = {
+    'ക': 'k', 'ഖ': 'kh', 'ഗ': 'g', 'ഘ': 'gh', 'ങ': 'ng',
+    'ച': 'ch', 'ഛ': 'chh', 'ജ': 'j', 'ഝ': 'jh', 'ഞ': 'ny',
+    'ട': 't', 'ഠ': 'th', 'ഡ': 'd', 'ഢ': 'dh', 'ണ': 'n',
+    'ത': 'th', 'ഥ': 'thh', 'ദ': 'd', 'ധ': 'dh', 'ന': 'n',
+    'പ': 'p', 'ഫ': 'ph', 'ബ': 'b', 'ഭ': 'bh', 'മ': 'm',
+    'യ': 'y', 'ര': 'r', 'ല': 'l', 'വ': 'v', 'ശ': 'sh',
+    'ഷ': 'sh', 'സ': 's', 'ഹ': 'h', 'ള': 'l', 'ഴ': 'zh', 'റ': 'r'
+}
+
+VOWEL_SIGNS = {
+    'ാ': 'a', 'ി': 'i', 'ീ': 'ee', 'ു': 'u', 'ൂ': 'oo', 'ൃ': 'ri',
+    'െ': 'e', 'േ': 'e', 'ൈ': 'ai', 'ൊ': 'o', 'ോ': 'o', 'ൗ': 'au',
+    '്': '', 'ം': 'm', 'ഃ': 'h'
+}
+
+INDEPENDENT_VOWELS = {
+    'അ': 'A', 'ആ': 'Aa', 'ഇ': 'I', 'ഈ': 'Ee', 'ഉ': 'U', 'ഊ': 'Oo', 'ഋ': 'Ri',
+    'എ': 'E', 'ഏ': 'Ea', 'ഐ': 'Ai', 'ഒ': 'O', 'ഓ': 'Oo', 'ഔ': 'Au'
+}
+
+CHILLU = {
+    'ൻ': 'n', 'ർ': 'r', 'ൽ': 'l', 'ൾ': 'l', 'ക്': 'k', 'ൺ': 'n'
+}
+
+def transliterate_malayalam_to_english(text: str) -> str:
+    """Phonetically transliterates Malayalam script to clean Latin English script."""
     import re
-    m = re.search(r'[‘\'\"“]([^’\'\"”]+)[’\'\"”]', topic_text)
-    title_raw = m.group(1).strip() if m else 'Movie Update'
-    title_en = TITLE_MAP.get(title_raw, title_raw)
+    if not text:
+        return ""
+    if re.search(r'[a-zA-Z]', text):
+        clean_en = re.sub(r'[^a-zA-Z0-9\s\&]', '', text).strip()
+        return clean_en.title() if clean_en else text.strip()
+
+    res = []
+    i = 0
+    n = len(text)
+    while i < n:
+        ch = text[i]
+        if ch in CHILLU:
+            res.append(CHILLU[ch])
+            i += 1
+        elif ch in INDEPENDENT_VOWELS:
+            res.append(INDEPENDENT_VOWELS[ch])
+            i += 1
+        elif ch in CONSONANTS:
+            base_c = CONSONANTS[ch]
+            if i + 1 < n and text[i + 1] in VOWEL_SIGNS:
+                vs = VOWEL_SIGNS[text[i + 1]]
+                res.append(base_c + vs)
+                i += 2
+            else:
+                res.append(base_c + 'a')
+                i += 1
+        elif ch in VOWEL_SIGNS:
+            res.append(VOWEL_SIGNS[ch])
+            i += 1
+        else:
+            res.append(ch)
+            i += 1
+
+    clean = "".join(res)
+    clean = re.sub(r'[^a-zA-Z0-9\s\&]', ' ', clean)
+    clean = re.sub(r'\s+', ' ', clean).strip()
+    return clean.title() if clean else text.strip()
+
+
+def extract_table_data(topic_text: str, is_ott: bool = False, topic_headline: str = ""):
+    """
+    Extracts English Movie Name, Release Date, and OTT Platform from Malayalam topic text.
+    Uses 4-layer fallback strategy:
+    1. Explicit Topic Headline parameter
+    2. Quoted text [' " ' “ ”] in topic text
+    3. Common Malayalam movie indicators ('ചിത്രം', 'സിനിമ', 'ഫിലിം', etc.)
+    4. Auto-transliteration to clean English script
+    """
+    import re
+
+    title_raw = ""
+
+    # Strategy 1: Explicit Topic Headline parameter
+    if topic_headline and topic_headline.strip() and topic_headline.strip().lower() != 'nan':
+        title_raw = topic_headline.strip()
+
+    # Strategy 2: Quoted text in topic_text
+    if not title_raw:
+        m = re.search(r'[‘\'\"“]([^’\'\"”]+)[’\'\"”]', topic_text)
+        if m:
+            title_raw = m.group(1).strip()
+
+    # Strategy 2.5: Search known movie titles in TITLE_MAP directly inside topic_text
+    if not title_raw:
+        # Sort by title length descending to match longer titles first (e.g. 'ഇറ്റ്സ് എ മെഡിക്കൽ മിറക്കിൾ' before 'മിറക്കിൾ')
+        sorted_titles = sorted(TITLE_MAP.keys(), key=len, reverse=True)
+        for ml_title in sorted_titles:
+            if ml_title in topic_text:
+                title_raw = ml_title
+                break
+
+    # Strategy 3: Keyword Pattern Matching for unquoted movie titles
+    if not title_raw:
+        # Pattern A: "<TITLE> എന്ന ചിത്രം/സിനിമ/ഫിലിം"
+        m_enna = re.search(r'([A-Za-z0-9\u0D00-\u0D7F]{2,25})\s+എന്ന\s+(?:പുതിയ\s+)?(?:ചിത്രം|സിനിമ|ഫിലിം|മൂവി)', topic_text)
+        if m_enna:
+            title_raw = m_enna.group(1).strip()
+
+        # Pattern B: "(?:ചിത്രം|സിനിമ|ഫിലിം|മൂവി) <TITLE>"
+        if not title_raw:
+            m_after = re.search(r'(?:ചിത്രം|സിനിമ|ഫിലിം|മൂവി|ചിത്രമായ|സിനിമയായ)\s+([A-Za-z0-9\u0D00-\u0D7F]{2,25})', topic_text)
+            if m_after:
+                t_cand = m_after.group(1).strip()
+                if t_cand not in ['റിലീസിന്', 'സെപ്റ്റംബർ', 'പ്രധാന', 'ഈ', 'ഒരു', 'പുതിയ', 'ഒക്ടോബറിൽ', 'തിയേറ്ററുകളിൽ']:
+                    title_raw = t_cand
+
+        # Pattern C: "<TITLE> ചിത്രം/സിനിമ"
+        if not title_raw:
+            km = re.search(r'([A-Za-z0-9\u0D00-\u0D7F]{2,25})\s+(?:ചിത്രം|സിനിമ|ഫിലിം|മൂവി)', topic_text)
+            if km:
+                t_cand = km.group(1).strip()
+                if t_cand not in ['പുതിയ', 'ഒരു', 'മറ്റൊരു', 'ബ്രിട്ടീഷ്']:
+                    title_raw = t_cand
+
+    # Strategy 4: Fallback to first few words of topic text if still empty
+    if not title_raw or title_raw.lower() in ['nan', 'none', 'movie update']:
+        first_words = topic_text.strip().split()
+        if len(first_words) >= 2:
+            title_raw = " ".join(first_words[:3])
+        else:
+            title_raw = 'Movie Update'
+
+    title_raw = title_raw.strip(".,;:|'\"‘’“” ")
+
+    if title_raw in TITLE_MAP:
+        title_en = TITLE_MAP[title_raw]
+    else:
+        matched = None
+        for k_ml, v_en in TITLE_MAP.items():
+            if k_ml in title_raw or title_raw in k_ml:
+                matched = v_en
+                break
+        if matched:
+            title_en = matched
+        else:
+            title_en = transliterate_malayalam_to_english(title_raw)
+
+    if not title_en or len(title_en) < 2:
+        title_en = "Movie Update"
 
     date_en = 'Coming Soon'
     for ml_m, en_m in MONTH_MAP.items():
         if ml_m in topic_text:
-            # 1. Search for digits after month (e.g. സെപ്റ്റംബർ 11)
             dm = re.search(rf'{ml_m}\s*(\d{{1,2}})', topic_text)
             if dm:
                 date_en = f'{en_m} {dm.group(1)}'
                 break
 
-            # 2. Search for digits before month (e.g. 11 സെപ്റ്റംബർ)
             dm_before = re.search(rf'(\d{{1,2}})\s*{ml_m}', topic_text)
             if dm_before:
                 date_en = f'{en_m} {dm_before.group(1)}'
                 break
 
-            # 3. Search for Malayalam number words (e.g. ഇരുപത്തിയഞ്ചിന് -> 25)
             found_day = None
             for w_ml, d_num in SORTED_NUMBER_WORDS:
                 if w_ml in topic_text:
@@ -621,14 +759,14 @@ def create_headline_banner_overlay(headline_text: str, output_path: str, height:
     return str(output_path), box_w
 
 
-def create_table_slide(topic_text: str, image_paths: list, output_path: str, section_slug: str, width: int = 1920, height: int = 1080) -> str:
+def create_table_slide(topic_text: str, image_paths: list, output_path: str, section_slug: str, width: int = 1920, height: int = 1080, topic_headline: str = "") -> str:
     """
     Renders a broadcast 2-row table card slide:
     - Release Updates: Row 1 (Merged Title), Row 2 [Col 1: Image Collage | Col 2: Date]
     - OTT Updates: Row 1 (Merged Title), Row 2 [Col 1: Image Collage | Col 2: Platform | Col 3: Date]
     """
     is_ott = ('ott' in section_slug.lower())
-    title_en, date_en, plat_en = extract_table_data(topic_text, is_ott=is_ott)
+    title_en, date_en, plat_en = extract_table_data(topic_text, is_ott=is_ott, topic_headline=topic_headline)
 
     valid_paths = [p for p in image_paths if Path(p).exists()]
     poster_img = Image.open(valid_paths[0]).convert('RGB') if valid_paths else Image.new('RGB', (400, 600), (30, 35, 50))
@@ -873,7 +1011,7 @@ def generate_video(
                 topic_headline = item_data.get("topic_headline", "").strip()
 
                 if sec_slug in ["release_updates", "ott_updates"]:
-                    create_table_slide(topic_text, valid_imgs, slide_img_path, sec_slug)
+                    create_table_slide(topic_text, valid_imgs, slide_img_path, sec_slug, topic_headline=topic_headline)
                 else:
                     create_actor_collage_slide(valid_imgs, slide_img_path)
                     if topic_headline:
