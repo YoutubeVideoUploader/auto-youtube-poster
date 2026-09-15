@@ -456,36 +456,44 @@ def get_font(size: int, bold: bool = True):
 def draw_section_countdown_badge(
     image_path: str,
     label_text: str,
+    rem_sec: float,
     border_color: tuple = (255, 215, 0),
+    accent_color: tuple = (255, 215, 0),
     top_y: int = 40
-) -> dict:
+) -> str:
     """
-    Draws a larger broadcast countdown timer badge container & white label text in top-right corner.
-    Returns timer layout metadata dict for FFmpeg dynamic live timer rendering.
+    Renders a broadcast countdown timer badge in PIL with 100% perfect baseline alignment,
+    clean spacing, zero box artifacts, and exact symmetric padding.
     """
-    if not label_text:
-        return None
+    if not label_text or rem_sec is None:
+        return image_path
 
     try:
         img = Image.open(image_path).convert("RGBA")
         font = get_font(32, bold=True)
 
+        m = max(0, int(rem_sec)) // 60
+        s = max(0, int(rem_sec)) % 60
+        time_str = f"{m:02d}:{s:02d}"
+
+        display_label = label_text.strip() + " "
+
         dummy = Image.new("RGBA", (1, 1))
         d_draw = ImageDraw.Draw(dummy)
 
-        l_bbox = d_draw.textbbox((0, 0), label_text, font=font)
+        l_bbox = d_draw.textbbox((0, 0), display_label, font=font)
         l_w = l_bbox[2] - l_bbox[0]
         l_h = l_bbox[3] - l_bbox[1]
 
-        t_bbox = d_draw.textbbox((0, 0), "  00:00", font=font)
+        t_bbox = d_draw.textbbox((0, 0), time_str, font=font)
         t_w = t_bbox[2] - t_bbox[0]
         t_h = t_bbox[3] - t_bbox[1]
 
         total_tw = l_w + t_w
         th = max(l_h, t_h)
 
-        pad_x = 30
-        pad_y = 18
+        pad_x = 28
+        pad_y = 16
         badge_w = total_tw + pad_x * 2
         badge_h = th + pad_y * 2
 
@@ -501,21 +509,15 @@ def draw_section_countdown_badge(
         o_draw.rounded_rectangle(rect, radius=14, fill=(15, 20, 35, 240), outline=border_color, width=4)
 
         # White label text
-        o_draw.text((left_x + pad_x, top_y + pad_y), label_text, font=font, fill=(255, 255, 255))
+        o_draw.text((left_x + pad_x, top_y + pad_y), display_label, font=font, fill=(255, 255, 255))
+        # Accent-colored timer digits
+        o_draw.text((left_x + pad_x + l_w, top_y + pad_y), time_str, font=font, fill=accent_color)
 
         final_img = Image.alpha_composite(img, overlay).convert("RGB")
         final_img.save(image_path, "JPEG", quality=95)
-
-        digits_x = left_x + pad_x + l_w
-        digits_y = top_y + pad_y + 9
-        return {
-            "digits_x": digits_x,
-            "digits_y": digits_y,
-            "font_size": 32
-        }
     except Exception as e:
         print(f"[!] Warning drawing countdown badge on {image_path}: {e}")
-        return None
+    return image_path
 
 
 
@@ -826,41 +828,45 @@ def generate_video(
                 timer_info = None
                 # Section Countdown Timer Overlay Badge (Position top_y = 40 for BOTH!)
                 if sec_slug == "movie_updates" and release_start_time is not None and seg_t < release_start_time:
-                    badge_meta = draw_section_countdown_badge(
-                        slide_img_path,
-                        "THEATER UPDATES IN",
-                        border_color=(255, 215, 0),
-                        top_y=40
-                    )
-                    if badge_meta:
-                        timer_info = {
-                            "target_time": release_start_time,
-                            "seg_t": seg_t,
-                            "digits_x": badge_meta["digits_x"],
-                            "digits_y": badge_meta["digits_y"],
-                            "font_size": badge_meta["font_size"],
-                            "color": "yellow"
-                        }
+                    timer_info = {
+                        "label_text": "THEATER UPDATES IN",
+                        "target_time": release_start_time,
+                        "color": (255, 215, 0),
+                        "top_y": 40
+                    }
                 elif sec_slug == "release_updates" and ott_start_time is not None and seg_t < ott_start_time:
-                    badge_meta = draw_section_countdown_badge(
-                        slide_img_path,
-                        "OTT UPDATES IN",
-                        border_color=(0, 229, 255),
-                        top_y=40
-                    )
-                    if badge_meta:
-                        timer_info = {
-                            "target_time": ott_start_time,
-                            "seg_t": seg_t,
-                            "digits_x": badge_meta["digits_x"],
-                            "digits_y": badge_meta["digits_y"],
-                            "font_size": badge_meta["font_size"],
-                            "color": "cyan"
-                        }
+                    timer_info = {
+                        "label_text": "OTT UPDATES IN",
+                        "target_time": ott_start_time,
+                        "color": (0, 229, 255),
+                        "top_y": 40
+                    }
+
+                # Pre-render 1-second sub-slide images in PIL for dynamic per-second countdown
+                sec_slides = []
+                if timer_info:
+                    n_secs = max(1, int(round(seg_duration)))
+                    for s in range(n_secs):
+                        frame_img_path = str(slides_dir / f"slide_{i+1}_sec_{s:02d}.jpg")
+                        import shutil
+                        shutil.copy(slide_img_path, frame_img_path)
+                        rem_s = timer_info["target_time"] - (seg_t + s)
+                        draw_section_countdown_badge(
+                            frame_img_path,
+                            timer_info["label_text"],
+                            rem_s,
+                            border_color=timer_info["color"],
+                            accent_color=timer_info["color"],
+                            top_y=timer_info["top_y"]
+                        )
+                        sec_slides.append(frame_img_path)
+                else:
+                    sec_slides = [slide_img_path]
 
             visual_entries.append({
                 "kind": "slide",
                 "image": slide_img_path,
+                "sec_slides": sec_slides,
                 "duration": seg_duration,
                 "segment_index": i,
                 "banner_overlay": banner_overlay_path,
@@ -882,15 +888,7 @@ def generate_video(
                 "kind": "animated_slide",
                 "slides": [entry],
                 "duration": entry["duration"],
-                "banner_width": entry.get("banner_width", 750),
-                "timer_info": entry.get("timer_info")
-            })
-        elif entry.get("timer_info"):
-            chunks.append({
-                "kind": "timer_slide",
-                "slides": [entry],
-                "duration": entry["duration"],
-                "timer_info": entry.get("timer_info")
+                "banner_width": entry.get("banner_width", 750)
             })
         else:
             if chunks and chunks[-1]["kind"] == "slides":
@@ -937,85 +935,38 @@ def generate_video(
             slide_entry = chunk["slides"][0]
             dur = chunk_dur
             banner_img = slide_entry["banner_overlay"].replace("\\", "/")
-            slide_img = slide_entry["image"].replace("\\", "/")
             banner_w = chunk.get("banner_width", 750)
-            t_info = chunk.get("timer_info")
-            
+            sec_slides = slide_entry.get("sec_slides", [slide_entry["image"]])
+
+            concat_txt = str(slides_dir / f"concat_slide_{k:02d}.txt")
+            with open(concat_txt, "w", encoding="utf-8") as f:
+                for s_img in sec_slides:
+                    esp = s_img.replace("\\", "/")
+                    f.write(f"file '{esp}'\n")
+                    f.write("duration 1.0\n")
+                if sec_slides:
+                    esp_last = sec_slides[-1].replace("\\", "/")
+                    f.write(f"file '{esp_last}'\n")
+
             t_out = max(1.5, dur - 1.0)
             t_out_end = t_out + 0.4
             
             offscreen_x = -(banner_w + 50)
             slide_speed = (banner_w + 90) / 0.4
-            
-            if t_info:
-                target_time = t_info["target_time"]
-                seg_t = t_info["seg_t"]
-                dx = t_info["digits_x"]
-                dy = t_info["digits_y"]
-                tc = t_info["color"]
-                rem_expr = f"{target_time:.1f}-({seg_t:.1f}+t)"
-                font_path_escaped = "C\\:/Windows/Fonts/NirmalaB.ttf"
-                drawtext_str = (
-                    f"drawtext=fontfile='{font_path_escaped}':"
-                    f"text='  %{{eif\\:max(0\\,floor(({rem_expr})/60))\\:d\\:2}}\\:%{{eif\\:max(0\\,mod(floor({rem_expr})\\,60))\\:d\\:2}}':"
-                    f"x={dx}:y={dy}:fontcolor={tc}:fontsize=32"
-                )
-                filter_str = (
-                    f"[0:v]scale=1920:1080,fps=30,setsar=1[bg];"
-                    f"[1:v]scale={banner_w}:125[banner];"
-                    f"[bg][banner]overlay=x='if(lt(t,1.0),{offscreen_x},if(lt(t,1.4),{offscreen_x}+(t-1.0)*{slide_speed:.2f},if(lt(t,{t_out:.2f}),40,if(lt(t,{t_out_end:.2f}),40-(t-{t_out:.2f})*{slide_speed:.2f},{offscreen_x}))))':y=905[v_banner];"
-                    f"[v_banner]{drawtext_str}[v]"
-                )
-            else:
-                filter_str = (
-                    f"[0:v]scale=1920:1080,fps=30,setsar=1[bg];"
-                    f"[1:v]scale={banner_w}:125[banner];"
-                    f"[bg][banner]overlay=x='if(lt(t,1.0),{offscreen_x},if(lt(t,1.4),{offscreen_x}+(t-1.0)*{slide_speed:.2f},if(lt(t,{t_out:.2f}),40,if(lt(t,{t_out_end:.2f}),40-(t-{t_out:.2f})*{slide_speed:.2f},{offscreen_x}))))':y=905[v]"
-                )
 
-            print(f"    - Chunk {k:02d} [ANIMATED HEADLINE SLIDE]: ({dur:.2f}s, Left Slide Banner width={banner_w}px{' + Live Timer' if t_info else ''})")
+            filter_str = (
+                f"[0:v]scale=1920:1080,fps=30,setsar=1[bg];"
+                f"[1:v]scale={banner_w}:125[banner];"
+                f"[bg][banner]overlay=x='if(lt(t,1.0),{offscreen_x},if(lt(t,1.4),{offscreen_x}+(t-1.0)*{slide_speed:.2f},if(lt(t,{t_out:.2f}),40,if(lt(t,{t_out_end:.2f}),40-(t-{t_out:.2f})*{slide_speed:.2f},{offscreen_x}))))':y=905[v]"
+            )
+
+            print(f"    - Chunk {k:02d} [ANIMATED HEADLINE SLIDE]: ({dur:.2f}s, Left Slide Banner width={banner_w}px + PIL Per-Sec Timer)")
             cmd = [
                 "ffmpeg", "-y",
-                "-loop", "1", "-t", f"{dur:.4f}", "-i", slide_img,
+                "-f", "concat", "-safe", "0", "-i", concat_txt,
                 "-loop", "1", "-t", f"{dur:.4f}", "-i", banner_img,
                 "-filter_complex", filter_str,
                 "-map", "[v]",
-                "-t", f"{dur:.4f}",
-                "-c:v", "libx264",
-                "-crf", "17",
-                "-preset", "medium",
-                "-b:v", "12M",
-                "-pix_fmt", "yuv420p",
-                "-r", "30",
-                chunk_mp4
-            ]
-            subprocess.run(cmd, check=True)
-
-        elif chunk["kind"] == "timer_slide":
-            slide_entry = chunk["slides"][0]
-            dur = chunk_dur
-            slide_img = slide_entry["image"].replace("\\", "/")
-            t_info = chunk["timer_info"]
-            target_time = t_info["target_time"]
-            seg_t = t_info["seg_t"]
-            dx = t_info["digits_x"]
-            dy = t_info["digits_y"]
-            tc = t_info["color"]
-
-            rem_expr = f"{target_time:.1f}-({seg_t:.1f}+t)"
-            font_path_escaped = "C\\:/Windows/Fonts/NirmalaB.ttf"
-            drawtext_str = (
-                f"drawtext=fontfile='{font_path_escaped}':"
-                f"text='  %{{eif\\:max(0\\,floor(({rem_expr})/60))\\:d\\:2}}\\:%{{eif\\:max(0\\,mod(floor({rem_expr})\\,60))\\:d\\:2}}':"
-                f"x={dx}:y={dy}:fontcolor={tc}:fontsize=32"
-            )
-
-            filter_str = f"scale=1920:1080,fps=30,setsar=1,{drawtext_str}"
-            print(f"    - Chunk {k:02d} [TIMER SLIDE LIVE]: ({dur:.2f}s, Live Timer {tc.upper()})")
-            cmd = [
-                "ffmpeg", "-y",
-                "-loop", "1", "-t", f"{dur:.4f}", "-i", slide_img,
-                "-vf", filter_str,
                 "-t", f"{dur:.4f}",
                 "-c:v", "libx264",
                 "-crf", "17",
@@ -1031,14 +982,19 @@ def generate_video(
             concat_txt = str(slides_dir / f"concat_chunk_{k:02d}.txt")
             with open(concat_txt, "w", encoding="utf-8") as f:
                 for s in chunk["slides"]:
-                    escaped_path = s["image"].replace("\\", "/")
-                    f.write(f"file '{escaped_path}'\n")
-                    f.write(f"duration {s['duration']:.3f}\n")
+                    sec_slides = s.get("sec_slides", [s["image"]])
+                    per_sec_dur = s["duration"] / max(len(sec_slides), 1)
+                    for s_img in sec_slides:
+                        esp = s_img.replace("\\", "/")
+                        f.write(f"file '{esp}'\n")
+                        f.write(f"duration {per_sec_dur:.3f}\n")
                 if chunk["slides"]:
-                    escaped_path = chunk["slides"][-1]["image"].replace("\\", "/")
-                    f.write(f"file '{escaped_path}'\n")
+                    last_sec_slides = chunk["slides"][-1].get("sec_slides", [chunk["slides"][-1]["image"]])
+                    esp = last_sec_slides[-1].replace("\\", "/")
+                    f.write(f"file '{esp}'\n")
 
-            print(f"    - Chunk {k:02d} [SLIDES]: {len(chunk['slides'])} slide(s) ({chunk_dur:.2f}s)")
+            has_timer = any(s.get("timer_info") for s in chunk["slides"])
+            print(f"    - Chunk {k:02d} [SLIDES]: {len(chunk['slides'])} slide(s) ({chunk_dur:.2f}s{' + PIL Per-Sec Timer' if has_timer else ''})")
             cmd = [
                 "ffmpeg", "-y",
                 "-f", "concat", "-safe", "0", "-i", concat_txt,
