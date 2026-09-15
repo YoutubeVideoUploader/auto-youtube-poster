@@ -391,7 +391,7 @@ if st.session_state.current_section == "📥 Input & Data Editor":
                         with st.spinner("🤖 Groq AI is analyzing Malayalam news texts and extracting movie titles..."):
                             try:
                                 from groq_extractor import extract_movie_titles_with_groq
-                                extracted_titles = extract_movie_titles_with_groq(news_list, api_key=groq_key)
+                                extracted_titles = extract_movie_titles_with_groq(news_list, api_key=groq_key, mode=active_tab)
                                 
                                 count_filled = 0
                                 for i, title_val in enumerate(extracted_titles):

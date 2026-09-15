@@ -22,11 +22,14 @@ CANDIDATE_GROQ_MODELS = [
 def extract_movie_titles_with_groq(
     news_texts: List[str],
     api_key: Optional[str] = None,
-    model: str = DEFAULT_GROQ_MODEL
+    model: str = DEFAULT_GROQ_MODEL,
+    mode: str = "movie_name"
 ) -> List[str]:
     """
-    Given a list of Malayalam news text strings, uses Groq API to extract the official English movie title for each topic.
-    Returns a list of extracted English movie title strings matching the input list order.
+    Given a list of Malayalam news text strings, uses Groq API to extract:
+    - If mode == "headline" or "movie_updates": A 1-line English topic headline/heading.
+    - Else ("movie_name" / "release_updates" / "ott_updates"): The exact phonetic English movie name.
+    Returns a list of extracted strings matching the input list order.
     """
     api_key = api_key or os.getenv("GROQ_API_KEY", "")
     if not api_key:
@@ -43,15 +46,27 @@ def extract_movie_titles_with_groq(
 
     user_prompt = "\n".join(formatted_topics)
 
-    system_prompt = (
-        "You are an expert Malayalam movie news editor. Extract the official movie title for each topic text below.\n"
-        "CRITICAL RULE: Never translate Malayalam words to English meanings (for example, NEVER write 'The Beginning' for 'തുടക്കം'). "
-        "Always phonetically transliterate the Malayalam movie title using English alphabet (e.g., write 'Thudakkam'). "
-        "If the title is an established English title, keep it as is.\n"
-        "Return ONLY a JSON object containing a 'titles' key with an array of string titles corresponding to each topic in exact order. "
-        "Example response format: {\"titles\": [\"Thudakkam\", \"Avarachan and Sons\"]}. "
-        "Do not include any markdown formatting, explanation, or text outside the JSON."
-    )
+    is_headline_mode = mode in ["headline", "movie_updates", "Movie Updates"]
+
+    if is_headline_mode:
+        system_prompt = (
+            "You are an expert Malayalam movie news editor. For each topic text below, generate a short, catchy 1-line English Headline / Topic Heading summarizing the news.\n"
+            "CRITICAL RULES:\n"
+            "1. Never translate Malayalam movie names to English meanings (e.g. write 'Thudakkam' instead of 'The Beginning').\n"
+            "2. Keep headlines concise, exciting, and limited to 1 line per topic (e.g., 'Thudakkam Movie Pooja Ceremony Held in Kochi').\n"
+            "3. Return ONLY a JSON object containing a 'titles' key with an array of string headlines in exact order. Example: {\"titles\": [\"Thudakkam Movie Pooja Held\", \"Avarachan & Sons Release Date Announced\"]}.\n"
+            "Do not include any markdown formatting, explanation, or text outside the JSON."
+        )
+    else:
+        system_prompt = (
+            "You are an expert Malayalam movie news editor. Extract the official movie title for each topic text below.\n"
+            "CRITICAL RULE: Never translate Malayalam words to English meanings (for example, NEVER write 'The Beginning' for 'തുടക്കം'). "
+            "Always phonetically transliterate the Malayalam movie title using English alphabet (e.g., write 'Thudakkam'). "
+            "If the title is an established English title, keep it as is.\n"
+            "Return ONLY a JSON object containing a 'titles' key with an array of string titles corresponding to each topic in exact order. "
+            "Example response format: {\"titles\": [\"Thudakkam\", \"Avarachan and Sons\"]}. "
+            "Do not include any markdown formatting, explanation, or text outside the JSON."
+        )
 
     headers = {
         "Authorization": f"Bearer {api_key}",
