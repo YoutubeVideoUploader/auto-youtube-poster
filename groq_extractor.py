@@ -44,9 +44,12 @@ def extract_movie_titles_with_groq(
     user_prompt = "\n".join(formatted_topics)
 
     system_prompt = (
-        "You are an expert Malayalam movie news editor. Extract the official English movie name/title for each topic text below. "
+        "You are an expert Malayalam movie news editor. Extract the official movie title for each topic text below.\n"
+        "CRITICAL RULE: Never translate Malayalam words to English meanings (for example, NEVER write 'The Beginning' for 'തുടക്കം'). "
+        "Always phonetically transliterate the Malayalam movie title using English alphabet (e.g., write 'Thudakkam'). "
+        "If the title is an established English title, keep it as is.\n"
         "Return ONLY a JSON object containing a 'titles' key with an array of string titles corresponding to each topic in exact order. "
-        "Example response format: {\"titles\": [\"Dhoomakethu\", \"Loki\", \"Mela\"]}. "
+        "Example response format: {\"titles\": [\"Thudakkam\", \"Avarachan and Sons\"]}. "
         "Do not include any markdown formatting, explanation, or text outside the JSON."
     )
 
