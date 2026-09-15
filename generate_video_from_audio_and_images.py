@@ -508,10 +508,12 @@ def draw_section_countdown_badge(
         # Dark semi-transparent pill box with 4px border
         o_draw.rounded_rectangle(rect, radius=14, fill=(15, 20, 35, 240), outline=border_color, width=4)
 
-        # White label text
-        o_draw.text((left_x + pad_x, top_y + pad_y), display_label, font=font, fill=(255, 255, 255))
-        # Accent-colored timer digits
-        o_draw.text((left_x + pad_x + l_w, top_y + pad_y), time_str, font=font, fill=accent_color)
+        center_y = top_y + badge_h / 2
+
+        # White label text centered vertically in box
+        o_draw.text((left_x + pad_x, center_y), display_label, font=font, fill=(255, 255, 255), anchor="lm")
+        # Accent-colored timer digits centered vertically in box
+        o_draw.text((left_x + pad_x + l_w, center_y), time_str, font=font, fill=accent_color, anchor="lm")
 
         final_img = Image.alpha_composite(img, overlay).convert("RGB")
         final_img.save(image_path, "JPEG", quality=95)
