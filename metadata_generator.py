@@ -219,16 +219,24 @@ def generate_youtube_description(
     for section_name, topics in sheet_data.items():
         if topics is None or len(topics) == 0:
             continue
+        if "thumb" in str(section_name).lower() or "config" in str(section_name).lower():
+            continue
+
         desc_lines.append(f"\n🔹 {section_name.upper()}:")
         
         # Handle both DataFrame and list of dicts
         rows_iter = topics.iterrows() if hasattr(topics, 'iterrows') else enumerate(topics, start=1)
         for idx, item in enumerate(topics if not hasattr(topics, 'iterrows') else topics.to_dict(orient="records"), start=1):
-            text = str(item.get("Malayalam News Text", item.get("text", ""))).strip()
-            if not text or text.lower() == "nan":
+            # Prefer Column D (Topic Headline) over Column B (Malayalam News Text)
+            headline = str(item.get("Topic Headline", item.get("headline", item.get("Headline", "")))).strip()
+            if not headline or headline.lower() == "nan":
+                # Fallback to Column B if Column D is empty
+                headline = str(item.get("Malayalam News Text", item.get("text", ""))).strip()
+
+            if not headline or headline.lower() == "nan":
                 continue
-            short_text = text[:120] + "..." if len(text) > 120 else text
-            desc_lines.append(f"  {idx}. {short_text}")
+
+            desc_lines.append(f"  {idx}. {headline}")
 
     desc_lines.append("")
     desc_lines.append("=" * 50)
