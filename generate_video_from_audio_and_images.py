@@ -22,7 +22,7 @@ if hasattr(sys.stdout, 'reconfigure'):
 BASE_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE_DIR))
 
-from config import OUTPUT_DIR
+from config import OUTPUT_DIR, BGM_VOLUME
 
 ASSETS_DIR = BASE_DIR / "assets"
 INTRO_BANNER_PATH = str(ASSETS_DIR / "intro_banner.jpg")
@@ -1103,7 +1103,7 @@ def generate_video(
 
             filter_complex = (
                 f"[2:a]atrim=0:{trimmed_bgm_dur:.2f},aloop=loop=-1:size={int(trimmed_bgm_dur * 44100)}[bgm_loop];"
-                f"[bgm_loop]volume=0.04,afade=t=out:st={fade_start:.2f}:d=5[bgm_ducked];"
+                f"[bgm_loop]volume={BGM_VOLUME},afade=t=out:st={fade_start:.2f}:d=5[bgm_ducked];"
                 f"[1:a]volume=4.0[voice];"
                 f"[voice][bgm_ducked]amix=inputs=2:duration=first:dropout_transition=3[aout]"
             )

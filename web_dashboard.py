@@ -165,32 +165,193 @@ if st.session_state.current_section == "📥 Input & Data Editor":
     current_df = st.session_state.edited_dfs.get(active_tab, pd.DataFrame(columns=["Topic Number", "Malayalam News Text", "Image URLs"]))
 
     # --------------------------------------------------------------------------
-    # 1. BULK TABLE PASTE BOX
+    # OPTION 1: BULK PASTE (SINGLE COLUMN OR FULL TABLE)
     # --------------------------------------------------------------------------
-    with st.expander("📋 **Paste Entire Table at Once (Excel / Google Sheets Copy-Paste)**", expanded=False):
-        st.write("Copy rows from Excel or Google Sheets and paste them below:")
-        paste_text = st.text_area(
-            "Paste Table Content Here",
-            height=130,
-            placeholder="1\tമമ്മൂട്ടിയുടെ പുതിയ ചിത്രം മേള പ്രഖ്യാപിച്ചു...\thttps://example.com/poster1.jpg\n2\tമോഹൻലാൽ ചിത്രം എൽ370 അപ്ഡേറ്റ്...\thttps://example.com/poster2.jpg"
+    with st.expander("📋 **Option 1: Single-Column or Full Table Bulk Paste**", expanded=False):
+        st.write("Paste multi-line text into a single specific column or paste a full tab-separated table copied from Excel/Google Sheets.")
+        
+        target_col_choice = st.selectbox(
+            "Select Target Column to Paste Into",
+            options=["Malayalam News Text", "Image URLs", "Topic Number", "All Columns (Tab-Separated Full Table)"],
+            index=0,
+            help="Choose 'Malayalam News Text' or 'Image URLs' to paste line-by-line into that single column only, or 'All Columns' for multi-column table data."
         )
-        col_p1, col_p2 = st.columns([1, 4])
-        with col_p1:
-            if st.button("📥 Import Pasted Table", type="primary"):
-                if paste_text.strip():
-                    parsed_df = st.session_state.sheet_mgr.parse_pasted_table(paste_text)
-                    if not parsed_df.empty:
-                        st.session_state.edited_dfs[active_tab] = parsed_df
-                        st.session_state.sheet_mgr.update_tab_data(active_tab, parsed_df)
-                        st.success(f"Successfully imported {len(parsed_df)} topic rows into {active_tab}!")
-                        st.rerun()
-                    else:
-                        st.error("Could not parse table data. Please check pasted text format.")
-                else:
+        
+        single_paste_text = st.text_area(
+            "Paste Bulk Content Here (One item per line)",
+            height=140,
+            placeholder="Line 1 item...\nLine 2 item...\nLine 3 item...",
+            key=f"bulk_paste_area_{active_tab}"
+        )
+        
+        col_sp1, col_sp2 = st.columns([1, 3])
+        with col_sp1:
+            if st.button("📥 Apply Bulk Paste", type="primary", key=f"btn_bulk_paste_{active_tab}"):
+                lines = [line.strip() for line in single_paste_text.splitlines() if line.strip()]
+                if not lines:
                     st.warning("Please paste some text first.")
+                else:
+                    df = current_df.copy()
+                    if target_col_choice == "All Columns (Tab-Separated Full Table)":
+                        parsed_df = st.session_state.sheet_mgr.parse_pasted_table(single_paste_text)
+                        if not parsed_df.empty:
+                            st.session_state.edited_dfs[active_tab] = parsed_df
+                            st.session_state.sheet_mgr.update_tab_data(active_tab, parsed_df)
+                            st.success(f"Imported {len(parsed_df)} full topic rows into {active_tab}!")
+                            st.rerun()
+                        else:
+                            st.error("Could not parse tab-separated table. Check format.")
+                    else:
+                        # Single-column bulk paste
+                        if len(df) < len(lines):
+                            extra_rows = len(lines) - len(df)
+                            new_rows = []
+                            start_topic = len(df) + 1
+                            for i in range(extra_rows):
+                                new_rows.append({
+                                    "Topic Number": str(start_topic + i),
+                                    "Malayalam News Text": "",
+                                    "Image URLs": ""
+                                })
+                            df = pd.concat([df, pd.DataFrame(new_rows)], ignore_index=True)
+                        
+                        for i, line_val in enumerate(lines):
+                            df.at[i, target_col_choice] = line_val
+                        
+                        st.session_state.edited_dfs[active_tab] = df
+                        st.session_state.sheet_mgr.update_tab_data(active_tab, df)
+                        st.success(f"Pasted {len(lines)} items directly into column **'{target_col_choice}'**!")
+                        st.rerun()
 
     # --------------------------------------------------------------------------
-    # 2. INTERACTIVE CELL DATA EDITOR
+    # OPTION 2: ADJUST ROW POSITION & RE-ORDERING
+    # --------------------------------------------------------------------------
+    with st.expander("🔀 **Option 2: Adjust Row Position & Re-order Topics**", expanded=False):
+        st.write("Change the position of any topic row (e.g. move Row 3 to Position 2, move Up/Down, or swap rows).")
+        df_row_count = len(current_df)
+        
+        if df_row_count == 0:
+            st.info("No rows currently exist in this worksheet to move.")
+        else:
+            col_r1, col_r2, col_r3 = st.columns([1, 1, 2])
+            with col_r1:
+                src_pos = st.number_input("Source Row #", min_value=1, max_value=max(1, df_row_count), value=min(3, df_row_count), step=1, key=f"src_pos_{active_tab}")
+            with col_r2:
+                tgt_pos = st.number_input("Target Position #", min_value=1, max_value=max(1, df_row_count), value=min(2, df_row_count), step=1, key=f"tgt_pos_{active_tab}")
+                
+            col_btn1, col_btn2, col_btn3, col_btn4 = st.columns(4)
+            df = current_df.copy()
+            
+            with col_btn1:
+                if st.button("🔀 Move to Position", use_container_width=True, key=f"btn_move_pos_{active_tab}"):
+                    if src_pos != tgt_pos:
+                        src_idx = int(src_pos - 1)
+                        tgt_idx = int(tgt_pos - 1)
+                        row_to_move = df.iloc[src_idx:src_idx+1]
+                        df = df.drop(df.index[src_idx]).reset_index(drop=True)
+                        
+                        df_upper = df.iloc[:tgt_idx]
+                        df_lower = df.iloc[tgt_idx:]
+                        df = pd.concat([df_upper, row_to_move, df_lower], ignore_index=True)
+                        df["Topic Number"] = [str(i + 1) for i in range(len(df))]
+                        
+                        st.session_state.edited_dfs[active_tab] = df
+                        st.session_state.sheet_mgr.update_tab_data(active_tab, df)
+                        st.success(f"Moved Row {src_pos} to Position {tgt_pos}!")
+                        st.rerun()
+
+            with col_btn2:
+                if st.button("⬆️ Move Up", use_container_width=True, key=f"btn_move_up_{active_tab}"):
+                    if src_pos > 1:
+                        src_idx = int(src_pos - 1)
+                        tgt_idx = int(src_pos - 2)
+                        df.iloc[src_idx], df.iloc[tgt_idx] = df.iloc[tgt_idx].copy(), df.iloc[src_idx].copy()
+                        df["Topic Number"] = [str(i + 1) for i in range(len(df))]
+                        st.session_state.edited_dfs[active_tab] = df
+                        st.session_state.sheet_mgr.update_tab_data(active_tab, df)
+                        st.success(f"Moved Row {src_pos} Up to Position {src_pos - 1}!")
+                        st.rerun()
+
+            with col_btn3:
+                if st.button("⬇️ Move Down", use_container_width=True, key=f"btn_move_down_{active_tab}"):
+                    if src_pos < df_row_count:
+                        src_idx = int(src_pos - 1)
+                        tgt_idx = int(src_pos)
+                        df.iloc[src_idx], df.iloc[tgt_idx] = df.iloc[tgt_idx].copy(), df.iloc[src_idx].copy()
+                        df["Topic Number"] = [str(i + 1) for i in range(len(df))]
+                        st.session_state.edited_dfs[active_tab] = df
+                        st.session_state.sheet_mgr.update_tab_data(active_tab, df)
+                        st.success(f"Moved Row {src_pos} Down to Position {src_pos + 1}!")
+                        st.rerun()
+
+            with col_btn4:
+                if st.button("↔️ Swap Rows", use_container_width=True, key=f"btn_swap_rows_{active_tab}"):
+                    if src_pos != tgt_pos:
+                        src_idx = int(src_pos - 1)
+                        tgt_idx = int(tgt_pos - 1)
+                        df.iloc[src_idx], df.iloc[tgt_idx] = df.iloc[tgt_idx].copy(), df.iloc[src_idx].copy()
+                        df["Topic Number"] = [str(i + 1) for i in range(len(df))]
+                        st.session_state.edited_dfs[active_tab] = df
+                        st.session_state.sheet_mgr.update_tab_data(active_tab, df)
+                        st.success(f"Swapped Row {src_pos} and Row {tgt_pos}!")
+                        st.rerun()
+
+    # --------------------------------------------------------------------------
+    # OPTION 3: QUICK COLUMN & ROW MANAGEMENT TOOLS
+    # --------------------------------------------------------------------------
+    with st.expander("🛠️ **Option 3: Quick Column & Row Management Tools**", expanded=False):
+        st.write("Perform quick operations on rows and columns in the active table.")
+        
+        m_col1, m_col2 = st.columns(2)
+        df = current_df.copy()
+        df_row_count = len(df)
+        
+        with m_col1:
+            st.markdown("##### ➕ / 🗑️ Row Controls")
+            ins_pos = st.number_input("Insert Blank Row at Position #", min_value=1, max_value=max(1, df_row_count + 1), value=min(1, df_row_count + 1), step=1, key=f"ins_pos_{active_tab}")
+            if st.button("➕ Insert Blank Row", key=f"btn_ins_row_{active_tab}"):
+                tgt_idx = int(ins_pos - 1)
+                blank_row = pd.DataFrame([{"Topic Number": str(ins_pos), "Malayalam News Text": "", "Image URLs": ""}])
+                df_upper = df.iloc[:tgt_idx]
+                df_lower = df.iloc[tgt_idx:]
+                df = pd.concat([df_upper, blank_row, df_lower], ignore_index=True)
+                df["Topic Number"] = [str(i + 1) for i in range(len(df))]
+                st.session_state.edited_dfs[active_tab] = df
+                st.session_state.sheet_mgr.update_tab_data(active_tab, df)
+                st.success(f"Inserted blank row at position {ins_pos}!")
+                st.rerun()
+                
+            del_pos = st.number_input("Delete Row at Position #", min_value=1, max_value=max(1, df_row_count), value=min(1, df_row_count), step=1, key=f"del_pos_{active_tab}")
+            if st.button("🗑️ Delete Specified Row", key=f"btn_del_row_{active_tab}"):
+                if df_row_count > 0:
+                    tgt_idx = int(del_pos - 1)
+                    df = df.drop(df.index[tgt_idx]).reset_index(drop=True)
+                    df["Topic Number"] = [str(i + 1) for i in range(len(df))]
+                    st.session_state.edited_dfs[active_tab] = df
+                    st.session_state.sheet_mgr.update_tab_data(active_tab, df)
+                    st.success(f"Deleted row {del_pos}!")
+                    st.rerun()
+
+        with m_col2:
+            st.markdown("##### 🧹 Column & Renumbering Controls")
+            col_to_clear = st.selectbox("Select Column to Clear", options=["Malayalam News Text", "Image URLs"], key=f"col_to_clear_{active_tab}")
+            if st.button("🧹 Clear Column Content", key=f"btn_clear_col_{active_tab}"):
+                df[col_to_clear] = ""
+                st.session_state.edited_dfs[active_tab] = df
+                st.session_state.sheet_mgr.update_tab_data(active_tab, df)
+                st.success(f"Cleared all entries in column '{col_to_clear}'!")
+                st.rerun()
+                
+            st.markdown("---")
+            if st.button("🔢 Auto-Renumber Topic Numbers", key=f"btn_renumber_{active_tab}"):
+                df["Topic Number"] = [str(i + 1) for i in range(len(df))]
+                st.session_state.edited_dfs[active_tab] = df
+                st.session_state.sheet_mgr.update_tab_data(active_tab, df)
+                st.success("Renumbered all topic numbers sequentially!")
+                st.rerun()
+
+    # --------------------------------------------------------------------------
+    # INTERACTIVE CELL DATA EDITOR
     # --------------------------------------------------------------------------
     st.markdown("#### ✏️ Interactive Data Grid (Edit Cells, Add or Delete Rows)")
     

@@ -23,6 +23,7 @@ DEFAULT_AUDIO_FORMAT = "wav"
 NORMALIZE_LOUDNESS = True
 TARGET_LUFS = -16.0          # Streaming / YouTube standard loudness
 SILENCE_TRIM_DB = 30         # dB threshold for trimming leading/trailing silence
+BGM_VOLUME = 0.12            # Background music volume level (increased for better audibility)
 
 # Default TTS Engine Models
 DEFAULT_MODEL_ID = "mms_malayalam"
