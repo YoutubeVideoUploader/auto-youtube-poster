@@ -370,8 +370,8 @@ if st.session_state.current_section == "📥 Input & Data Editor":
     # --------------------------------------------------------------------------
     # OPTION 4: GROQ AI MOVIE NAME AUTO-EXTRACTOR
     # --------------------------------------------------------------------------
-    with st.expander("🤖 **Option 4: Auto-Extract Movie Names via Groq AI (Llama-3)**", expanded=False):
-        st.write("Use Groq AI (Llama-3) to read all Malayalam news descriptions in this tab and automatically fill the **Movie Name (Col D)** column!")
+    with st.expander("🤖 **Option 4: Auto-Extract Movie Names via Groq AI (GPT-OSS / Llama-3)**", expanded=False):
+        st.write("Use Groq AI (GPT-OSS / Llama-3) to read all Malayalam news descriptions in this tab and automatically fill the **Movie Name (Col D)** column!")
         
         groq_key = st.session_state.get("groq_api_key", os.getenv("GROQ_API_KEY", ""))
         if not groq_key:

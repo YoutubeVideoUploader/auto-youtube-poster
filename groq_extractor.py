@@ -9,8 +9,14 @@ import json
 import requests
 from typing import List, Dict, Any, Optional
 
-DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile"
-FAST_GROQ_MODEL = "llama-3.1-8b-instant"
+DEFAULT_GROQ_MODEL = "openai/gpt-oss-20b"
+CANDIDATE_GROQ_MODELS = [
+    "openai/gpt-oss-20b",
+    "openai/gpt-oss-120b",
+    "qwen/qwen3.8-27b",
+    "llama-3.3-70b-versatile",
+    "llama-3.1-8b-instant"
+]
 
 
 def extract_movie_titles_with_groq(
@@ -49,34 +55,35 @@ def extract_movie_titles_with_groq(
         "Content-Type": "application/json"
     }
 
-    payload = {
-        "model": model,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ],
-        "temperature": 0.1,
-        "response_format": {"type": "json_object"}
-    }
-
     url = "https://api.groq.com/openai/v1/chat/completions"
     
-    try:
-        response = requests.post(url, headers=headers, json=payload, timeout=25)
-    except Exception as e:
-        raise RuntimeError(f"Network error calling Groq API: {e}")
+    models_to_try = [model] + [m for m in CANDIDATE_GROQ_MODELS if m != model]
+    last_error = ""
+    response = None
 
-    if response.status_code != 200:
-        # Fallback to fast model if model failed
-        if model != FAST_GROQ_MODEL:
-            payload["model"] = FAST_GROQ_MODEL
-            try:
-                response = requests.post(url, headers=headers, json=payload, timeout=25)
-            except Exception:
-                pass
+    for candidate in models_to_try:
+        payload = {
+            "model": candidate,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            "temperature": 0.1,
+            "response_format": {"type": "json_object"}
+        }
 
-    if response.status_code != 200:
-        raise RuntimeError(f"Groq API call failed (HTTP {response.status_code}): {response.text}")
+        try:
+            res = requests.post(url, headers=headers, json=payload, timeout=25, verify=False)
+            if res.status_code == 200:
+                response = res
+                break
+            else:
+                last_error = f"Model '{candidate}' failed (HTTP {res.status_code}): {res.text}"
+        except Exception as e:
+            last_error = f"Model '{candidate}' exception: {e}"
+
+    if not response or response.status_code != 200:
+        raise RuntimeError(f"Groq API call failed across all candidate models. Last error: {last_error}")
 
     data = response.json()
     content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
