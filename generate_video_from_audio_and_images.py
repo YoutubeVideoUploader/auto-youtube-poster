@@ -26,6 +26,7 @@ from config import OUTPUT_DIR
 
 ASSETS_DIR = BASE_DIR / "assets"
 INTRO_BANNER_PATH = str(ASSETS_DIR / "intro_banner.jpg")
+OUTRO_BANNER_PATH = str(ASSETS_DIR / "outro_banner.jpg")
 TRANSITION_BANNER_PATH = str(ASSETS_DIR / "transition_banner.jpg")
 INTRO_DIR = OUTPUT_DIR / "Intro Video"
 
@@ -41,7 +42,7 @@ def get_intro_video_duration(video_path: Path) -> float:
 
 
 def resolve_video_for_segment(seg: dict, item_data: dict, next_item_data: dict) -> Path:
-    """Resolves section intro MP4 video path for intro/section_intro/transition segments."""
+    """Resolves section intro/outro MP4 video path for intro/section_intro/transition/outro segments."""
     seg_type = seg.get("type", "")
     seg_text = seg.get("text", "").lower()
 
@@ -49,6 +50,12 @@ def resolve_video_for_segment(seg: dict, item_data: dict, next_item_data: dict) 
         p = INTRO_DIR / "Main Intro.mp4"
         if p.exists():
             return p
+
+    elif seg_type == "outro":
+        for name in ["Outro Video.mp4", "Outro.mp4", "Main Outro.mp4"]:
+            p = INTRO_DIR / name
+            if p.exists():
+                return p
 
     elif seg_type in ["section_intro", "transition"]:
         # 1. Match by segment text keywords first (most reliable Malayalam root stems)
@@ -97,6 +104,52 @@ def create_fitted_banner_slide(banner_path: str, output_path: str, width: int = 
     img = Image.open(banner_path).convert("RGB")
     img_resized = img.resize((width, height), Image.Resampling.LANCZOS)
     img_resized.save(output_path, "JPEG", quality=95)
+    return str(output_path)
+
+
+def create_outro_banner_slide(topic_items: list, banner_path: str, output_path: str, width: int = 1920, height: int = 1080) -> str:
+    """
+    Renders an Outro slide banner. If banner_path exists (assets/outro_banner.jpg), it uses it.
+    Otherwise, creates a broadcast poster collage slide from topic_items and saves it to banner_path.
+    """
+    if Path(banner_path).exists():
+        img = Image.open(banner_path).convert("RGB")
+        img_resized = img.resize((width, height), Image.Resampling.LANCZOS)
+        img_resized.save(output_path, "JPEG", quality=95)
+        return str(output_path)
+
+    all_imgs = []
+    if topic_items:
+        for item in topic_items:
+            imgs = item.get("image_paths", []) or []
+            if not imgs:
+                p_path = item.get("movie_poster_path")
+                if p_path:
+                    imgs = [p_path]
+            for p in imgs:
+                if p and Path(p).exists() and p not in all_imgs:
+                    all_imgs.append(p)
+
+    if not all_imgs:
+        if Path(INTRO_BANNER_PATH).exists():
+            return create_fitted_banner_slide(INTRO_BANNER_PATH, output_path, width, height)
+        bg = Image.new("RGB", (width, height), (15, 20, 35))
+        bg.save(output_path, "JPEG", quality=95)
+        bg.save(banner_path, "JPEG", quality=95)
+        return str(output_path)
+
+    step = max(1, len(all_imgs) // 4)
+    selected_imgs = all_imgs[::step][:4]
+
+    create_actor_collage_slide(selected_imgs, output_path, width, height)
+
+    try:
+        import shutil
+        shutil.copy(output_path, banner_path)
+        print(f"[OK] Generated custom outro banner poster: {banner_path}")
+    except Exception as e:
+        print(f"[!] Warning copying outro banner: {e}")
+
     return str(output_path)
 
 
@@ -797,8 +850,10 @@ def generate_video(
             })
         else:
             slide_img_path = str(slides_dir / f"slide_{i+1}.jpg")
-            if seg_type in ["intro", "outro"]:
+            if seg_type == "intro":
                 create_fitted_banner_slide(INTRO_BANNER_PATH, slide_img_path)
+            elif seg_type == "outro":
+                create_outro_banner_slide(topic_items, OUTRO_BANNER_PATH, slide_img_path)
             elif seg_type in ["transition", "section_intro"]:
                 create_fitted_banner_slide(TRANSITION_BANNER_PATH, slide_img_path)
             banner_overlay_path = None
