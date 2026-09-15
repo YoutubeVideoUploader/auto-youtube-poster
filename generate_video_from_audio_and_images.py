@@ -468,25 +468,24 @@ def draw_section_countdown_badge(
 
     try:
         img = Image.open(image_path).convert("RGBA")
-        font_badge = get_font(32, bold=True)
-        font_time = get_font(34, bold=True)
+        font = get_font(32, bold=True)
 
         dummy = Image.new("RGBA", (1, 1))
         d_draw = ImageDraw.Draw(dummy)
 
-        l_bbox = d_draw.textbbox((0, 0), label_text, font=font_badge)
+        l_bbox = d_draw.textbbox((0, 0), label_text, font=font)
         l_w = l_bbox[2] - l_bbox[0]
         l_h = l_bbox[3] - l_bbox[1]
 
-        t_bbox = d_draw.textbbox((0, 0), " 00:00", font=font_time)
+        t_bbox = d_draw.textbbox((0, 0), "  00:00", font=font)
         t_w = t_bbox[2] - t_bbox[0]
         t_h = t_bbox[3] - t_bbox[1]
 
         total_tw = l_w + t_w
         th = max(l_h, t_h)
 
-        pad_x = 28
-        pad_y = 14
+        pad_x = 30
+        pad_y = 18
         badge_w = total_tw + pad_x * 2
         badge_h = th + pad_y * 2
 
@@ -499,20 +498,20 @@ def draw_section_countdown_badge(
 
         rect = [left_x, top_y, right_x, top_y + badge_h]
         # Dark semi-transparent pill box with 4px border
-        o_draw.rounded_rectangle(rect, radius=12, fill=(15, 20, 35, 240), outline=border_color, width=4)
+        o_draw.rounded_rectangle(rect, radius=14, fill=(15, 20, 35, 240), outline=border_color, width=4)
 
         # White label text
-        o_draw.text((left_x + pad_x, top_y + pad_y), label_text, font=font_badge, fill=(255, 255, 255))
+        o_draw.text((left_x + pad_x, top_y + pad_y), label_text, font=font, fill=(255, 255, 255))
 
         final_img = Image.alpha_composite(img, overlay).convert("RGB")
         final_img.save(image_path, "JPEG", quality=95)
 
         digits_x = left_x + pad_x + l_w
-        digits_y = top_y + pad_y - 2
+        digits_y = top_y + pad_y + 9
         return {
             "digits_x": digits_x,
             "digits_y": digits_y,
-            "font_size": 34
+            "font_size": 32
         }
     except Exception as e:
         print(f"[!] Warning drawing countdown badge on {image_path}: {e}")
@@ -829,7 +828,7 @@ def generate_video(
                 if sec_slug == "movie_updates" and release_start_time is not None and seg_t < release_start_time:
                     badge_meta = draw_section_countdown_badge(
                         slide_img_path,
-                        "📅 THEATER UPDATES IN",
+                        "THEATER UPDATES IN",
                         border_color=(255, 215, 0),
                         top_y=40
                     )
@@ -845,7 +844,7 @@ def generate_video(
                 elif sec_slug == "release_updates" and ott_start_time is not None and seg_t < ott_start_time:
                     badge_meta = draw_section_countdown_badge(
                         slide_img_path,
-                        "🍿 OTT UPDATES IN",
+                        "OTT UPDATES IN",
                         border_color=(0, 229, 255),
                         top_y=40
                     )
@@ -958,8 +957,8 @@ def generate_video(
                 font_path_escaped = "C\\:/Windows/Fonts/NirmalaB.ttf"
                 drawtext_str = (
                     f"drawtext=fontfile='{font_path_escaped}':"
-                    f"text='%{{eif\\:max(0\\,floor(({rem_expr})/60))\\:d\\:2}}\\:%{{eif\\:max(0\\,mod(floor({rem_expr})\\,60))\\:d\\:2}}':"
-                    f"x={dx}:y={dy}:fontcolor={tc}:fontsize=34"
+                    f"text='  %{{eif\\:max(0\\,floor(({rem_expr})/60))\\:d\\:2}}\\:%{{eif\\:max(0\\,mod(floor({rem_expr})\\,60))\\:d\\:2}}':"
+                    f"x={dx}:y={dy}:fontcolor={tc}:fontsize=32"
                 )
                 filter_str = (
                     f"[0:v]scale=1920:1080,fps=30,setsar=1[bg];"
@@ -1007,8 +1006,8 @@ def generate_video(
             font_path_escaped = "C\\:/Windows/Fonts/NirmalaB.ttf"
             drawtext_str = (
                 f"drawtext=fontfile='{font_path_escaped}':"
-                f"text='%{{eif\\:max(0\\,floor(({rem_expr})/60))\\:d\\:2}}\\:%{{eif\\:max(0\\,mod(floor({rem_expr})\\,60))\\:d\\:2}}':"
-                f"x={dx}:y={dy}:fontcolor={tc}:fontsize=34"
+                f"text='  %{{eif\\:max(0\\,floor(({rem_expr})/60))\\:d\\:2}}\\:%{{eif\\:max(0\\,mod(floor({rem_expr})\\,60))\\:d\\:2}}':"
+                f"x={dx}:y={dy}:fontcolor={tc}:fontsize=32"
             )
 
             filter_str = f"scale=1920:1080,fps=30,setsar=1,{drawtext_str}"
