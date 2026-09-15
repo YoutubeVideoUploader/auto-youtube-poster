@@ -5,8 +5,10 @@ to extract official English movie names directly from Malayalam news text paragr
 """
 
 import os
+import re
 import json
 import requests
+import urllib.parse
 from typing import List, Dict, Any, Optional
 
 DEFAULT_GROQ_MODEL = "openai/gpt-oss-20b"
@@ -121,3 +123,58 @@ def extract_movie_titles_with_groq(
         print(f"[!] Warning parsing Groq response JSON: {e}")
 
     return [""] * len(news_texts)
+
+
+def fetch_poster_urls_for_topics(
+    topics: List[str],
+    api_key: Optional[str] = None
+) -> List[str]:
+    """
+    Given a list of movie names or news text strings, fetches valid poster/image URLs
+    (such as Google gstatic encrypted-tbn0 URLs, Filmibeat poster URLs, Amazon media URLs, etc.)
+    Returns a list of extracted image URL strings matching the input list order.
+    """
+    results = []
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+    }
+
+    for topic in topics:
+        clean_t = str(topic).strip()
+        if not clean_t:
+            results.append("")
+            continue
+
+        query = f"{clean_t} Malayalam movie poster"
+        found_url = ""
+
+        # 1. Bing Image Search for high res / official posters
+        try:
+            b_url = f"https://www.bing.com/images/async?q={urllib.parse.quote(query)}&first=1&count=15"
+            r = requests.get(b_url, headers=headers, verify=False, timeout=6)
+            if r.status_code == 200:
+                murls = re.findall(r'murl&quot;:&quot;(https?://(?:(?!&quot;).)+?\.(?:jpg|jpeg|png|webp))', r.text, re.IGNORECASE)
+                valid_murls = [
+                    m for m in murls 
+                    if not any(b in m.lower() for b in ['vector', 'drawing', 'sketch', 'logo', 'icon', 'ebay', 'cart', 'r10s.jp', 'master-plan'])
+                ]
+                if valid_murls:
+                    found_url = valid_murls[0]
+        except Exception:
+            pass
+
+        # 2. Google Images Search Fallback for gstatic thumbnails
+        if not found_url:
+            try:
+                g_url = f"https://www.google.com/search?q={urllib.parse.quote(query)}&tbm=isch"
+                r_g = requests.get(g_url, headers=headers, verify=False, timeout=6)
+                if r_g.status_code == 200:
+                    tbns = re.findall(r'https://encrypted-tbn0\.gstatic\.com/images\?q=tbn:[^"\'\s\\&]+', r_g.text)
+                    if tbns:
+                        found_url = tbns[0]
+            except Exception:
+                pass
+
+        results.append(found_url)
+
+    return results
