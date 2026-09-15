@@ -162,7 +162,12 @@ if st.session_state.current_section == "📥 Input & Data Editor":
     st.subheader(f"Editing Worksheet: **{active_tab}**")
 
     # Current DataFrame
-    current_df = st.session_state.edited_dfs.get(active_tab, pd.DataFrame(columns=["Topic Number", "Malayalam News Text", "Image URLs"]))
+    current_df = st.session_state.edited_dfs.get(active_tab, pd.DataFrame(columns=["Topic Number", "Topic Headline", "Malayalam News Text", "Image URLs"]))
+    if "Topic Headline" not in current_df.columns:
+        current_df["Topic Headline"] = ""
+    # Re-order columns nicely
+    cols_order = [c for c in ["Topic Number", "Topic Headline", "Malayalam News Text", "Image URLs"] if c in current_df.columns]
+    current_df = current_df[cols_order]
 
     # --------------------------------------------------------------------------
     # OPTION 1: BULK PASTE (SINGLE COLUMN OR FULL TABLE)
@@ -172,9 +177,9 @@ if st.session_state.current_section == "📥 Input & Data Editor":
         
         target_col_choice = st.selectbox(
             "Select Target Column to Paste Into",
-            options=["Malayalam News Text", "Image URLs", "Topic Number", "All Columns (Tab-Separated Full Table)"],
+            options=["Malayalam News Text", "Topic Headline", "Image URLs", "Topic Number", "All Columns (Tab-Separated Full Table)"],
             index=0,
-            help="Choose 'Malayalam News Text' or 'Image URLs' to paste line-by-line into that single column only, or 'All Columns' for multi-column table data."
+            help="Choose 'Malayalam News Text', 'Topic Headline (Movie Name)', or 'Image URLs' to paste line-by-line into that single column only, or 'All Columns' for multi-column table data."
         )
         
         single_paste_text = st.text_area(
@@ -210,6 +215,7 @@ if st.session_state.current_section == "📥 Input & Data Editor":
                             for i in range(extra_rows):
                                 new_rows.append({
                                     "Topic Number": str(start_topic + i),
+                                    "Topic Headline": "",
                                     "Malayalam News Text": "",
                                     "Image URLs": ""
                                 })
@@ -311,7 +317,7 @@ if st.session_state.current_section == "📥 Input & Data Editor":
             ins_pos = st.number_input("Insert Blank Row at Position #", min_value=1, max_value=max(1, df_row_count + 1), value=min(1, df_row_count + 1), step=1, key=f"ins_pos_{active_tab}")
             if st.button("➕ Insert Blank Row", key=f"btn_ins_row_{active_tab}"):
                 tgt_idx = int(ins_pos - 1)
-                blank_row = pd.DataFrame([{"Topic Number": str(ins_pos), "Malayalam News Text": "", "Image URLs": ""}])
+                blank_row = pd.DataFrame([{"Topic Number": str(ins_pos), "Topic Headline": "", "Malayalam News Text": "", "Image URLs": ""}])
                 df_upper = df.iloc[:tgt_idx]
                 df_lower = df.iloc[tgt_idx:]
                 df = pd.concat([df_upper, blank_row, df_lower], ignore_index=True)
@@ -334,7 +340,7 @@ if st.session_state.current_section == "📥 Input & Data Editor":
 
         with m_col2:
             st.markdown("##### 🧹 Column & Renumbering Controls")
-            col_to_clear = st.selectbox("Select Column to Clear", options=["Malayalam News Text", "Image URLs"], key=f"col_to_clear_{active_tab}")
+            col_to_clear = st.selectbox("Select Column to Clear", options=["Malayalam News Text", "Topic Headline", "Image URLs"], key=f"col_to_clear_{active_tab}")
             if st.button("🧹 Clear Column Content", key=f"btn_clear_col_{active_tab}"):
                 df[col_to_clear] = ""
                 st.session_state.edited_dfs[active_tab] = df
@@ -361,6 +367,7 @@ if st.session_state.current_section == "📥 Input & Data Editor":
         use_container_width=True,
         column_config={
             "Topic Number": st.column_config.TextColumn("Topic #", width="small", required=True),
+            "Topic Headline": st.column_config.TextColumn("Movie Name / Topic Title (Col D)", width="medium"),
             "Malayalam News Text": st.column_config.TextColumn("Malayalam News Description / Script", width="large", required=True),
             "Image URLs": st.column_config.TextColumn("Image URL(s) [Comma Separated]", width="medium")
         },
