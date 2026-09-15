@@ -113,6 +113,17 @@ with st.sidebar:
         )
 
     st.markdown("---")
+    st.subheader("🤖 Groq AI Settings")
+    groq_api_key_input = st.text_input(
+        "Groq API Key",
+        value=st.session_state.get("groq_api_key", os.getenv("GROQ_API_KEY", "")),
+        type="password",
+        help="Enter your Groq API Key to auto-fill movie names automatically"
+    )
+    if groq_api_key_input != st.session_state.get("groq_api_key", ""):
+        st.session_state["groq_api_key"] = groq_api_key_input
+
+    st.markdown("---")
     st.info("💡 **Tip**: Select **Input** to paste & edit table rows, then select **Output** to view rendered 1080p slide previews!")
 
 
@@ -355,6 +366,46 @@ if st.session_state.current_section == "📥 Input & Data Editor":
                 st.session_state.sheet_mgr.update_tab_data(active_tab, df)
                 st.success("Renumbered all topic numbers sequentially!")
                 st.rerun()
+
+    # --------------------------------------------------------------------------
+    # OPTION 4: GROQ AI MOVIE NAME AUTO-EXTRACTOR
+    # --------------------------------------------------------------------------
+    with st.expander("🤖 **Option 4: Auto-Extract Movie Names via Groq AI (Llama-3)**", expanded=False):
+        st.write("Use Groq AI (Llama-3) to read all Malayalam news descriptions in this tab and automatically fill the **Movie Name (Col D)** column!")
+        
+        groq_key = st.session_state.get("groq_api_key", os.getenv("GROQ_API_KEY", ""))
+        if not groq_key:
+            st.warning("⚠️ Please enter your Groq API Key in the left sidebar under **🤖 Groq AI Settings** first.")
+        
+        col_g1, col_g2 = st.columns([2, 3])
+        with col_g1:
+            if st.button("🤖 Auto-Extract Movie Names Now", type="primary", use_container_width=True, key=f"btn_groq_extract_{active_tab}"):
+                if not groq_key:
+                    st.error("Please enter your Groq API Key in the sidebar first!")
+                else:
+                    df = current_df.copy()
+                    news_list = df["Malayalam News Text"].tolist()
+                    if not any(str(t).strip() for t in news_list):
+                        st.warning("No news texts found in this worksheet to extract movie names from.")
+                    else:
+                        with st.spinner("🤖 Groq AI is analyzing Malayalam news texts and extracting movie titles..."):
+                            try:
+                                from groq_extractor import extract_movie_titles_with_groq
+                                extracted_titles = extract_movie_titles_with_groq(news_list, api_key=groq_key)
+                                
+                                count_filled = 0
+                                for i, title_val in enumerate(extracted_titles):
+                                    if title_val:
+                                        df.at[i, "Topic Headline"] = title_val
+                                        count_filled += 1
+                                
+                                st.session_state.edited_dfs[active_tab] = df
+                                st.session_state.sheet_mgr.update_tab_data(active_tab, df)
+                                st.balloons()
+                                st.success(f"🎉 Groq AI auto-filled {count_filled} movie names into Column D for **{active_tab}**!")
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"Groq AI Extraction Error: {e}")
 
     # --------------------------------------------------------------------------
     # INTERACTIVE CELL DATA EDITOR
