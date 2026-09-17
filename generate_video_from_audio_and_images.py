@@ -1059,7 +1059,7 @@ def generate_video(
 
             banner_overlay_path = None
             banner_width = 750
-            if item_data:
+            if item_data and seg_type not in ["intro", "outro", "transition", "section_intro"]:
                 sec_slug = str(item_data.get("section_slug", "")).lower()
                 topic_text = item_data.get("topic_text", "")
                 topic_headline = item_data.get("topic_headline", "").strip()
