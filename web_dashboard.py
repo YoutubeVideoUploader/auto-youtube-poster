@@ -373,9 +373,9 @@ if st.session_state.current_section == "📥 Input & Data Editor":
     with st.expander("🤖 **Option 4: Auto-Extract Movie Names via Groq AI (GPT-OSS / Llama-3)**", expanded=False):
         st.write("Use Groq AI (GPT-OSS / Llama-3) to read all Malayalam news descriptions in this tab and automatically fill the **Movie Name (Col D)** column!")
         
-        groq_key = st.session_state.get("groq_api_key", os.getenv("GROQ_API_KEY", ""))
+        groq_key = st.session_state.get("groq_api_key") or os.getenv("GROQ_API_KEY") or st.session_state.sheet_mgr.get_groq_api_key()
         if not groq_key:
-            st.warning("⚠️ Please enter your Groq API Key in the left sidebar under **🤖 Groq AI Settings** first.")
+            st.warning("⚠️ Please enter your Groq API Key in the left sidebar under **🤖 Groq AI Settings** or save it to your Google Sheet 'Config' tab.")
         
         col_g1, col_g2 = st.columns([2, 3])
         with col_g1:

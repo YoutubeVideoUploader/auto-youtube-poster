@@ -1059,6 +1059,15 @@
         renderTableRows();
         if (activeSection === 'output') renderOutputPreviews();
 
+        // Auto populate Groq API Key from Config sheet if present
+        if (data.config && data.config.groq_api_key) {
+          const gel = document.getElementById('groq-api-key-input');
+          if (gel && data.config.groq_api_key.trim() !== '') {
+            gel.value = data.config.groq_api_key;
+            localStorage.setItem('groq_api_key', data.config.groq_api_key);
+          }
+        }
+
         let totalCount = (store["Movie Updates"] || []).length + (store["Release Updates"] || []).length + (store["OTT Updates"] || []).length;
         const indicator = document.getElementById('loading-indicator');
         if (indicator) indicator.innerText = `(${totalCount} Live Topics Loaded ✓)`;
@@ -1768,6 +1777,9 @@
       statusBox.className = 'status-toast';
       statusBox.innerText = '⚡ Syncing to Google Sheets... Please wait...';
 
+      const groqKeyInput = document.getElementById('groq-api-key-input');
+      const groqKeyVal = groqKeyInput ? groqKeyInput.value.trim() : "";
+
       let payload = {
         tab_name: activeTab,
         rows: store[activeTab].map(r => ({
@@ -1778,7 +1790,8 @@
           "Malayalam News Text": r.text,
           "Image URLs": r.imgUrl
         })),
-        thumbnail_urls: selectedPosterUrls.length > 0 ? selectedPosterUrls.join(",") : ""
+        thumbnail_urls: selectedPosterUrls.length > 0 ? selectedPosterUrls.join(",") : "",
+        groq_api_key: groqKeyVal
       };
 
       fetch(WEB_APP_URL, {

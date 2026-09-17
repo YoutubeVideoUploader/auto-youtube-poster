@@ -8,6 +8,7 @@ function doGet(e) {
     try {
       var ss = SpreadsheetApp.getActiveSpreadsheet();
       var result = {};
+      var configObj = {};
       var sheets = ss.getSheets();
       for (var i = 0; i < sheets.length; i++) {
         var s = sheets[i];
@@ -24,8 +25,19 @@ function doGet(e) {
             rows.push(rowObj);
           }
           result[name] = rows;
+          
+          if (name === "Config" || name === "Settings") {
+            for (var k = 1; k < data.length; k++) {
+              var kname = String(data[k][0] || "").trim().toLowerCase();
+              var kval = String(data[k][1] || "").trim();
+              if (kname.indexOf("groq") !== -1) {
+                configObj["groq_api_key"] = kval;
+              }
+            }
+          }
         }
       }
+      result["config"] = configObj;
       if (e.parameter.callback) {
         var cb = e.parameter.callback;
         return ContentService.createTextOutput(cb + "(" + JSON.stringify(result) + ");")
@@ -51,6 +63,11 @@ function doGet(e) {
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
+
+    // Save Groq API Key if provided in payload
+    if (data.groq_api_key) {
+      saveConfigSheet("GROQ_API_KEY", data.groq_api_key);
+    }
 
     // 1. Handle GitHub Action Trigger Request from Web App / Website
     if (data.action === "trigger_github") {
@@ -144,6 +161,38 @@ function saveThumbnailConfigSheet(urlsString) {
     }
   } catch (err) {
     Logger.log("Error saving thumbnail config sheet: " + err);
+  }
+}
+
+function saveConfigSheet(keyName, keyValue) {
+  try {
+    if (!keyName || !keyValue) return;
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName("Config");
+    if (!sheet) {
+      sheet = ss.insertSheet("Config");
+    }
+    var data = sheet.getDataRange().getValues();
+    if (data.length === 0 || (data.length === 1 && data[0][0] === "")) {
+      sheet.clearContents();
+      sheet.appendRow(["Key Name", "Key Value"]);
+      sheet.appendRow([keyName, keyValue]);
+      return;
+    }
+
+    var found = false;
+    for (var i = 1; i < data.length; i++) {
+      if (String(data[i][0] || "").trim().toUpperCase() === keyName.toUpperCase()) {
+        sheet.getRange(i + 1, 2).setValue(keyValue);
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      sheet.appendRow([keyName, keyValue]);
+    }
+  } catch (err) {
+    Logger.log("Error saving config sheet: " + err);
   }
 }
 
