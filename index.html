@@ -559,6 +559,50 @@
       .image-modal-caption {
         font-size: 11px;
       }
+
+      /* Poster Wizard Modal Mobile Optimizations */
+      #poster-wizard-modal > div {
+        width: 98vw !important;
+        max-height: 95vh !important;
+        border-radius: 8px !important;
+      }
+      .wizard-search-box-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 6px !important;
+      }
+      .wizard-search-box-row input {
+        width: 100% !important;
+        min-width: 100% !important;
+      }
+      .wizard-search-box-row button {
+        width: 100% !important;
+      }
+      #wizard-poster-grid {
+        grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)) !important;
+        gap: 8px !important;
+        max-height: 200px !important;
+      }
+      #wizard-poster-grid img {
+        height: 130px !important;
+      }
+      #wizard-prompt-panel {
+        padding: 12px 8px !important;
+      }
+      #wizard-prompt-panel > div {
+        flex-direction: column !important;
+        gap: 8px !important;
+      }
+      #wizard-prompt-panel button {
+        width: 100% !important;
+      }
+      .wizard-custom-url-row {
+        flex-direction: column !important;
+        gap: 6px !important;
+      }
+      .wizard-custom-url-row button {
+        width: 100% !important;
+      }
     }
 
     @media (max-width: 480px) {
@@ -830,7 +874,7 @@
         </div>
 
         <!-- Search Controls & Google Images Quick Link -->
-        <div style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center;">
+        <div class="wizard-search-box-row" style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center;">
           <input type="text" id="wizard-search-input" placeholder="Search movie poster..." style="flex: 1; min-width: 200px; padding: 9px; background: #0d0d16; border: 1px solid #06b6d4; color: #fff; border-radius: 6px; font-size: 14px;">
           <button class="btn" style="background: #0891b2; padding: 9px 14px; font-size: 13px;" onclick="triggerWizardPosterSearch()">🔍 Search</button>
           <button class="btn btn-secondary" style="padding: 9px 14px; font-size: 13px; background: #1e293b; color: #38bdf8; border: 1px solid #0284c7;" onclick="openGoogleImagesTabFromWizard()">🌐 Google Images (New Tab)</button>
@@ -850,7 +894,7 @@
         <!-- Custom Image URL Input Box -->
         <div style="background: #0d0d16; padding: 12px; border-radius: 8px; border: 1px solid #2b2b40;">
           <label style="font-size: 12px; color: #aaa; font-weight: 600; display: block; margin-bottom: 6px;">Or Paste Image URL Directly:</label>
-          <div style="display: flex; gap: 8px;">
+          <div class="wizard-custom-url-row" style="display: flex; gap: 8px;">
             <input type="text" id="wizard-custom-url-input" placeholder="https://example.com/poster.jpg" style="flex: 1; padding: 8px; background: #161625; border: 1px solid #33334d; color: #fff; border-radius: 5px; font-size: 13px;">
             <button class="btn" style="background: #059669; padding: 8px 16px; font-size: 13px;" onclick="applyWizardCustomUrl()">✅ Apply URL</button>
           </div>
