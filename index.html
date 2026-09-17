@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>Malayalam Movie News - Studio Dashboard</title>
   <style>
     :root {
@@ -371,53 +371,76 @@
       min-width: 650px;
     }
 
-    /* Mobile Responsive Media Queries */
+    /* Mobile Responsive Optimizations */
+    .mobile-full-width {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .groq-key-input {
+      padding: 8px;
+      background: #0d0d16;
+      border: 1px solid #4c1d95;
+      color: #fff;
+      border-radius: 6px;
+      font-size: 13px;
+      flex: 1;
+      min-width: 220px;
+    }
+
     @media (max-width: 768px) {
       body {
-        padding: 12px 10px;
+        padding: 10px 8px;
       }
 
       header {
-        margin-bottom: 18px;
+        margin-bottom: 15px;
       }
 
       header h1 {
-        font-size: 22px;
+        font-size: 20px;
       }
 
       header p {
-        font-size: 13px;
+        font-size: 12px;
       }
 
       .section-nav {
         flex-direction: column;
-        gap: 10px;
-        margin-bottom: 18px;
+        gap: 8px;
+        margin-bottom: 15px;
       }
 
       .section-btn {
         max-width: 100%;
         width: 100%;
-        padding: 14px 16px;
-        font-size: 15px;
+        padding: 12px 14px;
+        font-size: 14px;
+        border-radius: 8px;
       }
 
       .tab-bar {
-        gap: 8px;
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 6px;
+        padding-bottom: 6px;
+        justify-content: flex-start;
       }
 
       .tab-btn {
-        flex: 1 1 calc(33.33% - 8px);
-        text-align: center;
-        padding: 10px 8px;
+        flex: 0 0 auto;
+        white-space: nowrap;
+        padding: 8px 14px;
         font-size: 13px;
-        min-width: 90px;
+        border-radius: 6px;
       }
 
       .card {
-        padding: 15px;
+        padding: 14px 12px;
         border-radius: 10px;
-        margin-bottom: 18px;
+        margin-bottom: 15px;
       }
 
       .card-title {
@@ -425,73 +448,125 @@
       }
 
       /* Prevent mobile browser auto-zoom on input focus */
-      input[type="text"], textarea, select {
+      input[type="text"], input[type="number"], input[type="password"], textarea, select {
         font-size: 16px !important;
+      }
+
+      .groq-key-input {
+        width: 100% !important;
+        min-width: 100% !important;
       }
 
       .btn {
         width: 100%;
         text-align: center;
-        padding: 14px 18px;
-        font-size: 15px;
+        padding: 12px 16px;
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+
+      .btn-secondary {
+        width: 100%;
+      }
+
+      /* Mobile layout for option panels */
+      .option-box-flex {
+        flex-direction: column !important;
+        align-items: stretch !important;
+      }
+
+      .tools-grid {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+      }
+
+      .tools-grid > div {
+        width: 100% !important;
+      }
+
+      .tools-grid input[type="number"] {
+        width: 80px !important;
+      }
+
+      .tools-grid select {
+        width: 100% !important;
+      }
+
+      /* Table Touch Scrolling & Inputs */
+      .table-wrapper {
+        border-radius: 8px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+      }
+
+      th, td {
+        padding: 8px 6px;
+        font-size: 12px;
+      }
+
+      td input[type="text"], td textarea {
+        font-size: 15px !important;
+        padding: 6px;
+      }
+
+      td textarea {
+        height: 85px;
       }
 
       .preview-grid {
         grid-template-columns: 1fr;
-        gap: 16px;
+        gap: 14px;
       }
 
       .preview-poster {
-        height: 250px;
+        height: 220px;
       }
 
       .multi-image-grid {
-        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-        gap: 8px;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 6px;
       }
 
       .multi-image-grid img {
-        height: 140px;
+        height: 120px;
       }
 
       #thumbnail-posters-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
-        gap: 12px !important;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
+        gap: 10px !important;
       }
 
       #thumbnail-posters-grid .preview-poster {
-        height: 180px !important;
+        height: 160px !important;
       }
 
       .image-modal-close {
-        top: 15px;
-        right: 15px;
-        width: 44px;
-        height: 44px;
-        font-size: 24px;
+        top: 12px;
+        right: 12px;
+        width: 40px;
+        height: 40px;
+        font-size: 22px;
       }
 
       .image-modal-content {
         max-width: 98vw;
-        max-height: 88vh;
+        max-height: 85vh;
         width: 96vw;
-        height: 85vh;
+        height: 80vh;
       }
 
       .image-modal-caption {
-        font-size: 12px;
-        text-align: center;
-        padding: 0 10px;
+        font-size: 11px;
       }
     }
 
     @media (max-width: 480px) {
-      .tab-bar {
-        flex-direction: column;
+      body {
+        padding: 8px 6px;
       }
-
-      .tab-btn {
-        width: 100%;
+      .card {
+        padding: 12px 10px;
       }
     }
   </style>
@@ -522,19 +597,106 @@
     <div id="section-input" class="card">
       <div class="card-title">📋 Worksheet: <span id="active-tab-name">Movie Updates</span> <span id="loading-indicator" style="font-size: 13px; color: #4eff8c; margin-left: 10px;">(21 Topics Loaded ✓)</span></div>
       
-      <!-- Structured Bulk Paste Box -->
+      <!-- Option 1: Single-Column or Full Table Bulk Paste Box -->
       <div style="background: #171728; border: 1px dashed var(--accent-red); border-radius: 10px; padding: 18px; margin-bottom: 20px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <label style="font-size: 15px; font-weight: 700; color: #fff;">📋 Structured Bulk Paste Area (ChatGPT, Excel, Google Sheets)</label>
-          <span style="font-size: 12px; background: #2b2b48; color: #4eff8c; padding: 3px 8px; border-radius: 5px;">Supports ChatGPT Tables with |</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+          <label style="font-size: 15px; font-weight: 700; color: #fff;">📋 Option 1: Bulk Paste (Single Column or Full Table)</label>
+          <span style="font-size: 12px; background: #2b2b48; color: #4eff8c; padding: 3px 8px; border-radius: 5px;">Supports Single Column or ChatGPT Tables</span>
+        </div>
+        <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center; flex-wrap: wrap;">
+          <label style="font-size: 13px; color: #aaa;">Target Column:</label>
+          <select id="bulk-paste-target-col" style="padding: 8px; background: #0d0d16; border: 1px solid #33334d; color: #fff; border-radius: 6px; font-size: 13px;">
+            <option value="text">Malayalam News Text / Description</option>
+            <option value="imgUrl">Image URL(s)</option>
+            <option value="headline">Topic Headline (Movie Updates only)</option>
+            <option value="topicNum">Topic Number</option>
+            <option value="all">All Columns (Full Table / ChatGPT Pipe Table)</option>
+          </select>
+        </div>
+        <textarea id="bulk-paste-box" placeholder="Paste content line-by-line for single column, or full tab/pipe separated table..."></textarea>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="btn btn-secondary" onclick="importPastedTable()">📥 Apply Bulk Paste</button>
+          <button class="btn btn-secondary" style="background: #252538;" onclick="document.getElementById('bulk-paste-box').value=''">🧹 Clear Paste Box</button>
+        </div>
+      </div>
+
+      <!-- Option 2: Adjust Row Position & Re-order Topics -->
+      <div style="background: #171728; border: 1px solid #33334d; border-radius: 10px; padding: 18px; margin-bottom: 20px;">
+        <label style="font-size: 15px; font-weight: 700; color: #fff; display: block; margin-bottom: 10px;">🔀 Option 2: Adjust Row Position & Re-order Topics</label>
+        <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <label style="font-size: 13px; color: #aaa;">Source Row #:</label>
+            <input type="number" id="row-src-pos" value="3" min="1" style="width: 70px; padding: 6px; background: #0d0d16; border: 1px solid #33334d; color: #fff; border-radius: 5px;">
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <label style="font-size: 13px; color: #aaa;">Target Position #:</label>
+            <input type="number" id="row-tgt-pos" value="2" min="1" style="width: 70px; padding: 6px; background: #0d0d16; border: 1px solid #33334d; color: #fff; border-radius: 5px;">
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="btn btn-secondary" onclick="moveRowToPosition()">🔀 Move to Position</button>
+          <button class="btn btn-secondary" style="background: #252538;" onclick="shiftRow('up')">⬆️ Move Up</button>
+          <button class="btn btn-secondary" style="background: #252538;" onclick="shiftRow('down')">⬇️ Move Down</button>
+          <button class="btn btn-secondary" style="background: #252538;" onclick="swapRows()">↔️ Swap Rows</button>
+        </div>
+      </div>
+
+      <!-- Option 3: Quick Column & Row Management Tools -->
+      <div style="background: #171728; border: 1px solid #33334d; border-radius: 10px; padding: 18px; margin-bottom: 20px;">
+        <label style="font-size: 15px; font-weight: 700; color: #fff; display: block; margin-bottom: 10px;">🛠️ Option 3: Quick Column & Row Tools</label>
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+          <div>
+            <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">Insert Blank Row at Position #:</label>
+            <div style="display: flex; gap: 6px;">
+              <input type="number" id="ins-row-pos" value="1" min="1" style="width: 70px; padding: 6px; background: #0d0d16; border: 1px solid #33334d; color: #fff; border-radius: 5px;">
+              <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;" onclick="insertBlankRowAt()">➕ Insert</button>
+            </div>
+          </div>
+          <div>
+            <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">Clear Column Content:</label>
+            <div style="display: flex; gap: 6px;">
+              <select id="clear-col-select" style="padding: 6px; background: #0d0d16; border: 1px solid #33334d; color: #fff; border-radius: 5px; font-size: 13px;">
+                <option value="text">Malayalam News Text</option>
+                <option value="imgUrl">Image URLs</option>
+                <option value="headline">Topic Headline</option>
+              </select>
+              <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; background: #3a2232; color: #ff8888;" onclick="clearSingleColumn()">🧹 Clear</button>
+            </div>
+          </div>
+          <div>
+            <button class="btn btn-secondary" style="padding: 8px 14px; font-size: 13px;" onclick="autoRenumberTopics()">🔢 Renumber Topics (1..N)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Option 4: Auto-Extract Movie Names via Groq AI -->
+      <div style="background: #171728; border: 1px solid #7c3aed; border-radius: 10px; padding: 18px; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+          <label style="font-size: 15px; font-weight: 700; color: #a78bfa;">🤖 Option 4: Auto-Extract Movie Names via Groq AI</label>
+          <span style="font-size: 12px; background: #2e1065; color: #c4b5fd; padding: 3px 8px; border-radius: 5px;">Powered by Groq AI</span>
+        </div>
+        <p id="groq-opt-desc" style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+          Uses Groq AI to read all Malayalam news descriptions in <b>Movie Updates</b> and automatically generate a <b>1-Line Topic Headline (Col D)</b>!
+        </p>
+        <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center; flex-wrap: wrap;" class="option-box-flex">
+          <label style="font-size: 13px; color: #aaa;">Groq API Key:</label>
+          <input type="password" id="groq-api-key-input" value="" placeholder="gsk_..." class="groq-key-input" onchange="localStorage.setItem('groq_api_key', this.value)">
+          <button class="btn" style="background: #7c3aed;" onclick="autoExtractGroqMovieNames()">🤖 Auto-Fill Movie Names Now</button>
+        </div>
+        <div id="groq-status-toast" class="status-toast" style="margin-top: 5px;"></div>
+      </div>
+
+      <!-- Option 5: Auto-Fetch Posters Wizard -->
+      <div style="background: #171728; border: 1px solid #06b6d4; border-radius: 10px; padding: 18px; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+          <label style="font-size: 15px; font-weight: 700; color: #22d3ee;">🖼️ Option 5: Auto-Fetch Posters Wizard</label>
+          <span style="font-size: 12px; background: #083344; color: #67e8f9; padding: 3px 8px; border-radius: 5px;">Guided 1-Click Search Wizard</span>
         </div>
         <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
-          Paste raw tables directly from <b>ChatGPT</b> (with <code>|</code> pipes), <b>Excel</b>, or <b>Google Sheets</b>. All <code>|</code> pipes and header rows are automatically cleaned!
+          Opens an interactive poster finder wizard that loops step-by-step through each movie in <b id="wizard-active-tab-label">Movie Updates</b>, fetches movie posters, provides 1-click Google Image search, and fills Column C!
         </p>
-        <textarea id="bulk-paste-box" placeholder="| Topic # | Malayalam News Text | Image URL |\n|---|---|---|\n| 1 | മമ്മൂട്ടിയുടെ പുതിയ ചിത്രം മേള പ്രഖ്യാപിച്ചു... | https://example.com/poster.jpg"></textarea>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-          <button class="btn btn-secondary" onclick="importPastedTable()">📥 Clean & Import Pasted Table</button>
-          <button class="btn btn-secondary" style="background: #252538;" onclick="document.getElementById('bulk-paste-box').value=''">🧹 Clear Paste Box</button>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <button class="btn" style="background: #0891b2;" onclick="startPosterWizard()">🖼️ Launch Poster Finder Wizard Now</button>
         </div>
       </div>
 
@@ -645,6 +807,77 @@
     <div class="image-modal-caption">Click anywhere outside or press ESC to close</div>
   </div>
 
+  <!-- AUTO-FETCH POSTER WIZARD MODAL -->
+  <div id="poster-wizard-modal" class="image-modal-overlay" style="z-index: 10005;">
+    <div style="background: #161625; border: 2px solid #06b6d4; border-radius: 12px; max-width: 850px; width: 94vw; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.9); animation: fadeInLightbox 0.2s ease-out;">
+      
+      <!-- Modal Header -->
+      <div style="background: #1f1f35; padding: 14px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <span id="wizard-progress-badge" style="background: #0891b2; color: #fff; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase;">Step 1 of 5</span>
+          <h3 id="wizard-topic-title" style="color: #67e8f9; margin-top: 4px; font-size: 18px;">Topic Poster Finder</h3>
+        </div>
+        <button onclick="closePosterWizard()" style="background: transparent; border: none; color: #aaa; font-size: 26px; cursor: pointer; font-weight: bold; padding: 0 8px;">✕</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div style="padding: 18px; overflow-y: auto; flex: 1;">
+        
+        <!-- Topic Info Card -->
+        <div style="background: #0d0d16; border: 1px solid #2b2b40; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;">
+          <div style="font-size: 12px; color: #888; font-weight: 600;">Malayalam News Summary:</div>
+          <div id="wizard-news-text" style="font-size: 13px; color: #e2e8f0; margin-top: 4px; max-height: 55px; overflow-y: auto;">-</div>
+        </div>
+
+        <!-- Search Controls & Google Images Quick Link -->
+        <div style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center;">
+          <input type="text" id="wizard-search-input" placeholder="Search movie poster..." style="flex: 1; min-width: 200px; padding: 9px; background: #0d0d16; border: 1px solid #06b6d4; color: #fff; border-radius: 6px; font-size: 14px;">
+          <button class="btn" style="background: #0891b2; padding: 9px 14px; font-size: 13px;" onclick="triggerWizardPosterSearch()">🔍 Search</button>
+          <button class="btn btn-secondary" style="padding: 9px 14px; font-size: 13px; background: #1e293b; color: #38bdf8; border: 1px solid #0284c7;" onclick="openGoogleImagesTabFromWizard()">🌐 Google Images (New Tab)</button>
+        </div>
+
+        <!-- Poster Images Grid -->
+        <div style="margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label style="font-size: 13px; font-weight: 700; color: #aaa;">Click a Poster to Select:</label>
+            <span id="wizard-search-status" style="font-size: 12px; color: #67e8f9;">Searching...</span>
+          </div>
+          <div id="wizard-poster-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; max-height: 250px; overflow-y: auto; background: #0d0d16; padding: 12px; border-radius: 8px; border: 1px solid #2b2b40;">
+            <!-- Rendered poster thumbnails -->
+          </div>
+        </div>
+
+        <!-- Custom Image URL Input Box -->
+        <div style="background: #0d0d16; padding: 12px; border-radius: 8px; border: 1px solid #2b2b40;">
+          <label style="font-size: 12px; color: #aaa; font-weight: 600; display: block; margin-bottom: 6px;">Or Paste Image URL Directly:</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="wizard-custom-url-input" placeholder="https://example.com/poster.jpg" style="flex: 1; padding: 8px; background: #161625; border: 1px solid #33334d; color: #fff; border-radius: 5px; font-size: 13px;">
+            <button class="btn" style="background: #059669; padding: 8px 16px; font-size: 13px;" onclick="applyWizardCustomUrl()">✅ Apply URL</button>
+          </div>
+        </div>
+
+        <!-- STEP CONFIRMATION PROMPT OVERLAY PANEL (Shows after URL selected) -->
+        <div id="wizard-prompt-panel" style="display: none; margin-top: 14px; background: #064e3b; border: 1px solid #10b981; border-radius: 8px; padding: 14px; text-align: center; animation: fadeInLightbox 0.2s ease-out;">
+          <div style="font-size: 15px; font-weight: 700; color: #6ee7b7; margin-bottom: 4px;">✅ Poster Saved for Topic #<span id="wizard-prompt-topic-num">1</span>!</div>
+          <p style="font-size: 13px; color: #d1fae5; margin-bottom: 12px;">Would you like to proceed to the next topic?</p>
+          <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button class="btn" style="background: #10b981; color: #064e3b; font-weight: 800; font-size: 14px; padding: 9px 18px;" onclick="advancePosterWizardNext()">➡️ Next Movie (<span id="wizard-next-topic-title">Topic #2</span>)</button>
+            <button class="btn btn-secondary" style="background: #1e293b; color: #fff; font-size: 13px; padding: 9px 14px;" onclick="closePosterWizard()">🛑 Finish Wizard</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div style="background: #1f1f35; padding: 10px 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+        <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 14px;" onclick="prevPosterWizardStep()">⬅️ Previous</button>
+        <span style="font-size: 12px; color: #888;">Select image or paste URL to continue</span>
+        <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 14px;" onclick="advancePosterWizardNext()">Skip ➡️</button>
+      </div>
+
+    </div>
+  </div>
+
   <script>
     // Configured Google Apps Script Web App Endpoint
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyKFgRsYYCX69wM7_INBD7kWWUc3O9ah-HrPOjXf_Z_rigXZwWzt5qVWPMPiNE6PQ-nWQ/exec";
@@ -691,12 +924,17 @@
       }
     });
 
-    // Auto restore PAT token from localStorage & fetch live Google Sheets data
+    // Auto restore PAT token & Groq API key from localStorage & fetch live Google Sheets data
     window.addEventListener('DOMContentLoaded', () => {
       const savedPat = localStorage.getItem('user_gh_pat');
       if (savedPat) {
         const el = document.getElementById('github-pat-token');
         if (el) el.value = savedPat;
+      }
+      const savedGroq = localStorage.getItem('groq_api_key');
+      if (savedGroq) {
+        const gel = document.getElementById('groq-api-key-input');
+        if (gel) gel.value = savedGroq;
       }
       fetchLiveGoogleSheetsData();
     });
@@ -704,30 +942,30 @@
     // Default initial sample topics
     const defaultStore = {
       "Movie Updates": [
-        { topicNum: "1", text: "മമ്മൂട്ടിയുടെ എഴുപത്തിയഞ്ചാം പിറന്നാൾ ദിനത്തിൽ നിതീഷ് സഹദേവ് സംവിധാനം ചെയ്യുന്ന പുതിയ ചിത്രത്തിന് ‘മേള’ എന്ന പേര് പ്രഖ്യാപിച്ച് ഫസ്റ്റ് ലുക്ക് പുറത്തിറക്കി. ജൂലൈയിൽ ചിത്രീകരണം ആരംഭിച്ച സിനിമയിൽ മമ്മൂട്ടി വ്യത്യസ്തമായ ഗെറ്റപ്പിലാണ് എത്തുന്നത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-07%2Fqoyeyn8q%2FMammoottyMelafirstlook.jpg?auto=format%2Ccompress&fit=max&w=480" },
-        { topicNum: "2", text: "സംവിധായകൻ വിനയൻ ഒരുക്കുന്ന പുതിയ ഫാന്റസി ചിത്രത്തിന്റെ ചിത്രീകരണം ഒക്ടോബറിൽ ആരംഭിക്കും. സാഗർ സൂര്യയും ഗിന്നസ് പക്രുവും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ചിത്രത്തിൽ ഇരുന്നൂറോളം ഉയരം കുറഞ്ഞ കലാകാരന്മാരും ഭാഗമാകുമെന്ന് വിനയൻ വ്യക്തമാക്കി.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-12%2Fe40s25kb%2FVinayan.jpg?auto=format%2Ccompress&fit=max&w=480" },
-        { topicNum: "3", text: "നടി അമല പോൾ എം. പത്മകുമാർ സംവിധാനം ചെയ്യുന്ന പുതിയ ചിത്രത്തിൽ നായികയായി എത്തുന്നു. ചിത്രത്തിന്റെ പൂജയും സ്വിച്ചോൺ ചടങ്ങും പൂർത്തിയായി, എന്നാൽ സിനിമയുടെ പേരും കൂടുതൽ വിശദാംശങ്ങളും അണിയറപ്രവർത്തകർ ഇതുവരെ പ്രഖ്യാപിച്ചിട്ടില്ല.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-11%2Fv8gzh8n0%2FAmala-Paul.jpg?auto=format%2Ccompress&fit=max&w=480" },
-        { topicNum: "4", text: "ആന്റണി വർഗീസ് പെപ്പെ ആദ്യമായി കഥയെഴുതുന്ന ‘വിശുദ്ധ സെമിനാരി’ എന്ന പുതിയ ചിത്രത്തിൽ നായകനായും എത്തുന്നു. കിച്ചു ടെല്ലസാണ് ചിത്രത്തിന്റെ തിരക്കഥ ഒരുക്കുന്നത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-10%2F5tkosl17%2FAntony-Varghese-Pepe.jpg?auto=format%2Ccompress&fit=max&w=480" },
-        { topicNum: "5", text: "ബംഗാളി സിനിമകളിലൂടെ ശ്രദ്ധ നേടിയ നന്ദി മൂവീസ് മലയാള സിനിമയിലേക്ക് എത്തുന്നു. സൂരജ് സോമചന്ദ്രൻ സംവിധാനം ചെയ്യുന്ന ഹൊറർ ത്രില്ലറാണ് കമ്പനിയുടെ ആദ്യ മലയാള ചിത്രം.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-10%2Fucg1lcqx%2FPradeep-Kumar-Nandy.jpg?auto=format%2Ccompress&fit=max&w=480" },
-        { topicNum: "6", text: "മോഹൻലാലും ജൂഡ് ആന്തണി ജോസഫും ഒന്നിക്കുന്ന ‘എൽ 370’ ചിത്രത്തിന്റെ നിർമ്മാതാവായി ആഷിഖ് ഉസ്മാൻ എത്തുന്നു. മോഹൻലാലും ജൂഡും വീണ്ടും ഒരുമിക്കുന്ന ചിത്രമാണിത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-09%2F4w8y89vz%2FAshiq-Usman-Mohanlal-Jude-Anthany-Joseph-L-R.jpg?auto=format%2Ccompress&fit=max&w=480" },
-        { topicNum: "7", text: "നിവിൻ പോളിയും മമിത ബൈജുവും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ്’ കേരള ബോക്സ് ഓഫീസിൽ ഈ വർഷത്തെ പുതിയ ഇൻഡസ്ട്രി ഹിറ്റായി മാറി. കേരളത്തിൽ ചിത്രം നൂറ്റിമുപ്പത് കോടിയിലധികം നേടിയതായി റിപ്പോർട്ടുകൾ പറയുന്നു.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-08-24%2Fe3cpckk2%2Fbethlehemspoiler.jpg?auto=format%2Ccompress&fit=max&w=480" }
+        { topicNum: "1", headline: "മമ്മൂട്ടിയുടെ ‘മേള’ ഫസ്റ്റ് ലുക്ക് പുറത്തിറങ്ങി", text: "മമ്മൂട്ടിയുടെ എഴുപത്തിയഞ്ചാം പിറന്നാൾ ദിനത്തിൽ നിതീഷ് സഹദേവ് സംവിധാനം ചെയ്യുന്ന പുതിയ ചിത്രത്തിന് ‘മേള’ എന്ന പേര് പ്രഖ്യാപിച്ച് ഫസ്റ്റ് ലുക്ക് പുറത്തിറക്കി. ജൂലൈയിൽ ചിത്രീകരണം ആരംഭിച്ച സിനിമയിൽ മമ്മൂട്ടി വ്യത്യസ്തമായ ഗെറ്റപ്പിലാണ് എത്തുന്നത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-07%2Fqoyeyn8q%2FMammoottyMelafirstlook.jpg?auto=format%2Ccompress&fit=max&w=480" },
+        { topicNum: "2", headline: "വിനയന്റെ പുതിയ ഫാന്റസി ചിത്രം", text: "സംവിധായകൻ വിനയൻ ഒരുക്കുന്ന പുതിയ ഫാന്റസി ചിത്രത്തിന്റെ ചിത്രീകരണം ഒക്ടോബറിൽ ആരംഭിക്കും. സാഗർ സൂര്യയും ഗിന്നസ് പക്രുവും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ചിത്രത്തിൽ ഇരുന്നൂറോളം ഉയരം കുറഞ്ഞ കലാകാരന്മാരും ഭാഗമാകുമെന്ന് വിനയൻ വ്യക്തമാക്കി.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-12%2Fe40s25kb%2FVinayan.jpg?auto=format%2Ccompress&fit=max&w=480" },
+        { topicNum: "3", headline: "അമല പോൾ പുതിയ ചിത്രത്തിൽ", text: "നടി അമല പോൾ എം. പത്മകുമാർ സംവിധാനം ചെയ്യുന്ന പുതിയ ചിത്രത്തിൽ നായികയായി എത്തുന്നു. ചിത്രത്തിന്റെ പൂജയും സ്വിച്ചോൺ ചടങ്ങും പൂർത്തിയായി, എന്നാൽ സിനിമയുടെ പേരും കൂടുതൽ വിശദാംശങ്ങളും അണിയറപ്രവർത്തകർ ഇതുവരെ പ്രഖ്യാപിച്ചിട്ടില്ല.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-11%2Fv8gzh8n0%2FAmala-Paul.jpg?auto=format%2Ccompress&fit=max&w=480" },
+        { topicNum: "4", headline: "ആന്റണി വർഗീസിന്റെ ‘വിശുദ്ധ സെമിനാരി’", text: "ആന്റണി വർഗീസ് പെപ്പെ ആദ്യമായി കഥയെഴുതുന്ന ‘വിശുദ്ധ സെമിനാരി’ എന്ന പുതിയ ചിത്രത്തിൽ നായകനായും എത്തുന്നു. കിച്ചു ടെല്ലസാണ് ചിത്രത്തിന്റെ തിരക്കഥ ഒരുക്കുന്നത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-10%2F5tkosl17%2FAntony-Varghese-Pepe.jpg?auto=format%2Ccompress&fit=max&w=480" },
+        { topicNum: "5", headline: "നന്ദി മൂവീസ് മലയാളത്തിലേക്ക്", text: "ബംഗാളി സിനിമകളിലൂടെ ശ്രദ്ധ നേടിയ നന്ദി മൂവീസ് മലയാള സിനിമയിലേക്ക് എത്തുന്നു. സൂരജ് സോമചന്ദ്രൻ സംവിധാനം ചെയ്യുന്ന ഹൊറർ ത്രില്ലറാണ് കമ്പനിയുടെ ആദ്യ മലയാള ചിത്രം.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-10%2Fucg1lcqx%2FPradeep-Kumar-Nandy.jpg?auto=format%2Ccompress&fit=max&w=480" },
+        { topicNum: "6", headline: "മോഹൻലാൽ - ജൂഡ് ചിത്രം ‘എൽ 370’", text: "മോഹൻലാലും ജൂഡ് ആന്തണി ജോസഫും ഒന്നിക്കുന്ന ‘എൽ 370’ ചിത്രത്തിന്റെ നിർമ്മാതാവായി ആഷിഖ് ഉസ്മാൻ എത്തുന്നു. മോഹൻലാലും ജൂഡും വീണ്ടും ഒരുമിക്കുന്ന ചിത്രമാണിത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-09%2F4w8y89vz%2FAshiq-Usman-Mohanlal-Jude-Anthany-Joseph-L-R.jpg?auto=format%2Ccompress&fit=max&w=480" },
+        { topicNum: "7", headline: "‘ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ്’ 130 കോടി", text: "നിവിൻ പോളിയും മമിത ബൈജുവും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ്’ കേരള ബോക്സ് ഓഫീസിൽ ഈ വർഷത്തെ പുതിയ ഇൻഡസ്ട്രി ഹിറ്റായി മാറി. കേരളത്തിൽ ചിത്രം നൂറ്റിമുപ്പത് കോടിയിലധികം നേടിയതായി റിപ്പോർട്ടുകൾ പറയുന്നു.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-08-24%2Fe3cpckk2%2Fbethlehemspoiler.jpg?auto=format%2Ccompress&fit=max&w=480" }
       ],
       "Release Updates": [
-        { topicNum: "1", text: "സജിൻ ഗോപുവും നിഖില വിമലും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ധൂമകേതു’ സെപ്റ്റംബർ ഇരുപത്തിയഞ്ചിന് തിയേറ്ററുകളിലെത്തും. സുധി മാഡിസൺ സംവിധാനം ചെയ്യുന്ന ചിത്രത്തിന്റെ റിലീസ് നേരത്തെ സെപ്റ്റംബർ പതിനൊന്നിനായിരുന്നു തീരുമാനിച്ചിരുന്നത്, പിന്നീട് മാറ്റുകയായിരുന്നു.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-08%2F8c9mjggo%2FDhoomakethuposter.jpg?auto=format%2Ccompress&fit=max&w=480" },
-        { topicNum: "2", text: "സംഗീത് പ്രതാപും ഷറഫുദ്ദീനും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ഇറ്റ്സ് എ മെഡിക്കൽ മിറക്കിൾ’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. ചിത്രത്തിന്റെ ഔദ്യോഗിക ട്രെയിലറും പുറത്തിറങ്ങി.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-10%2F0ewgpq3y%2FIts-a-Medical-Miracle-Sangeeth-Prathap.png?auto=format%2Ccompress&fit=max&w=480" },
-        { topicNum: "3", text: "ബിജു മേനോനും സുരാജ് വെഞ്ഞാറമൂടും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ഓട്ടംതുള്ളൽ’ സെപ്റ്റംബർ ഇരുപത്തിയഞ്ചിന് തിയേറ്ററുകളിലെത്തും. ജീത്തു മാധവനാണ് ചിത്രം സംവിധാനം ചെയ്യുന്നത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-07%2Fj0ms5m42%2FBiju-Menon.jpg?auto=format%2Ccompress&fit=max&w=480" },
-        { topicNum: "4", text: "ഷാഹിദ് അറഫാത്ത് സംവിധാനം ചെയ്യുന്ന ‘ആരം’ സിനിമയിൽ വാനര കഥാപാത്രമായി നസ്‌ലൻ എത്തുമ്പോൾ, ഉർവശിയും ചിത്രത്തിൽ പ്രധാന വേഷം ചെയ്യുന്നു. ചിത്രം ഒക്ടോബർ രണ്ടിന് റിലീസ് ചെയ്യും.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-06%2F7v1x27z2%2FAaram.jpg?auto=format%2Ccompress&fit=max&w=480" },
-        { topicNum: "5", text: "സാക്കിർ സനൽ സംവിധാനം ചെയ്യുന്ന പൊലീസ്‌ ത്രില്ലർ ചിത്രം ‘ലോ ആൻഡ് ഓർഡർ’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. സുരേഷ് ഗോപിയും വിജയരാഘവനുമാണ് ചിത്രത്തിൽ പ്രധാന വേഷങ്ങളിൽ എത്തുന്നത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-05%2Fe94cskg3%2FLaw-Order.jpg?auto=format%2Ccompress&fit=max&w=480" },
-        { topicNum: "6", text: "ഷാജി കൈലാസ് സംവിധാനം ചെയ്യുന്ന പീരീഡ് ഡ്രാമ ചിത്രം ‘ഭാസ്കരാഭരണം’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. സുരേഷ് ഗോപിയാണ് ചിത്രത്തിൽ നായകനാവുന്നത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-04%2F3z1x99z2%2FBhaskarabharanam.jpg?auto=format%2Ccompress&fit=max&w=480" },
-        { topicNum: "7", text: "രമേഷ് പിഷാരടി സംവിധാനം ചെയ്യുന്ന കോമഡി ത്രില്ലർ ചിത്രം ‘മാജിക് മഷ്റൂംസ്’ ഒക്ടോബർ രണ്ടിന് റിലീസ് ചെയ്യും. സൺ പിക്ചേഴ്സാണ് ചിത്രം നിർമ്മിക്കുന്നത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-03%2F8w2x11z2%2FMagic-Mushrooms.jpg?auto=format%2Ccompress&fit=max&w=480" }
+        { topicNum: "1", headline: "ധൂമകേതു", releaseDate: "September 25", text: "സജിൻ ഗോപുവും നിഖില വിമലും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ധൂമകേതു’ സെപ്റ്റംബർ ഇരുപത്തിയഞ്ചിന് തിയേറ്ററുകളിലെത്തും. സുധി മാഡിസൺ സംവിധാനം ചെയ്യുന്ന ചിത്രത്തിന്റെ റിലീസ് നേരത്തെ സെപ്റ്റംബർ പതിനൊന്നിനായിരുന്നു തീരുമാനിച്ചിരുന്നത്, പിന്നീട് മാറ്റുകയായിരുന്നു.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-08%2F8c9mjggo%2FDhoomakethuposter.jpg?auto=format%2Ccompress&fit=max&w=480" },
+        { topicNum: "2", headline: "ഇറ്റ്സ് എ മെഡിക്കൽ മിറക്കിൾ", releaseDate: "September 18", text: "സംഗീത് പ്രതാപും ഷറഫുദ്ദീനും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ഇറ്റ്സ് എ മെഡിക്കൽ മിറക്കിൾ’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. ചിത്രത്തിന്റെ ഔദ്യോഗിക ട്രെയിലറും പുറത്തിറങ്ങി.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-10%2F0ewgpq3y%2FIts-a-Medical-Miracle-Sangeeth-Prathap.png?auto=format%2Ccompress&fit=max&w=480" },
+        { topicNum: "3", headline: "ഓട്ടംതുള്ളൽ", releaseDate: "September 25", text: "ബിജു മേനോനും സുരാജ് വെഞ്ഞാറമൂടും പ്രധാന വേഷങ്ങളിലെത്തുന്ന ‘ഓട്ടംതുള്ളൽ’ സെപ്റ്റംബർ ഇരുപത്തിയഞ്ചിന് തിയേറ്ററുകളിലെത്തും. ജീത്തു മാധവനാണ് ചിത്രം സംവിധാനം ചെയ്യുന്നത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-07%2Fj0ms5m42%2FBiju-Menon.jpg?auto=format%2Ccompress&fit=max&w=480" },
+        { topicNum: "4", headline: "ആരം", releaseDate: "October 2", text: "ഷാഹിദ് അറഫാത്ത് സംവിധാനം ചെയ്യുന്ന ‘ആരം’ സിനിമയിൽ വാനര കഥാപാത്രമായി നസ്‌ലൻ എത്തുമ്പോൾ, ഉർവശിയും ചിത്രത്തിൽ പ്രധാന വേഷം ചെയ്യുന്നു. ചിത്രം ഒക്ടോബർ രണ്ടിന് റിലീസ് ചെയ്യും.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-06%2F7v1x27z2%2FAaram.jpg?auto=format%2Ccompress&fit=max&w=480" },
+        { topicNum: "5", headline: "ലോ ആൻഡ് ഓർഡർ", releaseDate: "September 18", text: "സാക്കിർ സനൽ സംവിധാനം ചെയ്യുന്ന പൊലീസ്‌ ത്രില്ലർ ചിത്രം ‘ലോ ആൻഡ് ഓർഡർ’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. സുരേഷ് ഗോപിയും വിജയരാഘവനുമാണ് ചിത്രത്തിൽ പ്രധാന വേഷങ്ങളിൽ എത്തുന്നത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-05%2Fe94cskg3%2FLaw-Order.jpg?auto=format%2Ccompress&fit=max&w=480" },
+        { topicNum: "6", headline: "ഭാസ്കരാഭരണം", releaseDate: "September 18", text: "ഷാജി കൈലാസ് സംവിധാനം ചെയ്യുന്ന പീരീഡ് ഡ്രാമ ചിത്രം ‘ഭാസ്കരാഭരണം’ സെപ്റ്റംബർ പതിനെട്ടിന് തിയേറ്ററുകളിലെത്തും. സുരേഷ് ഗോപിയാണ് ചിത്രത്തിൽ നായകനാവുന്നത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-04%2F3z1x99z2%2FBhaskarabharanam.jpg?auto=format%2Ccompress&fit=max&w=480" },
+        { topicNum: "7", headline: "മാജിക് മഷ്റൂംസ്", releaseDate: "October 2", text: "രമേഷ് പിഷാരടി സംവിധാനം ചെയ്യുന്ന കോമഡി ത്രില്ലർ ചിത്രം ‘മാജിക് മഷ്റൂംസ്’ ഒക്ടോബർ രണ്ടിന് റിലീസ് ചെയ്യും. സൺ പിക്ചേഴ്സാണ് ചിത്രം നിർമ്മിക്കുന്നത്.", imgUrl: "https://cf-images.assettype.com/cinemaexpress%2F2026-09-03%2F8w2x11z2%2FMagic-Mushrooms.jpg?auto=format%2Ccompress&fit=max&w=480" }
       ],
       "OTT Updates": [
-        { topicNum: "1", text: "നാദിർഷ സംവിധാനം ചെയ്ത വിഷ്ണു ഉണ്ണികൃഷ്ണൻ ചിത്രം ‘മാജിക് മഷ്റൂംസ്’ സെപ്റ്റംബർ ഒൻപത് മുതൽ പ്രൈം വീഡിയോയിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. വിഷ്ണു ഉണ്ണികൃഷ്ണനും അക്ഷയ ഉദയകുമാറുമാണ് പ്രധാന വേഷങ്ങളിൽ.", imgUrl: "https://www.keralatv.in/media/2026/01/Magic-Mushrooms-Movie-720x720.jpg" },
-        { topicNum: "2", text: "ജോജു ജോർജിനെ നായകനാക്കി ഷാജി കൈലാസ് സംവിധാനം ചെയ്ത ‘വരവ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ സീ ഫൈവിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. ചിത്രത്തിൽ വാണി വിശ്വനാഥും മുരളി ഗോപിയും പ്രധാന വേഷങ്ങളിലുണ്ട്.", imgUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYkJHKN6Jq-HZdGSKeU1bzgg98qiMF-ikLOlsLImGm1A&s=10" },
-        { topicNum: "3", text: "സൂര്യ നായകനായ ‘വിശ്വനാഥ് ആൻഡ് സൺസ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ നെറ്റ്ഫ്ലിക്സിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. മമിത ബൈജുവും ചിത്രത്തിലെ പ്രധാന വേഷത്തിലെത്തുന്നുണ്ട്.", imgUrl: "https://o4tsjj6hn4noqurq.public.blob.vercel-storage.com/films/vishwanath-and-sons/poster-1786473228381-PAFV6MTiw4dvGptv5KVpB19oYk6e65.jpg" },
-        { topicNum: "4", text: "ഡെയ്ൻ ഡേവിസ് പ്രധാന വേഷത്തിലെത്തുന്ന ‘പ്രിൻസ് ഓഫ് മോളിവുഡ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ ജിയോ ഹോട്ട്സ്റ്റാറിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. ഷാനി ഖാദറാണ് പരമ്പരയുടെ രചനയും സംവിധാനവും നിർവഹിച്ചിരിക്കുന്നത്.", imgUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzdCpSHMbndIHjW64MLJDL_19BY0Qeq_-QgKC4EQX_bg&s=10" },
-        { topicNum: "5", text: "ധ്യാൻ ശ്രീനിവാസൻ പ്രധാന വേഷത്തിലെത്തുന്ന ‘വിവാഹ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ സൺ നെക്സ്റ്റിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. ബ്ലെസ്സൺ എൽസയാണ് ചിത്രം സംവിധാനം ചെയ്തത്.", imgUrl: "https://cdn.district.in/movies-assets/images/cinema/Vivaah%20%281%29-4c149470-8fd1-11f1-b89c-e9aa7554b46c.jpg" },
-        { topicNum: "6", text: "വിസ്മയ മോഹൻലാൽ നായികയായ ‘തുടക്കം’ സെപ്റ്റംബർ പതിനെട്ട് മുതൽ ജിയോ ഹോട്ട്സ്റ്റാറിൽ സ്ട്രീമിംഗ് ആരംഭിക്കും. ജൂഡ് ആന്തണി ജോസഫ് സംവിധാനം ചെയ്ത ചിത്രത്തിൽ ആശിഷ് ജോ ആന്റണിയും പ്രധാന വേഷത്തിലെത്തുന്നു.", imgUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLM03LFoA9UEYo2JWDx6hP28ZSoHwGXeQyN0iZBwdN_w&s=10" }
+        { topicNum: "1", headline: "മാജിക് മഷ്റൂംസ്", releaseDate: "September 9", ottPlatform: "Prime Video", text: "നാദിർഷ സംവിധാനം ചെയ്ത വിഷ്ണു ഉണ്ണികൃഷ്ണൻ ചിത്രം ‘മാജിക് മഷ്റൂംസ്’ സെപ്റ്റംബർ ഒൻപത് മുതൽ പ്രൈം വീഡിയോയിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. വിഷ്ണു ഉണ്ണികൃഷ്ണനും അക്ഷയ ഉദയകുമാറുമാണ് പ്രധാന വേഷങ്ങളിൽ.", imgUrl: "https://www.keralatv.in/media/2026/01/Magic-Mushrooms-Movie-720x720.jpg" },
+        { topicNum: "2", headline: "വരവ്", releaseDate: "September 11", ottPlatform: "ZEE5", text: "ജോജു ജോർജിനെ നായകനാക്കി ഷാജി കൈലാസ് സംവിധാനം ചെയ്ത ‘വരവ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ സീ ഫൈവിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. ചിത്രത്തിൽ വാണി വിശ്വനാഥും മുരളി ഗോപിയും പ്രധാന വേഷങ്ങളിലുണ്ട്.", imgUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYkJHKN6Jq-HZdGSKeU1bzgg98qiMF-ikLOlsLImGm1A&s=10" },
+        { topicNum: "3", headline: "വിശ്വനാഥ് ആൻഡ് സൺസ്", releaseDate: "September 11", ottPlatform: "Netflix", text: "സൂര്യ നായകനായ ‘വിശ്വനാഥ് ആൻഡ് സൺസ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ നെറ്റ്ഫ്ലിക്സിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. മമിത ബിയാജുവും ചിത്രത്തിലെ പ്രധാന വേഷത്തിലെത്തുന്നുണ്ട്.", imgUrl: "https://o4tsjj6hn4noqurq.public.blob.vercel-storage.com/films/vishwanath-and-sons/poster-1786473228381-PAFV6MTiw4dvGptv5KVpB19oYk6e65.jpg" },
+        { topicNum: "4", headline: "പ്രിൻസ് ഓഫ് മോളിവുഡ്", releaseDate: "September 11", ottPlatform: "Disney+ Hotstar", text: "ഡെയ്ൻ ഡേവിസ് പ്രധാന വേഷത്തിലെത്തുന്ന ‘പ്രിൻസ് ഓഫ് മോളിവുഡ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ ജിയോ ഹോട്ട്സ്റ്റാറിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. ഷാനി ഖാദറാണ് പരമ്പരയുടെ രചനയും സംവിധാനവും നിർവഹിച്ചിരിക്കുന്നത്.", imgUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzdCpSHMbndIHjW64MLJDL_19BY0Qeq_-QgKC4EQX_bg&s=10" },
+        { topicNum: "5", headline: "വിവാഹ്", releaseDate: "September 11", ottPlatform: "Sun NXT", text: "ധ്യാൻ ശ്രീനിവാസൻ പ്രധാന വേഷത്തിലെത്തുന്ന ‘വിവാഹ്’ സെപ്റ്റംബർ പതിനൊന്ന് മുതൽ സൺ നെക്സ്റ്റിൽ സ്ട്രീമിംഗ് ആരംഭിച്ചു. ബ്ലെസ്സൺ എൽസയാണ് ചിത്രം സംവിധാനം ചെയ്തത്.", imgUrl: "https://cdn.district.in/movies-assets/images/cinema/Vivaah%20%281%29-4c149470-8fd1-11f1-b89c-e9aa7554b46c.jpg" },
+        { topicNum: "6", headline: "തുടക്കം", releaseDate: "September 18", ottPlatform: "Disney+ Hotstar", text: "വിസ്മയ മോഹൻലാൽ നായികയായ ‘തുടക്കം’ സെപ്റ്റംബർ പതിനെട്ട് മുതൽ ജിയോ ഹോട്ട്സ്റ്റാറിൽ സ്ട്രീമിംഗ് ആരംഭിക്കും. ജൂഡ് ആന്തണി ജോസഫ് സംവിധാനം ചെയ്ത ചിത്രത്തിൽ ആശിഷ് ജോ ആന്റണിയും പ്രധാന വേഷത്തിലെത്തുന്നു.", imgUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLM03LFoA9UEYo2JWDx6hP28ZSoHwGXeQyN0iZBwdN_w&s=10" }
       ]
     };
 
@@ -765,7 +1003,9 @@
           if (data[tab] && Array.isArray(data[tab])) {
             store[tab] = data[tab].map(r => ({
               topicNum: String(r["Topic Number"] ?? r["Topic"] ?? r["SL"] ?? ""),
-              headline: String(r["Topic Headline"] ?? r["Headline"] ?? r["Title"] ?? ""),
+              headline: String(r["Topic Headline"] ?? r["Movie Name"] ?? r["Headline"] ?? r["Title"] ?? ""),
+              releaseDate: String(r["Release Date"] ?? r["Streaming Date"] ?? r["Release"] ?? ""),
+              ottPlatform: String(r["OTT Platform"] ?? r["Platform"] ?? r["OTT"] ?? ""),
               text: String(r["Malayalam News Text"] ?? r["News"] ?? r["Text"] ?? ""),
               imgUrl: String(r["Image URLs"] ?? r["Image"] ?? r["URL"] ?? "")
             }));
@@ -942,10 +1182,22 @@
       document.getElementById('active-tab-name').innerText = tabName;
       document.getElementById('output-tab-name').innerText = tabName;
 
+      const wizardLabel = document.getElementById('wizard-active-tab-label');
+      if (wizardLabel) wizardLabel.innerText = tabName;
+
       ['Movie Updates', 'Release Updates', 'OTT Updates'].forEach(t => {
         let btnKey = 'tab-btn-' + (t === 'Movie Updates' ? 'movie' : (t === 'Release Updates' ? 'release' : 'ott'));
         document.getElementById(btnKey).className = (t === tabName) ? 'tab-btn active' : 'tab-btn';
       });
+
+      const groqDesc = document.getElementById('groq-opt-desc');
+      if (groqDesc) {
+        if (tabName === 'Movie Updates') {
+          groqDesc.innerHTML = 'Uses Groq AI to read all Malayalam news descriptions in <b>Movie Updates</b> and automatically generate a <b>1-Line Topic Headline (Col D)</b>!';
+        } else {
+          groqDesc.innerHTML = `Uses Groq AI to read all Malayalam news descriptions in <b>${tabName}</b> and automatically fill the exact <b>Movie Name (Col D)</b>!`;
+        }
+      }
 
       renderTableRows();
       if (activeSection === 'output') renderOutputPreviews();
@@ -956,51 +1208,75 @@
       const thead = document.querySelector('#data-table thead');
       if (!tbody) return;
 
-      const isMovie = (activeTab === 'Movie Updates');
-
-      if (thead) {
-        if (isMovie) {
-          thead.innerHTML = `
-            <tr>
-              <th style="width: 70px;">Topic #</th>
-              <th style="width: 220px;">Topic Headline (Col D)</th>
-              <th>Malayalam News Text / Description</th>
-              <th style="width: 220px;">Image URL(s)</th>
-              <th style="width: 70px;">Action</th>
-            </tr>`;
-        } else {
-          thead.innerHTML = `
-            <tr>
-              <th style="width: 80px;">Topic #</th>
-              <th>Malayalam News Text / Description</th>
-              <th style="width: 250px;">Image URL(s)</th>
-              <th style="width: 80px;">Action</th>
-            </tr>`;
-        }
+      let colHeaders = '';
+      if (activeTab === 'Movie Updates') {
+        colHeaders = `
+          <tr>
+            <th style="width: 70px;">Topic #</th>
+            <th style="width: 220px;">Topic Headline (Col D)</th>
+            <th>Malayalam News Text / Description</th>
+            <th style="width: 200px;">Image URL(s)</th>
+            <th style="width: 70px;">Action</th>
+          </tr>`;
+      } else if (activeTab === 'Release Updates') {
+        colHeaders = `
+          <tr>
+            <th style="width: 70px;">Topic #</th>
+            <th style="width: 180px;">Movie Name (Col D)</th>
+            <th style="width: 140px;">Release Date (Col E)</th>
+            <th>Malayalam News Text / Description</th>
+            <th style="width: 180px;">Image URL(s)</th>
+            <th style="width: 70px;">Action</th>
+          </tr>`;
+      } else { // OTT Updates
+        colHeaders = `
+          <tr>
+            <th style="width: 70px;">Topic #</th>
+            <th style="width: 160px;">Movie Name (Col D)</th>
+            <th style="width: 130px;">Release Date (Col E)</th>
+            <th style="width: 130px;">OTT Platform (Col F)</th>
+            <th>Malayalam News Text / Description</th>
+            <th style="width: 170px;">Image URL(s)</th>
+            <th style="width: 70px;">Action</th>
+          </tr>`;
       }
+
+      if (thead) thead.innerHTML = colHeaders;
 
       tbody.innerHTML = '';
 
       let rows = store[activeTab] || [];
       if (rows.length === 0) {
-        let colSpan = isMovie ? 5 : 4;
+        let colSpan = (activeTab === 'Movie Updates') ? 5 : (activeTab === 'Release Updates' ? 6 : 7);
         tbody.innerHTML = `<tr><td colspan="${colSpan}" style="text-align: center; color: #888;">No topics found in this sheet. Click "+ Add New Row" or paste a table above.</td></tr>`;
         return;
       }
 
       rows.forEach((row, idx) => {
         let tr = document.createElement('tr');
-        if (isMovie) {
+        if (activeTab === 'Movie Updates') {
           tr.innerHTML = `
             <td><input type="text" value="${escapeHtml(row.topicNum)}" onchange="updateRow(${idx}, 'topicNum', this.value)"></td>
-            <td><input type="text" value="${escapeHtml(row.headline || '')}" placeholder="Headline (Col D)" onchange="updateRow(${idx}, 'headline', this.value)"></td>
+            <td><input type="text" value="${escapeHtml(row.headline || '')}" placeholder="Topic Headline (Col D)" onchange="updateRow(${idx}, 'headline', this.value)"></td>
             <td><textarea onchange="updateRow(${idx}, 'text', this.value)">${escapeHtml(row.text)}</textarea></td>
             <td><input type="text" value="${escapeHtml(row.imgUrl)}" onchange="updateRow(${idx}, 'imgUrl', this.value)"></td>
             <td><button class="btn btn-danger" onclick="deleteRow(${idx})">Delete</button></td>
           `;
-        } else {
+        } else if (activeTab === 'Release Updates') {
           tr.innerHTML = `
             <td><input type="text" value="${escapeHtml(row.topicNum)}" onchange="updateRow(${idx}, 'topicNum', this.value)"></td>
+            <td><input type="text" value="${escapeHtml(row.headline || '')}" placeholder="Movie Name (Col D)" onchange="updateRow(${idx}, 'headline', this.value)"></td>
+            <td><input type="text" value="${escapeHtml(row.releaseDate || '')}" placeholder="Release Date (Col E)" onchange="updateRow(${idx}, 'releaseDate', this.value)"></td>
+            <td><textarea onchange="updateRow(${idx}, 'text', this.value)">${escapeHtml(row.text)}</textarea></td>
+            <td><input type="text" value="${escapeHtml(row.imgUrl)}" onchange="updateRow(${idx}, 'imgUrl', this.value)"></td>
+            <td><button class="btn btn-danger" onclick="deleteRow(${idx})">Delete</button></td>
+          `;
+        } else { // OTT Updates
+          tr.innerHTML = `
+            <td><input type="text" value="${escapeHtml(row.topicNum)}" onchange="updateRow(${idx}, 'topicNum', this.value)"></td>
+            <td><input type="text" value="${escapeHtml(row.headline || '')}" placeholder="Movie Name (Col D)" onchange="updateRow(${idx}, 'headline', this.value)"></td>
+            <td><input type="text" value="${escapeHtml(row.releaseDate || '')}" placeholder="Release Date (Col E)" onchange="updateRow(${idx}, 'releaseDate', this.value)"></td>
+            <td><input type="text" value="${escapeHtml(row.ottPlatform || '')}" placeholder="OTT Platform (Col F)" onchange="updateRow(${idx}, 'ottPlatform', this.value)"></td>
             <td><textarea onchange="updateRow(${idx}, 'text', this.value)">${escapeHtml(row.text)}</textarea></td>
             <td><input type="text" value="${escapeHtml(row.imgUrl)}" onchange="updateRow(${idx}, 'imgUrl', this.value)"></td>
             <td><button class="btn btn-danger" onclick="deleteRow(${idx})">Delete</button></td>
@@ -1037,6 +1313,43 @@
       let text = document.getElementById('bulk-paste-box').value.trim();
       if (!text) return alert("Please paste table text first.");
 
+      let targetColEl = document.getElementById('bulk-paste-target-col');
+      let targetCol = targetColEl ? targetColEl.value : 'all';
+
+      if (targetCol !== 'all') {
+        // Single column bulk paste line-by-line
+        let lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "");
+        if (lines.length === 0) return alert("No valid text lines found.");
+
+        let rows = store[activeTab] || [];
+
+        while (rows.length < lines.length) {
+          rows.push({
+            topicNum: (rows.length + 1).toString(),
+            headline: "",
+            text: "",
+            imgUrl: ""
+          });
+        }
+
+        lines.forEach((lineVal, idx) => {
+          rows[idx][targetCol] = lineVal;
+        });
+
+        rows.forEach((r, idx) => {
+          if (!r.topicNum) r.topicNum = (idx + 1).toString();
+        });
+
+        store[activeTab] = rows;
+        saveLocalStore();
+        renderTableRows();
+        if (activeSection === 'output') renderOutputPreviews();
+        document.getElementById('bulk-paste-box').value = "";
+        alert(`✓ Pasted ${lines.length} items directly into column '${targetCol}' for ${activeTab}!`);
+        return;
+      }
+
+      // Existing All-Column (Tab / Pipe Separated Table) Parsing Logic
       let lines = text.split(/\r?\n/);
       let newRows = [];
       let validCount = 1;
@@ -1176,6 +1489,235 @@
       }
     }
 
+    function moveRowToPosition() {
+      let rows = store[activeTab] || [];
+      if (rows.length === 0) return alert("No rows in this worksheet.");
+      let srcPos = parseInt(document.getElementById('row-src-pos').value, 10);
+      let tgtPos = parseInt(document.getElementById('row-tgt-pos').value, 10);
+
+      if (isNaN(srcPos) || isNaN(tgtPos) || srcPos < 1 || tgtPos < 1 || srcPos > rows.length || tgtPos > rows.length) {
+        return alert(`Please enter valid row numbers between 1 and ${rows.length}.`);
+      }
+      if (srcPos === tgtPos) return;
+
+      let srcIdx = srcPos - 1;
+      let tgtIdx = tgtPos - 1;
+
+      let [movedRow] = rows.splice(srcIdx, 1);
+      rows.splice(tgtIdx, 0, movedRow);
+
+      rows.forEach((r, idx) => r.topicNum = (idx + 1).toString());
+
+      saveLocalStore();
+      renderTableRows();
+      if (activeSection === 'output') renderOutputPreviews();
+      alert(`✓ Moved Row ${srcPos} to Position ${tgtPos}!`);
+    }
+
+    function shiftRow(direction) {
+      let rows = store[activeTab] || [];
+      if (rows.length === 0) return alert("No rows in this worksheet.");
+      let srcPos = parseInt(document.getElementById('row-src-pos').value, 10);
+      if (isNaN(srcPos) || srcPos < 1 || srcPos > rows.length) {
+        return alert(`Please enter a valid row number between 1 and ${rows.length}.`);
+      }
+
+      let srcIdx = srcPos - 1;
+      let tgtIdx = (direction === 'up') ? srcIdx - 1 : srcIdx + 1;
+
+      if (tgtIdx < 0 || tgtIdx >= rows.length) return;
+
+      let temp = rows[srcIdx];
+      rows[srcIdx] = rows[tgtIdx];
+      rows[tgtIdx] = temp;
+
+      rows.forEach((r, idx) => r.topicNum = (idx + 1).toString());
+      document.getElementById('row-src-pos').value = tgtIdx + 1;
+
+      saveLocalStore();
+      renderTableRows();
+      if (activeSection === 'output') renderOutputPreviews();
+    }
+
+    function swapRows() {
+      let rows = store[activeTab] || [];
+      if (rows.length === 0) return alert("No rows in this worksheet.");
+      let srcPos = parseInt(document.getElementById('row-src-pos').value, 10);
+      let tgtPos = parseInt(document.getElementById('row-tgt-pos').value, 10);
+
+      if (isNaN(srcPos) || isNaN(tgtPos) || srcPos < 1 || tgtPos < 1 || srcPos > rows.length || tgtPos > rows.length) {
+        return alert(`Please enter valid row numbers between 1 and ${rows.length}.`);
+      }
+      if (srcPos === tgtPos) return;
+
+      let srcIdx = srcPos - 1;
+      let tgtIdx = tgtPos - 1;
+
+      let temp = rows[srcIdx];
+      rows[srcIdx] = rows[tgtIdx];
+      rows[tgtIdx] = temp;
+
+      rows.forEach((r, idx) => r.topicNum = (idx + 1).toString());
+
+      saveLocalStore();
+      renderTableRows();
+      if (activeSection === 'output') renderOutputPreviews();
+      alert(`✓ Swapped Row ${srcPos} and Row ${tgtPos}!`);
+    }
+
+    function insertBlankRowAt() {
+      let rows = store[activeTab] || [];
+      let posInput = document.getElementById('ins-row-pos');
+      let pos = posInput ? parseInt(posInput.value, 10) : 1;
+      if (isNaN(pos) || pos < 1) pos = 1;
+
+      let idx = Math.min(pos - 1, rows.length);
+      rows.splice(idx, 0, { topicNum: pos.toString(), headline: "", text: "", imgUrl: "" });
+      rows.forEach((r, i) => r.topicNum = (i + 1).toString());
+
+      saveLocalStore();
+      renderTableRows();
+      if (activeSection === 'output') renderOutputPreviews();
+      alert(`✓ Inserted blank row at position ${pos}!`);
+    }
+
+    function clearSingleColumn() {
+      let colKey = document.getElementById('clear-col-select') ? document.getElementById('clear-col-select').value : 'text';
+      let rows = store[activeTab] || [];
+      if (rows.length === 0) return alert("No rows in this worksheet.");
+
+      if (confirm(`Are you sure you want to clear all contents in column '${colKey}' for ${activeTab}?`)) {
+        rows.forEach(r => r[colKey] = "");
+        saveLocalStore();
+        renderTableRows();
+        if (activeSection === 'output') renderOutputPreviews();
+        alert(`✓ Cleared column '${colKey}'!`);
+      }
+    }
+
+    function autoRenumberTopics() {
+      let rows = store[activeTab] || [];
+      rows.forEach((r, i) => r.topicNum = (i + 1).toString());
+      saveLocalStore();
+      renderTableRows();
+      alert("✓ Renumbered all topic numbers sequentially (1..N)!");
+    }
+
+    async function autoExtractGroqMovieNames() {
+      const DEFAULT_GROQ_KEY = "";
+      const keyInput = document.getElementById('groq-api-key-input');
+      const apiKey = keyInput && keyInput.value.trim() ? keyInput.value.trim() : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
+      if (!apiKey) return alert("Please enter your Groq API Key first!");
+
+      let rows = store[activeTab] || [];
+      let newsList = rows.map(r => r.text || '').filter(t => t.trim() !== '');
+      if (newsList.length === 0) return alert("No news texts found in active table to extract movie names from.");
+
+      const statusBox = document.getElementById('groq-status-toast');
+      if (statusBox) {
+        statusBox.style.display = 'block';
+        statusBox.className = 'status-toast';
+        statusBox.innerText = '🤖 Calling Groq AI to extract movie metadata... Please wait...';
+      }
+
+      const formattedTopics = rows.map((r, i) => `Topic #${i+1}: ${r.text || 'No text'}`).join('\n');
+      
+      let systemPrompt = "";
+      if (activeTab === 'Movie Updates') {
+        systemPrompt = "You are an expert Malayalam movie news editor. For each topic text below, generate a short, catchy 1-line English Headline / Topic Heading summarizing the news. CRITICAL RULES: 1. Never translate Malayalam movie names to English meanings (e.g. write 'Thudakkam' instead of 'The Beginning'). 2. Keep headlines concise, exciting, and limited to 1 line per topic. 3. Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"headline\": \"Thudakkam Movie Pooja Held\"}]}. No extra text outside JSON.";
+      } else if (activeTab === 'Release Updates') {
+        systemPrompt = "You are an expert Malayalam movie news editor. For each topic text below, extract: 1. 'movie_name': Official movie title phonetically in English alphabet (never translate Malayalam names to English meanings, e.g. write 'Thudakkam' instead of 'The Beginning'). 2. 'release_date': The theatrical release date mentioned (e.g., 'October 2', 'This Friday', 'Deepavali 2026'). If not mentioned, write ''. Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"movie_name\": \"Thudakkam\", \"release_date\": \"October 2\"}]}. No extra text outside JSON.";
+      } else { // OTT Updates
+        systemPrompt = "You are an expert Malayalam movie news editor. For each topic text below, extract: 1. 'movie_name': Official movie title phonetically in English alphabet (never translate Malayalam names to English meanings, e.g. write 'Thudakkam' instead of 'The Beginning'). 2. 'release_date': The streaming / OTT release date mentioned (e.g., 'September 28', 'Available Now'). If not mentioned, write ''. 3. 'ott_platform': The streaming platform name (e.g., 'Netflix', 'Disney+ Hotstar', 'Amazon Prime Video', 'SonyLIV', 'Zee5', 'ManoramaMAX', 'Simply South'). If not mentioned, write ''. Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"movie_name\": \"Thudakkam\", \"release_date\": \"September 28\", \"ott_platform\": \"Netflix\"}]}. No extra text outside JSON.";
+      }
+
+      const candidateModels = [
+        "openai/gpt-oss-20b",
+        "openai/gpt-oss-120b",
+        "qwen/qwen3.8-27b",
+        "llama-3.3-70b-versatile",
+        "llama-3.1-8b-instant"
+      ];
+
+      let lastErr = null;
+      let resData = null;
+
+      for (const model of candidateModels) {
+        try {
+          const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + apiKey,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              model: model,
+              messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: formattedTopics }
+              ],
+              temperature: 0.1,
+              response_format: { type: 'json_object' }
+            })
+          });
+
+          if (res.ok) {
+            resData = await res.json();
+            break;
+          } else {
+            const errText = await res.text();
+            lastErr = new Error(`Groq model '${model}' error ${res.status}: ${errText}`);
+          }
+        } catch (err) {
+          lastErr = err;
+        }
+      }
+
+      try {
+        if (!resData) {
+          throw lastErr || new Error("Failed to connect to Groq AI.");
+        }
+
+        const content = resData.choices[0].message.content;
+        const parsed = JSON.parse(content);
+        const items = parsed.items || [];
+
+        let count = 0;
+        rows.forEach((r, idx) => {
+          if (idx < items.length && items[idx]) {
+            const item = items[idx];
+            if (activeTab === 'Movie Updates') {
+              r.headline = item.headline || item.movie_name || "";
+            } else if (activeTab === 'Release Updates') {
+              r.headline = item.movie_name || "";
+              r.releaseDate = item.release_date || "";
+            } else { // OTT Updates
+              r.headline = item.movie_name || "";
+              r.releaseDate = item.release_date || "";
+              r.ottPlatform = item.ott_platform || "";
+            }
+            count++;
+          }
+        });
+
+        saveLocalStore();
+        renderTableRows();
+        if (activeSection === 'output') renderOutputPreviews();
+
+        if (statusBox) {
+          statusBox.className = 'status-toast toast-success';
+          statusBox.innerText = `🎉 Groq AI auto-filled metadata for ${count} rows!`;
+        }
+        alert(`🎉 Groq AI auto-filled metadata for ${count} rows in ${activeTab}!`);
+      } catch (err) {
+        if (statusBox) {
+          statusBox.className = 'status-toast toast-error';
+          statusBox.innerText = `❌ Groq AI Error: ${err.message}`;
+        }
+        alert(`❌ Groq AI Error: ${err.message}`);
+      }
+    }
+
     function saveAndSync() {
       const statusBox = document.getElementById('sync-status');
       statusBox.style.display = 'block';
@@ -1187,6 +1729,8 @@
         rows: store[activeTab].map(r => ({
           "Topic Number": r.topicNum,
           "Topic Headline": r.headline || "",
+          "Release Date": r.releaseDate || "",
+          "OTT Platform": r.ottPlatform || "",
           "Malayalam News Text": r.text,
           "Image URLs": r.imgUrl
         })),
@@ -1321,13 +1865,270 @@
           imgHtml = `<img class="preview-poster" src="https://via.placeholder.com/400x220/161625/a0a0b5?text=No+Poster+Image" alt="Poster">`;
         }
 
+        let metaBadges = [];
+        if (r.headline && r.headline.trim()) metaBadges.push(`<span style="color: #67e8f9; font-weight: 700;">${escapeHtml(r.headline.trim())}</span>`);
+        if (r.releaseDate && r.releaseDate.trim()) metaBadges.push(`📅 <span style="color: #4eff8c;">${escapeHtml(r.releaseDate.trim())}</span>`);
+        if (r.ottPlatform && r.ottPlatform.trim()) metaBadges.push(`🍿 <span style="color: #fbbf24;">${escapeHtml(r.ottPlatform.trim())}</span>`);
+
+        let metaHtml = metaBadges.length > 0 ? `<div style="font-size: 13px; margin-top: 6px; margin-bottom: 6px; background: #0d0d16; padding: 6px 10px; border-radius: 6px; border: 1px solid #2b2b40;">${metaBadges.join(' • ')}</div>` : '';
+
         card.innerHTML = `
           ${imgHtml}
           <div class="badge">Topic #${r.topicNum} • ${activeTab}${countBadge}</div>
+          ${metaHtml}
           <div class="preview-text">${escapeHtml(r.text) || 'No text entered.'}</div>
         `;
         container.appendChild(card);
       });
+    }
+
+    // ==========================================
+    // AUTO-FETCH POSTER WIZARD LOGIC (SOLUTION A)
+    // ==========================================
+    let posterWizardState = {
+      activeTab: 'Movie Updates',
+      currentIndex: 0,
+      totalRows: 0,
+      currentTopicName: '',
+      currentSearchQuery: '',
+      selectedUrl: ''
+    };
+
+    function startPosterWizard() {
+      const rows = store[activeTab] || [];
+      if (rows.length === 0) {
+        alert(`No topics found in ${activeTab}. Please add rows or paste data first.`);
+        return;
+      }
+      posterWizardState.activeTab = activeTab;
+      posterWizardState.currentIndex = 0;
+      posterWizardState.totalRows = rows.length;
+      
+      const wizardLabel = document.getElementById('wizard-active-tab-label');
+      if (wizardLabel) wizardLabel.innerText = activeTab;
+
+      const modal = document.getElementById('poster-wizard-modal');
+      if (modal) modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+
+      loadWizardStep(0);
+    }
+
+    function closePosterWizard() {
+      const modal = document.getElementById('poster-wizard-modal');
+      if (modal) modal.style.display = 'none';
+      document.body.style.overflow = '';
+      const promptPanel = document.getElementById('wizard-prompt-panel');
+      if (promptPanel) promptPanel.style.display = 'none';
+    }
+
+    function extractTopicMovieName(row) {
+      if (!row) return "";
+      // 1. Column D (Headline / Movie Name)
+      if (row.headline && row.headline.trim()) {
+        return row.headline.trim();
+      }
+      // 2. Extract first Malayalam word sequence or English words from Malayalam News Text
+      let text = row.text || "";
+      let quoteMatch = text.match(/['“"‘]([^'”"’]+)['”"’]/);
+      if (quoteMatch) {
+        return quoteMatch[1].trim();
+      }
+      // Fallback to first 4-5 words of news text
+      return text.split(/\s+/).slice(0, 4).join(' ');
+    }
+
+    function loadWizardStep(idx) {
+      const rows = store[posterWizardState.activeTab] || [];
+      if (idx < 0 || idx >= rows.length) {
+        alert("🎉 You have reached the end of all topics in this tab!");
+        closePosterWizard();
+        return;
+      }
+
+      posterWizardState.currentIndex = idx;
+      posterWizardState.selectedUrl = '';
+
+      // Hide prompt panel for new step
+      const promptPanel = document.getElementById('wizard-prompt-panel');
+      if (promptPanel) promptPanel.style.display = 'none';
+
+      const current = rows[idx];
+      const movieName = extractTopicMovieName(current);
+      posterWizardState.currentTopicName = movieName || `Topic #${current.topicNum}`;
+
+      // Update Header & Progress Badges
+      document.getElementById('wizard-progress-badge').innerText = `Step ${idx + 1} of ${rows.length}`;
+      document.getElementById('wizard-topic-title').innerText = `Topic #${current.topicNum}: "${posterWizardState.currentTopicName}"`;
+      document.getElementById('wizard-news-text').innerText = current.text || "(No news text)";
+
+      // Pre-fill Search Box
+      const searchBox = document.getElementById('wizard-search-input');
+      const query = movieName ? `${movieName}` : `Malayalam movie`;
+      searchBox.value = query;
+
+      // Pre-fill existing Image URL if present
+      const customUrlBox = document.getElementById('wizard-custom-url-input');
+      customUrlBox.value = current.imgUrl ? current.imgUrl.split(/[\r\n,]+/)[0].trim() : '';
+
+      // Trigger automatic poster search for this topic
+      triggerWizardPosterSearch();
+    }
+
+    function triggerWizardPosterSearch() {
+      const query = document.getElementById('wizard-search-input').value.trim();
+      const grid = document.getElementById('wizard-poster-grid');
+      const status = document.getElementById('wizard-search-status');
+      grid.innerHTML = '';
+      status.innerText = '🔍 Searching movie posters...';
+
+      if (!query) {
+        status.innerText = 'Please enter a movie title to search.';
+        return;
+      }
+
+      // Fetch from iTunes Movie Search & Wikimedia APIs
+      let results = [];
+      
+      const searchiTunes = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query + ' Malayalam')}&entity=movie&limit=8`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.results) {
+            data.results.forEach(r => {
+              if (r.artworkUrl100) {
+                let hd = r.artworkUrl100.replace('100x100bb.jpg', '600x600bb.jpg');
+                results.push({ url: hd, title: r.trackName || query });
+              }
+            });
+          }
+        }).catch(() => {});
+
+      const searchWikimedia = fetch(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query + ' poster')}&gsrnamespace=6&ns=6&prop=imageinfo&iiprop=url|mime|size&format=json&origin=*`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.query && data.query.pages) {
+            Object.values(data.query.pages).forEach(p => {
+              if (p.imageinfo && p.imageinfo[0] && p.imageinfo[0].url) {
+                let u = p.imageinfo[0].url;
+                if (/\.(jpg|jpeg|png|webp)/i.test(u)) {
+                  results.push({ url: u, title: p.title || query });
+                }
+              }
+            });
+          }
+        }).catch(() => {});
+
+      Promise.all([searchiTunes, searchWikimedia]).then(() => {
+        status.innerText = `Found ${results.length} posters. Click an image to select!`;
+        renderWizardPosterGrid(results, query);
+      });
+    }
+
+    function renderWizardPosterGrid(images, query) {
+      const grid = document.getElementById('wizard-poster-grid');
+      grid.innerHTML = '';
+
+      if (!images || images.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #aaa;">
+            <p>No direct poster images auto-loaded.</p>
+            <p style="font-size: 12px; margin-top: 6px; color: #67e8f9;">Use <b>🌐 Google Images (New Tab)</b> to select any image, or paste URL below.</p>
+          </div>`;
+        return;
+      }
+
+      images.forEach((imgObj, i) => {
+        let card = document.createElement('div');
+        card.style.cssText = `
+          position: relative;
+          cursor: pointer;
+          border: 2px solid #2b2b40;
+          border-radius: 8px;
+          overflow: hidden;
+          background: #161625;
+          transition: transform 0.2s, border-color 0.2s;
+        `;
+        card.innerHTML = `
+          <img src="${imgObj.url}" style="width: 100%; height: 160px; object-fit: cover; display: block;" onerror="this.src='https://via.placeholder.com/150x200/161625/a0a0b5?text=Poster'" alt="Poster">
+          <div style="padding: 4px; text-align: center; font-size: 10px; color: #aaa; background: #0d0d16; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(imgObj.title || 'Poster ' + (i+1))}</div>
+        `;
+        card.onmouseover = () => card.style.borderColor = '#06b6d4';
+        card.onmouseout = () => card.style.borderColor = '#2b2b40';
+        card.onclick = () => selectWizardPoster(imgObj.url);
+        grid.appendChild(card);
+      });
+    }
+
+    function openGoogleImagesTabFromWizard() {
+      const searchInput = document.getElementById('wizard-search-input');
+      const query = searchInput ? searchInput.value.trim() : posterWizardState.currentTopicName;
+      const fullQuery = `${query} Malayalam movie poster`;
+      window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(fullQuery)}`, '_blank');
+    }
+
+    function selectWizardPoster(url) {
+      if (!url) return;
+      posterWizardState.selectedUrl = url;
+
+      // Update Column C (Image URLs) in current store row
+      const tab = posterWizardState.activeTab;
+      const idx = posterWizardState.currentIndex;
+      if (store[tab] && store[tab][idx]) {
+        store[tab][idx].imgUrl = url;
+        saveLocalStore();
+        renderTableRows();
+        if (activeSection === 'output') renderOutputPreviews();
+      }
+
+      // Update Custom URL input box value
+      document.getElementById('wizard-custom-url-input').value = url;
+
+      // Show prompt panel to advance to next topic
+      showWizardPromptPanel(idx);
+    }
+
+    function applyWizardCustomUrl() {
+      const urlBox = document.getElementById('wizard-custom-url-input');
+      const url = urlBox ? urlBox.value.trim() : '';
+      if (!url) {
+        alert("Please enter or paste an Image URL first.");
+        return;
+      }
+      selectWizardPoster(url);
+    }
+
+    function showWizardPromptPanel(currentIdx) {
+      const rows = store[posterWizardState.activeTab] || [];
+      const promptPanel = document.getElementById('wizard-prompt-panel');
+      const topicNumSpan = document.getElementById('wizard-prompt-topic-num');
+      const nextTitleSpan = document.getElementById('wizard-next-topic-title');
+
+      if (topicNumSpan) topicNumSpan.innerText = rows[currentIdx].topicNum || (currentIdx + 1);
+
+      if (currentIdx + 1 < rows.length) {
+        const nextMovieName = extractTopicMovieName(rows[currentIdx + 1]) || `Topic #${rows[currentIdx + 1].topicNum}`;
+        if (nextTitleSpan) nextTitleSpan.innerText = `Next: Topic #${rows[currentIdx + 1].topicNum} "${nextMovieName}"`;
+      } else {
+        if (nextTitleSpan) nextTitleSpan.innerText = "Finish Wizard (All Done!)";
+      }
+
+      if (promptPanel) promptPanel.style.display = 'block';
+    }
+
+    function advancePosterWizardNext() {
+      const rows = store[posterWizardState.activeTab] || [];
+      if (posterWizardState.currentIndex + 1 >= rows.length) {
+        alert("🎉 Poster Wizard Completed! All movie posters in this tab have been updated.");
+        closePosterWizard();
+      } else {
+        loadWizardStep(posterWizardState.currentIndex + 1);
+      }
+    }
+
+    function prevPosterWizardStep() {
+      if (posterWizardState.currentIndex > 0) {
+        loadWizardStep(posterWizardState.currentIndex - 1);
+      }
     }
 
     // Auto load on page start
