@@ -723,8 +723,7 @@
           Uses Groq AI to read all Malayalam news descriptions in <b>Movie Updates</b> and automatically generate a <b>1-Line Topic Headline (Col D)</b>!
         </p>
         <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center; flex-wrap: wrap;" class="option-box-flex">
-          <label style="font-size: 13px; color: #aaa;">Groq API Key:</label>
-          <input type="password" id="groq-api-key-input" value="" placeholder="gsk_..." class="groq-key-input" onchange="localStorage.setItem('groq_api_key', this.value)">
+          <input type="hidden" id="groq-api-key-input" value="">
           <button class="btn" style="background: #7c3aed;" onclick="autoExtractGroqMovieNames()">🤖 Auto-Fill Movie Names Now</button>
         </div>
         <div id="groq-status-toast" class="status-toast" style="margin-top: 5px;"></div>
@@ -923,7 +922,6 @@
   </div>
 
   <script>
-    const DEFAULT_GROQ_KEY = ["gsk_mCCgNIxm7ZJIHqMxh", "goOWGdyb3FYJuejNMmTDApHYmTK5xBe4Uf8"].join("");
     // Configured Google Apps Script Web App Endpoint
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyKFgRsYYCX69wM7_INBD7kWWUc3O9ah-HrPOjXf_Z_rigXZwWzt5qVWPMPiNE6PQ-nWQ/exec";
     const DOC_ID = "15xkauNiB27ytehTI5XHgmLm5QmJvudnEegrGSmnx5_g";
@@ -978,8 +976,8 @@
       }
       const savedGroq = localStorage.getItem('groq_api_key');
       const gel = document.getElementById('groq-api-key-input');
-      if (gel) {
-        gel.value = savedGroq || DEFAULT_GROQ_KEY;
+      if (gel && savedGroq) {
+        gel.value = savedGroq;
       }
       fetchLiveGoogleSheetsData();
     });
@@ -1659,8 +1657,8 @@
 
     async function autoExtractGroqMovieNames() {
       const keyInput = document.getElementById('groq-api-key-input');
-      const apiKey = keyInput && keyInput.value.trim() ? keyInput.value.trim() : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
-      if (!apiKey) return alert("Please enter your Groq API Key first!");
+      const apiKey = keyInput && keyInput.value.trim() ? keyInput.value.trim() : (localStorage.getItem('groq_api_key') || "");
+      if (!apiKey) return alert("Groq API Key is not loaded yet from Google Sheet. Please wait a moment for online sync or refresh the page!");
 
       let rows = store[activeTab] || [];
       let newsList = rows.map(r => r.text || '').filter(t => t.trim() !== '');
