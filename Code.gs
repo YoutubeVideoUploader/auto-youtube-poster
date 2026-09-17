@@ -75,19 +75,45 @@ function doPost(e) {
         sheet = ss.insertSheet(tabName);
       }
 
-      // Clear old data and set headers (including Column D: Topic Headline)
+      // Clear old data and set headers based on worksheet category
       sheet.clearContents();
-      sheet.appendRow(["Topic Number", "Malayalam News Text", "Image URLs", "Topic Headline"]);
-
-      // Write updated rows
-      for (var i = 0; i < rows.length; i++) {
-        var r = rows[i];
-        sheet.appendRow([
-          r["Topic Number"] || "",
-          r["Malayalam News Text"] || "",
-          r["Image URLs"] || "",
-          r["Topic Headline"] || ""
-        ]);
+      
+      if (tabName === "OTT Updates") {
+        sheet.appendRow(["Topic Number", "Malayalam News Text", "Image URLs", "Topic Headline", "Release Date", "OTT Platform"]);
+        for (var i = 0; i < rows.length; i++) {
+          var r = rows[i];
+          sheet.appendRow([
+            r["Topic Number"] || "",
+            r["Malayalam News Text"] || "",
+            r["Image URLs"] || "",
+            r["Topic Headline"] || r["Movie Name"] || "",
+            r["Release Date"] || "",
+            r["OTT Platform"] || ""
+          ]);
+        }
+      } else if (tabName === "Release Updates") {
+        sheet.appendRow(["Topic Number", "Malayalam News Text", "Image URLs", "Topic Headline", "Release Date"]);
+        for (var i = 0; i < rows.length; i++) {
+          var r = rows[i];
+          sheet.appendRow([
+            r["Topic Number"] || "",
+            r["Malayalam News Text"] || "",
+            r["Image URLs"] || "",
+            r["Topic Headline"] || r["Movie Name"] || "",
+            r["Release Date"] || ""
+          ]);
+        }
+      } else {
+        sheet.appendRow(["Topic Number", "Malayalam News Text", "Image URLs", "Topic Headline"]);
+        for (var i = 0; i < rows.length; i++) {
+          var r = rows[i];
+          sheet.appendRow([
+            r["Topic Number"] || "",
+            r["Malayalam News Text"] || "",
+            r["Image URLs"] || "",
+            r["Topic Headline"] || r["Movie Name"] || ""
+          ]);
+        }
       }
     }
 

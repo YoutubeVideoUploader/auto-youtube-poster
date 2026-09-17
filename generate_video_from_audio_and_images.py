@@ -442,14 +442,10 @@ def transliterate_malayalam_to_english(text: str) -> str:
     return clean.title() if clean else text.strip()
 
 
-def extract_table_data(topic_text: str, is_ott: bool = False, topic_headline: str = ""):
+def extract_table_data(topic_text: str, is_ott: bool = False, topic_headline: str = "", release_date: str = "", ott_platform: str = ""):
     """
     Extracts English Movie Name, Release Date, and OTT Platform from Malayalam topic text.
-    Uses 4-layer fallback strategy:
-    1. Explicit Topic Headline parameter
-    2. Quoted text [' " ' “ ”] in topic text
-    3. Common Malayalam movie indicators ('ചിത്രം', 'സിനിമ', 'ഫിലിം', etc.)
-    4. Auto-transliteration to clean English script
+    Uses explicit parameters if available, with 4-layer fallback strategy for unparsed text.
     """
     import re
 
@@ -467,7 +463,6 @@ def extract_table_data(topic_text: str, is_ott: bool = False, topic_headline: st
 
     # Strategy 2.5: Search known movie titles in TITLE_MAP directly inside topic_text
     if not title_raw:
-        # Sort by title length descending to match longer titles first (e.g. 'ഇറ്റ്സ് എ മെഡിക്കൽ മിറക്കിൾ' before 'മിറക്കിൾ')
         sorted_titles = sorted(TITLE_MAP.keys(), key=len, reverse=True)
         for ml_title in sorted_titles:
             if ml_title in topic_text:
@@ -476,12 +471,10 @@ def extract_table_data(topic_text: str, is_ott: bool = False, topic_headline: st
 
     # Strategy 3: Keyword Pattern Matching for unquoted movie titles
     if not title_raw:
-        # Pattern A: "<TITLE> എന്ന ചിത്രം/സിനിമ/ഫിലിം"
         m_enna = re.search(r'([A-Za-z0-9\u0D00-\u0D7F]{2,25})\s+എന്ന\s+(?:പുതിയ\s+)?(?:ചിത്രം|സിനിമ|ഫിലിം|മൂവി)', topic_text)
         if m_enna:
             title_raw = m_enna.group(1).strip()
 
-        # Pattern B: "(?:ചിത്രം|സിനിമ|ഫിലിം|മൂവി) <TITLE>"
         if not title_raw:
             m_after = re.search(r'(?:ചിത്രം|സിനിമ|ഫിലിം|മൂവി|ചിത്രമായ|സിനിമയായ)\s+([A-Za-z0-9\u0D00-\u0D7F]{2,25})', topic_text)
             if m_after:
@@ -489,7 +482,6 @@ def extract_table_data(topic_text: str, is_ott: bool = False, topic_headline: st
                 if t_cand not in ['റിലീസിന്', 'സെപ്റ്റംബർ', 'പ്രധാന', 'ഈ', 'ഒരു', 'പുതിയ', 'ഒക്ടോബറിൽ', 'തിയേറ്ററുകളിൽ']:
                     title_raw = t_cand
 
-        # Pattern C: "<TITLE> ചിത്രം/സിനിമ"
         if not title_raw:
             km = re.search(r'([A-Za-z0-9\u0D00-\u0D7F]{2,25})\s+(?:ചിത്രം|സിനിമ|ഫിലിം|മൂവി)', topic_text)
             if km:
@@ -505,7 +497,7 @@ def extract_table_data(topic_text: str, is_ott: bool = False, topic_headline: st
         else:
             title_raw = 'Movie Update'
 
-    title_raw = title_raw.strip(".,;:|'\"‘’“” ")
+    title_raw = title_raw.strip(".,;:|'\"------------- ")
 
     if title_raw in TITLE_MAP:
         title_en = TITLE_MAP[title_raw]
@@ -524,29 +516,34 @@ def extract_table_data(topic_text: str, is_ott: bool = False, topic_headline: st
         title_en = "Movie Update"
 
     date_en = 'Coming Soon'
-    for ml_m, en_m in MONTH_MAP.items():
-        if ml_m in topic_text:
-            dm = re.search(rf'{ml_m}\s*(\d{{1,2}})', topic_text)
-            if dm:
-                date_en = f'{en_m} {dm.group(1)}'
-                break
-
-            dm_before = re.search(rf'(\d{{1,2}})\s*{ml_m}', topic_text)
-            if dm_before:
-                date_en = f'{en_m} {dm_before.group(1)}'
-                break
-
-            found_day = None
-            for w_ml, d_num in SORTED_NUMBER_WORDS:
-                if w_ml in topic_text:
-                    found_day = d_num
+    if release_date and release_date.strip() and release_date.strip().lower() != 'nan':
+        date_en = release_date.strip()
+    else:
+        for ml_m, en_m in MONTH_MAP.items():
+            if ml_m in topic_text:
+                dm = re.search(rf'{ml_m}\s*(\d{{1,2}})', topic_text)
+                if dm:
+                    date_en = f'{en_m} {dm.group(1)}'
                     break
-            if found_day:
-                date_en = f'{en_m} {found_day}'
-                break
+
+                dm_before = re.search(rf'(\d{{1,2}})\s*{ml_m}', topic_text)
+                if dm_before:
+                    date_en = f'{en_m} {dm_before.group(1)}'
+                    break
+
+                found_day = None
+                for w_ml, d_num in SORTED_NUMBER_WORDS:
+                    if w_ml in topic_text:
+                        found_day = d_num
+                        break
+                if found_day:
+                    date_en = f'{en_m} {found_day}'
+                    break
 
     plat_en = 'OTT'
-    if is_ott:
+    if ott_platform and ott_platform.strip() and ott_platform.strip().lower() != 'nan':
+        plat_en = ott_platform.strip()
+    elif is_ott:
         for ml_p, en_p in PLATFORM_MAP.items():
             if ml_p.lower() in topic_text.lower():
                 plat_en = en_p
@@ -759,14 +756,14 @@ def create_headline_banner_overlay(headline_text: str, output_path: str, height:
     return str(output_path), box_w
 
 
-def create_table_slide(topic_text: str, image_paths: list, output_path: str, section_slug: str, width: int = 1920, height: int = 1080, topic_headline: str = "") -> str:
+def create_table_slide(topic_text: str, image_paths: list, output_path: str, section_slug: str, width: int = 1920, height: int = 1080, topic_headline: str = "", release_date: str = "", ott_platform: str = "") -> str:
     """
     Renders a broadcast 2-row table card slide:
     - Release Updates: Row 1 (Merged Title), Row 2 [Col 1: Image Collage | Col 2: Date]
     - OTT Updates: Row 1 (Merged Title), Row 2 [Col 1: Image Collage | Col 2: Platform | Col 3: Date]
     """
     is_ott = ('ott' in section_slug.lower())
-    title_en, date_en, plat_en = extract_table_data(topic_text, is_ott=is_ott, topic_headline=topic_headline)
+    title_en, date_en, plat_en = extract_table_data(topic_text, is_ott=is_ott, topic_headline=topic_headline, release_date=release_date, ott_platform=ott_platform)
 
     valid_paths = [p for p in image_paths if Path(p).exists()]
     poster_img = Image.open(valid_paths[0]).convert('RGB') if valid_paths else Image.new('RGB', (400, 600), (30, 35, 50))
@@ -1011,7 +1008,9 @@ def generate_video(
                 topic_headline = item_data.get("topic_headline", "").strip()
 
                 if sec_slug in ["release_updates", "ott_updates"]:
-                    create_table_slide(topic_text, valid_imgs, slide_img_path, sec_slug, topic_headline=topic_headline)
+                    rel_date = str(item_data.get("release_date", "")).strip()
+                    ott_plat = str(item_data.get("ott_platform", "")).strip()
+                    create_table_slide(topic_text, valid_imgs, slide_img_path, sec_slug, topic_headline=topic_headline, release_date=rel_date, ott_platform=ott_plat)
                 else:
                     create_actor_collage_slide(valid_imgs, slide_img_path)
                     if topic_headline:

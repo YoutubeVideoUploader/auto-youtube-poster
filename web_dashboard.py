@@ -377,9 +377,9 @@ if st.session_state.current_section == "📥 Input & Data Editor":
         if not groq_key:
             st.warning("⚠️ Please enter your Groq API Key in the left sidebar under **🤖 Groq AI Settings** first.")
         
-        col_g1, col_g2 = st.columns([1, 1])
+        col_g1, col_g2 = st.columns([2, 3])
         with col_g1:
-            if st.button("🤖 Auto-Extract Movie Names / Headlines", type="primary", use_container_width=True, key=f"btn_groq_extract_{active_tab}"):
+            if st.button("🤖 Auto-Extract Movie Names Now", type="primary", use_container_width=True, key=f"btn_groq_extract_{active_tab}"):
                 if not groq_key:
                     st.error("Please enter your Groq API Key in the sidebar first!")
                 else:
@@ -388,69 +388,60 @@ if st.session_state.current_section == "📥 Input & Data Editor":
                     if not any(str(t).strip() for t in news_list):
                         st.warning("No news texts found in this worksheet to extract movie names from.")
                     else:
-                        with st.spinner("🤖 Groq AI is analyzing Malayalam news texts and extracting movie titles/headlines..."):
+                        with st.spinner("🤖 Groq AI is analyzing Malayalam news texts and extracting movie metadata..."):
                             try:
-                                from groq_extractor import extract_movie_titles_with_groq
-                                extracted_titles = extract_movie_titles_with_groq(news_list, api_key=groq_key, mode=active_tab)
+                                from groq_extractor import extract_metadata_with_groq
+                                meta_items = extract_metadata_with_groq(news_list, api_key=groq_key, mode=active_tab)
                                 
                                 count_filled = 0
-                                for i, title_val in enumerate(extracted_titles):
-                                    if title_val:
-                                        df.at[i, "Topic Headline"] = title_val
-                                        count_filled += 1
+                                for i, item in enumerate(meta_items):
+                                    if active_tab == "Movie Updates":
+                                        val = item.get("headline") or item.get("movie_name") or ""
+                                        if val:
+                                            df.at[i, "Topic Headline"] = val
+                                            count_filled += 1
+                                    elif active_tab == "Release Updates":
+                                        m_name = item.get("movie_name") or ""
+                                        r_date = item.get("release_date") or ""
+                                        if m_name: df.at[i, "Topic Headline"] = m_name
+                                        if r_date: df.at[i, "Release Date"] = r_date
+                                        if m_name or r_date: count_filled += 1
+                                    elif active_tab == "OTT Updates":
+                                        m_name = item.get("movie_name") or ""
+                                        r_date = item.get("release_date") or ""
+                                        o_plat = item.get("ott_platform") or ""
+                                        if m_name: df.at[i, "Topic Headline"] = m_name
+                                        if r_date: df.at[i, "Release Date"] = r_date
+                                        if o_plat: df.at[i, "OTT Platform"] = o_plat
+                                        if m_name or r_date or o_plat: count_filled += 1
                                 
                                 st.session_state.edited_dfs[active_tab] = df
                                 st.session_state.sheet_mgr.update_tab_data(active_tab, df)
                                 st.balloons()
-                                st.success(f"🎉 Groq AI auto-filled {count_filled} movie names/headlines into Column D for **{active_tab}**!")
+                                st.success(f"🎉 Groq AI auto-filled metadata for {count_filled} rows in **{active_tab}**!")
                                 st.rerun()
                             except Exception as e:
                                 st.error(f"Groq AI Extraction Error: {e}")
-
-        with col_g2:
-            if st.button("🖼️ Auto-Fetch Poster Image URLs", use_container_width=True, key=f"btn_fetch_images_{active_tab}"):
-                df = current_df.copy()
-                topics = df["Topic Headline"].tolist()
-                # Fallback to news text if headline is blank
-                topics = [t if str(t).strip() else df.at[idx, "Malayalam News Text"] for idx, t in enumerate(topics)]
-                
-                if not any(str(t).strip() for t in topics):
-                    st.warning("No headlines or news texts found to search poster images for.")
-                else:
-                    with st.spinner("🖼️ Searching high quality movie poster image URLs for all topics..."):
-                        try:
-                            from groq_extractor import fetch_poster_urls_for_topics
-                            img_urls = fetch_poster_urls_for_topics(topics, api_key=groq_key)
-                            
-                            count_urls = 0
-                            for i, url_val in enumerate(img_urls):
-                                if url_val:
-                                    df.at[i, "Image URLs"] = url_val
-                                    count_urls += 1
-                            
-                            st.session_state.edited_dfs[active_tab] = df
-                            st.session_state.sheet_mgr.update_tab_data(active_tab, df)
-                            st.balloons()
-                            st.success(f"🎉 Auto-filled {count_urls} poster image URLs into Column C for **{active_tab}**!")
-                            st.rerun()
-                        except Exception as e:
-                            st.error(f"Image URL Fetch Error: {e}")
 
     # --------------------------------------------------------------------------
     # INTERACTIVE CELL DATA EDITOR
     # --------------------------------------------------------------------------
     st.markdown("#### ✏️ Interactive Data Grid (Edit Cells, Add or Delete Rows)")
     
+    col_cfg = {
+        "Topic Number": st.column_config.TextColumn("Topic #", width="small", required=True),
+        "Topic Headline": st.column_config.TextColumn("Movie Name / Topic Title (Col D)", width="medium"),
+        "Malayalam News Text": st.column_config.TextColumn("Malayalam News Description / Script", width="large", required=True),
+        "Image URLs": st.column_config.TextColumn("Image URL(s) [Comma Separated]", width="medium"),
+        "Release Date": st.column_config.TextColumn("Release Date (Col E)", width="small"),
+        "OTT Platform": st.column_config.TextColumn("OTT Platform (Col F)", width="small")
+    }
+
     edited_df = st.data_editor(
         current_df,
         num_rows="dynamic",
         use_container_width=True,
-        column_config={
-            "Topic Number": st.column_config.TextColumn("Topic #", width="small", required=True),
-            "Topic Headline": st.column_config.TextColumn("Movie Name / Topic Title (Col D)", width="medium"),
-            "Malayalam News Text": st.column_config.TextColumn("Malayalam News Description / Script", width="large", required=True),
-            "Image URLs": st.column_config.TextColumn("Image URL(s) [Comma Separated]", width="medium")
-        },
+        column_config=col_cfg,
         key=f"editor_{active_tab}"
     )
 

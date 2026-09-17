@@ -127,9 +127,9 @@ class GoogleSheetManager:
         return self.data_cache
 
     def normalize_dataframe(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Standardizes DataFrame columns: Topic Number, Malayalam News Text, Image URLs, Topic Headline."""
+        """Standardizes DataFrame columns: Topic Number, Malayalam News Text, Image URLs, Topic Headline, Release Date, OTT Platform."""
         if df.empty:
-            return pd.DataFrame(columns=["Topic Number", "Malayalam News Text", "Image URLs", "Topic Headline"])
+            return pd.DataFrame(columns=["Topic Number", "Malayalam News Text", "Image URLs", "Topic Headline", "Release Date", "OTT Platform"])
 
         cols = [str(c).strip() for c in df.columns]
         
@@ -152,13 +152,27 @@ class GoogleSheetManager:
                 break
 
         # Identify Headline / Title col (Column D or index 3 if available)
-        headline_col = None
-        if len(cols) >= 4:
-            headline_col = cols[3]
+        headline_col = cols[3] if len(cols) >= 4 else None
         for c in cols:
             c_low = c.lower()
-            if 'headline' in c_low or 'title' in c_low or 'col d' in c_low or 'column d' in c_low:
+            if 'headline' in c_low or 'title' in c_low or 'movie' in c_low or 'col d' in c_low:
                 headline_col = c
+                break
+
+        # Identify Release Date col (Column E or index 4 if available)
+        rel_date_col = cols[4] if len(cols) >= 5 else None
+        for c in cols:
+            c_low = c.lower()
+            if 'release date' in c_low or 'streaming date' in c_low or 'col e' in c_low:
+                rel_date_col = c
+                break
+
+        # Identify OTT Platform col (Column F or index 5 if available)
+        ott_plat_col = cols[5] if len(cols) >= 6 else None
+        for c in cols:
+            c_low = c.lower()
+            if 'ott' in c_low or 'platform' in c_low or 'col f' in c_low:
+                ott_plat_col = c
                 break
 
         clean_rows = []
@@ -166,22 +180,26 @@ class GoogleSheetManager:
             text_val = str(row[topic_col]).strip() if pd.notna(row[topic_col]) else ""
             img_val = str(row[img_col]).strip() if img_col and pd.notna(row[img_col]) else ""
             headline_val = str(row[headline_col]).strip() if headline_col and pd.notna(row[headline_col]) else ""
+            rel_date_val = str(row[rel_date_col]).strip() if rel_date_col and pd.notna(row[rel_date_col]) else ""
+            ott_plat_val = str(row[ott_plat_col]).strip() if ott_plat_col and pd.notna(row[ott_plat_col]) else ""
             
             if not text_val or text_val.lower() == "nan":
                 continue
-            if img_val.lower() == "nan":
-                img_val = ""
-            if headline_val.lower() == "nan":
-                headline_val = ""
+            if img_val.lower() == "nan": img_val = ""
+            if headline_val.lower() == "nan": headline_val = ""
+            if rel_date_val.lower() == "nan": rel_date_val = ""
+            if ott_plat_val.lower() == "nan": ott_plat_val = ""
 
             clean_rows.append({
                 "Topic Number": str(idx),
                 "Malayalam News Text": text_val,
                 "Image URLs": img_val,
-                "Topic Headline": headline_val
+                "Topic Headline": headline_val,
+                "Release Date": rel_date_val,
+                "OTT Platform": ott_plat_val
             })
 
-        return pd.DataFrame(clean_rows, columns=["Topic Number", "Malayalam News Text", "Image URLs", "Topic Headline"])
+        return pd.DataFrame(clean_rows, columns=["Topic Number", "Malayalam News Text", "Image URLs", "Topic Headline", "Release Date", "OTT Platform"])
 
     def parse_pasted_table(self, pasted_text: str) -> pd.DataFrame:
         """
