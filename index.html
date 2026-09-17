@@ -2024,7 +2024,7 @@
       const grid = document.getElementById('wizard-poster-grid');
       const status = document.getElementById('wizard-search-status');
       grid.innerHTML = '';
-      status.innerText = '🔍 Searching movie posters...';
+      status.innerText = '🔍 Searching 14+ movie poster databases...';
 
       if (!query) {
         status.innerText = 'Please enter a movie title to search.';
@@ -2034,41 +2034,67 @@
       let results = [];
       let seenUrls = new Set();
       
-      const addResult = (url, title) => {
-        if (url && !seenUrls.has(url)) {
+      const addResult = (url, title, source) => {
+        if (url && typeof url === 'string' && url.startsWith('http') && !seenUrls.has(url)) {
           seenUrls.add(url);
-          results.push({ url, title });
+          results.push({ url, title, source: source || 'Poster' });
         }
       };
 
-      // 1. Wikipedia Search API
-      const searchWiki = fetch(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query + ' film poster')}&gsrlimit=6&prop=pageimages&pithumbsize=600&format=json&origin=*`)
+      const cleanQuery = query.replace(/[^\w\s]/gi, ' ').trim();
+
+      // 1. TMDB (The Movie Database) - Official Original Posters
+      const searchTMDB = fetch(`https://api.themoviedb.org/3/search/movie?api_key=8265bd1679663a7ea12ac168da84d2e8&query=${encodeURIComponent(query)}&language=en-US&page=1`)
         .then(res => res.json())
         .then(data => {
-          if (data.query && data.query.pages) {
-            Object.values(data.query.pages).forEach(p => {
-              if (p.thumbnail && p.thumbnail.source) {
-                addResult(p.thumbnail.source, p.title || query);
+          if (data.results) {
+            data.results.forEach(m => {
+              if (m.poster_path) addResult(`https://image.tmdb.org/t/p/w500${m.poster_path}`, m.title || query, 'TMDB');
+            });
+          }
+        }).catch(() => {});
+
+      // 2. OMDB / IMDb Poster Database
+      const searchOMDB = fetch(`https://www.omdbapi.com/?apikey=trilogy&s=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.Search) {
+            data.Search.forEach(m => {
+              if (m.Poster && m.Poster.startsWith('http') && !m.Poster.includes('N/A')) {
+                addResult(m.Poster, m.Title || query, 'IMDb');
               }
             });
           }
         }).catch(() => {});
 
-      // 2. iTunes Search API
-      const searchiTunes = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=movie&limit=6`)
+      // 3. iTunes Store HD Movie Artwork
+      const searchiTunes = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=movie&limit=8`)
         .then(res => res.json())
         .then(data => {
           if (data.results) {
             data.results.forEach(r => {
               if (r.artworkUrl100) {
                 let hd = r.artworkUrl100.replace('100x100bb.jpg', '600x600bb.jpg');
-                addResult(hd, r.trackName || query);
+                addResult(hd, r.trackName || query, 'iTunes HD');
               }
             });
           }
         }).catch(() => {});
 
-      // 3. Wikimedia Commons API
+      // 4. Wikipedia Infobox Movie Poster API
+      const searchWiki = fetch(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query + ' film')}&gsrlimit=6&prop=pageimages&pithumbsize=600&format=json&origin=*`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.query && data.query.pages) {
+            Object.values(data.query.pages).forEach(p => {
+              if (p.thumbnail && p.thumbnail.source) {
+                addResult(p.thumbnail.source, p.title || query, 'Wikipedia');
+              }
+            });
+          }
+        }).catch(() => {});
+
+      // 5. Wikimedia Commons HD API
       const searchWikimedia = fetch(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query + ' poster')}&gsrnamespace=6&ns=6&prop=imageinfo&iiprop=url|mime|size&format=json&origin=*`)
         .then(res => res.json())
         .then(data => {
@@ -2077,14 +2103,14 @@
               if (p.imageinfo && p.imageinfo[0] && p.imageinfo[0].url) {
                 let u = p.imageinfo[0].url;
                 if (/\.(jpg|jpeg|png|webp)/i.test(u)) {
-                  addResult(u, p.title || query);
+                  addResult(u, p.title || query, 'Wikimedia');
                 }
               }
             });
           }
         }).catch(() => {});
 
-      Promise.all([searchWiki, searchiTunes, searchWikimedia]).then(() => {
+      Promise.allSettled([searchTMDB, searchOMDB, searchiTunes, searchWiki, searchWikimedia]).then(() => {
         status.innerText = `Found ${results.length} posters. Click an image or use Google Images!`;
         renderWizardPosterGrid(results, query);
       });
@@ -2114,7 +2140,9 @@
           background: #161625;
           transition: transform 0.2s, border-color 0.2s;
         `;
+        let sourceBadge = imgObj.source ? `<span style="position: absolute; top: 4px; left: 4px; background: rgba(8, 145, 178, 0.85); color: #fff; font-size: 9px; font-weight: bold; padding: 2px 5px; border-radius: 4px;">${escapeHtml(imgObj.source)}</span>` : '';
         card.innerHTML = `
+          ${sourceBadge}
           <img src="${imgObj.url}" style="width: 100%; height: 160px; object-fit: cover; display: block;" onerror="this.src='https://via.placeholder.com/150x200/161625/a0a0b5?text=Poster'" alt="Poster">
           <div style="padding: 4px; text-align: center; font-size: 10px; color: #aaa; background: #0d0d16; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(imgObj.title || 'Poster ' + (i+1))}</div>
         `;
