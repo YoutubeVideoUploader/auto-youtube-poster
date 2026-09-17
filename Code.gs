@@ -4,6 +4,51 @@
 // ==============================================================================
 
 function doGet(e) {
+  if (e && e.parameter && e.parameter.action === "get_news") {
+    try {
+      var query = e.parameter.query || "Malayalam movie news";
+      var rssUrl = "https://news.google.com/rss/search?q=" + encodeURIComponent(query) + "&hl=en-IN&gl=IN&ceid=IN:en";
+      var res = UrlFetchApp.fetch(rssUrl, { muteHttpExceptions: true });
+      var xml = res.getContentText();
+      var document = XmlService.parse(xml);
+      var root = document.getRootElement();
+      var channel = root.getChild("channel");
+      var items = channel.getChildren("item");
+      
+      var articles = [];
+      for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        var title = item.getChildText("title") || "";
+        var link = item.getChildText("link") || "";
+        var pubDate = item.getChildText("pubDate") || "";
+        var desc = item.getChildText("description") || "";
+        desc = desc.replace(/<[^>]*>?/gm, "").trim();
+        articles.push({
+          title: title,
+          link: link,
+          pubDate: pubDate,
+          description: desc
+        });
+      }
+      
+      var outputData = { status: "success", count: articles.length, items: articles };
+      if (e.parameter.callback) {
+        return ContentService.createTextOutput(e.parameter.callback + "(" + JSON.stringify(outputData) + ");")
+          .setMimeType(ContentService.MimeType.JAVASCRIPT);
+      }
+      return ContentService.createTextOutput(JSON.stringify(outputData))
+        .setMimeType(ContentService.MimeType.JSON);
+    } catch (err) {
+      var errOut = { status: "error", message: err.toString() };
+      if (e.parameter.callback) {
+        return ContentService.createTextOutput(e.parameter.callback + "(" + JSON.stringify(errOut) + ");")
+          .setMimeType(ContentService.MimeType.JAVASCRIPT);
+      }
+      return ContentService.createTextOutput(JSON.stringify(errOut))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
   if (e && e.parameter && e.parameter.action === "get_data") {
     try {
       var ss = SpreadsheetApp.getActiveSpreadsheet();

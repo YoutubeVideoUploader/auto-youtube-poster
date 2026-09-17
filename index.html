@@ -1250,71 +1250,96 @@
       else if (timeRange === '30d') hoursLimit = 720;
       let cutoffTime = new Date(now.getTime() - (hoursLimit * 60 * 60 * 1000));
 
-      // 1. Google News Realtime RSS Aggregator
-      const fetchGoogleNews = async () => {
+      // 1. Fetch Google News RSS via Google Apps Script Web App (Server-side fetch, 0 CORS issues)
+      const fetchAppsScriptNews = async () => {
         try {
-          let rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(fullSearchQuery)}&hl=en-IN&gl=IN&ceid=IN:en`;
-          let proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
-          let res = await fetch(proxyUrl);
+          let url = WEB_APP_URL + "?action=get_news&query=" + encodeURIComponent(fullSearchQuery);
+          let res = await fetch(url);
           if (res.ok) {
             let data = await res.json();
-            if (data.contents) {
-              let parser = new DOMParser();
-              let xmlDoc = parser.parseFromString(data.contents, 'text/xml');
-              let items = xmlDoc.querySelectorAll('item');
-              items.forEach(item => {
-                let t = item.querySelector('title') ? item.querySelector('title').textContent : '';
-                let l = item.querySelector('link') ? item.querySelector('link').textContent : '';
-                let d = item.querySelector('pubDate') ? item.querySelector('pubDate').textContent : '';
-                let s = item.querySelector('description') ? item.querySelector('description').textContent.replace(/<[^>]*>?/gm, '') : '';
-                if (t && l) {
-                  addArticle(t, s, l, 'Google News', d, '');
-                }
+            if (data.items && Array.isArray(data.items)) {
+              data.items.forEach(item => {
+                addArticle(item.title, item.description, item.link, 'Google News', item.pubDate, '');
               });
             }
           }
         } catch (e) {
-          console.warn("Google News RSS fetch error", e);
+          console.warn("Apps Script news fetch error", e);
         }
       };
 
-      // 2. Direct Cinema RSS Channels (Filmibeat Industry Specific)
+      // 2. Fetch Google News RSS via CORS Proxies (Client-side fallback)
+      const fetchGoogleNewsCors = async () => {
+        try {
+          let rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(fullSearchQuery)}&hl=en-IN&gl=IN&ceid=IN:en`;
+          let proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`;
+          let res = await fetch(proxyUrl);
+          if (res.ok) {
+            let text = await res.text();
+            let parser = new DOMParser();
+            let xmlDoc = parser.parseFromString(text, 'text/xml');
+            let items = xmlDoc.querySelectorAll('item');
+            items.forEach(item => {
+              let t = item.querySelector('title') ? item.querySelector('title').textContent : '';
+              let l = item.querySelector('link') ? item.querySelector('link').textContent : '';
+              let d = item.querySelector('pubDate') ? item.querySelector('pubDate').textContent : '';
+              let s = item.querySelector('description') ? item.querySelector('description').textContent.replace(/<[^>]*>?/gm, '') : '';
+              if (t && l) {
+                addArticle(t, s, l, 'Google News (Realtime)', d, '');
+              }
+            });
+          }
+        } catch (e) {
+          console.warn("CORS proxy news fetch error", e);
+        }
+      };
+
+      // 3. Direct Cinema RSS Channels (Filmibeat Industry Specific)
       const fetchDirectPortals = async () => {
         try {
           let feedTarget = (industry === 'malayalam') ? 'https://malayalam.filmibeat.com/rss/feeds/news.xml' : (industry === 'tamil' ? 'https://tamil.filmibeat.com/rss/feeds/news.xml' : (industry === 'telugu' ? 'https://telugu.filmibeat.com/rss/feeds/news.xml' : (industry === 'kannada' ? 'https://kannada.filmibeat.com/rss/feeds/news.xml' : 'https://www.filmibeat.com/rss/feeds/news.xml')));
-          let proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(feedTarget)}`;
+          let proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(feedTarget)}`;
           let res = await fetch(proxyUrl);
           if (res.ok) {
-            let data = await res.json();
-            if (data.contents) {
-              let parser = new DOMParser();
-              let xmlDoc = parser.parseFromString(data.contents, 'text/xml');
-              let items = xmlDoc.querySelectorAll('item');
-              items.forEach(item => {
-                let t = item.querySelector('title') ? item.querySelector('title').textContent : '';
-                let l = item.querySelector('link') ? item.querySelector('link').textContent : '';
-                let d = item.querySelector('pubDate') ? item.querySelector('pubDate').textContent : '';
-                let s = item.querySelector('description') ? item.querySelector('description').textContent.replace(/<[^>]*>?/gm, '') : '';
-                let enc = item.querySelector('enclosure');
-                let img = enc ? enc.getAttribute('url') : '';
-                if (t && l) {
-                  addArticle(t, s, l, `${industryName} Cinema Desk`, d, img);
-                }
-              });
-            }
+            let text = await res.text();
+            let parser = new DOMParser();
+            let xmlDoc = parser.parseFromString(text, 'text/xml');
+            let items = xmlDoc.querySelectorAll('item');
+            items.forEach(item => {
+              let t = item.querySelector('title') ? item.querySelector('title').textContent : '';
+              let l = item.querySelector('link') ? item.querySelector('link').textContent : '';
+              let d = item.querySelector('pubDate') ? item.querySelector('pubDate').textContent : '';
+              let s = item.querySelector('description') ? item.querySelector('description').textContent.replace(/<[^>]*>?/gm, '') : '';
+              let enc = item.querySelector('enclosure');
+              let img = enc ? enc.getAttribute('url') : '';
+              if (t && l) {
+                addArticle(t, s, l, `${industryName} Cinema Desk`, d, img);
+              }
+            });
           }
         } catch (e) {
           console.warn("Direct Portal RSS fetch error", e);
         }
       };
 
-      await Promise.allSettled([fetchGoogleNews(), fetchDirectPortals()]);
+      await Promise.allSettled([fetchAppsScriptNews(), fetchGoogleNewsCors(), fetchDirectPortals()]);
 
       let filteredArticles = articles.filter(a => {
-        return a.pubDate >= cutoffTime || isNaN(a.pubDate.getTime());
+        let pDate = a.pubDate ? new Date(a.pubDate) : null;
+        if (!pDate || isNaN(pDate.getTime())) return true;
+        return pDate >= cutoffTime;
       });
 
-      filteredArticles.sort((a, b) => (b.pubDate && a.pubDate) ? b.pubDate - a.pubDate : 0);
+      if (filteredArticles.length === 0 && articles.length > 0) {
+        filteredArticles = articles; // Fallback to all available articles if strict cutoff yields 0
+      }
+
+      filteredArticles.sort((a, b) => {
+        let dA = a.pubDate ? new Date(a.pubDate).getTime() : 0;
+        let dB = b.pubDate ? new Date(b.pubDate).getTime() : 0;
+        return dB - dA;
+      });
+
       cachedNewsArticles = filteredArticles;
 
       if (statusBadge) {
