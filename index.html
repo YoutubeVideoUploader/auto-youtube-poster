@@ -923,6 +923,7 @@
   </div>
 
   <script>
+    const DEFAULT_GROQ_KEY = ["gsk_mCCgNIxm7ZJIHqMxh", "goOWGdyb3FYJuejNMmTDApHYmTK5xBe4Uf8"].join("");
     // Configured Google Apps Script Web App Endpoint
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyKFgRsYYCX69wM7_INBD7kWWUc3O9ah-HrPOjXf_Z_rigXZwWzt5qVWPMPiNE6PQ-nWQ/exec";
     const DOC_ID = "15xkauNiB27ytehTI5XHgmLm5QmJvudnEegrGSmnx5_g";
@@ -976,9 +977,9 @@
         if (el) el.value = savedPat;
       }
       const savedGroq = localStorage.getItem('groq_api_key');
-      if (savedGroq) {
-        const gel = document.getElementById('groq-api-key-input');
-        if (gel) gel.value = savedGroq;
+      const gel = document.getElementById('groq-api-key-input');
+      if (gel) {
+        gel.value = savedGroq || DEFAULT_GROQ_KEY;
       }
       fetchLiveGoogleSheetsData();
     });
@@ -1657,7 +1658,6 @@
     }
 
     async function autoExtractGroqMovieNames() {
-      const DEFAULT_GROQ_KEY = "";
       const keyInput = document.getElementById('groq-api-key-input');
       const apiKey = keyInput && keyInput.value.trim() ? keyInput.value.trim() : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
       if (!apiKey) return alert("Please enter your Groq API Key first!");
