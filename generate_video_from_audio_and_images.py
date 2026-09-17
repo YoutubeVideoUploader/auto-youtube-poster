@@ -10,6 +10,7 @@ import json
 import glob
 import subprocess
 import soundfile as sf
+import textwrap
 from pathlib import Path
 from typing import Dict, Any, List
 from PIL import Image, ImageFilter, ImageEnhance, ImageDraw, ImageFont
@@ -716,25 +717,46 @@ def create_headline_banner_overlay(headline_text: str, output_path: str, height:
     """
     Creates a broadcast PNG lower-third headline banner image with transparent background.
     Used exclusively for Movie Updates slide animation.
-    Calculates dynamic banner width based on the exact text length of headline_text so no text is truncated.
+    Calculates dynamic banner width and auto-wraps text into 2 lines if long to prevent overflowing video bounds.
     Returns (output_path_str, box_w).
     """
     display_text = headline_text.strip()
-
-    title_font = get_font(40, bold=True)
     badge_font = get_font(20, bold=True)
 
     dummy_img = Image.new("RGBA", (1, 1))
     dummy_draw = ImageDraw.Draw(dummy_img)
 
-    text_bbox = dummy_draw.textbbox((0, 0), display_text, font=title_font)
-    text_w = text_bbox[2] - text_bbox[0]
-
     badge_bbox = dummy_draw.textbbox((0, 0), "CINEMA UPDATE", font=badge_font)
     badge_w = badge_bbox[2] - badge_bbox[0]
 
-    content_w = max(text_w, badge_w)
-    box_w = max(420, min(1840, int(content_w) + 70))
+    font_size = 40
+    title_font = get_font(font_size, bold=True)
+    text_bbox = dummy_draw.textbbox((0, 0), display_text, font=title_font)
+    single_line_w = text_bbox[2] - text_bbox[0]
+
+    lines = [display_text]
+    line_height = 42
+
+    if single_line_w > 1600 or len(display_text) > 42:
+        font_size = 30
+        title_font = get_font(font_size, bold=True)
+        wrapped = textwrap.wrap(display_text, width=42)
+        if len(wrapped) > 2:
+            lines = [wrapped[0], " ".join(wrapped[1:])]
+        else:
+            lines = wrapped
+        height = 155
+        line_height = 36
+
+    max_line_w = 0
+    for line in lines:
+        l_bbox = dummy_draw.textbbox((0, 0), line, font=title_font)
+        w = l_bbox[2] - l_bbox[0]
+        if w > max_line_w:
+            max_line_w = w
+
+    content_w = max(max_line_w, badge_w)
+    box_w = max(420, min(1820, int(content_w) + 70))
 
     canvas = Image.new("RGBA", (box_w, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(canvas)
@@ -747,10 +769,16 @@ def create_headline_banner_overlay(headline_text: str, output_path: str, height:
     draw.rounded_rectangle([0, 0, 14, height], radius=6, fill=(255, 42, 75))
 
     # 3. Small Category Badge: "CINEMA UPDATE"
-    draw.text((30, 14), "CINEMA UPDATE", font=badge_font, fill=(255, 215, 0))
+    draw.text((30, 12), "CINEMA UPDATE", font=badge_font, fill=(255, 215, 0))
 
-    # 4. Headline Text
-    draw.text((30, 52), display_text, font=title_font, fill=(255, 255, 255))
+    # 4. Headline Text (1 or 2 lines)
+    if len(lines) == 1:
+        draw.text((30, 48), lines[0], font=title_font, fill=(255, 255, 255))
+    else:
+        y_pos = 46
+        for line in lines[:2]:
+            draw.text((30, y_pos), line, font=title_font, fill=(255, 255, 255))
+            y_pos += line_height
 
     canvas.save(output_path, "PNG")
     return str(output_path), box_w
@@ -776,7 +804,6 @@ def create_table_slide(topic_text: str, image_paths: list, output_path: str, sec
 
     draw = ImageDraw.Draw(bg)
 
-    font_title = get_font(52, bold=True)
     font_label = get_font(36, bold=True)
     font_val = get_font(52, bold=True)
     font_sec = get_font(38, bold=True)
@@ -795,7 +822,23 @@ def create_table_slide(topic_text: str, image_paths: list, output_path: str, sec
         # Outer Border & Row 1 Header
         draw.rectangle([bx - 4, by - 4, bx + box_w + 4, by + box_h + 4], outline=(255, 215, 0), width=3)
         draw.rectangle([bx, by, bx + box_w, by + header_h], fill=(30, 45, 80))
-        draw.text((bx + box_w // 2, by + header_h // 2), title_en.upper(), font=font_title, fill=(255, 255, 255), anchor='mm')
+
+        # Row 1 Title Text Wrapping & Dynamic Scaling
+        title_text = title_en.upper()
+        t_font = get_font(52, bold=True)
+        t_bbox = draw.textbbox((0, 0), title_text, font=t_font)
+        t_w = t_bbox[2] - t_bbox[0]
+
+        if t_w > box_w - 80 or len(title_text) > 28:
+            t_font = get_font(34, bold=True)
+            wrapped_t = textwrap.wrap(title_text, width=30)
+            t_lines = [wrapped_t[0], " ".join(wrapped_t[1:])] if len(wrapped_t) > 2 else wrapped_t
+            y_start = by + (header_h - (len(t_lines) * 36)) // 2 + 10
+            for line in t_lines:
+                draw.text((bx + box_w // 2, y_start), line, font=t_font, fill=(255, 255, 255), anchor='mm')
+                y_start += 36
+        else:
+            draw.text((bx + box_w // 2, by + header_h // 2), title_text, font=t_font, fill=(255, 255, 255), anchor='mm')
 
         # Row 2 (2 Columns)
         r2_by = by + header_h
@@ -825,8 +868,22 @@ def create_table_slide(topic_text: str, image_paths: list, output_path: str, sec
         draw.rectangle([bx - 4, by - 4, bx + box_w + 4, by + box_h + 4], outline=(0, 229, 255), width=3)
         draw.rectangle([bx, by, bx + box_w, by + header_h], fill=(20, 40, 75))
 
-        # Merged Row 1 Header Text
-        draw.text((bx + box_w // 2, by + header_h // 2), title_en.upper(), font=font_title, fill=(255, 255, 255), anchor='mm')
+        # Merged Row 1 Header Text Wrapping & Dynamic Scaling
+        title_text = title_en.upper()
+        t_font = get_font(52, bold=True)
+        t_bbox = draw.textbbox((0, 0), title_text, font=t_font)
+        t_w = t_bbox[2] - t_bbox[0]
+
+        if t_w > box_w - 80 or len(title_text) > 32:
+            t_font = get_font(34, bold=True)
+            wrapped_t = textwrap.wrap(title_text, width=34)
+            t_lines = [wrapped_t[0], " ".join(wrapped_t[1:])] if len(wrapped_t) > 2 else wrapped_t
+            y_start = by + (header_h - (len(t_lines) * 36)) // 2 + 10
+            for line in t_lines:
+                draw.text((bx + box_w // 2, y_start), line, font=t_font, fill=(255, 255, 255), anchor='mm')
+                y_start += 36
+        else:
+            draw.text((bx + box_w // 2, by + header_h // 2), title_text, font=t_font, fill=(255, 255, 255), anchor='mm')
 
         # Row 2 (3 Columns)
         r2_by = by + header_h
