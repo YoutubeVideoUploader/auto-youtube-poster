@@ -1987,22 +1987,44 @@
         return;
       }
 
-      // Fetch from iTunes Movie Search & Wikimedia APIs
       let results = [];
+      let seenUrls = new Set();
       
-      const searchiTunes = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query + ' Malayalam')}&entity=movie&limit=8`)
+      const addResult = (url, title) => {
+        if (url && !seenUrls.has(url)) {
+          seenUrls.add(url);
+          results.push({ url, title });
+        }
+      };
+
+      // 1. Wikipedia Search API
+      const searchWiki = fetch(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query + ' film poster')}&gsrlimit=6&prop=pageimages&pithumbsize=600&format=json&origin=*`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.query && data.query.pages) {
+            Object.values(data.query.pages).forEach(p => {
+              if (p.thumbnail && p.thumbnail.source) {
+                addResult(p.thumbnail.source, p.title || query);
+              }
+            });
+          }
+        }).catch(() => {});
+
+      // 2. iTunes Search API
+      const searchiTunes = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=movie&limit=6`)
         .then(res => res.json())
         .then(data => {
           if (data.results) {
             data.results.forEach(r => {
               if (r.artworkUrl100) {
                 let hd = r.artworkUrl100.replace('100x100bb.jpg', '600x600bb.jpg');
-                results.push({ url: hd, title: r.trackName || query });
+                addResult(hd, r.trackName || query);
               }
             });
           }
         }).catch(() => {});
 
+      // 3. Wikimedia Commons API
       const searchWikimedia = fetch(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query + ' poster')}&gsrnamespace=6&ns=6&prop=imageinfo&iiprop=url|mime|size&format=json&origin=*`)
         .then(res => res.json())
         .then(data => {
@@ -2011,15 +2033,15 @@
               if (p.imageinfo && p.imageinfo[0] && p.imageinfo[0].url) {
                 let u = p.imageinfo[0].url;
                 if (/\.(jpg|jpeg|png|webp)/i.test(u)) {
-                  results.push({ url: u, title: p.title || query });
+                  addResult(u, p.title || query);
                 }
               }
             });
           }
         }).catch(() => {});
 
-      Promise.all([searchiTunes, searchWikimedia]).then(() => {
-        status.innerText = `Found ${results.length} posters. Click an image to select!`;
+      Promise.all([searchWiki, searchiTunes, searchWikimedia]).then(() => {
+        status.innerText = `Found ${results.length} posters. Click an image or use Google Images!`;
         renderWizardPosterGrid(results, query);
       });
     }
@@ -2031,8 +2053,8 @@
       if (!images || images.length === 0) {
         grid.innerHTML = `
           <div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #aaa;">
-            <p>No direct poster images auto-loaded.</p>
-            <p style="font-size: 12px; margin-top: 6px; color: #67e8f9;">Use <b>🌐 Google Images (New Tab)</b> to select any image, or paste URL below.</p>
+            <p style="font-weight: 600; color: #ff8888;">No direct poster thumbnails auto-loaded for "${escapeHtml(query)}".</p>
+            <p style="font-size: 13px; margin-top: 8px; color: #67e8f9;">👉 Click <b>🌐 Google Images (New Tab)</b> above to pick any poster, copy its URL, and paste it below!</p>
           </div>`;
         return;
       }
@@ -2081,9 +2103,10 @@
       }
 
       // Update Custom URL input box value
-      document.getElementById('wizard-custom-url-input').value = url;
+      const urlBox = document.getElementById('wizard-custom-url-input');
+      if (urlBox) urlBox.value = url;
 
-      // Show prompt panel to advance to next topic
+      // Show prompt panel and auto-scroll to it
       showWizardPromptPanel(idx);
     }
 
@@ -2112,7 +2135,12 @@
         if (nextTitleSpan) nextTitleSpan.innerText = "Finish Wizard (All Done!)";
       }
 
-      if (promptPanel) promptPanel.style.display = 'block';
+      if (promptPanel) {
+        promptPanel.style.display = 'block';
+        setTimeout(() => {
+          promptPanel.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 100);
+      }
     }
 
     function advancePosterWizardNext() {
