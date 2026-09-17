@@ -2320,33 +2320,7 @@
           }
         }).catch(() => {});
 
-      // 21. Jikan Anime & Feature Film Database
-      const searchJikan = fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&limit=5`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.data) {
-            data.data.forEach(a => {
-              if (a.images && a.images.jpg && a.images.jpg.large_image_url) {
-                addResult(a.images.jpg.large_image_url, a.title || query, 'Jikan Feature Films');
-              }
-            });
-          }
-        }).catch(() => {});
-
-      // 22. Kitsu Media Catalog
-      const searchKitsu = fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(query)}&page[limit]=5`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.data) {
-            data.data.forEach(a => {
-              if (a.attributes && a.attributes.posterImage && a.attributes.posterImage.original) {
-                addResult(a.attributes.posterImage.original, a.attributes.canonicalTitle || query, 'Kitsu Media');
-              }
-            });
-          }
-        }).catch(() => {});
-
-      // 23. Wikidata Entity Search
+      // 21. Wikidata Entity Search
       const searchWikidata = fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(query)}&language=en&format=json&origin=*`)
         .then(res => res.json())
         .then(data => {
@@ -2366,9 +2340,9 @@
         searchWikiEn, searchWikiMl, searchWikiHi, searchWikiTa, searchWikiTe,
         searchWikimedia, searchTVMazeShows, searchTVMazePeople,
         searchOpenLibrary, searchGoogleBooks, searchInternetArchive,
-        searchJikan, searchKitsu, searchWikidata
+        searchWikidata
       ]).then(() => {
-        status.innerText = `Found ${results.length} posters across 23 search sources. Click an image or use Google Images!`;
+        status.innerText = `Found ${results.length} posters across 21 search sources. Click an image or use Google Images!`;
         renderWizardPosterGrid(results, query);
       });
     }
