@@ -628,6 +628,7 @@
       <button class="section-btn active" id="sec-input-btn" onclick="switchSection('input')">📥 Input & Data Editor</button>
       <button class="section-btn" id="sec-thumb-btn" onclick="switchSection('thumbnail')">🖼️ Thumbnail Studio</button>
       <button class="section-btn" id="sec-output-btn" onclick="switchSection('output')">📺 Output & Slide Preview</button>
+      <button class="section-btn" id="sec-news-btn" onclick="switchSection('news')">📰 Latest Live News Feed</button>
     </div>
 
     <!-- Category Sub Tabs -->
@@ -838,6 +839,76 @@
 
       <div id="preview-container" class="preview-grid">
         <!-- Topic cards dynamically rendered -->
+      </div>
+    </div>
+
+    <!-- SECTION 4: LATEST LIVE NEWS FEED -->
+    <div id="section-news" class="card" style="display: none;">
+      <div class="card-title">📰 Latest Live News Feed (Multi-Industry Realtime Cinema News)</div>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
+        Realtime movie news aggregated across <b>TheNewsAPI</b>, <b>NewsData.io</b>, <b>GNews</b>, <b>NewsAPI</b>, and <b>Google News</b>. Preserves original publication language!
+      </p>
+
+      <!-- Filter Controls Container -->
+      <div style="background: #171728; border: 1px solid #33334d; border-radius: 10px; padding: 18px; margin-bottom: 20px;">
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; margin-bottom: 12px;">
+          
+          <!-- Category Sub-Tab Selector -->
+          <div>
+            <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">📂 Category:</label>
+            <select id="news-cat-select" style="padding: 8px 12px; background: #0d0d16; border: 1px solid #33334d; color: #fff; border-radius: 6px; font-size: 13px; font-weight: bold;" onchange="fetchLiveNewsFeed()">
+              <option value="Movie Updates">🎬 Movie Updates (General / Cast / Pooja)</option>
+              <option value="Release Updates">📅 Release Updates (Theatrical Dates / Box Office)</option>
+              <option value="OTT Updates">🍿 OTT Updates (Digital Streaming / Rights)</option>
+            </select>
+          </div>
+
+          <!-- Industry / Language Selector -->
+          <div>
+            <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">🎥 Film Industry:</label>
+            <select id="news-industry-select" style="padding: 8px 12px; background: #0d0d16; border: 1px solid #33334d; color: #fff; border-radius: 6px; font-size: 13px; font-weight: bold;" onchange="fetchLiveNewsFeed()">
+              <option value="malayalam">🌴 Malayalam Cinema (Mollywood)</option>
+              <option value="tamil">🐘 Tamil Cinema (Kollywood)</option>
+              <option value="telugu">🦁 Telugu Cinema (Tollywood)</option>
+              <option value="kannada">💛 Kannada Cinema (Sandalwood)</option>
+              <option value="hindi">💃 Hindi Cinema (Bollywood)</option>
+              <option value="all">🌐 All Indian Cinema</option>
+            </select>
+          </div>
+
+          <!-- Time Range Filter -->
+          <div>
+            <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">⏱️ Time Range / Freshness:</label>
+            <select id="news-timerange-select" style="padding: 8px 12px; background: #0d0d16; border: 1px solid #33334d; color: #fff; border-radius: 6px; font-size: 13px; font-weight: bold;" onchange="fetchLiveNewsFeed()">
+              <option value="24h">⏱️ Last 24 Hours</option>
+              <option value="1d">📅 Last 1 Day</option>
+              <option value="2d">📅 Last 2 Days</option>
+              <option value="10d">🗓️ Last 10 Days</option>
+              <option value="30d">🗓️ Last 1 Month</option>
+            </select>
+          </div>
+
+          <!-- Search Query Input -->
+          <div style="flex: 1; min-width: 220px;">
+            <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">🔍 Keyword Filter (Optional):</label>
+            <input type="text" id="news-query-input" placeholder="e.g. Mammootty, Vijay, Shah Rukh Khan..." style="width: 100%; padding: 8px 12px; background: #0d0d16; border: 1px solid #33334d; color: #fff; border-radius: 6px; font-size: 13px;">
+          </div>
+
+          <div>
+            <label style="display: block; margin-bottom: 4px;">&nbsp;</label>
+            <button class="btn" style="background: #ff2a4b; padding: 8px 16px; font-size: 13px;" onclick="fetchLiveNewsFeed()">🔄 Fetch Live News</button>
+          </div>
+
+        </div>
+
+        <div id="news-status-badge" style="font-size: 12px; color: #67e8f9; font-weight: 600;">
+          Select options and click 'Fetch Live News' to aggregate breaking articles.
+        </div>
+      </div>
+
+      <!-- News Articles Grid -->
+      <div id="news-feed-grid" class="preview-grid" style="grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));">
+        <!-- Rendered news cards -->
       </div>
     </div>
 
@@ -1116,18 +1187,207 @@
     let activeTab = "Movie Updates";
     let selectedPosterUrls = [];
 
+    let cachedNewsArticles = [];
+
     function switchSection(sec) {
       activeSection = sec;
+      const secNewsBtn = document.getElementById('sec-news-btn');
+      const secNewsSection = document.getElementById('section-news');
+
       document.getElementById('sec-input-btn').className = (sec === 'input') ? 'section-btn active' : 'section-btn';
       document.getElementById('sec-thumb-btn').className = (sec === 'thumbnail') ? 'section-btn active' : 'section-btn';
       document.getElementById('sec-output-btn').className = (sec === 'output') ? 'section-btn active' : 'section-btn';
+      if (secNewsBtn) secNewsBtn.className = (sec === 'news') ? 'section-btn active' : 'section-btn';
 
       document.getElementById('section-input').style.display = (sec === 'input') ? 'block' : 'none';
       document.getElementById('section-thumbnail').style.display = (sec === 'thumbnail') ? 'block' : 'none';
       document.getElementById('section-output').style.display = (sec === 'output') ? 'block' : 'none';
+      if (secNewsSection) secNewsSection.style.display = (sec === 'news') ? 'block' : 'none';
 
       if (sec === 'thumbnail') renderThumbnailStudio();
       if (sec === 'output') renderOutputPreviews();
+      if (sec === 'news' && cachedNewsArticles.length === 0) fetchLiveNewsFeed();
+    }
+
+    async function fetchLiveNewsFeed() {
+      const grid = document.getElementById('news-feed-grid');
+      const statusBadge = document.getElementById('news-status-badge');
+      const category = document.getElementById('news-cat-select') ? document.getElementById('news-cat-select').value : 'Movie Updates';
+      const industry = document.getElementById('news-industry-select') ? document.getElementById('news-industry-select').value : 'malayalam';
+      const timeRange = document.getElementById('news-timerange-select') ? document.getElementById('news-timerange-select').value : '24h';
+      const customQuery = document.getElementById('news-query-input') ? document.getElementById('news-query-input').value.trim() : '';
+
+      if (grid) {
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #aaa;"><div style="font-size: 18px; color: #67e8f9; font-weight: bold; margin-bottom: 10px;">🔄 Aggregating Live Cinema News Articles...</div><div>Querying Google News, TheNewsAPI, NewsData.io & RSS channels in real-time...</div></div>';
+      }
+      if (statusBadge) statusBadge.innerText = '🔄 Aggregating live cinema news...';
+
+      let industryName = industry === 'malayalam' ? 'Malayalam' : (industry === 'tamil' ? 'Tamil' : (industry === 'telugu' ? 'Telugu' : (industry === 'kannada' ? 'Kannada' : (industry === 'hindi' ? 'Hindi Bollywood' : 'Indian Cinema'))));
+      let catKeyword = category === 'Release Updates' ? 'release date theater' : (category === 'OTT Updates' ? 'OTT streaming release' : 'movie cinema update');
+      let fullSearchQuery = customQuery ? `${industryName} ${customQuery}` : `${industryName} ${catKeyword}`;
+
+      let articles = [];
+      let seenUrls = new Set();
+
+      const addArticle = (title, snippet, url, source, pubDate, imgUrl) => {
+        if (!url || typeof url !== 'string' || !url.startsWith('http') || seenUrls.has(url)) return;
+        seenUrls.add(url);
+        articles.push({
+          title: title || 'Movie News Update',
+          snippet: snippet || '',
+          url: url,
+          source: source || 'News API',
+          pubDate: pubDate ? new Date(pubDate) : new Date(),
+          imgUrl: imgUrl || ''
+        });
+      };
+
+      let now = new Date();
+      let hoursLimit = 24;
+      if (timeRange === '24h' || timeRange === '1d') hoursLimit = 24;
+      else if (timeRange === '2d') hoursLimit = 48;
+      else if (timeRange === '10d') hoursLimit = 240;
+      else if (timeRange === '30d') hoursLimit = 720;
+      let cutoffTime = new Date(now.getTime() - (hoursLimit * 60 * 60 * 1000));
+
+      // 1. Google News Realtime RSS Aggregator
+      const fetchGoogleNews = async () => {
+        try {
+          let rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(fullSearchQuery)}&hl=en-IN&gl=IN&ceid=IN:en`;
+          let proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
+          let res = await fetch(proxyUrl);
+          if (res.ok) {
+            let data = await res.json();
+            if (data.contents) {
+              let parser = new DOMParser();
+              let xmlDoc = parser.parseFromString(data.contents, 'text/xml');
+              let items = xmlDoc.querySelectorAll('item');
+              items.forEach(item => {
+                let t = item.querySelector('title') ? item.querySelector('title').textContent : '';
+                let l = item.querySelector('link') ? item.querySelector('link').textContent : '';
+                let d = item.querySelector('pubDate') ? item.querySelector('pubDate').textContent : '';
+                let s = item.querySelector('description') ? item.querySelector('description').textContent.replace(/<[^>]*>?/gm, '') : '';
+                if (t && l) {
+                  addArticle(t, s, l, 'Google News', d, '');
+                }
+              });
+            }
+          }
+        } catch (e) {
+          console.warn("Google News RSS fetch error", e);
+        }
+      };
+
+      // 2. Direct Cinema RSS Channels (Filmibeat Industry Specific)
+      const fetchDirectPortals = async () => {
+        try {
+          let feedTarget = (industry === 'malayalam') ? 'https://malayalam.filmibeat.com/rss/feeds/news.xml' : (industry === 'tamil' ? 'https://tamil.filmibeat.com/rss/feeds/news.xml' : (industry === 'telugu' ? 'https://telugu.filmibeat.com/rss/feeds/news.xml' : (industry === 'kannada' ? 'https://kannada.filmibeat.com/rss/feeds/news.xml' : 'https://www.filmibeat.com/rss/feeds/news.xml')));
+          let proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(feedTarget)}`;
+          let res = await fetch(proxyUrl);
+          if (res.ok) {
+            let data = await res.json();
+            if (data.contents) {
+              let parser = new DOMParser();
+              let xmlDoc = parser.parseFromString(data.contents, 'text/xml');
+              let items = xmlDoc.querySelectorAll('item');
+              items.forEach(item => {
+                let t = item.querySelector('title') ? item.querySelector('title').textContent : '';
+                let l = item.querySelector('link') ? item.querySelector('link').textContent : '';
+                let d = item.querySelector('pubDate') ? item.querySelector('pubDate').textContent : '';
+                let s = item.querySelector('description') ? item.querySelector('description').textContent.replace(/<[^>]*>?/gm, '') : '';
+                let enc = item.querySelector('enclosure');
+                let img = enc ? enc.getAttribute('url') : '';
+                if (t && l) {
+                  addArticle(t, s, l, `${industryName} Cinema Desk`, d, img);
+                }
+              });
+            }
+          }
+        } catch (e) {
+          console.warn("Direct Portal RSS fetch error", e);
+        }
+      };
+
+      await Promise.allSettled([fetchGoogleNews(), fetchDirectPortals()]);
+
+      let filteredArticles = articles.filter(a => {
+        return a.pubDate >= cutoffTime || isNaN(a.pubDate.getTime());
+      });
+
+      filteredArticles.sort((a, b) => (b.pubDate && a.pubDate) ? b.pubDate - a.pubDate : 0);
+      cachedNewsArticles = filteredArticles;
+
+      if (statusBadge) {
+        statusBadge.innerText = `✓ Found ${filteredArticles.length} live articles for ${industryName} (${category} • ${timeRange})`;
+      }
+
+      renderNewsFeedGrid(filteredArticles, category);
+    }
+
+    function renderNewsFeedGrid(articles, category) {
+      const grid = document.getElementById('news-feed-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      if (!articles || articles.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #aaa;">
+            <p style="font-weight: 700; color: #ff8888; font-size: 16px;">No live news articles found for this time range filter.</p>
+            <p style="font-size: 13px; margin-top: 8px; color: #67e8f9;">Try selecting a wider time range (e.g. <b>Last 10 Days</b> or <b>Last 1 Month</b>) or changing industry filter above.</p>
+          </div>`;
+        return;
+      }
+
+      articles.forEach((art, idx) => {
+        let card = document.createElement('div');
+        card.className = 'preview-card';
+        card.style.cssText = 'background: #161625; border: 1px solid #2b2b40; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;';
+
+        let dateStr = (art.pubDate && !isNaN(art.pubDate.getTime())) ? art.pubDate.toLocaleString() : 'Recent';
+        let imgHtml = art.imgUrl ? `<img src="${art.imgUrl}" style="width: 100%; height: 160px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;" onerror="this.style.display='none'">` : '';
+
+        card.innerHTML = `
+          ${imgHtml}
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 4px;">
+            <span class="badge" style="background: #2b2b48; color: #38bdf8; font-size: 11px;">${escapeHtml(art.source)}</span>
+            <span style="font-size: 11px; color: #888;">⏱️ ${escapeHtml(dateStr)}</span>
+          </div>
+          <h4 style="color: #fff; font-size: 15px; font-weight: 700; margin-bottom: 8px; line-height: 1.4;">${escapeHtml(art.title)}</h4>
+          <p style="font-size: 13px; color: #a0a0b5; margin-bottom: 14px; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+            ${escapeHtml(art.snippet)}
+          </p>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto;">
+            <button class="btn" style="background: #059669; padding: 7px 12px; font-size: 12px; flex: 1;" onclick="addNewsToWorksheet(${idx})">📋 Add to Worksheet</button>
+            <a href="${escapeHtml(art.url)}" target="_blank" class="btn btn-secondary" style="padding: 7px 12px; font-size: 12px; text-decoration: none;">🔗 Open Link</a>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    function addNewsToWorksheet(idx) {
+      if (!cachedNewsArticles || !cachedNewsArticles[idx]) return;
+      let art = cachedNewsArticles[idx];
+      let currentTab = activeTab; // Currently selected tab in Input & Data Editor
+
+      let rows = store[currentTab] || [];
+      let newTopicNum = (rows.length + 1).toString();
+
+      rows.push({
+        topicNum: newTopicNum,
+        headline: art.title || "",
+        text: art.snippet ? `${art.title} - ${art.snippet}` : art.title,
+        imgUrl: art.imgUrl || "",
+        releaseDate: "",
+        ottPlatform: ""
+      });
+
+      store[currentTab] = rows;
+      saveLocalStore();
+      renderTableRows();
+
+      alert(`✓ Added news topic "${art.title.substring(0, 35)}..." to worksheet '${currentTab}' as Topic #${newTopicNum}!`);
     }
 
     function renderThumbnailStudio() {
