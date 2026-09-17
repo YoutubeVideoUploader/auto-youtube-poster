@@ -1250,79 +1250,47 @@
       else if (timeRange === '30d') hoursLimit = 720;
       let cutoffTime = new Date(now.getTime() - (hoursLimit * 60 * 60 * 1000));
 
-      // 1. Fetch Google News RSS via Google Apps Script Web App (Server-side fetch, 0 CORS issues)
-      const fetchAppsScriptNews = async () => {
+      // 1. Fetch via Feed2JSON converter (Google News RSS -> JSON)
+      const fetchFeed2Json = async () => {
         try {
-          let url = WEB_APP_URL + "?action=get_news&query=" + encodeURIComponent(fullSearchQuery);
-          let res = await fetch(url);
+          let googleRss = `https://news.google.com/rss/search?q=${encodeURIComponent(fullSearchQuery)}&hl=en-IN&gl=IN&ceid=IN:en`;
+          let convertUrl = `https://feed2json.org/convert?url=${encodeURIComponent(googleRss)}`;
+          let res = await fetch(convertUrl);
           if (res.ok) {
             let data = await res.json();
             if (data.items && Array.isArray(data.items)) {
               data.items.forEach(item => {
-                addArticle(item.title, item.description, item.link, 'Google News', item.pubDate, '');
+                let srcName = (item.author && item.author.name) ? item.author.name : 'Google News';
+                addArticle(item.title, item.summary || item.content_html, item.url, srcName, item.date_published, '');
               });
             }
           }
         } catch (e) {
-          console.warn("Apps Script news fetch error", e);
+          console.warn("feed2json error", e);
         }
       };
 
-      // 2. Fetch Google News RSS via CORS Proxies (Client-side fallback)
-      const fetchGoogleNewsCors = async () => {
+      // 2. Fetch Direct Portal RSS (Filmibeat Industry Feeds via Feed2JSON)
+      const fetchDirectPortalsFeed = async () => {
         try {
-          let rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(fullSearchQuery)}&hl=en-IN&gl=IN&ceid=IN:en`;
-          let proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`;
-          let res = await fetch(proxyUrl);
+          let feedTarget = (industry === 'malayalam') ? 'https://malayalam.filmibeat.com/rss/feeds/news.xml' : ((industry === 'tamil') ? 'https://tamil.filmibeat.com/rss/feeds/news.xml' : ((industry === 'telugu') ? 'https://telugu.filmibeat.com/rss/feeds/news.xml' : ((industry === 'kannada') ? 'https://kannada.filmibeat.com/rss/feeds/news.xml' : 'https://www.filmibeat.com/rss/feeds/news.xml')));
+          let convertUrl = `https://feed2json.org/convert?url=${encodeURIComponent(feedTarget)}`;
+          let res = await fetch(convertUrl);
           if (res.ok) {
-            let text = await res.text();
-            let parser = new DOMParser();
-            let xmlDoc = parser.parseFromString(text, 'text/xml');
-            let items = xmlDoc.querySelectorAll('item');
-            items.forEach(item => {
-              let t = item.querySelector('title') ? item.querySelector('title').textContent : '';
-              let l = item.querySelector('link') ? item.querySelector('link').textContent : '';
-              let d = item.querySelector('pubDate') ? item.querySelector('pubDate').textContent : '';
-              let s = item.querySelector('description') ? item.querySelector('description').textContent.replace(/<[^>]*>?/gm, '') : '';
-              if (t && l) {
-                addArticle(t, s, l, 'Google News (Realtime)', d, '');
-              }
-            });
+            let data = await res.json();
+            if (data.items && Array.isArray(data.items)) {
+              data.items.forEach(item => {
+                let img = item.image || (item.attachments && item.attachments[0] ? item.attachments[0].url : '');
+                addArticle(item.title, item.summary || item.content_html, item.url, `${industryName} Cinema Desk`, item.date_published, img);
+              });
+            }
           }
         } catch (e) {
-          console.warn("CORS proxy news fetch error", e);
+          console.warn("Direct portal feed2json error", e);
         }
       };
 
-      // 3. Direct Cinema RSS Channels (Filmibeat Industry Specific)
-      const fetchDirectPortals = async () => {
-        try {
-          let feedTarget = (industry === 'malayalam') ? 'https://malayalam.filmibeat.com/rss/feeds/news.xml' : (industry === 'tamil' ? 'https://tamil.filmibeat.com/rss/feeds/news.xml' : (industry === 'telugu' ? 'https://telugu.filmibeat.com/rss/feeds/news.xml' : (industry === 'kannada' ? 'https://kannada.filmibeat.com/rss/feeds/news.xml' : 'https://www.filmibeat.com/rss/feeds/news.xml')));
-          let proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(feedTarget)}`;
-          let res = await fetch(proxyUrl);
-          if (res.ok) {
-            let text = await res.text();
-            let parser = new DOMParser();
-            let xmlDoc = parser.parseFromString(text, 'text/xml');
-            let items = xmlDoc.querySelectorAll('item');
-            items.forEach(item => {
-              let t = item.querySelector('title') ? item.querySelector('title').textContent : '';
-              let l = item.querySelector('link') ? item.querySelector('link').textContent : '';
-              let d = item.querySelector('pubDate') ? item.querySelector('pubDate').textContent : '';
-              let s = item.querySelector('description') ? item.querySelector('description').textContent.replace(/<[^>]*>?/gm, '') : '';
-              let enc = item.querySelector('enclosure');
-              let img = enc ? enc.getAttribute('url') : '';
-              if (t && l) {
-                addArticle(t, s, l, `${industryName} Cinema Desk`, d, img);
-              }
-            });
-          }
-        } catch (e) {
-          console.warn("Direct Portal RSS fetch error", e);
-        }
-      };
-
-      await Promise.allSettled([fetchAppsScriptNews(), fetchGoogleNewsCors(), fetchDirectPortals()]);
+      await Promise.allSettled([fetchFeed2Json(), fetchDirectPortalsFeed()]);
 
       let filteredArticles = articles.filter(a => {
         let pDate = a.pubDate ? new Date(a.pubDate) : null;
@@ -1331,7 +1299,7 @@
       });
 
       if (filteredArticles.length === 0 && articles.length > 0) {
-        filteredArticles = articles; // Fallback to all available articles if strict cutoff yields 0
+        filteredArticles = articles; // Graceful fallback to all articles if strict filter yields 0
       }
 
       filteredArticles.sort((a, b) => {
