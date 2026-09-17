@@ -469,6 +469,11 @@
         width: 100%;
       }
 
+      .btn-danger {
+        width: auto !important;
+        padding: 6px 10px !important;
+      }
+
       /* Mobile layout for option panels */
       .option-box-flex {
         flex-direction: column !important;
@@ -667,7 +672,7 @@
       <!-- Option 2: Adjust Row Position & Re-order Topics -->
       <div style="background: #171728; border: 1px solid #33334d; border-radius: 10px; padding: 18px; margin-bottom: 20px;">
         <label style="font-size: 15px; font-weight: 700; color: #fff; display: block; margin-bottom: 10px;">🔀 Option 2: Adjust Row Position & Re-order Topics</label>
-        <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap; margin-bottom: 12px;">
+        <div class="tools-grid" style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 6px;">
             <label style="font-size: 13px; color: #aaa;">Source Row #:</label>
             <input type="number" id="row-src-pos" value="3" min="1" style="width: 70px; padding: 6px; background: #0d0d16; border: 1px solid #33334d; color: #fff; border-radius: 5px;">
@@ -677,7 +682,7 @@
             <input type="number" id="row-tgt-pos" value="2" min="1" style="width: 70px; padding: 6px; background: #0d0d16; border: 1px solid #33334d; color: #fff; border-radius: 5px;">
           </div>
         </div>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <div class="tools-grid" style="display: flex; gap: 10px; flex-wrap: wrap;">
           <button class="btn btn-secondary" onclick="moveRowToPosition()">🔀 Move to Position</button>
           <button class="btn btn-secondary" style="background: #252538;" onclick="shiftRow('up')">⬆️ Move Up</button>
           <button class="btn btn-secondary" style="background: #252538;" onclick="shiftRow('down')">⬇️ Move Down</button>
@@ -688,7 +693,7 @@
       <!-- Option 3: Quick Column & Row Management Tools -->
       <div style="background: #171728; border: 1px solid #33334d; border-radius: 10px; padding: 18px; margin-bottom: 20px;">
         <label style="font-size: 15px; font-weight: 700; color: #fff; display: block; margin-bottom: 10px;">🛠️ Option 3: Quick Column & Row Tools</label>
-        <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+        <div class="tools-grid" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
           <div>
             <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">Insert Blank Row at Position #:</label>
             <div style="display: flex; gap: 6px;">
@@ -738,7 +743,7 @@
         <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
           Opens an interactive poster finder wizard that loops step-by-step through each movie in <b id="wizard-active-tab-label">Movie Updates</b>, fetches movie posters, provides 1-click Google Image search, and fills Column C!
         </p>
-        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;" class="option-box-flex">
           <button class="btn" style="background: #0891b2;" onclick="startPosterWizard()">🖼️ Launch Poster Finder Wizard Now</button>
         </div>
       </div>
@@ -760,7 +765,7 @@
         </table>
       </div>
 
-      <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+      <div class="tools-grid" style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
         <button class="btn btn-secondary" onclick="addRow()">+ Add New Row</button>
         <button class="btn" onclick="saveAndSync()">⚡ Save & Sync to Google Sheet</button>
         <button class="btn btn-secondary" onclick="fetchLiveGoogleSheetsData()">🔄 Reload Online Sheets</button>
