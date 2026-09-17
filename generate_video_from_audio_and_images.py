@@ -1049,6 +1049,10 @@ def generate_video(
             elif seg_type in ["transition", "section_intro"]:
                 create_fitted_banner_slide(TRANSITION_BANNER_PATH, slide_img_path)
             banner_overlay_path = None
+            banner_width = 750
+            timer_info = None
+            sec_slides = [slide_img_path]
+
             if seg_type not in ["intro", "outro", "transition", "section_intro"]:
                 all_imgs = item_data.get("image_paths", [])
                 if not all_imgs:
@@ -1057,8 +1061,6 @@ def generate_video(
                     all_imgs = ([p_path] if p_path else []) + (a_paths if a_paths else [])
                 valid_imgs = [p for p in all_imgs if p and Path(p).exists()]
 
-            banner_overlay_path = None
-            banner_width = 750
             if item_data and seg_type not in ["intro", "outro", "transition", "section_intro"]:
                 sec_slug = str(item_data.get("section_slug", "")).lower()
                 topic_text = item_data.get("topic_text", "")
