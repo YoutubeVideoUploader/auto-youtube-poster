@@ -424,6 +424,69 @@ if st.session_state.current_section == "📥 Input & Data Editor":
                                 st.error(f"Groq AI Extraction Error: {e}")
 
     # --------------------------------------------------------------------------
+    # OPTION 5: AUTO-FETCH POSTERS WIZARD
+    # --------------------------------------------------------------------------
+    with st.expander("🖼️ **Option 5: Auto-Fetch Posters Wizard (Step-by-Step Poster Selection)**", expanded=False):
+        st.write("Opens a guided poster finder wizard to loop step-by-step through each topic in this worksheet, search for poster images, and update **Image URLs (Col C)**.")
+        
+        df = current_df.copy()
+        if len(df) == 0:
+            st.info("No rows currently exist in this worksheet to search posters for.")
+        else:
+            if "wizard_step" not in st.session_state:
+                st.session_state.wizard_step = 0
+
+            wiz_idx = st.session_state.wizard_step
+            if wiz_idx >= len(df):
+                wiz_idx = 0
+                st.session_state.wizard_step = 0
+
+            current_row = df.iloc[wiz_idx]
+            topic_num = current_row.get("Topic Number", str(wiz_idx + 1))
+            topic_headline = str(current_row.get("Topic Headline", "")).strip()
+            news_text = str(current_row.get("Malayalam News Text", "")).strip()
+
+            search_default = topic_headline if topic_headline else news_text[:30]
+
+            st.markdown(f"#### 🖼️ Step {wiz_idx + 1} of {len(df)}: Topic #{topic_num} — *{search_default}*")
+            st.caption(f"News: {news_text[:120]}...")
+
+            wiz_query = st.text_input("Poster Search Term", value=f"{search_default} Malayalam movie poster", key=f"wiz_q_{active_tab}_{wiz_idx}")
+            
+            c_g1, c_g2 = st.columns([1, 1])
+            with c_g1:
+                g_url = f"https://www.google.com/search?tbm=isch&q={pd.Series(wiz_query).str.replace(' ', '+').values[0]}"
+                st.markdown(f'<a href="{g_url}" target="_blank" style="text-decoration:none;"><button style="background:#0284c7; color:white; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; width:100%;">🌐 Open Google Images in New Tab</button></a>', unsafe_allow_html=True)
+            
+            new_img_url = st.text_input("Selected Poster Image URL", value=str(current_row.get("Image URLs", "")), key=f"wiz_url_val_{active_tab}_{wiz_idx}")
+            
+            w_col1, w_col2, w_col3 = st.columns(3)
+            with w_col1:
+                if st.button("✅ Apply URL to Row", key=f"btn_apply_wiz_{active_tab}_{wiz_idx}", use_container_width=True):
+                    df.at[wiz_idx, "Image URLs"] = new_img_url.strip()
+                    st.session_state.edited_dfs[active_tab] = df
+                    st.session_state.sheet_mgr.update_tab_data(active_tab, df)
+                    st.success(f"Updated Image URL for Topic #{topic_num}!")
+            
+            with w_col2:
+                if st.button("➡️ Save & Next Topic", key=f"btn_next_wiz_{active_tab}_{wiz_idx}", type="primary", use_container_width=True):
+                    df.at[wiz_idx, "Image URLs"] = new_img_url.strip()
+                    st.session_state.edited_dfs[active_tab] = df
+                    st.session_state.sheet_mgr.update_tab_data(active_tab, df)
+                    if wiz_idx + 1 < len(df):
+                        st.session_state.wizard_step = wiz_idx + 1
+                    else:
+                        st.session_state.wizard_step = 0
+                        st.balloons()
+                        st.success("🎉 Wizard Completed! All topics updated.")
+                    st.rerun()
+
+            with w_col3:
+                if st.button("Skip ➡️", key=f"btn_skip_wiz_{active_tab}_{wiz_idx}", use_container_width=True):
+                    st.session_state.wizard_step = (wiz_idx + 1) % len(df)
+                    st.rerun()
+
+    # --------------------------------------------------------------------------
     # INTERACTIVE CELL DATA EDITOR
     # --------------------------------------------------------------------------
     st.markdown("#### ✏️ Interactive Data Grid (Edit Cells, Add or Delete Rows)")
