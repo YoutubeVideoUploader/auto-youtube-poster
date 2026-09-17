@@ -518,7 +518,18 @@ def extract_table_data(topic_text: str, is_ott: bool = False, topic_headline: st
 
     date_en = 'Coming Soon'
     if release_date and release_date.strip() and release_date.strip().lower() != 'nan':
-        date_en = release_date.strip()
+        raw_d = release_date.strip()
+        tm = re.match(r'^(\d{4})-(\d{2})-(\d{2})', raw_d)
+        if tm:
+            year, month_num, day_num = tm.groups()
+            month_names = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+            m_idx = int(month_num)
+            if 1 <= m_idx <= 12:
+                date_en = f"{month_names[m_idx]} {int(day_num)}"
+            else:
+                date_en = raw_d
+        else:
+            date_en = raw_d
     else:
         for ml_m, en_m in MONTH_MAP.items():
             if ml_m in topic_text:

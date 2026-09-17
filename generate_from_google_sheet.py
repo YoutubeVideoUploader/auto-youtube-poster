@@ -227,6 +227,24 @@ def fetch_all_sheets_data(sheet_url: str) -> Tuple[Dict[str, List[Dict[str, Any]
                 headline_col = c
                 break
 
+        rel_date_col = None
+        if len(cols) >= 5:
+            rel_date_col = cols[4]
+        for c in cols:
+            c_low = c.lower()
+            if any(k in c_low for k in ['release', 'streaming', 'date', 'col e', 'column e']):
+                rel_date_col = c
+                break
+
+        ott_plat_col = None
+        if len(cols) >= 6:
+            ott_plat_col = cols[5]
+        for c in cols:
+            c_low = c.lower()
+            if any(k in c_low for k in ['ott', 'platform', 'col f', 'column f']):
+                ott_plat_col = c
+                break
+
         topics_data = []
         valid_topic_idx = 0
 
@@ -237,8 +255,12 @@ def fetch_all_sheets_data(sheet_url: str) -> Tuple[Dict[str, List[Dict[str, Any]
             topic_val = str(row[topic_col]).strip() if pd.notna(row[topic_col]) else ""
             img_val = str(row[img_col]).strip() if img_col and pd.notna(row[img_col]) else ""
             headline_val = str(row[headline_col]).strip() if headline_col and pd.notna(row[headline_col]) else ""
-            if headline_val.lower() == "nan":
-                headline_val = ""
+            rel_date_val = str(row[rel_date_col]).strip() if rel_date_col and pd.notna(row[rel_date_col]) else ""
+            ott_plat_val = str(row[ott_plat_col]).strip() if ott_plat_col and pd.notna(row[ott_plat_col]) else ""
+
+            if headline_val.lower() == "nan": headline_val = ""
+            if rel_date_val.lower() == "nan": rel_date_val = ""
+            if ott_plat_val.lower() == "nan": ott_plat_val = ""
 
             if not topic_val or topic_val.lower() == "nan":
                 w_log = f"[WARNING] {sec_name} - Row {row_idx} skipped: Topic is empty"
@@ -276,6 +298,8 @@ def fetch_all_sheets_data(sheet_url: str) -> Tuple[Dict[str, List[Dict[str, Any]
                 "source_row": row_idx,
                 "topic_text": topic_val,
                 "topic_headline": headline_val,
+                "release_date": rel_date_val,
+                "ott_platform": ott_plat_val,
                 "image_urls": image_urls,
                 "image_paths": downloaded_paths,
                 "movie_poster_path": downloaded_paths[0] if downloaded_paths else None,
