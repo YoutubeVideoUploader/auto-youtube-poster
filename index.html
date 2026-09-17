@@ -2031,17 +2031,82 @@
       triggerWizardPosterSearch();
     }
 
-    function triggerWizardPosterSearch() {
-      const query = document.getElementById('wizard-search-input').value.trim();
+    async function getGroqPosterSearchQueries(row, userTyped) {
+      const apiKey = (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
+      const headline = row ? (row.headline || '') : '';
+      const text = row ? (row.text || '') : '';
+      const fallbackMovie = headline || extractTopicMovieName(row) || userTyped || 'Malayalam Movie';
+
+      const fallbackQueries = [
+        `${fallbackMovie} Malayalam movie poster`,
+        `${fallbackMovie} Malayalam poster`,
+        `${fallbackMovie}`
+      ];
+
+      if (!apiKey || (!headline && !text && !userTyped)) {
+        return fallbackQueries;
+      }
+
+      try {
+        const promptText = `Headline: ${headline}\nNews Text: ${text}\nUser Typed Query: ${userTyped}`;
+        const sysPrompt = "You are an expert Malayalam movie news & poster metadata finder. Read the Malayalam news text and extract: 1. 'movie_name' (official English name phonetically, e.g. Mela), 2. 'actors' (lead actor or director names in English, e.g. Mammootty), 3. 'queries': an array of 3 distinct, highly effective search query strings for finding official movie poster artwork online, ordered from specific to general (e.g. ['Mela Mammootty Malayalam movie poster', 'Mela Malayalam movie poster', 'Mela poster']). Return ONLY a JSON object with 'movie_name', 'actors', and 'queries'. No extra text.";
+
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + apiKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'llama-3.1-8b-instant',
+            messages: [
+              { role: 'system', content: sysPrompt },
+              { role: 'user', content: promptText }
+            ],
+            temperature: 0.1,
+            response_format: { type: 'json_object' }
+          })
+        });
+
+        if (res.ok) {
+          const resData = await res.json();
+          const content = resData.choices[0].message.content;
+          const parsed = JSON.parse(content);
+          if (parsed.queries && Array.isArray(parsed.queries) && parsed.queries.length > 0) {
+            if (parsed.movie_name) {
+              posterWizardState.currentTopicName = parsed.movie_name;
+              const titleEl = document.getElementById('wizard-topic-title');
+              if (titleEl) {
+                const actorStr = parsed.actors ? ` (${parsed.actors})` : '';
+                titleEl.innerText = `Topic #${row.topicNum || ''}: "${parsed.movie_name}"${actorStr}`;
+              }
+              const searchInput = document.getElementById('wizard-search-input');
+              if (searchInput && !userTyped) searchInput.value = parsed.movie_name;
+            }
+            return parsed.queries;
+          }
+        }
+      } catch (e) {
+        console.warn("Groq poster query extraction failed, using fallback", e);
+      }
+
+      return fallbackQueries;
+    }
+
+    async function triggerWizardPosterSearch() {
       const grid = document.getElementById('wizard-poster-grid');
       const status = document.getElementById('wizard-search-status');
       grid.innerHTML = '';
-      status.innerText = '🔍 Searching 14+ movie poster databases...';
+      status.innerText = '🤖 Extracting key movie metadata & generating search possibilities via Groq AI...';
 
-      if (!query) {
-        status.innerText = 'Please enter a movie title to search.';
-        return;
-      }
+      const rows = store[posterWizardState.activeTab] || [];
+      const current = rows[posterWizardState.currentIndex] || {};
+      const searchInput = document.getElementById('wizard-search-input');
+      const userTyped = searchInput ? searchInput.value.trim() : '';
+
+      let searchQueries = await getGroqPosterSearchQueries(current, userTyped);
+
+      status.innerText = `🔍 Searching APIs across ${searchQueries.length} query possibilities...`;
 
       let results = [];
       let seenUrls = new Set();
@@ -2053,78 +2118,93 @@
         }
       };
 
-      const cleanQuery = query.replace(/[^\w\s]/gi, ' ').trim();
+      let allPromises = [];
 
-      // 1. TMDB (The Movie Database) - Official Original Posters
-      const searchTMDB = fetch(`https://api.themoviedb.org/3/search/movie?api_key=8265bd1679663a7ea12ac168da84d2e8&query=${encodeURIComponent(query)}&language=en-US&page=1`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.results) {
-            data.results.forEach(m => {
-              if (m.poster_path) addResult(`https://image.tmdb.org/t/p/w500${m.poster_path}`, m.title || query, 'TMDB');
-            });
-          }
-        }).catch(() => {});
+      searchQueries.forEach(q => {
+        const cleanQuery = q.replace(/[^\w\s]/gi, ' ').trim();
+        if (!cleanQuery) return;
 
-      // 2. OMDB / IMDb Poster Database
-      const searchOMDB = fetch(`https://www.omdbapi.com/?apikey=trilogy&s=${encodeURIComponent(query)}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.Search) {
-            data.Search.forEach(m => {
-              if (m.Poster && m.Poster.startsWith('http') && !m.Poster.includes('N/A')) {
-                addResult(m.Poster, m.Title || query, 'IMDb');
+        // 1. TMDB (The Movie Database)
+        allPromises.push(
+          fetch(`https://api.themoviedb.org/3/search/movie?api_key=8265bd1679663a7ea12ac168da84d2e8&query=${encodeURIComponent(cleanQuery)}&language=en-US&page=1`)
+            .then(res => res.json())
+            .then(data => {
+              if (data.results) {
+                data.results.forEach(m => {
+                  if (m.poster_path) addResult(`https://image.tmdb.org/t/p/w500${m.poster_path}`, m.title || q, 'TMDB');
+                });
               }
-            });
-          }
-        }).catch(() => {});
+            }).catch(() => {})
+        );
 
-      // 3. iTunes Store HD Movie Artwork
-      const searchiTunes = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=movie&limit=8`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.results) {
-            data.results.forEach(r => {
-              if (r.artworkUrl100) {
-                let hd = r.artworkUrl100.replace('100x100bb.jpg', '600x600bb.jpg');
-                addResult(hd, r.trackName || query, 'iTunes HD');
+        // 2. OMDB / IMDb
+        allPromises.push(
+          fetch(`https://www.omdbapi.com/?apikey=trilogy&s=${encodeURIComponent(cleanQuery)}`)
+            .then(res => res.json())
+            .then(data => {
+              if (data.Search) {
+                data.Search.forEach(m => {
+                  if (m.Poster && m.Poster.startsWith('http') && !m.Poster.includes('N/A')) {
+                    addResult(m.Poster, m.Title || q, 'IMDb');
+                  }
+                });
               }
-            });
-          }
-        }).catch(() => {});
+            }).catch(() => {})
+        );
 
-      // 4. Wikipedia Infobox Movie Poster API
-      const searchWiki = fetch(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query + ' film')}&gsrlimit=6&prop=pageimages&pithumbsize=600&format=json&origin=*`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.query && data.query.pages) {
-            Object.values(data.query.pages).forEach(p => {
-              if (p.thumbnail && p.thumbnail.source) {
-                addResult(p.thumbnail.source, p.title || query, 'Wikipedia');
+        // 3. iTunes Store HD
+        allPromises.push(
+          fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(cleanQuery)}&entity=movie&limit=6`)
+            .then(res => res.json())
+            .then(data => {
+              if (data.results) {
+                data.results.forEach(r => {
+                  if (r.artworkUrl100) {
+                    let hd = r.artworkUrl100.replace('100x100bb.jpg', '600x600bb.jpg');
+                    addResult(hd, r.trackName || q, 'iTunes HD');
+                  }
+                });
               }
-            });
-          }
-        }).catch(() => {});
+            }).catch(() => {})
+        );
 
-      // 5. Wikimedia Commons HD API
-      const searchWikimedia = fetch(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query + ' poster')}&gsrnamespace=6&ns=6&prop=imageinfo&iiprop=url|mime|size&format=json&origin=*`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.query && data.query.pages) {
-            Object.values(data.query.pages).forEach(p => {
-              if (p.imageinfo && p.imageinfo[0] && p.imageinfo[0].url) {
-                let u = p.imageinfo[0].url;
-                if (/\.(jpg|jpeg|png|webp)/i.test(u)) {
-                  addResult(u, p.title || query, 'Wikimedia');
-                }
+        // 4. Wikipedia Infobox
+        allPromises.push(
+          fetch(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanQuery + ' film')}&gsrlimit=5&prop=pageimages&pithumbsize=600&format=json&origin=*`)
+            .then(res => res.json())
+            .then(data => {
+              if (data.query && data.query.pages) {
+                Object.values(data.query.pages).forEach(p => {
+                  if (p.thumbnail && p.thumbnail.source) {
+                    addResult(p.thumbnail.source, p.title || q, 'Wikipedia');
+                  }
+                });
               }
-            });
-          }
-        }).catch(() => {});
+            }).catch(() => {})
+        );
 
-      Promise.allSettled([searchTMDB, searchOMDB, searchiTunes, searchWiki, searchWikimedia]).then(() => {
-        status.innerText = `Found ${results.length} posters. Click an image or use Google Images!`;
-        renderWizardPosterGrid(results, query);
+        // 5. Wikimedia Commons HD
+        allPromises.push(
+          fetch(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanQuery + ' poster')}&gsrnamespace=6&ns=6&prop=imageinfo&iiprop=url|mime|size&format=json&origin=*`)
+            .then(res => res.json())
+            .then(data => {
+              if (data.query && data.query.pages) {
+                Object.values(data.query.pages).forEach(p => {
+                  if (p.imageinfo && p.imageinfo[0] && p.imageinfo[0].url) {
+                    let u = p.imageinfo[0].url;
+                    if (/\.(jpg|jpeg|png|webp)/i.test(u)) {
+                      addResult(u, p.title || q, 'Wikimedia');
+                    }
+                  }
+                });
+              }
+            }).catch(() => {})
+        );
+      });
+
+      Promise.allSettled(allPromises).then(() => {
+        status.innerText = `Found ${results.length} posters across ${searchQueries.length} query possibilities! Click an image or Google Images!`;
+        renderWizardPosterGrid(results, searchQueries[0] || userTyped);
       });
     }
 
