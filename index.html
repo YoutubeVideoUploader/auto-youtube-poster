@@ -1741,6 +1741,72 @@
         const parsed = JSON.parse(content);
         const items = parsed.items || [];
 
+        function parseMalayalamDateFromText(text) {
+          if (!text) return "";
+          const monthMap = {
+            'സെപ്റ്റംബർ': 'September', 'സെപ്തംബർ': 'September',
+            'ഓഗസ്റ്റ്': 'August', 'ആഗസ്റ്റ്': 'August',
+            'ഒക്ടോബർ': 'October', 'നവംബർ': 'November', 'ഡിസംബർ': 'December',
+            'ജനുവരി': 'January', 'ഫെബ്രുവരി': 'February', 'മാർച്ച്': 'March',
+            'ഏപ്രിൽ': 'April', 'മേയ്': 'May', 'മെയ്': 'May',
+            'ജൂൺ': 'June', 'ജൂലൈ': 'July'
+          };
+          const numberWordMap = {
+            'ഒന്ന്': '1', 'ഒന്നിന്': '1', 'രണ്ട്': '2', 'രണ്ടിന്': '2',
+            'മൂന്ന്': '3', 'മൂന്നിന്': '3', 'നാല്': '4', 'നാലിന്': '4',
+            'അഞ്ച്': '5', 'അഞ്ചിന്': '5', 'ആറ്': '6', 'ആറിന്': '6',
+            'ഏഴ്': '7', 'ഏഴിന്': '7', 'എട്ട്': '8', 'എട്ടിന്': '8',
+            'ഒൻപത്': '9', 'ഒമ്പത്': '9', 'ഒൻപതിന്': '9', 'ഒമ്പതിന്': '9',
+            'പത്ത്': '10', 'പത്തിന്': '10', 'പതിനൊന്ന്': '11', 'പതിനൊന്നിന്': '11',
+            'പന്ത്രണ്ട്': '12', 'പന്ത്രണ്ടിന്': '12', 'പതിമൂന്ന്': '13', 'പതിമൂന്നിന്': '13',
+            'പതിനാല്': '14', 'പതിനാലിന്': '14', 'പതിനഞ്ച്': '15', 'പതിനഞ്ചിന്': '15',
+            'പതിനാറ്': '16', 'പതിനാറിന്': '16', 'പതിനേഴ്': '17', 'പതിനേഴിന്': '17',
+            'പതിനെട്ട്': '18', 'പതിനെട്ടിന്': '18', 'പത്തൊൻപത്': '19', 'പത്തൊമ്പത്': '19',
+            'ഇരുപത്': '20', 'ഇരുപതിന്': '20', 'ഇരുപത്തൊന്ന്': '21', 'ഇരുപത്തൊന്നിന്': '21',
+            'ഇരുപത്തിരണ്ട്': '22', 'ഇരുപത്തിരണ്ടിന്': '22', 'ഇരുപത്തിമൂന്ന്': '23', 'ഇരുപത്തിമൂന്നിന്': '23',
+            'ഇരുപത്തിനാല്': '24', 'ഇരുപത്തിനാലിന്': '24', 'ഇരുപത്തിയഞ്ച്': '25', 'ഇരുപത്തിയഞ്ചിന്': '25',
+            'ഇരുപത്തിയാറ്': '26', 'ഇരുപത്തിയാറിന്': '26', 'ഇരുപത്തിഏഴ്': '27', 'ഇരുപത്തിഏഴിന്': '27',
+            'ഇരുപത്തിഎട്ട്': '28', 'ഇരുപത്തിഎട്ടിന്': '28', 'ഇരുപത്തൊൻപത്': '29', 'ഇരുപത്തൊമ്പത്': '29',
+            'മുപ്പത്': '30', 'മുപ്പതിന്': '30', 'മുപ്പത്തൊന്ന്': '31', 'മുപ്പത്തൊന്നിന്': '31'
+          };
+          for (const [mlMonth, enMonth] of Object.entries(monthMap)) {
+            if (text.includes(mlMonth)) {
+              const mAfter = text.match(new RegExp(`${mlMonth}\\s*(\\d{1,2})(?:[\\u0D00-\\u0D7F\\-]*)`));
+              if (mAfter) return `${enMonth} ${mAfter[1]}`;
+
+              const mBefore = text.match(new RegExp(`(\\d{1,2})\\s*(?:[\\u0D00-\\u0D7F\\-]*)\\s*${mlMonth}`));
+              if (mBefore) return `${enMonth} ${mBefore[1]}`;
+
+              for (const [wMl, dNum] of Object.entries(numberWordMap)) {
+                if (text.includes(wMl)) return `${enMonth} ${dNum}`;
+              }
+            }
+          }
+          return "";
+        }
+
+        function parseMalayalamPlatformFromText(text) {
+          if (!text) return "";
+          const platformMap = [
+            { keys: ['ഹോട്ട്സ്റ്റാർ', 'hotstar'], name: 'Jio Hotstar' },
+            { keys: ['നെറ്റ്ഫ്ലിക്', 'netflix'], name: 'Netflix' },
+            { keys: ['സീ5', 'സീ 5', 'zee5', 'zee 5', 'സീ'], name: 'ZEE5' },
+            { keys: ['പ്രൈം', 'prime'], name: 'Prime Video' },
+            { keys: ['സൺ', 'sunnxt', 'sun nxt'], name: 'Sun NXT' },
+            { keys: ['മനോരമ', 'manoramamax'], name: 'ManoramaMAX' },
+            { keys: ['സോണി', 'sonyliv'], name: 'SonyLIV' },
+            { keys: ['സൈന', 'sainaplay'], name: 'Saina Play' },
+            { keys: ['സിംപ്ലി', 'simply south'], name: 'Simply South' }
+          ];
+          const tLow = text.toLowerCase();
+          for (const item of platformMap) {
+            for (const k of item.keys) {
+              if (tLow.includes(k)) return item.name;
+            }
+          }
+          return "";
+        }
+
         async function fetchOnlineReleaseDate(movieName, isOtt) {
           if (!movieName || movieName.trim().length < 2) return "";
           try {
@@ -1805,15 +1871,15 @@
               r.headline = item.headline || item.movie_name || "";
             } else if (activeTab === 'Release Updates') {
               r.headline = item.movie_name || "";
-              r.releaseDate = item.release_date || "";
+              r.releaseDate = item.release_date || parseMalayalamDateFromText(r.text) || "";
               if (!r.releaseDate && r.headline) {
                 if (statusBox) statusBox.innerText = `🔍 Searching online release date for '${r.headline}'...`;
                 r.releaseDate = await fetchOnlineReleaseDate(r.headline, false);
               }
             } else { // OTT Updates
               r.headline = item.movie_name || "";
-              r.releaseDate = item.release_date || "";
-              r.ottPlatform = item.ott_platform || "";
+              r.releaseDate = item.release_date || parseMalayalamDateFromText(r.text) || "";
+              r.ottPlatform = item.ott_platform || parseMalayalamPlatformFromText(r.text) || "";
               if (!r.releaseDate && r.headline) {
                 if (statusBox) statusBox.innerText = `🔍 Searching online OTT release date for '${r.headline}'...`;
                 r.releaseDate = await fetchOnlineReleaseDate(r.headline, true);

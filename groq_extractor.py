@@ -119,11 +119,18 @@ def extract_metadata_with_groq(
         if isinstance(items, list):
             result = []
             for i in range(len(news_texts)):
+                m_text = news_texts[i] if i < len(news_texts) else ""
                 if i < len(items) and isinstance(items[i], dict):
                     item = items[i]
                     m_name = str(item.get("movie_name", "")).strip()
                     r_date = str(item.get("release_date", "")).strip()
                     o_plat = str(item.get("ott_platform", "")).strip()
+
+                    if not r_date:
+                        r_date = parse_malayalam_date_from_text(m_text)
+
+                    if not o_plat:
+                        o_plat = parse_malayalam_platform_from_text(m_text)
 
                     # Fallback to online search if date missing in text
                     if not r_date and m_name and m in ["release_updates", "ott_updates"]:
@@ -143,6 +150,56 @@ def extract_metadata_with_groq(
         print(f"[!] Warning parsing Groq response JSON: {e}")
 
     return [{"movie_name": "", "headline": "", "release_date": "", "ott_platform": ""}] * len(news_texts)
+
+
+def parse_malayalam_date_from_text(text: str) -> str:
+    """Parses Malayalam date strings like 'സെപ്റ്റംബർ 25ന്' or '25-ന്' into 'September 25'."""
+    import re
+    if not text:
+        return ""
+
+    month_map = {
+        'സെപ്റ്റംബർ': 'September', 'സെപ്തംബർ': 'September',
+        'ഓഗസ്റ്റ്': 'August', 'ആഗസ്റ്റ്': 'August',
+        'ഒക്ടോബർ': 'October', 'നവംബർ': 'November', 'ഡിസംബർ': 'December',
+        'ജനുവരി': 'January', 'ഫെബ്രുവരി': 'February', 'മാർച്ച്': 'March',
+        'ഏപ്രിൽ': 'April', 'മേയ്': 'May', 'മെയ്': 'May',
+        'ജൂൺ': 'June', 'ജൂലൈ': 'July'
+    }
+
+    for ml_m, en_m in month_map.items():
+        if ml_m in text:
+            m_after = re.search(rf'{ml_m}\s*(\d{{1,2}})(?:[\u0D00-\u0D7F\-]*)', text)
+            if m_after:
+                return f"{en_m} {m_after.group(1)}"
+
+            m_before = re.search(rf'(\d{{1,2}})\s*(?:[\u0D00-\u0D7F\-]*)\s*{ml_m}', text)
+            if m_before:
+                return f"{en_m} {m_before.group(1)}"
+
+    return ""
+
+def parse_malayalam_platform_from_text(text: str) -> str:
+    """Parses Malayalam OTT platform names like 'സീ5ൽ' or 'ഹോട്ട്സ്റ്റാർ'."""
+    if not text:
+        return ""
+    platform_map = [
+        (['ഹോട്ട്സ്റ്റാർ', 'hotstar'], 'Jio Hotstar'),
+        (['നെറ്റ്ഫ്ലിക്', 'netflix'], 'Netflix'),
+        (['സീ5', 'സീ 5', 'zee5', 'zee 5', 'സീ'], 'ZEE5'),
+        (['പ്രൈം', 'prime'], 'Prime Video'),
+        (['സൺ', 'sunnxt', 'sun nxt'], 'Sun NXT'),
+        (['മനോരമ', 'manoramamax'], 'ManoramaMAX'),
+        (['സോണി', 'sonyliv'], 'SonyLIV'),
+        (['സൈന', 'sainaplay'], 'Saina Play'),
+        (['സിംപ്ലി', 'simply south'], 'Simply South')
+    ]
+    t_low = text.lower()
+    for keys, p_name in platform_map:
+        for k in keys:
+            if k in t_low:
+                return p_name
+    return ""
 
 
 def search_release_date_online(movie_name: str, is_ott: bool = False) -> str:
