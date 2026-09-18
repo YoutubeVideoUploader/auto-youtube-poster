@@ -238,18 +238,15 @@ class ImageManager:
             return None
 
         clean_movie = movie_name.strip()
-        from groq_extractor import _clean_movie_search_term
-        search_term = _clean_movie_search_term(clean_movie)
-
         queries = []
 
         if explicit_keywords and explicit_keywords.lower() != 'nan':
             queries.append(f'{explicit_keywords} poster')
 
         queries.extend([
-            f'"{search_term}" Malayalam movie poster filmibeat',
-            f'"{search_term}" Malayalam film first look poster',
-            f'"{search_term}" Malayalam movie poster'
+            f'"{clean_movie}" Malayalam movie poster filmibeat',
+            f'"{clean_movie}" Malayalam film first look poster',
+            f'"{clean_movie}" Malayalam movie poster'
         ])
 
         for q in queries:
