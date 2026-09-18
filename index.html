@@ -2336,9 +2336,19 @@
       const cleanMovie = cleanQuery.replace(/\b(movie|film|poster|posters|official|hd|4k|malayalam|release|date|ott)\b/gi, '').trim() || cleanQuery;
       const movieQuery = cleanMovie + " Malayalam movie";
 
-      // Ultra-Fast Parallel Search across 14 Top Movie & Actor Image Databases (2.5s Timeout)
+      // Ultra-Fast Parallel Search — Google CSE (Primary) + 10 Backup Databases (2.5s Timeout)
+      const GCSE_KEY = 'AIzaSyBOFoKkphjWbDLC87VqhXnf2x-6RWboYPk';
+      const GCSE_CX = '837fe554270f54847';
       const tasks = [
-        // 1. Bing Web Images (Filmibeat, Onmanorama, Mathrubhumi, Behindwoods, CinemaExpress, Pinkvilla, Koimoi)
+        // 1. ★ Google Custom Search Engine — PRIMARY (Most Reliable Image Search)
+        fetchWithTimeout(`https://www.googleapis.com/customsearch/v1?key=${GCSE_KEY}&cx=${GCSE_CX}&q=${encodeURIComponent(cleanMovie + ' Malayalam movie poster')}&searchType=image&num=10&imgSize=large`, {}, 2500)
+          .then(r => r.json()).then(d => (d.items || []).forEach(item => appendPosterCard(item.link, item.title || cleanMovie, '★ Google'))).catch(() => {}),
+
+        // 2. ★ Google CSE — Second query (movie name only, broader results)
+        fetchWithTimeout(`https://www.googleapis.com/customsearch/v1?key=${GCSE_KEY}&cx=${GCSE_CX}&q=${encodeURIComponent(cleanMovie + ' movie poster HD')}&searchType=image&num=10&imgSize=large`, {}, 2500)
+          .then(r => r.json()).then(d => (d.items || []).forEach(item => appendPosterCard(item.link, item.title || cleanMovie, '★ Google'))).catch(() => {}),
+
+        // 3. Bing Web Images (Filmibeat, Onmanorama, Mathrubhumi, Behindwoods, CinemaExpress, Pinkvilla, Koimoi)
         fetchWithTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://www.bing.com/images/async?q=' + encodeURIComponent(cleanMovie + ' Malayalam movie poster') + '&first=1&count=15')}`, {}, 2500)
           .then(r => r.text())
           .then(html => {
