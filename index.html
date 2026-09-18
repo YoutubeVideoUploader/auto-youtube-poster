@@ -2336,78 +2336,73 @@
       const cleanMovie = cleanQuery.replace(/\b(movie|film|poster|posters|official|hd|4k|malayalam|release|date|ott)\b/gi, '').trim() || cleanQuery;
       const movieQuery = cleanMovie + " Malayalam movie";
 
-      // Ultra-Fast Parallel Search — Google Images (Primary) + 10 Backup Databases (2.5s Timeout)
+      // Parallel Search — Using CORS-friendly APIs that work directly (no proxy needed)
+      // Network-tested: OMDb ✅, Wikipedia ✅, Wikimedia ✅, iTunes ✅ | Blocked: AllOrigins ❌, TMDB ❌
+      const words = cleanMovie.split(/\s+/);
+      const shortName = words.slice(0, 3).join(' ');  // First 3 words for broader search
       const tasks = [
-        // 1. ★ Google Images — PRIMARY (Most Reliable, via proxy)
-        fetchWithTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://www.google.com/search?q=' + encodeURIComponent(cleanMovie + ' Malayalam movie poster HD') + '&tbm=isch&ijn=0')}`, {}, 2500)
-          .then(r => r.text())
-          .then(html => {
-            const matches = html.match(/\["(https?:\/\/[^"]+\.(?:jpg|jpeg|png|webp))",\s*\d+,\s*\d+\]/gi) || [];
-            const urls = matches.map(m => { const u = m.match(/"(https?:\/\/[^"]+)"/); return u ? u[1] : null; }).filter(Boolean);
-            const unique = [...new Set(urls)];
-            unique.slice(0, 12).forEach(u => appendPosterCard(u, cleanMovie, '★ Google'));
-          }).catch(() => {}),
+        // 1. ★ OMDb/IMDb — PRIMARY (Full movie name search)
+        fetchWithTimeout(`https://www.omdbapi.com/?apikey=trilogy&s=${encodeURIComponent(cleanMovie)}`, {}, 5000)
+          .then(r => r.json()).then(d => (d.Search || []).forEach(m => m.Poster && m.Poster.startsWith('http') && !m.Poster.includes('N/A') && appendPosterCard(m.Poster, m.Title + ' (' + m.Year + ')', '★ IMDb'))).catch(() => {}),
 
-        // 2. ★ Google Images — Second query (broader search)
-        fetchWithTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://www.google.com/search?q=' + encodeURIComponent(cleanMovie + ' movie poster') + '&tbm=isch&ijn=0')}`, {}, 2500)
-          .then(r => r.text())
-          .then(html => {
-            const matches = html.match(/\["(https?:\/\/[^"]+\.(?:jpg|jpeg|png|webp))",\s*\d+,\s*\d+\]/gi) || [];
-            const urls = matches.map(m => { const u = m.match(/"(https?:\/\/[^"]+)"/); return u ? u[1] : null; }).filter(Boolean);
-            const unique = [...new Set(urls)];
-            unique.slice(0, 10).forEach(u => appendPosterCard(u, cleanMovie, '★ Google'));
-          }).catch(() => {}),
+        // 2. ★ OMDb/IMDb — Short name search (broader results)
+        fetchWithTimeout(`https://www.omdbapi.com/?apikey=trilogy&s=${encodeURIComponent(shortName)}`, {}, 5000)
+          .then(r => r.json()).then(d => (d.Search || []).forEach(m => m.Poster && m.Poster.startsWith('http') && !m.Poster.includes('N/A') && appendPosterCard(m.Poster, m.Title + ' (' + m.Year + ')', '★ IMDb'))).catch(() => {}),
 
-        // 3. Bing Web Images (Filmibeat, Onmanorama, Mathrubhumi, Behindwoods, CinemaExpress, Pinkvilla, Koimoi)
-        fetchWithTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://www.bing.com/images/async?q=' + encodeURIComponent(cleanMovie + ' Malayalam movie poster') + '&first=1&count=15')}`, {}, 2500)
-          .then(r => r.text())
-          .then(html => {
-            const matches = html.match(/murl&quot;:&quot;(https?:\/\/[^&]+?\.(?:jpg|jpeg|png|webp))&quot;/gi) || [];
-            matches.slice(0, 10).forEach(m => {
-              const u = m.replace(/murl&quot;:&quot;/i, '').replace(/&quot;/i, '');
-              appendPosterCard(u, cleanMovie, 'Bing Web');
-            });
-          }).catch(() => {}),
+        // 3. ★ OMDb/IMDb — First word only (actor/director name search)
+        fetchWithTimeout(`https://www.omdbapi.com/?apikey=trilogy&s=${encodeURIComponent(words[0])}`, {}, 5000)
+          .then(r => r.json()).then(d => (d.Search || []).forEach(m => m.Poster && m.Poster.startsWith('http') && !m.Poster.includes('N/A') && appendPosterCard(m.Poster, m.Title + ' (' + m.Year + ')', '★ IMDb'))).catch(() => {}),
 
-        // 2. DuckDuckGo Image Engine (High-accuracy film & actor posters)
-        fetchWithTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://html.duckduckgo.com/html/?q=' + encodeURIComponent(cleanMovie + ' movie poster filmibeat'))}`, {}, 2500)
-          .then(r => r.text())
-          .then(html => {
-            const matches = html.match(/https?:\/\/[^"'\s]+\.(?:jpg|jpeg|png|webp)/gi) || [];
-            matches.slice(0, 8).forEach(u => appendPosterCard(u, cleanMovie, 'DuckDuckGo'));
-          }).catch(() => {}),
+        // 4. ★ OMDb/IMDb — Direct title lookup (exact match with poster)
+        fetchWithTimeout(`https://www.omdbapi.com/?apikey=trilogy&t=${encodeURIComponent(cleanMovie)}`, {}, 5000)
+          .then(r => r.json()).then(d => d.Poster && d.Poster.startsWith('http') && !d.Poster.includes('N/A') && appendPosterCard(d.Poster, d.Title + ' (' + d.Year + ')', '★ IMDb Exact')).catch(() => {}),
 
-        // 3. TMDB Movies (Exact & Malayalam Feature Films)
-        fetchWithTimeout(`https://api.themoviedb.org/3/search/movie?api_key=8265bd1679663a7ea12ac168da84d2e8&query=${encodeURIComponent(cleanMovie)}&language=en-US&page=1`, {}, 2500)
-          .then(r => r.json()).then(d => (d.results || []).forEach(m => m.poster_path && appendPosterCard(`https://image.tmdb.org/t/p/w500${m.poster_path}`, m.title || cleanMovie, 'TMDB Movies'))).catch(() => {}),
-
-        // 4. TMDB TV & Web Series
-        fetchWithTimeout(`https://api.themoviedb.org/3/search/tv?api_key=8265bd1679663a7ea12ac168da84d2e8&query=${encodeURIComponent(cleanMovie)}&language=en-US&page=1`, {}, 2500)
-          .then(r => r.json()).then(d => (d.results || []).forEach(m => m.poster_path && appendPosterCard(`https://image.tmdb.org/t/p/w500${m.poster_path}`, m.name || cleanMovie, 'TMDB TV'))).catch(() => {}),
-
-        // 5. TMDB People & Actors Database
-        fetchWithTimeout(`https://api.themoviedb.org/3/search/person?api_key=8265bd1679663a7ea12ac168da84d2e8&query=${encodeURIComponent(cleanMovie)}&language=en-US&page=1`, {}, 2500)
-          .then(r => r.json()).then(d => (d.results || []).forEach(p => p.profile_path && appendPosterCard(`https://image.tmdb.org/t/p/w500${p.profile_path}`, p.name || cleanMovie, 'TMDB Actors'))).catch(() => {}),
-
-        // 6. IMDb / OMDb Search
-        fetchWithTimeout(`https://www.omdbapi.com/?apikey=trilogy&s=${encodeURIComponent(cleanMovie)}`, {}, 2500)
-          .then(r => r.json()).then(d => (d.Search || []).forEach(m => m.Poster && m.Poster.startsWith('http') && !m.Poster.includes('N/A') && appendPosterCard(m.Poster, m.Title || cleanMovie, 'IMDb'))).catch(() => {}),
-
-        // 7. iTunes HD Movie Covers (600x600 HD artwork)
-        fetchWithTimeout(`https://itunes.apple.com/search?term=${encodeURIComponent(movieQuery)}&entity=movie&limit=8`, {}, 2500)
-          .then(r => r.json()).then(d => (d.results || []).forEach(r => r.artworkUrl100 && appendPosterCard(r.artworkUrl100.replace('100x100bb.jpg', '600x600bb.jpg'), r.trackName || cleanMovie, 'iTunes HD'))).catch(() => {}),
-
-        // 8. Malayalam Wikipedia Film Page Images
-        fetchWithTimeout(`https://ml.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanMovie + ' സിനിമ')}&gsrlimit=6&prop=pageimages&pithumbsize=600&format=json&origin=*`, {}, 2500)
-          .then(r => r.json()).then(d => d.query?.pages && Object.values(d.query.pages).forEach(p => p.thumbnail?.source && appendPosterCard(p.thumbnail.source, p.title || cleanMovie, 'Malayalam Wiki'))).catch(() => {}),
-
-        // 9. English Wikipedia Film Page Images
-        fetchWithTimeout(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanMovie + ' film poster')}&gsrlimit=6&prop=pageimages&pithumbsize=600&format=json&origin=*`, {}, 2500)
+        // 5. English Wikipedia — Film page images
+        fetchWithTimeout(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanMovie + ' film')}&gsrlimit=10&prop=pageimages&pithumbsize=600&format=json&origin=*`, {}, 5000)
           .then(r => r.json()).then(d => d.query?.pages && Object.values(d.query.pages).forEach(p => p.thumbnail?.source && appendPosterCard(p.thumbnail.source, p.title || cleanMovie, 'Wikipedia'))).catch(() => {}),
 
-        // 10. Wikimedia Commons Actor & Film Portraits
-        fetchWithTimeout(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanMovie + ' poster')}&gsrnamespace=6&ns=6&prop=imageinfo&iiprop=url|mime|size&format=json&origin=*`, {}, 2500)
-          .then(r => r.json()).then(d => d.query?.pages && Object.values(d.query.pages).forEach(p => p.imageinfo?.[0]?.url && /\.(jpg|jpeg|png|webp)/i.test(p.imageinfo[0].url) && appendPosterCard(p.imageinfo[0].url, p.title || cleanMovie, 'Wikimedia'))).catch(() => {})
+        // 6. English Wikipedia — Actor/person images
+        fetchWithTimeout(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanMovie + ' actor')}&gsrlimit=8&prop=pageimages&pithumbsize=600&format=json&origin=*`, {}, 5000)
+          .then(r => r.json()).then(d => d.query?.pages && Object.values(d.query.pages).forEach(p => p.thumbnail?.source && appendPosterCard(p.thumbnail.source, p.title || cleanMovie, 'Wikipedia'))).catch(() => {}),
+
+        // 7. Malayalam Wikipedia — Film page images (with സിനിമ = cinema)
+        fetchWithTimeout(`https://ml.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanMovie)}&gsrlimit=10&prop=pageimages&pithumbsize=600&format=json&origin=*`, {}, 5000)
+          .then(r => r.json()).then(d => d.query?.pages && Object.values(d.query.pages).forEach(p => p.thumbnail?.source && appendPosterCard(p.thumbnail.source, p.title || cleanMovie, 'ML Wiki'))).catch(() => {}),
+
+        // 8. Wikimedia Commons — Film & actor portraits
+        fetchWithTimeout(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanMovie + ' film poster')}&gsrnamespace=6&prop=imageinfo&iiprop=url|mime&format=json&origin=*`, {}, 5000)
+          .then(r => r.json()).then(d => d.query?.pages && Object.values(d.query.pages).forEach(p => p.imageinfo?.[0]?.url && /\.(jpg|jpeg|png|webp)/i.test(p.imageinfo[0].url) && appendPosterCard(p.imageinfo[0].url, p.title || cleanMovie, 'Wikimedia'))).catch(() => {}),
+
+        // 9. Wikimedia Commons — Actor/person photos
+        fetchWithTimeout(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanMovie)}&gsrnamespace=6&prop=imageinfo&iiprop=url|mime&format=json&origin=*`, {}, 5000)
+          .then(r => r.json()).then(d => d.query?.pages && Object.values(d.query.pages).forEach(p => p.imageinfo?.[0]?.url && /\.(jpg|jpeg|png|webp)/i.test(p.imageinfo[0].url) && appendPosterCard(p.imageinfo[0].url, p.title || cleanMovie, 'Wikimedia'))).catch(() => {}),
+
+        // 10. iTunes HD Movie Covers
+        fetchWithTimeout(`https://itunes.apple.com/search?term=${encodeURIComponent(movieQuery)}&entity=movie&limit=10`, {}, 5000)
+          .then(r => r.json()).then(d => (d.results || []).forEach(r => r.artworkUrl100 && appendPosterCard(r.artworkUrl100.replace('100x100bb.jpg', '600x600bb.jpg'), r.trackName || cleanMovie, 'iTunes'))).catch(() => {}),
+
+        // 11. iTunes — Broader search (just movie name)
+        fetchWithTimeout(`https://itunes.apple.com/search?term=${encodeURIComponent(cleanMovie)}&entity=movie&limit=10`, {}, 5000)
+          .then(r => r.json()).then(d => (d.results || []).forEach(r => r.artworkUrl100 && appendPosterCard(r.artworkUrl100.replace('100x100bb.jpg', '600x600bb.jpg'), r.trackName || cleanMovie, 'iTunes'))).catch(() => {}),
+
+        // 12. Wikidata — Movie/person images via structured data
+        fetchWithTimeout(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(cleanMovie)}&language=en&limit=5&format=json&origin=*`, {}, 5000)
+          .then(r => r.json()).then(async d => {
+            for (const entity of (d.search || []).slice(0, 5)) {
+              try {
+                const edata = await fetchWithTimeout(`https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=${entity.id}&property=P18&format=json&origin=*`, {}, 3000).then(r2 => r2.json());
+                const claims = edata.claims?.P18 || [];
+                claims.forEach(c => {
+                  const fname = c.mainsnak?.datavalue?.value;
+                  if (fname) {
+                    const md5 = fname.replace(/ /g, '_');
+                    const imgUrl = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(md5)}?width=500`;
+                    appendPosterCard(imgUrl, entity.label || cleanMovie, 'Wikidata');
+                  }
+                });
+              } catch(e) {}
+            }
+          }).catch(() => {})
       ];
 
       Promise.allSettled(tasks).then(() => {
