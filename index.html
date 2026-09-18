@@ -2336,37 +2336,30 @@
       const cleanMovie = cleanQuery.replace(/\b(movie|film|poster|posters|official|hd|4k|malayalam|release|date|ott)\b/gi, '').trim() || cleanQuery;
       const movieQuery = cleanMovie + " Malayalam movie";
 
-      // Parallel Search — Using CORS-friendly APIs that work directly (no proxy needed)
-      // Network-tested: OMDb ✅, Wikipedia ✅, Wikimedia ✅, iTunes ✅ | Blocked: AllOrigins ❌, TMDB ❌
+      // Parallel Search across Local Helper + Online Databases
       const words = cleanMovie.split(/\s+/);
       const shortName = words.slice(0, 3).join(' ');  // First 3 words for broader search
       const tasks = [
-        // 1. ★ OMDb/IMDb — PRIMARY (Full movie name search)
-        fetchWithTimeout(`https://www.omdbapi.com/?apikey=trilogy&s=${encodeURIComponent(cleanMovie)}`, {}, 5000)
-          .then(r => r.json()).then(d => (d.Search || []).forEach(m => m.Poster && m.Poster.startsWith('http') && !m.Poster.includes('N/A') && appendPosterCard(m.Poster, m.Title + ' (' + m.Year + ')', '★ IMDb'))).catch(() => {}),
+        // 1. ★ LOCAL HELPER (YouTube Official Teaser & Trailer Posters - 100% Accurate & Instant)
+        fetchWithTimeout(`http://127.0.0.1:8765/search?q=${encodeURIComponent(cleanMovie)}`, {}, 3500)
+          .then(r => r.json())
+          .then(items => (items || []).forEach(item => appendPosterCard(item.url, item.title, item.source || '★ Official Teaser')))
+          .catch(() => {}),
 
-        // 2. ★ OMDb/IMDb — Short name search (broader results)
-        fetchWithTimeout(`https://www.omdbapi.com/?apikey=trilogy&s=${encodeURIComponent(shortName)}`, {}, 5000)
-          .then(r => r.json()).then(d => (d.Search || []).forEach(m => m.Poster && m.Poster.startsWith('http') && !m.Poster.includes('N/A') && appendPosterCard(m.Poster, m.Title + ' (' + m.Year + ')', '★ IMDb'))).catch(() => {}),
+        // 2. ★ OMDb/IMDb — Full movie name search
+        fetchWithTimeout(`https://www.omdbapi.com/?apikey=trilogy&s=${encodeURIComponent(cleanMovie)}`, {}, 4000)
+          .then(r => r.json()).then(d => (d.Search || []).forEach(m => m.Poster && m.Poster.startsWith('http') && !m.Poster.includes('N/A') && appendPosterCard(m.Poster, m.Title + ' (' + m.Year + ')', 'IMDb'))).catch(() => {}),
 
-        // 3. ★ OMDb/IMDb — First word only (actor/director name search)
-        fetchWithTimeout(`https://www.omdbapi.com/?apikey=trilogy&s=${encodeURIComponent(words[0])}`, {}, 5000)
-          .then(r => r.json()).then(d => (d.Search || []).forEach(m => m.Poster && m.Poster.startsWith('http') && !m.Poster.includes('N/A') && appendPosterCard(m.Poster, m.Title + ' (' + m.Year + ')', '★ IMDb'))).catch(() => {}),
+        // 3. ★ OMDb/IMDb — Direct title lookup (exact match with poster)
+        fetchWithTimeout(`https://www.omdbapi.com/?apikey=trilogy&t=${encodeURIComponent(cleanMovie)}`, {}, 4000)
+          .then(r => r.json()).then(d => d.Poster && d.Poster.startsWith('http') && !d.Poster.includes('N/A') && appendPosterCard(d.Poster, d.Title + ' (' + d.Year + ')', 'IMDb Exact')).catch(() => {}),
 
-        // 4. ★ OMDb/IMDb — Direct title lookup (exact match with poster)
-        fetchWithTimeout(`https://www.omdbapi.com/?apikey=trilogy&t=${encodeURIComponent(cleanMovie)}`, {}, 5000)
-          .then(r => r.json()).then(d => d.Poster && d.Poster.startsWith('http') && !d.Poster.includes('N/A') && appendPosterCard(d.Poster, d.Title + ' (' + d.Year + ')', '★ IMDb Exact')).catch(() => {}),
-
-        // 5. English Wikipedia — Film page images
-        fetchWithTimeout(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanMovie + ' film')}&gsrlimit=10&prop=pageimages&pithumbsize=600&format=json&origin=*`, {}, 5000)
+        // 4. English Wikipedia — Film page images
+        fetchWithTimeout(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanMovie + ' film')}&gsrlimit=6&prop=pageimages&pithumbsize=600&format=json&origin=*`, {}, 4000)
           .then(r => r.json()).then(d => d.query?.pages && Object.values(d.query.pages).forEach(p => p.thumbnail?.source && appendPosterCard(p.thumbnail.source, p.title || cleanMovie, 'Wikipedia'))).catch(() => {}),
 
-        // 6. English Wikipedia — Actor/person images
-        fetchWithTimeout(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanMovie + ' actor')}&gsrlimit=8&prop=pageimages&pithumbsize=600&format=json&origin=*`, {}, 5000)
-          .then(r => r.json()).then(d => d.query?.pages && Object.values(d.query.pages).forEach(p => p.thumbnail?.source && appendPosterCard(p.thumbnail.source, p.title || cleanMovie, 'Wikipedia'))).catch(() => {}),
-
-        // 7. Malayalam Wikipedia — Film page images (with സിനിമ = cinema)
-        fetchWithTimeout(`https://ml.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanMovie)}&gsrlimit=10&prop=pageimages&pithumbsize=600&format=json&origin=*`, {}, 5000)
+        // 5. Malayalam Wikipedia — Film page images
+        fetchWithTimeout(`https://ml.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanMovie + ' ചലച്ചിത്രം')}&gsrlimit=6&prop=pageimages&pithumbsize=600&format=json&origin=*`, {}, 4000)
           .then(r => r.json()).then(d => d.query?.pages && Object.values(d.query.pages).forEach(p => p.thumbnail?.source && appendPosterCard(p.thumbnail.source, p.title || cleanMovie, 'ML Wiki'))).catch(() => {}),
 
         // 8. Wikimedia Commons — Film & actor portraits
