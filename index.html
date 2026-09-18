@@ -2336,23 +2336,52 @@
       const cleanMovie = cleanQuery.replace(/\b(movie|film|poster|posters|official|hd|4k|malayalam|release|date|ott)\b/gi, '').trim() || cleanQuery;
       const movieQuery = cleanMovie + " Malayalam movie";
 
-      // Parallel Search across Local Helper + Online Databases
+      // Parallel Search — Google Images (Serper API) + Backup Sources
+      const SERPER_KEY = '706d6e0c2e53e2d18b6f85808d560536e5d97ab7';
       const words = cleanMovie.split(/\s+/);
       const shortName = words.slice(0, 3).join(' ');  // First 3 words for broader search
       const tasks = [
-        // 1. ★ LOCAL HELPER (YouTube Official Teaser & Trailer Posters - 100% Accurate & Instant)
-        fetchWithTimeout(`http://127.0.0.1:8765/search?q=${encodeURIComponent(cleanMovie)}`, {}, 3500)
+        // 1. ★ GOOGLE IMAGES (Primary - Real Google Images Search via Serper)
+        fetchWithTimeout('https://google.serper.dev/images', {
+          method: 'POST',
+          headers: {
+            'X-API-KEY': SERPER_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ q: cleanMovie + ' movie poster', num: 12 })
+        }, 5000)
           .then(r => r.json())
-          .then(items => (items || []).forEach(item => appendPosterCard(item.url, item.title, item.source || '★ Official Teaser')))
+          .then(data => {
+            (data.images || []).forEach(img => {
+              const u = img.imageUrl || img.thumbnailUrl;
+              appendPosterCard(u, img.title || cleanMovie, '★ Google Images');
+            });
+          })
           .catch(() => {}),
 
-        // 2. ★ OMDb/IMDb — Full movie name search
-        fetchWithTimeout(`https://www.omdbapi.com/?apikey=trilogy&s=${encodeURIComponent(cleanMovie)}`, {}, 4000)
-          .then(r => r.json()).then(d => (d.Search || []).forEach(m => m.Poster && m.Poster.startsWith('http') && !m.Poster.includes('N/A') && appendPosterCard(m.Poster, m.Title + ' (' + m.Year + ')', 'IMDb'))).catch(() => {}),
+        // 2. ★ GOOGLE IMAGES (Second Query - First Look & HD Teaser Poster)
+        fetchWithTimeout('https://google.serper.dev/images', {
+          method: 'POST',
+          headers: {
+            'X-API-KEY': SERPER_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ q: cleanMovie + ' first look poster HD', num: 8 })
+        }, 5000)
+          .then(r => r.json())
+          .then(data => {
+            (data.images || []).forEach(img => {
+              const u = img.imageUrl || img.thumbnailUrl;
+              appendPosterCard(u, img.title || cleanMovie, '★ Google Images');
+            });
+          })
+          .catch(() => {}),
 
-        // 3. ★ OMDb/IMDb — Direct title lookup (exact match with poster)
-        fetchWithTimeout(`https://www.omdbapi.com/?apikey=trilogy&t=${encodeURIComponent(cleanMovie)}`, {}, 4000)
-          .then(r => r.json()).then(d => d.Poster && d.Poster.startsWith('http') && !d.Poster.includes('N/A') && appendPosterCard(d.Poster, d.Title + ' (' + d.Year + ')', 'IMDb Exact')).catch(() => {}),
+        // 3. Local Python Helper (if running)
+        fetchWithTimeout(`http://127.0.0.1:8765/search?q=${encodeURIComponent(cleanMovie)}`, {}, 3000)
+          .then(r => r.json())
+          .then(items => (items || []).forEach(item => appendPosterCard(item.url, item.title, item.source || 'YouTube Official')))
+          .catch(() => {}),
 
         // 4. English Wikipedia — Film page images
         fetchWithTimeout(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanMovie + ' film')}&gsrlimit=6&prop=pageimages&pithumbsize=600&format=json&origin=*`, {}, 4000)
