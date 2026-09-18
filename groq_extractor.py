@@ -52,26 +52,28 @@ def extract_metadata_with_groq(
         system_prompt = (
             "You are an expert Malayalam movie news editor. For each topic text below, generate a short, catchy 1-line English Headline / Topic Heading summarizing the news.\n"
             "CRITICAL RULES:\n"
-            "1. Never translate Malayalam movie names to English meanings (e.g. write 'Thudakkam' instead of 'The Beginning').\n"
-            "2. Keep headlines concise, exciting, and limited to 1 line per topic.\n"
-            "3. Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"headline\": \"Thudakkam Movie Pooja Held\"}]}.\n"
+            "1. ABSOLUTELY NO MALAYALAM SCRIPT (NO MALAYALAM CHARACTERS). The entire output headline MUST be written 100% using the English alphabet.\n"
+            "2. ALWAYS write Malayalam movie titles phonetically using the English alphabet (e.g. write 'Bethlehem Kudumba Unit' instead of 'ബത്‌ലഹേം കുടുംബ യൂണിറ്റ്', write 'Thudakkam' instead of 'തുടക്കം').\n"
+            "3. Never translate Malayalam movie names to literal English meanings (e.g. write 'Thudakkam' instead of 'The Beginning').\n"
+            "4. Keep headlines concise, exciting, and limited to 1 line per topic.\n"
+            "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"headline\": \"Girish A.D. Celebrates 300-Crore Success of 'Bethlehem Kudumba Unit'\"}]}.\n"
             "Do not include any markdown formatting, explanation, or text outside the JSON."
         )
     elif m in ["release_updates"]:
         system_prompt = (
             "You are an expert Malayalam movie news editor. For each topic text below, extract:\n"
-            "1. 'movie_name': Official movie title phonetically in English alphabet (never translate Malayalam names to English meanings, e.g. write 'Thudakkam' instead of 'The Beginning').\n"
+            "1. 'movie_name': Official movie title phonetically in English alphabet (e.g. 'Bethlehem Kudumba Unit', 'Thudakkam'). ABSOLUTELY NO MALAYALAM SCRIPT OR MALAYALAM CHARACTERS.\n"
             "2. 'release_date': The theatrical release date EXPLICITLY mentioned in the text (e.g., 'October 2', 'September 25'). CRITICAL: If no release date is mentioned in the text, return '' (an empty string). DO NOT guess, invent, or search for dates outside the text.\n"
-            "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"movie_name\": \"Thudakkam\", \"release_date\": \"October 2\"}]}.\n"
+            "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"movie_name\": \"Bethlehem Kudumba Unit\", \"release_date\": \"October 2\"}]}.\n"
             "Do not include any markdown formatting, explanation, or text outside the JSON."
         )
     else: # ott_updates
         system_prompt = (
             "You are an expert Malayalam movie news editor. For each topic text below, extract:\n"
-            "1. 'movie_name': Official movie title phonetically in English alphabet (never translate Malayalam names to English meanings, e.g. write 'Thudakkam' instead of 'The Beginning').\n"
+            "1. 'movie_name': Official movie title phonetically in English alphabet (e.g. 'Bethlehem Kudumba Unit', 'Thudakkam'). ABSOLUTELY NO MALAYALAM SCRIPT OR MALAYALAM CHARACTERS.\n"
             "2. 'release_date': The streaming / OTT release date EXPLICITLY mentioned in the text (e.g., 'September 28', 'Available Now'). CRITICAL: If no release date is mentioned in the text, return '' (an empty string). DO NOT guess, invent, or search for dates outside the text.\n"
             "3. 'ott_platform': The streaming platform name (e.g., 'Netflix', 'Disney+ Hotstar', 'Amazon Prime Video', 'SonyLIV', 'Zee5', 'ManoramaMAX', 'Simply South'). If not mentioned, write ''.\n"
-            "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"movie_name\": \"Thudakkam\", \"release_date\": \"September 28\", \"ott_platform\": \"Netflix\"}]}.\n"
+            "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"movie_name\": \"Bethlehem Kudumba Unit\", \"release_date\": \"September 28\", \"ott_platform\": \"Netflix\"}]}.\n"
             "Do not include any markdown formatting, explanation, or text outside the JSON."
         )
 
