@@ -61,7 +61,7 @@ def extract_metadata_with_groq(
         system_prompt = (
             "You are an expert Malayalam movie news editor. For each topic text below, extract:\n"
             "1. 'movie_name': Official movie title phonetically in English alphabet (never translate Malayalam names to English meanings, e.g. write 'Thudakkam' instead of 'The Beginning').\n"
-            "2. 'release_date': The theatrical release date mentioned (e.g., 'October 2', 'This Friday', 'Deepavali 2026'). If not mentioned, write ''.\n"
+            "2. 'release_date': The theatrical release date EXPLICITLY mentioned in the text (e.g., 'October 2', 'September 25'). CRITICAL: If no release date is mentioned in the text, return '' (an empty string). DO NOT guess, invent, or search for dates outside the text.\n"
             "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"movie_name\": \"Thudakkam\", \"release_date\": \"October 2\"}]}.\n"
             "Do not include any markdown formatting, explanation, or text outside the JSON."
         )
@@ -69,7 +69,7 @@ def extract_metadata_with_groq(
         system_prompt = (
             "You are an expert Malayalam movie news editor. For each topic text below, extract:\n"
             "1. 'movie_name': Official movie title phonetically in English alphabet (never translate Malayalam names to English meanings, e.g. write 'Thudakkam' instead of 'The Beginning').\n"
-            "2. 'release_date': The streaming / OTT release date mentioned (e.g., 'September 28', 'Available Now'). If not mentioned, write ''.\n"
+            "2. 'release_date': The streaming / OTT release date EXPLICITLY mentioned in the text (e.g., 'September 28', 'Available Now'). CRITICAL: If no release date is mentioned in the text, return '' (an empty string). DO NOT guess, invent, or search for dates outside the text.\n"
             "3. 'ott_platform': The streaming platform name (e.g., 'Netflix', 'Disney+ Hotstar', 'Amazon Prime Video', 'SonyLIV', 'Zee5', 'ManoramaMAX', 'Simply South'). If not mentioned, write ''.\n"
             "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"movie_name\": \"Thudakkam\", \"release_date\": \"September 28\", \"ott_platform\": \"Netflix\"}]}.\n"
             "Do not include any markdown formatting, explanation, or text outside the JSON."
@@ -131,11 +131,6 @@ def extract_metadata_with_groq(
 
                     if not o_plat:
                         o_plat = parse_malayalam_platform_from_text(m_text)
-
-                    # Fallback to online search if date missing in text
-                    if not r_date and m_name and m in ["release_updates", "ott_updates"]:
-                        is_ott_mode = (m == "ott_updates")
-                        r_date = search_release_date_online(m_name, is_ott=is_ott_mode)
 
                     result.append({
                         "movie_name": m_name,

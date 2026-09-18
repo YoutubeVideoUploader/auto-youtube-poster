@@ -1872,18 +1872,10 @@
             } else if (activeTab === 'Release Updates') {
               r.headline = item.movie_name || "";
               r.releaseDate = item.release_date || parseMalayalamDateFromText(r.text) || "";
-              if (!r.releaseDate && r.headline) {
-                if (statusBox) statusBox.innerText = `🔍 Searching online release date for '${r.headline}'...`;
-                r.releaseDate = await fetchOnlineReleaseDate(r.headline, false);
-              }
             } else { // OTT Updates
               r.headline = item.movie_name || "";
               r.releaseDate = item.release_date || parseMalayalamDateFromText(r.text) || "";
               r.ottPlatform = item.ott_platform || parseMalayalamPlatformFromText(r.text) || "";
-              if (!r.releaseDate && r.headline) {
-                if (statusBox) statusBox.innerText = `🔍 Searching online OTT release date for '${r.headline}'...`;
-                r.releaseDate = await fetchOnlineReleaseDate(r.headline, true);
-              }
             }
             count++;
           }
