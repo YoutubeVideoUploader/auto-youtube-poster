@@ -2142,40 +2142,66 @@
       return headline || text.split(/\s+/).slice(0, 4).join(' ');
     }
 
-    async function fetchEnglishMovieNameWithGroq(malayalamText, apiKey) {
-      if (!malayalamText || !apiKey) return "";
-      try {
-        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Bearer ' + apiKey,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: 'llama-3.1-8b-instant',
-            messages: [
-              {
-                role: 'system',
-                content: 'You are an expert Malayalam movie news editor. Extract ONLY the official movie title phonetically in the English alphabet from the text below. Return ONLY a JSON object: {"movie_name": "TitleInEnglish"}. Example: {"movie_name": "Thudakkam"}. Do not add any markdown formatting or extra text.'
-              },
-              { role: 'user', content: malayalamText }
-            ],
-            temperature: 0.1,
-            response_format: { type: 'json_object' }
-          })
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const content = data.choices?.[0]?.message?.content || "";
-          const parsed = JSON.parse(content);
-          if (parsed.movie_name && parsed.movie_name.trim()) {
-            return parsed.movie_name.trim();
-          }
-        }
-      } catch (e) {
-        console.warn("Groq English movie name extraction error:", e);
+    function transliterateMalayalamToEnglish(text) {
+      if (!text) return "";
+      const mmap = {
+        'അ':'a', 'ആ':'aa', 'ഇ':'i', 'ഈ':'ee', 'ഉ':'u', 'ഊ':'oo', 'ഋ':'ri', 'എ':'e', 'ഏ':'e', 'ഐ':'ai', 'ഒ':'o', 'ഓ':'o', 'ഔ':'au',
+        'ക':'k', 'ഖ':'kh', 'ഗ':'g', 'ഘ':'gh', 'ങ':'ng',
+        'ച':'ch', 'ഛ':'chh', 'ജ':'j', 'ഝ':'jh', 'ഞ':'nj',
+        'ട':'t', 'ഠ':'th', 'ഡ':'d', 'ഢ':'dh', 'ണ':'n',
+        'ത':'th', 'ഥ':'th', 'ദ':'d', 'ധ':'dh', 'ന':'n',
+        'പ':'p', 'ഫ':'ph', 'ബ':'b', 'ഭ':'bh', 'മ':'m',
+        'യ':'y', 'ര':'r', 'ല':'l', 'വ':'v', 'ശ':'sh', 'ഷ':'sh', 'സ':'s', 'ഹ':'h', 'ള':'l', 'ഴ':'zh', 'റ':'r',
+        'ാ':'a', 'ി':'i', 'ീ':'ee', 'ു':'u', 'ൂ':'oo', 'െ':'e', 'േ':'e', 'ൈ':'ai', 'ൊ':'o', 'ോ':'o', 'ൌ':'au',
+        '്':'', 'ം':'m', 'ഃ':'h', 'ൻ':'n', 'ർ':'r', 'ൽ':'l', 'ൾ':'l', 'ൺ':'n'
+      };
+      let str = text.replace(/[\u200c\u200d]/g, '');
+      let res = '';
+      for (let i = 0; i < str.length; i++) {
+        let ch = str[i];
+        res += mmap[ch] || ch;
       }
-      return "";
+      res = res.replace(/[^\w\s]/g, ' ').replace(/\s+/g, ' ').trim();
+      return res ? res.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : "";
+    }
+
+    async function fetchEnglishMovieNameWithGroq(malayalamText, apiKey) {
+      if (!malayalamText) return "";
+      if (apiKey) {
+        try {
+          const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + apiKey,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              model: 'llama-3.1-8b-instant',
+              messages: [
+                {
+                  role: 'system',
+                  content: 'You are an expert Malayalam movie news editor. Extract ONLY the official movie title phonetically in the English alphabet from the text below. Return ONLY a JSON object: {"movie_name": "TitleInEnglish"}. Example: {"movie_name": "Bethlehem Kudumba Unit"}. Do not add any markdown formatting or extra text.'
+                },
+                { role: 'user', content: malayalamText }
+              ],
+              temperature: 0.1,
+              response_format: { type: 'json_object' }
+            })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const content = data.choices?.[0]?.message?.content || "";
+            const parsed = JSON.parse(content);
+            const val = parsed.movie_name || parsed.english_name || parsed.title || parsed.headline || parsed.movie_title || (parsed.items && parsed.items[0] && (parsed.items[0].movie_name || parsed.items[0].headline));
+            if (val && typeof val === 'string' && val.trim() && !/[\u0D00-\u0D7F]/.test(val)) {
+              return val.trim();
+            }
+          }
+        } catch (e) {
+          console.warn("Groq English movie name extraction error:", e);
+        }
+      }
+      return transliterateMalayalamToEnglish(malayalamText);
     }
 
     async function loadWizardStep(idx) {
@@ -2205,36 +2231,37 @@
       const customUrlBox = document.getElementById('wizard-custom-url-input');
       customUrlBox.value = current.imgUrl ? current.imgUrl.split(/[\r\n,]+/)[0].trim() : '';
 
-      let englishMovieName = rawMovieName;
+      let englishMovieName = "";
 
-      // Detect Malayalam script (\u0D00-\u0D7F)
-      const hasMalayalam = /[\u0D00-\u0D7F]/.test(rawMovieName || current.text || "");
-      if (hasMalayalam) {
+      // Check if raw title is already English
+      if (rawMovieName && !/[\u0D00-\u0D7F]/.test(rawMovieName)) {
+        englishMovieName = rawMovieName;
+      } else {
         const statusBox = document.getElementById('wizard-search-status');
-        if (statusBox) statusBox.innerText = '🤖 Asking Groq AI for official English movie name...';
+        if (statusBox) statusBox.innerText = '🤖 Translating movie name to English...';
 
         const keyInput = document.getElementById('groq-api-key-input');
         const apiKey = keyInput && keyInput.value.trim() ? keyInput.value.trim() : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
 
-        if (apiKey) {
-          const fetchedEnglish = await fetchEnglishMovieNameWithGroq(current.text || rawMovieName, apiKey);
-          if (fetchedEnglish) {
-            englishMovieName = fetchedEnglish;
-            // Auto update Column D (Headline / Movie Name) if empty or Malayalam script
-            if (!current.headline || /[\u0D00-\u0D7F]/.test(current.headline)) {
-              current.headline = englishMovieName;
-              saveLocalStore();
-              renderTableRows();
-            }
+        englishMovieName = await fetchEnglishMovieNameWithGroq(rawMovieName || current.text, apiKey);
+
+        if (englishMovieName && !/[\u0D00-\u0D7F]/.test(englishMovieName)) {
+          if (!current.headline || /[\u0D00-\u0D7F]/.test(current.headline)) {
+            current.headline = englishMovieName;
+            saveLocalStore();
+            renderTableRows();
           }
         }
       }
 
+      // Ensure NO Malayalam characters remain in search query under any circumstance
+      const cleanEnglishName = (englishMovieName || "").replace(/[\u0D00-\u0D7F]/g, '').trim() || transliterateMalayalamToEnglish(rawMovieName);
+
       // Format search input box as: 'Movie Name (in English)' Movie poster
       const searchBox = document.getElementById('wizard-search-input');
-      const searchQuery = englishMovieName ? `${englishMovieName} Movie poster` : `Malayalam movie poster`;
+      const searchQuery = cleanEnglishName ? `${cleanEnglishName} Movie poster` : `Malayalam movie poster`;
       searchBox.value = searchQuery;
-      posterWizardState.currentTopicName = englishMovieName || rawMovieName;
+      posterWizardState.currentTopicName = cleanEnglishName || rawMovieName;
 
       // Trigger automatic poster search for this topic
       triggerWizardPosterSearch();
