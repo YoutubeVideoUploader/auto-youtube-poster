@@ -2173,314 +2173,96 @@
       const grid = document.getElementById('wizard-poster-grid');
       const status = document.getElementById('wizard-search-status');
       grid.innerHTML = '';
-      status.innerText = '🔍 Searching 14+ movie poster databases...';
+      status.innerText = '⚡ Searching movie poster databases in parallel...';
 
       if (!query) {
         status.innerText = 'Please enter a movie title to search.';
         return;
       }
 
-      let results = [];
+      let resultsCount = 0;
       let seenUrls = new Set();
-      
-      const addResult = (url, title, source) => {
-        if (url && typeof url === 'string' && url.startsWith('http') && !seenUrls.has(url)) {
-          seenUrls.add(url);
-          results.push({ url, title, source: source || 'Poster' });
-        }
+
+      const appendPosterCard = (url, title, source) => {
+        if (!url || typeof url !== 'string' || !url.startsWith('http') || seenUrls.has(url)) return;
+        seenUrls.add(url);
+        resultsCount++;
+
+        let card = document.createElement('div');
+        card.style.cssText = `
+          position: relative;
+          cursor: pointer;
+          border: 2px solid #2b2b40;
+          border-radius: 8px;
+          overflow: hidden;
+          background: #161625;
+          transition: transform 0.2s, border-color 0.2s;
+        `;
+        let sourceBadge = source ? `<span style="position: absolute; top: 4px; left: 4px; background: rgba(8, 145, 178, 0.85); color: #fff; font-size: 9px; font-weight: bold; padding: 2px 5px; border-radius: 4px;">${escapeHtml(source)}</span>` : '';
+        card.innerHTML = `
+          ${sourceBadge}
+          <img src="${url}" style="width: 100%; height: 160px; object-fit: cover; display: block;" onerror="this.parentNode.remove()" alt="Poster">
+          <div style="padding: 4px; text-align: center; font-size: 10px; color: #aaa; background: #0d0d16; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(title || 'Poster ' + resultsCount)}</div>
+        `;
+        card.onmouseover = () => card.style.borderColor = '#06b6d4';
+        card.onmouseout = () => card.style.borderColor = '#2b2b40';
+        card.onclick = () => selectWizardPoster(url);
+        grid.appendChild(card);
+
+        status.innerText = `⚡ Found ${resultsCount} poster(s)... Click any poster to select!`;
+      };
+
+      const fetchWithTimeout = (url, options = {}, timeoutMs = 2500) => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+        return fetch(url, { ...options, signal: controller.signal })
+          .finally(() => clearTimeout(timeoutId));
       };
 
       const cleanQuery = query.replace(/[^\w\s]/gi, ' ').trim();
 
-      // 1. TMDB (The Movie Database) - Official Original Movies
-      const searchTMDBMovie = fetch(`https://api.themoviedb.org/3/search/movie?api_key=8265bd1679663a7ea12ac168da84d2e8&query=${encodeURIComponent(query)}&language=en-US&page=1`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.results) {
-            data.results.forEach(m => {
-              if (m.poster_path) addResult(`https://image.tmdb.org/t/p/w500${m.poster_path}`, m.title || query, 'TMDB Movies');
-            });
-          }
-        }).catch(() => {});
+      // Fast Parallel Search Sources (2.5s Timeout)
+      const tasks = [
+        // 1. TMDB Movies
+        fetchWithTimeout(`https://api.themoviedb.org/3/search/movie?api_key=8265bd1679663a7ea12ac168da84d2e8&query=${encodeURIComponent(query)}&language=en-US&page=1`)
+          .then(r => r.json()).then(d => (d.results || []).forEach(m => m.poster_path && appendPosterCard(`https://image.tmdb.org/t/p/w500${m.poster_path}`, m.title || query, 'TMDB Movies'))).catch(() => {}),
 
-      // 2. TMDB TV Shows & Web Series
-      const searchTMDBTV = fetch(`https://api.themoviedb.org/3/search/tv?api_key=8265bd1679663a7ea12ac168da84d2e8&query=${encodeURIComponent(query)}&language=en-US&page=1`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.results) {
-            data.results.forEach(m => {
-              if (m.poster_path) addResult(`https://image.tmdb.org/t/p/w500${m.poster_path}`, m.name || query, 'TMDB TV');
-            });
-          }
-        }).catch(() => {});
+        // 2. TMDB TV & Web Series
+        fetchWithTimeout(`https://api.themoviedb.org/3/search/tv?api_key=8265bd1679663a7ea12ac168da84d2e8&query=${encodeURIComponent(query)}&language=en-US&page=1`)
+          .then(r => r.json()).then(d => (d.results || []).forEach(m => m.poster_path && appendPosterCard(`https://image.tmdb.org/t/p/w500${m.poster_path}`, m.name || query, 'TMDB TV'))).catch(() => {}),
 
-      // 3. TMDB Movie Collections & Franchises
-      const searchTMDBCollection = fetch(`https://api.themoviedb.org/3/search/collection?api_key=8265bd1679663a7ea12ac168da84d2e8&query=${encodeURIComponent(query)}&language=en-US&page=1`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.results) {
-            data.results.forEach(m => {
-              if (m.poster_path) addResult(`https://image.tmdb.org/t/p/w500${m.poster_path}`, m.name || query, 'TMDB Franchises');
-            });
-          }
-        }).catch(() => {});
+        // 3. IMDb / OMDB
+        fetchWithTimeout(`https://www.omdbapi.com/?apikey=trilogy&s=${encodeURIComponent(query)}`)
+          .then(r => r.json()).then(d => (d.Search || []).forEach(m => m.Poster && m.Poster.startsWith('http') && !m.Poster.includes('N/A') && appendPosterCard(m.Poster, m.Title || query, 'IMDb'))).catch(() => {}),
 
-      // 4. TMDB Cast & Actor Filmography Artwork
-      const searchTMDBPerson = fetch(`https://api.themoviedb.org/3/search/person?api_key=8265bd1679663a7ea12ac168da84d2e8&query=${encodeURIComponent(query)}&language=en-US&page=1`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.results) {
-            data.results.forEach(p => {
-              if (p.profile_path) addResult(`https://image.tmdb.org/t/p/w500${p.profile_path}`, p.name || query, 'TMDB Cast');
-              if (p.known_for) {
-                p.known_for.forEach(m => {
-                  if (m.poster_path) addResult(`https://image.tmdb.org/t/p/w500${m.poster_path}`, m.title || m.name || query, 'TMDB Cast Movie');
-                });
-              }
-            });
-          }
-        }).catch(() => {});
+        // 4. iTunes HD Movie Posters
+        fetchWithTimeout(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=movie&limit=8`)
+          .then(r => r.json()).then(d => (d.results || []).forEach(r => r.artworkUrl100 && appendPosterCard(r.artworkUrl100.replace('100x100bb.jpg', '600x600bb.jpg'), r.trackName || query, 'iTunes HD'))).catch(() => {}),
 
-      // 5. OMDB / IMDb Poster Database
-      const searchOMDB = fetch(`https://www.omdbapi.com/?apikey=trilogy&s=${encodeURIComponent(query)}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.Search) {
-            data.Search.forEach(m => {
-              if (m.Poster && m.Poster.startsWith('http') && !m.Poster.includes('N/A')) {
-                addResult(m.Poster, m.Title || query, 'IMDb');
-              }
-            });
-          }
-        }).catch(() => {});
+        // 5. Malayalam Wikipedia Posters
+        fetchWithTimeout(`https://ml.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrlimit=6&prop=pageimages&pithumbsize=600&format=json&origin=*`)
+          .then(r => r.json()).then(d => d.query?.pages && Object.values(d.query.pages).forEach(p => p.thumbnail?.source && appendPosterCard(p.thumbnail.source, p.title || query, 'Malayalam Wiki'))).catch(() => {}),
 
-      // 6. iTunes Movie Store HD Artwork (600x600)
-      const searchiTunesMovie = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=movie&limit=8`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.results) {
-            data.results.forEach(r => {
-              if (r.artworkUrl100) {
-                let hd = r.artworkUrl100.replace('100x100bb.jpg', '600x600bb.jpg');
-                addResult(hd, r.trackName || query, 'iTunes Movies');
-              }
-            });
-          }
-        }).catch(() => {});
+        // 6. English Wikipedia Posters
+        fetchWithTimeout(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query + ' film')}&gsrlimit=6&prop=pageimages&pithumbsize=600&format=json&origin=*`)
+          .then(r => r.json()).then(d => d.query?.pages && Object.values(d.query.pages).forEach(p => p.thumbnail?.source && appendPosterCard(p.thumbnail.source, p.title || query, 'Wikipedia'))).catch(() => {}),
 
-      // 7. iTunes TV Season HD Artwork
-      const searchiTunesTV = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=tvSeason&limit=6`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.results) {
-            data.results.forEach(r => {
-              if (r.artworkUrl100) {
-                let hd = r.artworkUrl100.replace('100x100bb.jpg', '600x600bb.jpg');
-                addResult(hd, r.collectionName || query, 'iTunes TV');
-              }
-            });
-          }
-        }).catch(() => {});
+        // 7. Wikimedia Commons Posters
+        fetchWithTimeout(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query + ' poster')}&gsrnamespace=6&ns=6&prop=imageinfo&iiprop=url|mime|size&format=json&origin=*`)
+          .then(r => r.json()).then(d => d.query?.pages && Object.values(d.query.pages).forEach(p => p.imageinfo?.[0]?.url && /\.(jpg|jpeg|png|webp)/i.test(p.imageinfo[0].url) && appendPosterCard(p.imageinfo[0].url, p.title || query, 'Wikimedia'))).catch(() => {})
+      ];
 
-      // 8. iTunes Music Video / Song Promo Poster
-      const searchiTunesMusicVideo = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=musicVideo&limit=6`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.results) {
-            data.results.forEach(r => {
-              if (r.artworkUrl100) {
-                let hd = r.artworkUrl100.replace('100x100bb.jpg', '600x600bb.jpg');
-                addResult(hd, r.trackName || query, 'iTunes Music Videos');
-              }
-            });
-          }
-        }).catch(() => {});
-
-      // 9. iTunes Soundtrack Album Artwork
-      const searchiTunesAlbum = fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=album&limit=6`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.results) {
-            data.results.forEach(r => {
-              if (r.artworkUrl100) {
-                let hd = r.artworkUrl100.replace('100x100bb.jpg', '600x600bb.jpg');
-                addResult(hd, r.collectionName || query, 'iTunes Soundtracks');
-              }
-            });
-          }
-        }).catch(() => {});
-
-      // 10. English Wikipedia Film Pages
-      const searchWikiEn = fetch(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query + ' film')}&gsrlimit=6&prop=pageimages&pithumbsize=600&format=json&origin=*`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.query && data.query.pages) {
-            Object.values(data.query.pages).forEach(p => {
-              if (p.thumbnail && p.thumbnail.source) {
-                addResult(p.thumbnail.source, p.title || query, 'Wikipedia (En)');
-              }
-            });
-          }
-        }).catch(() => {});
-
-      // 11. Malayalam Wikipedia Film Pages (Specific for Malayalam Cinema)
-      const searchWikiMl = fetch(`https://ml.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrlimit=6&prop=pageimages&pithumbsize=600&format=json&origin=*`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.query && data.query.pages) {
-            Object.values(data.query.pages).forEach(p => {
-              if (p.thumbnail && p.thumbnail.source) {
-                addResult(p.thumbnail.source, p.title || query, 'Malayalam Wiki');
-              }
-            });
-          }
-        }).catch(() => {});
-
-      // 12. Hindi Wikipedia Film Pages
-      const searchWikiHi = fetch(`https://hi.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query + ' film')}&gsrlimit=5&prop=pageimages&pithumbsize=600&format=json&origin=*`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.query && data.query.pages) {
-            Object.values(data.query.pages).forEach(p => {
-              if (p.thumbnail && p.thumbnail.source) {
-                addResult(p.thumbnail.source, p.title || query, 'Hindi Wiki');
-              }
-            });
-          }
-        }).catch(() => {});
-
-      // 13. Tamil Wikipedia Film Pages
-      const searchWikiTa = fetch(`https://ta.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query + ' film')}&gsrlimit=5&prop=pageimages&pithumbsize=600&format=json&origin=*`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.query && data.query.pages) {
-            Object.values(data.query.pages).forEach(p => {
-              if (p.thumbnail && p.thumbnail.source) {
-                addResult(p.thumbnail.source, p.title || query, 'Tamil Wiki');
-              }
-            });
-          }
-        }).catch(() => {});
-
-      // 14. Telugu Wikipedia Film Pages
-      const searchWikiTe = fetch(`https://te.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query + ' film')}&gsrlimit=5&prop=pageimages&pithumbsize=600&format=json&origin=*`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.query && data.query.pages) {
-            Object.values(data.query.pages).forEach(p => {
-              if (p.thumbnail && p.thumbnail.source) {
-                addResult(p.thumbnail.source, p.title || query, 'Telugu Wiki');
-              }
-            });
-          }
-        }).catch(() => {});
-
-      // 15. Wikimedia Commons HD Poster Repository
-      const searchWikimedia = fetch(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query + ' poster')}&gsrnamespace=6&ns=6&prop=imageinfo&iiprop=url|mime|size&format=json&origin=*`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.query && data.query.pages) {
-            Object.values(data.query.pages).forEach(p => {
-              if (p.imageinfo && p.imageinfo[0] && p.imageinfo[0].url) {
-                let u = p.imageinfo[0].url;
-                if (/\.(jpg|jpeg|png|webp)/i.test(u)) {
-                  addResult(u, p.title || query, 'Wikimedia');
-                }
-              }
-            });
-          }
-        }).catch(() => {});
-
-      // 16. TVMaze Shows API
-      const searchTVMazeShows = fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(query)}`)
-        .then(res => res.json())
-        .then(data => {
-          if (Array.isArray(data)) {
-            data.forEach(item => {
-              if (item.show && item.show.image && item.show.image.original) {
-                addResult(item.show.image.original, item.show.name || query, 'TVMaze Shows');
-              }
-            });
-          }
-        }).catch(() => {});
-
-      // 17. TVMaze Cast & Crew API
-      const searchTVMazePeople = fetch(`https://api.tvmaze.com/search/people?q=${encodeURIComponent(query)}`)
-        .then(res => res.json())
-        .then(data => {
-          if (Array.isArray(data)) {
-            data.forEach(item => {
-              if (item.person && item.person.image && item.person.image.original) {
-                addResult(item.person.image.original, item.person.name || query, 'TVMaze Cast');
-              }
-            });
-          }
-        }).catch(() => {});
-
-      // 18. Open Library Book & Screenplay Covers
-      const searchOpenLibrary = fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=6`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.docs) {
-            data.docs.forEach(doc => {
-              if (doc.cover_i) {
-                addResult(`https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`, doc.title || query, 'Open Library');
-              }
-            });
-          }
-        }).catch(() => {});
-
-      // 19. Google Books Film Adaptations API
-      const searchGoogleBooks = fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query + ' film')}&maxResults=6`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.items) {
-            data.items.forEach(item => {
-              if (item.volumeInfo && item.volumeInfo.imageLinks && item.volumeInfo.imageLinks.thumbnail) {
-                let hd = item.volumeInfo.imageLinks.thumbnail.replace('zoom=1', 'zoom=0').replace('http:', 'https:');
-                addResult(hd, item.volumeInfo.title || query, 'Google Books');
-              }
-            });
-          }
-        }).catch(() => {});
-
-      // 20. Internet Archive Media & Posters
-      const searchInternetArchive = fetch(`https://archive.org/advancedsearch.php?q=${encodeURIComponent(query + ' poster')}&fl[]=identifier,title&rows=6&output=json`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.response && data.response.docs) {
-            data.response.docs.forEach(doc => {
-              if (doc.identifier) {
-                addResult(`https://archive.org/services/img/${doc.identifier}`, doc.title || query, 'Internet Archive');
-              }
-            });
-          }
-        }).catch(() => {});
-
-      // 21. Wikidata Entity Search
-      const searchWikidata = fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(query)}&language=en&format=json&origin=*`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.search) {
-            data.search.forEach(item => {
-              if (item.id) {
-                // Fetch file thumbnail path if claim P18 exists
-                addResult(`https://commons.wikimedia.org/wiki/Special:FilePath/${item.id}`, item.label || query, 'Wikidata');
-              }
-            });
-          }
-        }).catch(() => {});
-
-      Promise.allSettled([
-        searchTMDBMovie, searchTMDBTV, searchTMDBCollection, searchTMDBPerson,
-        searchOMDB, searchiTunesMovie, searchiTunesTV, searchiTunesMusicVideo, searchiTunesAlbum,
-        searchWikiEn, searchWikiMl, searchWikiHi, searchWikiTa, searchWikiTe,
-        searchWikimedia, searchTVMazeShows, searchTVMazePeople,
-        searchOpenLibrary, searchGoogleBooks, searchInternetArchive,
-        searchWikidata
-      ]).then(() => {
-        status.innerText = `Found ${results.length} posters across 21 search sources. Click an image or use Google Images!`;
-        renderWizardPosterGrid(results, query);
+      Promise.allSettled(tasks).then(() => {
+        if (resultsCount === 0) {
+          grid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #aaa;">
+              <p style="font-weight: 600; color: #ff8888;">No direct poster thumbnails found for "${escapeHtml(query)}".</p>
+              <p style="font-size: 13px; margin-top: 8px; color: #67e8f9;">👉 Click <b>🌐 Google Images (New Tab)</b> above to pick any poster, copy its URL, and paste it below!</p>
+            </div>`;
+          status.innerText = `No posters found automatically for "${query}". Use Google Images button above!`;
+        } else {
+          status.innerText = `✓ Found ${resultsCount} HD poster(s) in under 1 second! Click any poster to select.`;
+        }
       });
     }
 
