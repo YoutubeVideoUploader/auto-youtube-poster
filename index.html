@@ -2117,18 +2117,37 @@
 
     function extractTopicMovieName(row) {
       if (!row) return "";
-      // 1. Column D (Headline / Movie Name)
-      if (row.headline && row.headline.trim()) {
-        return row.headline.trim();
-      }
-      // 2. Extract first Malayalam word sequence or English words from Malayalam News Text
-      let text = row.text || "";
-      let quoteMatch = text.match(/['“"‘]([^'”"’]+)['”"’]/);
+      let headline = row.headline ? row.headline.trim() : "";
+      let text = row.text ? row.text.trim() : "";
+
+      // 1. Check for quoted movie names in headline or text (e.g. 'Thudakkam', "കിംഗ് ഓഫ് കൊത്ത")
+      let combined = headline + " " + text;
+      let quoteMatch = combined.match(/['“"‘]([^'”"’]+)['”"’]/);
       if (quoteMatch) {
-        return quoteMatch[1].trim();
+        let qVal = quoteMatch[1].trim();
+        if (qVal.length >= 2 && qVal.split(/\s+/).length <= 6) {
+          return qVal;
+        }
       }
-      // Fallback to first 4-5 words of news text
-      return text.split(/\s+/).slice(0, 4).join(' ');
+
+      // 2. Extract from Headline if available
+      let candidate = headline || text;
+      if (candidate) {
+        // Strip common Malayalam news verbs & filler phrases
+        let clean = candidate
+          .replace(/\b(release date|ott release|first look|pooja|trailer|teaser|poster|movie|film|malayalam|review|collection|official|update|confirmed|starrer)\b/gi, '')
+          .replace(/(റിലീസ് തിയതി|തിയേറ്ററുകളിലേക്ക്|പ്രഖ്യാപിച്ചു|വരുന്നു|തിയതി|അപ്‌ഡേറ്റ്|ട്രെയിലർ|ടീസർ|പൂജ|ഗാനം|ചിത്രം|സിനിമ)/g, '')
+          .replace(/[^\p{L}\p{N}\s\-\']/gu, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        
+        if (clean) {
+          let words = clean.split(' ').slice(0, 4);
+          return words.join(' ');
+        }
+      }
+
+      return headline || text.split(/\s+/).slice(0, 4).join(' ');
     }
 
     function loadWizardStep(idx) {
@@ -2224,44 +2243,54 @@
         status.innerText = `⚡ Found ${resultsCount} poster(s)... Click any poster to select!`;
       };
 
-      const fetchWithTimeout = (url, options = {}, timeoutMs = 2500) => {
+      const fetchWithTimeout = (url, options = {}, timeoutMs = 3500) => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
         return fetch(url, { ...options, signal: controller.signal })
           .finally(() => clearTimeout(timeoutId));
       };
 
-      const cleanQuery = query.replace(/[^\w\s]/gi, ' ').trim();
-      const movieQuery = cleanQuery + " Malayalam movie";
+      // Clean query using Unicode-safe regex (supports Malayalam & English)
+      const cleanQuery = query.replace(/[^\p{L}\p{N}\s\-\']/gu, ' ').replace(/\s+/g, ' ').trim();
+      const cleanMovie = cleanQuery.replace(/\b(movie|film|poster|posters|official|hd|4k|malayalam|release|date|ott)\b/gi, '').trim() || cleanQuery;
+      const movieQuery = cleanMovie + " Malayalam movie";
 
-      // Fast Parallel Search Sources (2.5s Timeout)
+      // Parallel search tasks
       const tasks = [
-        // 1. TMDB Movies (Exact & Malayalam)
-        fetchWithTimeout(`https://api.themoviedb.org/3/search/movie?api_key=8265bd1679663a7ea12ac168da84d2e8&query=${encodeURIComponent(query)}&language=en-US&page=1`)
-          .then(r => r.json()).then(d => (d.results || []).forEach(m => m.poster_path && appendPosterCard(`https://image.tmdb.org/t/p/w500${m.poster_path}`, m.title || query, 'TMDB Movies'))).catch(() => {}),
+        // 1. Bing Web Image Search via AllOrigins CORS Proxy (High accuracy for Indian & Malayalam movie posters!)
+        fetchWithTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://www.bing.com/images/async?q=' + encodeURIComponent(cleanMovie + ' Malayalam movie poster') + '&first=1&count=15')}`)
+          .then(r => r.text())
+          .then(html => {
+            const matches = html.match(/murl&quot;:&quot;(https?:\/\/[^&]+?\.(?:jpg|jpeg|png|webp))&quot;/gi) || [];
+            matches.slice(0, 10).forEach(m => {
+              const u = m.replace(/murl&quot;:&quot;/i, '').replace(/&quot;/i, '');
+              appendPosterCard(u, cleanMovie, 'Bing Web');
+            });
+          }).catch(() => {}),
 
-        // 2. TMDB TV & Web Series
-        fetchWithTimeout(`https://api.themoviedb.org/3/search/tv?api_key=8265bd1679663a7ea12ac168da84d2e8&query=${encodeURIComponent(query)}&language=en-US&page=1`)
-          .then(r => r.json()).then(d => (d.results || []).forEach(m => m.poster_path && appendPosterCard(`https://image.tmdb.org/t/p/w500${m.poster_path}`, m.name || query, 'TMDB TV'))).catch(() => {}),
+        // 2. TMDB Movie Search
+        fetchWithTimeout(`https://api.themoviedb.org/3/search/movie?api_key=8265bd1679663a7ea12ac168da84d2e8&query=${encodeURIComponent(cleanMovie)}&language=en-US&page=1`)
+          .then(r => r.json()).then(d => (d.results || []).forEach(m => m.poster_path && appendPosterCard(`https://image.tmdb.org/t/p/w500${m.poster_path}`, m.title || cleanMovie, 'TMDB Movies'))).catch(() => {}),
 
-        // 3. IMDb / OMDB (Exact & Movie)
-        fetchWithTimeout(`https://www.omdbapi.com/?apikey=trilogy&s=${encodeURIComponent(query)}`)
-          .then(r => r.json()).then(d => (d.Search || []).forEach(m => m.Poster && m.Poster.startsWith('http') && !m.Poster.includes('N/A') && appendPosterCard(m.Poster, m.Title || query, 'IMDb'))).catch(() => {}),
+        // 3. TMDB TV Search
+        fetchWithTimeout(`https://api.themoviedb.org/3/search/tv?api_key=8265bd1679663a7ea12ac168da84d2e8&query=${encodeURIComponent(cleanMovie)}&language=en-US&page=1`)
+          .then(r => r.json()).then(d => (d.results || []).forEach(m => m.poster_path && appendPosterCard(`https://image.tmdb.org/t/p/w500${m.poster_path}`, m.name || cleanMovie, 'TMDB TV'))).catch(() => {}),
 
-        fetchWithTimeout(`https://www.omdbapi.com/?apikey=trilogy&s=${encodeURIComponent(movieQuery)}`)
-          .then(r => r.json()).then(d => (d.Search || []).forEach(m => m.Poster && m.Poster.startsWith('http') && !m.Poster.includes('N/A') && appendPosterCard(m.Poster, m.Title || query, 'IMDb Movie'))).catch(() => {}),
+        // 4. IMDb / OMDb Search
+        fetchWithTimeout(`https://www.omdbapi.com/?apikey=trilogy&s=${encodeURIComponent(cleanMovie)}`)
+          .then(r => r.json()).then(d => (d.Search || []).forEach(m => m.Poster && m.Poster.startsWith('http') && !m.Poster.includes('N/A') && appendPosterCard(m.Poster, m.Title || cleanMovie, 'IMDb'))).catch(() => {}),
 
-        // 4. iTunes HD Movie Posters
+        // 5. iTunes HD Movie Posters
         fetchWithTimeout(`https://itunes.apple.com/search?term=${encodeURIComponent(movieQuery)}&entity=movie&limit=8`)
-          .then(r => r.json()).then(d => (d.results || []).forEach(r => r.artworkUrl100 && appendPosterCard(r.artworkUrl100.replace('100x100bb.jpg', '600x600bb.jpg'), r.trackName || query, 'iTunes HD'))).catch(() => {}),
+          .then(r => r.json()).then(d => (d.results || []).forEach(r => r.artworkUrl100 && appendPosterCard(r.artworkUrl100.replace('100x100bb.jpg', '600x600bb.jpg'), r.trackName || cleanMovie, 'iTunes HD'))).catch(() => {}),
 
-        // 5. Malayalam Wikipedia Posters (Film pages only)
-        fetchWithTimeout(`https://ml.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query + ' ചിത്രം')}&gsrlimit=6&prop=pageimages&pithumbsize=600&format=json&origin=*`)
-          .then(r => r.json()).then(d => d.query?.pages && Object.values(d.query.pages).forEach(p => p.thumbnail?.source && appendPosterCard(p.thumbnail.source, p.title || query, 'Malayalam Wiki'))).catch(() => {}),
+        // 6. Malayalam Wikipedia Film Page Images
+        fetchWithTimeout(`https://ml.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanMovie + ' സിനിമ')}&gsrlimit=6&prop=pageimages&pithumbsize=600&format=json&origin=*`)
+          .then(r => r.json()).then(d => d.query?.pages && Object.values(d.query.pages).forEach(p => p.thumbnail?.source && appendPosterCard(p.thumbnail.source, p.title || cleanMovie, 'Malayalam Wiki'))).catch(() => {}),
 
-        // 6. English Wikipedia Posters (Film pages only)
-        fetchWithTimeout(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query + ' film poster')}&gsrlimit=6&prop=pageimages&pithumbsize=600&format=json&origin=*`)
-          .then(r => r.json()).then(d => d.query?.pages && Object.values(d.query.pages).forEach(p => p.thumbnail?.source && appendPosterCard(p.thumbnail.source, p.title || query, 'Wikipedia'))).catch(() => {})
+        // 7. English Wikipedia Film Page Images
+        fetchWithTimeout(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanMovie + ' film poster')}&gsrlimit=6&prop=pageimages&pithumbsize=600&format=json&origin=*`)
+          .then(r => r.json()).then(d => d.query?.pages && Object.values(d.query.pages).forEach(p => p.thumbnail?.source && appendPosterCard(p.thumbnail.source, p.title || cleanMovie, 'Wikipedia'))).catch(() => {})
       ];
 
       Promise.allSettled(tasks).then(() => {
