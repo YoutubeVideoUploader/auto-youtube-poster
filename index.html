@@ -2377,13 +2377,7 @@
         fetchWithTimeout(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(cleanMovie)}&gsrnamespace=6&prop=imageinfo&iiprop=url|mime&format=json&origin=*`, {}, 5000)
           .then(r => r.json()).then(d => d.query?.pages && Object.values(d.query.pages).forEach(p => p.imageinfo?.[0]?.url && /\.(jpg|jpeg|png|webp)/i.test(p.imageinfo[0].url) && appendPosterCard(p.imageinfo[0].url, p.title || cleanMovie, 'Wikimedia'))).catch(() => {}),
 
-        // 10. iTunes HD Movie Covers
-        fetchWithTimeout(`https://itunes.apple.com/search?term=${encodeURIComponent(movieQuery)}&entity=movie&limit=10`, {}, 5000)
-          .then(r => r.json()).then(d => (d.results || []).forEach(r => r.artworkUrl100 && appendPosterCard(r.artworkUrl100.replace('100x100bb.jpg', '600x600bb.jpg'), r.trackName || cleanMovie, 'iTunes'))).catch(() => {}),
 
-        // 11. iTunes — Broader search (just movie name)
-        fetchWithTimeout(`https://itunes.apple.com/search?term=${encodeURIComponent(cleanMovie)}&entity=movie&limit=10`, {}, 5000)
-          .then(r => r.json()).then(d => (d.results || []).forEach(r => r.artworkUrl100 && appendPosterCard(r.artworkUrl100.replace('100x100bb.jpg', '600x600bb.jpg'), r.trackName || cleanMovie, 'iTunes'))).catch(() => {}),
 
         // 12. Wikidata — Movie/person images via structured data
         fetchWithTimeout(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(cleanMovie)}&language=en&limit=5&format=json&origin=*`, {}, 5000)
