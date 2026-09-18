@@ -2137,7 +2137,7 @@
         let clean = candidate
           .replace(/\b(release date|ott release|first look|pooja|trailer|teaser|poster|movie|film|malayalam|review|collection|official|update|confirmed|starrer)\b/gi, '')
           .replace(/(റിലീസ് തിയതി|തിയേറ്ററുകളിലേക്ക്|പ്രഖ്യാപിച്ചു|വരുന്നു|തിയതി|അപ്‌ഡേറ്റ്|ട്രെയിലർ|ടീസർ|പൂജ|ഗാനം|ചിത്രം|സിനിമ)/g, '')
-          .replace(/[^\p{L}\p{N}\s\-\']/gu, ' ')
+          .replace(/[^\p{L}\p{N}\s]/gu, ' ')
           .replace(/\s+/g, ' ')
           .trim();
         
@@ -2251,7 +2251,7 @@
       };
 
       // Clean query using Unicode-safe regex (supports Malayalam & English)
-      const cleanQuery = query.replace(/[^\p{L}\p{N}\s\-\']/gu, ' ').replace(/\s+/g, ' ').trim();
+      const cleanQuery = query.replace(/[^\p{L}\p{N}\s]/gu, ' ').replace(/\s+/g, ' ').trim();
       const cleanMovie = cleanQuery.replace(/\b(movie|film|poster|posters|official|hd|4k|malayalam|release|date|ott)\b/gi, '').trim() || cleanQuery;
       const movieQuery = cleanMovie + " Malayalam movie";
 
