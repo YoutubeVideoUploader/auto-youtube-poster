@@ -1741,8 +1741,64 @@
         const parsed = JSON.parse(content);
         const items = parsed.items || [];
 
+        async function fetchOnlineReleaseDate(movieName, isOtt) {
+          if (!movieName || movieName.trim().length < 2) return "";
+          try {
+            const query = `${movieName} Malayalam movie ${isOtt ? 'OTT' : 'theatrical'} release date`;
+            const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&utf8=&format=json&origin=*`;
+            const res = await fetch(wikiUrl);
+            if (res.ok) {
+              const data = await res.json();
+              const snippets = (data.query?.search || []).map(s => s.snippet || "").join(" ");
+              const months = "January|February|March|April|May|June|July|August|September|October|November|December";
+              const regex1 = new RegExp(`(${months})\\s+(\\d{1,2})(?:,\\s*(\\d{4}))?`, 'i');
+              const m1 = snippets.match(regex1);
+              if (m1) return `${m1[1]} ${m1[2]}` + (m1[3] ? `, ${m1[3]}` : "");
+
+              const regex2 = new RegExp(`(\\d{1,2})\\s+(${months})(?:\\s+(\\d{4}))?`, 'i');
+              const m2 = snippets.match(regex2);
+              if (m2) return `${m2[2]} ${m2[1]}` + (m2[3] ? `, ${m2[3]}` : "");
+            }
+          } catch (e) {
+            console.warn("Wiki search date fallback error:", e);
+          }
+
+          try {
+            const keyInput = document.getElementById('groq-api-key-input');
+            const apiKey = keyInput && keyInput.value.trim() ? keyInput.value.trim() : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
+            if (apiKey) {
+              const gRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  model: 'llama-3.1-8b-instant',
+                  messages: [
+                    { role: 'system', content: `For the Malayalam movie '${movieName}', what is its official ${isOtt ? 'OTT/streaming' : 'theatrical'} release date? Return ONLY a JSON object: {"release_date": "Month Day"}. If not known or unannounced, return {"release_date": ""}.` },
+                    { role: 'user', content: movieName }
+                  ],
+                  temperature: 0.1,
+                  response_format: { type: 'json_object' }
+                })
+              });
+              if (gRes.ok) {
+                const gData = await gRes.json();
+                const content = gData.choices?.[0]?.message?.content || "";
+                const parsedG = JSON.parse(content);
+                if (parsedG.release_date && parsedG.release_date.trim()) {
+                  return parsedG.release_date.trim();
+                }
+              }
+            }
+          } catch (e) {
+            console.warn("Groq search date fallback error:", e);
+          }
+
+          return "";
+        }
+
         let count = 0;
-        rows.forEach((r, idx) => {
+        for (let idx = 0; idx < rows.length; idx++) {
+          const r = rows[idx];
           if (idx < items.length && items[idx]) {
             const item = items[idx];
             if (activeTab === 'Movie Updates') {
@@ -1750,14 +1806,22 @@
             } else if (activeTab === 'Release Updates') {
               r.headline = item.movie_name || "";
               r.releaseDate = item.release_date || "";
+              if (!r.releaseDate && r.headline) {
+                if (statusBox) statusBox.innerText = `🔍 Searching online release date for '${r.headline}'...`;
+                r.releaseDate = await fetchOnlineReleaseDate(r.headline, false);
+              }
             } else { // OTT Updates
               r.headline = item.movie_name || "";
               r.releaseDate = item.release_date || "";
               r.ottPlatform = item.ott_platform || "";
+              if (!r.releaseDate && r.headline) {
+                if (statusBox) statusBox.innerText = `🔍 Searching online OTT release date for '${r.headline}'...`;
+                r.releaseDate = await fetchOnlineReleaseDate(r.headline, true);
+              }
             }
             count++;
           }
-        });
+        }
 
         saveLocalStore();
         renderTableRows();

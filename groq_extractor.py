@@ -121,11 +121,20 @@ def extract_metadata_with_groq(
             for i in range(len(news_texts)):
                 if i < len(items) and isinstance(items[i], dict):
                     item = items[i]
+                    m_name = str(item.get("movie_name", "")).strip()
+                    r_date = str(item.get("release_date", "")).strip()
+                    o_plat = str(item.get("ott_platform", "")).strip()
+
+                    # Fallback to online search if date missing in text
+                    if not r_date and m_name and m in ["release_updates", "ott_updates"]:
+                        is_ott_mode = (m == "ott_updates")
+                        r_date = search_release_date_online(m_name, is_ott=is_ott_mode)
+
                     result.append({
-                        "movie_name": str(item.get("movie_name", "")).strip(),
+                        "movie_name": m_name,
                         "headline": str(item.get("headline", "")).strip(),
-                        "release_date": str(item.get("release_date", "")).strip(),
-                        "ott_platform": str(item.get("ott_platform", "")).strip()
+                        "release_date": r_date,
+                        "ott_platform": o_plat
                     })
                 else:
                     result.append({"movie_name": "", "headline": "", "release_date": "", "ott_platform": ""})
@@ -134,6 +143,50 @@ def extract_metadata_with_groq(
         print(f"[!] Warning parsing Groq response JSON: {e}")
 
     return [{"movie_name": "", "headline": "", "release_date": "", "ott_platform": ""}] * len(news_texts)
+
+
+def search_release_date_online(movie_name: str, is_ott: bool = False) -> str:
+    """Searches online (DuckDuckGo / Wikipedia) for movie release date if missing from news text."""
+    import re
+    if not movie_name or len(movie_name) < 2:
+        return ""
+
+    query = f"{movie_name} Malayalam movie {'OTT' if is_ott else 'theatrical'} release date"
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+
+    try:
+        url = f"https://html.duckduckgo.com/html/?q={requests.utils.quote(query)}"
+        resp = requests.get(url, headers=headers, timeout=10)
+        if resp.status_code == 200:
+            text = resp.text
+            months = "January|February|March|April|May|June|July|August|September|October|November|December"
+            m = re.search(rf'({months})\s+(\d{{1,2}})(?:,\s*(\d{{4}}))?', text, re.IGNORECASE)
+            if m:
+                month, day, year = m.group(1), m.group(2), m.group(3)
+                return f"{month.capitalize()} {day}" + (f", {year}" if year else "")
+
+            m2 = re.search(rf'(\d{{1,2}})\s+({months})(?:\s+(\d{{4}}))?', text, re.IGNORECASE)
+            if m2:
+                day, month, year = m2.group(1), m2.group(2), m2.group(3)
+                return f"{month.capitalize()} {day}" + (f", {year}" if year else "")
+    except Exception:
+        pass
+
+    try:
+        wiki_url = f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={requests.utils.quote(query)}&utf8=&format=json"
+        r = requests.get(wiki_url, headers=headers, timeout=10)
+        if r.status_code == 200:
+            data = r.json()
+            snippets = " ".join([s.get("snippet", "") for s in data.get("query", {}).get("search", [])])
+            months = "January|February|March|April|May|June|July|August|September|October|November|December"
+            m = re.search(rf'({months})\s+(\d{{1,2}})(?:,\s*(\d{{4}}))?', snippets, re.IGNORECASE)
+            if m:
+                month, day, year = m.group(1), m.group(2), m.group(3)
+                return f"{month.capitalize()} {day}" + (f", {year}" if year else "")
+    except Exception:
+        pass
+
+    return ""
 
 
 def extract_movie_titles_with_groq(
