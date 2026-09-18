@@ -2142,7 +2142,43 @@
       return headline || text.split(/\s+/).slice(0, 4).join(' ');
     }
 
-    function loadWizardStep(idx) {
+    async function fetchEnglishMovieNameWithGroq(malayalamText, apiKey) {
+      if (!malayalamText || !apiKey) return "";
+      try {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + apiKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'llama-3.1-8b-instant',
+            messages: [
+              {
+                role: 'system',
+                content: 'You are an expert Malayalam movie news editor. Extract ONLY the official movie title phonetically in the English alphabet from the text below. Return ONLY a JSON object: {"movie_name": "TitleInEnglish"}. Example: {"movie_name": "Thudakkam"}. Do not add any markdown formatting or extra text.'
+              },
+              { role: 'user', content: malayalamText }
+            ],
+            temperature: 0.1,
+            response_format: { type: 'json_object' }
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const content = data.choices?.[0]?.message?.content || "";
+          const parsed = JSON.parse(content);
+          if (parsed.movie_name && parsed.movie_name.trim()) {
+            return parsed.movie_name.trim();
+          }
+        }
+      } catch (e) {
+        console.warn("Groq English movie name extraction error:", e);
+      }
+      return "";
+    }
+
+    async function loadWizardStep(idx) {
       const rows = store[posterWizardState.activeTab] || [];
       if (idx < 0 || idx >= rows.length) {
         alert("🎉 You have reached the end of all topics in this tab!");
@@ -2158,22 +2194,47 @@
       if (promptPanel) promptPanel.style.display = 'none';
 
       const current = rows[idx];
-      const movieName = extractTopicMovieName(current);
-      posterWizardState.currentTopicName = movieName || `Topic #${current.topicNum}`;
+      let rawMovieName = extractTopicMovieName(current);
 
       // Update Header & Progress Badges
       document.getElementById('wizard-progress-badge').innerText = `Step ${idx + 1} of ${rows.length}`;
-      document.getElementById('wizard-topic-title').innerText = `Topic #${current.topicNum}: "${posterWizardState.currentTopicName}"`;
+      document.getElementById('wizard-topic-title').innerText = `Topic #${current.topicNum}: "${rawMovieName || 'Topic #' + current.topicNum}"`;
       document.getElementById('wizard-news-text').innerText = current.text || "(No news text)";
-
-      // Pre-fill Search Box
-      const searchBox = document.getElementById('wizard-search-input');
-      const query = movieName ? `${movieName}` : `Malayalam movie`;
-      searchBox.value = query;
 
       // Pre-fill existing Image URL if present
       const customUrlBox = document.getElementById('wizard-custom-url-input');
       customUrlBox.value = current.imgUrl ? current.imgUrl.split(/[\r\n,]+/)[0].trim() : '';
+
+      let englishMovieName = rawMovieName;
+
+      // Detect Malayalam script (\u0D00-\u0D7F)
+      const hasMalayalam = /[\u0D00-\u0D7F]/.test(rawMovieName || current.text || "");
+      if (hasMalayalam) {
+        const statusBox = document.getElementById('wizard-search-status');
+        if (statusBox) statusBox.innerText = '🤖 Asking Groq AI for official English movie name...';
+
+        const keyInput = document.getElementById('groq-api-key-input');
+        const apiKey = keyInput && keyInput.value.trim() ? keyInput.value.trim() : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
+
+        if (apiKey) {
+          const fetchedEnglish = await fetchEnglishMovieNameWithGroq(current.text || rawMovieName, apiKey);
+          if (fetchedEnglish) {
+            englishMovieName = fetchedEnglish;
+            // Auto update Column D (Headline / Movie Name) if empty or Malayalam script
+            if (!current.headline || /[\u0D00-\u0D7F]/.test(current.headline)) {
+              current.headline = englishMovieName;
+              saveLocalStore();
+              renderTableRows();
+            }
+          }
+        }
+      }
+
+      // Format search input box as: 'Movie Name (in English)' Movie poster
+      const searchBox = document.getElementById('wizard-search-input');
+      const searchQuery = englishMovieName ? `${englishMovieName} Movie poster` : `Malayalam movie poster`;
+      searchBox.value = searchQuery;
+      posterWizardState.currentTopicName = englishMovieName || rawMovieName;
 
       // Trigger automatic poster search for this topic
       triggerWizardPosterSearch();
