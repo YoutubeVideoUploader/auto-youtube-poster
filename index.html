@@ -1693,9 +1693,7 @@
       const candidateModels = [
         "openai/gpt-oss-20b",
         "openai/gpt-oss-120b",
-        "qwen/qwen3.8-27b",
-        "llama-3.3-70b-versatile",
-        "llama-3.1-8b-instant"
+        "qwen/qwen3.8-27b"
       ];
 
       let lastErr = null;
@@ -2168,37 +2166,40 @@
     async function fetchEnglishMovieNameWithGroq(malayalamText, apiKey) {
       if (!malayalamText) return "";
       if (apiKey) {
-        try {
-          const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Authorization': 'Bearer ' + apiKey,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              model: 'llama-3.1-8b-instant',
-              messages: [
-                {
-                  role: 'system',
-                  content: 'You are an expert Malayalam movie news editor. Extract ONLY the official movie title phonetically in the English alphabet from the text below. Return ONLY a JSON object: {"movie_name": "TitleInEnglish"}. Example: {"movie_name": "Bethlehem Kudumba Unit"}. Do not add any markdown formatting or extra text.'
-                },
-                { role: 'user', content: malayalamText }
-              ],
-              temperature: 0.1,
-              response_format: { type: 'json_object' }
-            })
-          });
-          if (res.ok) {
-            const data = await res.json();
-            const content = data.choices?.[0]?.message?.content || "";
-            const parsed = JSON.parse(content);
-            const val = parsed.movie_name || parsed.english_name || parsed.title || parsed.headline || parsed.movie_title || (parsed.items && parsed.items[0] && (parsed.items[0].movie_name || parsed.items[0].headline));
-            if (val && typeof val === 'string' && val.trim() && !/[\u0D00-\u0D7F]/.test(val)) {
-              return val.trim();
+        const modelsToTry = ["openai/gpt-oss-20b", "openai/gpt-oss-120b", "qwen/qwen3.8-27b"];
+        for (const model of modelsToTry) {
+          try {
+            const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Authorization': 'Bearer ' + apiKey,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                model: model,
+                messages: [
+                  {
+                    role: 'system',
+                    content: 'You are an expert Malayalam movie news editor. Extract ONLY the official movie title phonetically in the English alphabet from the text below. Return ONLY a JSON object: {"movie_name": "TitleInEnglish"}. Example: {"movie_name": "Bethlehem Kudumba Unit"}. Do not add any markdown formatting or extra text.'
+                  },
+                  { role: 'user', content: malayalamText }
+                ],
+                temperature: 0.1,
+                response_format: { type: 'json_object' }
+              })
+            });
+            if (res.ok) {
+              const data = await res.json();
+              const content = data.choices?.[0]?.message?.content || "";
+              const parsed = JSON.parse(content);
+              const val = parsed.movie_name || parsed.english_name || parsed.title || parsed.headline || parsed.movie_title || (parsed.items && parsed.items[0] && (parsed.items[0].movie_name || parsed.items[0].headline));
+              if (val && typeof val === 'string' && val.trim() && !/[\u0D00-\u0D7F]/.test(val)) {
+                return val.trim();
+              }
             }
+          } catch (e) {
+            console.warn("Groq English movie name extraction error:", e);
           }
-        } catch (e) {
-          console.warn("Groq English movie name extraction error:", e);
         }
       }
       return transliterateMalayalamToEnglish(malayalamText);
