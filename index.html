@@ -1512,28 +1512,17 @@
         </div>
 
         <!-- Poster Images Grid -->
-        <!-- Poster Images Grid -->
         <div style="margin-bottom: 12px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <label style="font-size: 13px; font-weight: 700; color: #cbd5e1;">Click Posters to Select / Deselect (Multiple Allowed):</label>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label style="font-size: 13px; font-weight: 700; color: #cbd5e1;">Click Posters to Select / Deselect:</label>
+              <span id="wizard-selected-count-badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; border: 1px solid rgba(56, 189, 248, 0.3);">0 Selected</span>
+              <button class="btn btn-secondary" style="padding: 2px 8px; font-size: 11px; color: #94a3b8;" onclick="clearWizardSelectedPosters()">Clear</button>
+            </div>
             <span id="wizard-search-status" style="font-size: 12px; color: #38bdf8;">Searching...</span>
           </div>
-          <div id="wizard-poster-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; max-height: 250px; overflow-y: auto; background: rgba(8, 12, 22, 0.9); padding: 12px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);">
+          <div id="wizard-poster-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; max-height: 330px; overflow-y: auto; background: rgba(8, 12, 22, 0.9); padding: 12px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);">
             <!-- Rendered poster thumbnails -->
-          </div>
-        </div>
-
-        <!-- Selected Posters Tray & Real-time Visual Counter -->
-        <div id="wizard-selected-tray-container" style="margin-bottom: 14px; background: rgba(8, 12, 22, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; padding: 12px 16px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 13px; font-weight: 700; color: #38bdf8;">Selected Posters:</span>
-              <span id="wizard-selected-count-badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; border: 1px solid rgba(56, 189, 248, 0.3);">0 Selected</span>
-            </div>
-            <button class="btn btn-secondary" style="padding: 3px 10px; font-size: 11px; color: #94a3b8;" onclick="clearWizardSelectedPosters()">Clear All</button>
-          </div>
-          <div id="wizard-selected-thumbnails" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; min-height: 58px; align-items: center;">
-            <span style="font-size: 12px; color: #64748b;">No posters selected yet. Click one or more images above to select!</span>
           </div>
         </div>
 
@@ -3552,26 +3541,14 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         applyCardSelectionStyle(card, card.dataset.url);
       });
 
-      // 2. Update count badge
+      // 2. Update count badge & Save button label
       const countBadge = document.getElementById('wizard-selected-count-badge');
       if (countBadge) {
         countBadge.innerText = `${selected.length} Selected`;
       }
-
-      // 3. Update Selected Thumbnails Tray
-      const tray = document.getElementById('wizard-selected-thumbnails');
-      if (tray) {
-        if (selected.length === 0) {
-          tray.innerHTML = '<span style="font-size: 12px; color: #64748b;">No posters selected yet. Click one or more images above to select!</span>';
-        } else {
-          tray.innerHTML = selected.map((u, i) => `
-            <div style="position: relative; flex-shrink: 0; width: 52px; height: 68px; border-radius: 6px; overflow: hidden; border: 1.5px solid #38bdf8; background: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.5);">
-              <span style="position: absolute; top: 2px; left: 2px; background: rgba(2, 6, 23, 0.85); color: #38bdf8; font-size: 9px; font-weight: 800; padding: 1px 4px; border-radius: 3px; z-index: 2;">#${i + 1}</span>
-              <button onclick="event.stopPropagation(); toggleWizardPoster('${escapeJs(u)}')" title="Remove poster" style="position: absolute; top: 2px; right: 2px; background: rgba(239, 68, 68, 0.85); color: #fff; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2;">✕</button>
-              <img src="${u}" onerror="this.src='https://via.placeholder.com/52x68/161625/a0a0b5?text=Poster'" style="width: 100%; height: 100%; object-fit: cover; display: block;" alt="Thumb">
-            </div>
-          `).join('');
-        }
+      const saveBtn = document.getElementById('wizard-footer-save-btn');
+      if (saveBtn) {
+        saveBtn.innerText = selected.length > 0 ? `💾 Save ${selected.length} Selected & Next ➡️` : `💾 Save & Next ➡️`;
       }
 
       // 4. Update Custom URL box value with comma-separated list
