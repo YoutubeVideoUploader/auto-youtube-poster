@@ -32,11 +32,107 @@
       line-height: 1.6;
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
+      position: relative;
+      overflow-x: hidden;
     }
 
     .container {
       max-width: 1120px;
       margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Ambient Animated Wave Background */
+    .background-waves-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .aurora-glow {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.4;
+      pointer-events: none;
+      will-change: transform;
+    }
+
+    .aurora-1 {
+      top: -15%;
+      left: 15%;
+      width: 650px;
+      height: 480px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.48) 0%, rgba(29, 78, 216, 0.2) 60%, transparent 80%);
+      animation: floatAurora1 22s ease-in-out infinite alternate;
+    }
+
+    .aurora-2 {
+      bottom: 8%;
+      right: 5%;
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.32) 0%, rgba(14, 165, 233, 0.15) 55%, transparent 75%);
+      animation: floatAurora2 26s ease-in-out infinite alternate;
+    }
+
+    .waves-svg {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 42vh;
+      min-height: 240px;
+      max-height: 500px;
+      will-change: transform;
+    }
+
+    .parallax-waves > use {
+      animation: moveWave 25s cubic-bezier(0.55, 0.5, 0.45, 0.5) infinite;
+    }
+
+    .parallax-waves > use:nth-child(1) {
+      animation-delay: -2s;
+      animation-duration: 9s;
+    }
+
+    .parallax-waves > use:nth-child(2) {
+      animation-delay: -3s;
+      animation-duration: 14s;
+    }
+
+    .parallax-waves > use:nth-child(3) {
+      animation-delay: -4s;
+      animation-duration: 19s;
+    }
+
+    .parallax-waves > use:nth-child(4) {
+      animation-delay: -5s;
+      animation-duration: 25s;
+    }
+
+    @keyframes moveWave {
+      0% { transform: translate3d(-90px, 0, 0); }
+      50% { transform: translate3d(85px, 0, 0); }
+      100% { transform: translate3d(-90px, 0, 0); }
+    }
+
+    @keyframes floatAurora1 {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      50% { transform: translate3d(90px, 45px, 0) scale(1.18); }
+      100% { transform: translate3d(-40px, -25px, 0) scale(0.95); }
+    }
+
+    @keyframes floatAurora2 {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      50% { transform: translate3d(-70px, -55px, 0) scale(1.22); }
+      100% { transform: translate3d(60px, 35px, 0) scale(0.92); }
     }
 
     header {
@@ -712,6 +808,38 @@
   </style>
 </head>
 <body>
+
+  <!-- Ambient Wave & Aurora Background Animation -->
+  <div class="background-waves-wrapper">
+    <div class="aurora-glow aurora-1"></div>
+    <div class="aurora-glow aurora-2"></div>
+    <svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+      <defs>
+        <linearGradient id="wave-grad-1" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#2563eb" stop-opacity="0.18"/>
+          <stop offset="50%" stop-color="#38bdf8" stop-opacity="0.28"/>
+          <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.15"/>
+        </linearGradient>
+        <linearGradient id="wave-grad-2" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#1e1b4b" stop-opacity="0.35"/>
+          <stop offset="50%" stop-color="#2563eb" stop-opacity="0.22"/>
+          <stop offset="100%" stop-color="#0284c7" stop-opacity="0.28"/>
+        </linearGradient>
+        <linearGradient id="wave-grad-3" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#0f172a" stop-opacity="0.65"/>
+          <stop offset="50%" stop-color="#1e293b" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#0f172a" stop-opacity="0.75"/>
+        </linearGradient>
+        <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+      </defs>
+      <g class="parallax-waves">
+        <use xlink:href="#gentle-wave" x="48" y="0" fill="url(#wave-grad-1)" />
+        <use xlink:href="#gentle-wave" x="48" y="3" fill="url(#wave-grad-2)" />
+        <use xlink:href="#gentle-wave" x="48" y="5" fill="url(#wave-grad-3)" />
+        <use xlink:href="#gentle-wave" x="48" y="7" fill="rgba(7, 9, 14, 0.82)" />
+      </g>
+    </svg>
+  </div>
 
   <div class="container">
     <header>
