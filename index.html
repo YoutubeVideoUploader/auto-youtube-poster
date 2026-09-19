@@ -751,90 +751,129 @@
       min-width: 650px;
     }
 
-    /* Mobile Responsive Optimizations */
-    .mobile-full-width {
-      width: 100% !important;
-      max-width: 100% !important;
+    /* Table Mobile Swipe Indicator */
+    .table-mobile-hint {
+      display: none;
+      font-size: 12px;
+      color: #38bdf8;
+      font-weight: 600;
+      text-align: right;
+      margin-bottom: 6px;
+      letter-spacing: 0.2px;
     }
 
-    .groq-key-input {
-      padding: 8px 12px;
-      background: rgba(8, 12, 22, 0.9);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      color: #fff;
-      border-radius: 8px;
-      font-size: 13px;
-      flex: 1;
-      min-width: 220px;
-    }
-
+    /* ==========================================================
+       MOBILE ADAPTIVE ENGINE (Responsive for Phones & Tablets)
+       ========================================================== */
     @media (max-width: 768px) {
       body {
-        padding: 10px 8px;
+        padding: 12px 10px calc(18px + env(safe-area-inset-bottom, 14px)) 10px;
+        -webkit-tap-highlight-color: transparent;
       }
 
+      .container {
+        padding-left: 0;
+        padding-right: 0;
+        max-width: 100%;
+      }
+
+      /* Mobile Header */
       header {
-        margin-bottom: 15px;
+        margin-bottom: 18px;
       }
 
       header h1 {
-        font-size: 20px;
+        font-size: clamp(20px, 6vw, 26px);
+        line-height: 1.25;
+        margin-bottom: 8px;
       }
 
       header p {
         font-size: 12px;
+        padding: 4px 12px;
+        max-width: 95vw;
+        line-height: 1.35;
       }
 
+      /* Mobile Segmented Section Navigation Bar */
       .section-nav {
-        flex-direction: column;
-        gap: 8px;
-        margin-bottom: 15px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px;
+        padding: 5px;
+        margin-bottom: 16px;
+        border-radius: 12px;
+        background: rgba(10, 15, 30, 0.94);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
       }
 
       .section-btn {
         max-width: 100%;
         width: 100%;
-        padding: 12px 14px;
-        font-size: 14px;
+        padding: 10px 4px;
+        font-size: 12px;
+        font-weight: 700;
         border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        text-align: center;
+        line-height: 1.15;
+        min-height: 52px;
       }
 
+      /* Mobile Subtabs - Smooth Touch Scroll */
       .tab-bar {
         display: flex;
         flex-wrap: nowrap;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        gap: 6px;
-        padding-bottom: 6px;
+        scrollbar-width: none;
+        gap: 8px;
+        padding: 2px 2px 8px 2px;
+        margin-bottom: 16px;
+        scroll-snap-type: x mandatory;
         justify-content: flex-start;
       }
 
-      .tab-btn {
-        flex: 0 0 auto;
-        white-space: nowrap;
-        padding: 8px 14px;
-        font-size: 13px;
-        border-radius: 6px;
+      .tab-bar::-webkit-scrollbar {
+        display: none;
       }
 
+      .tab-btn {
+        flex: 1 0 auto;
+        scroll-snap-align: start;
+        white-space: nowrap;
+        padding: 8px 16px;
+        font-size: 13px;
+        border-radius: 9999px;
+        text-align: center;
+      }
+
+      /* Cards & Container Sizing */
       .card {
-        padding: 14px 12px;
-        border-radius: 10px;
-        margin-bottom: 15px;
+        padding: 16px 12px;
+        border-radius: 14px;
+        margin-bottom: 18px;
       }
 
       .card-title {
         font-size: 16px;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 14px;
       }
 
-      /* Prevent mobile browser auto-zoom on input focus */
-      input[type="text"], input[type="number"], input[type="password"], textarea, select {
+      /* Prevent mobile browser auto-zoom on input focus (requires >=16px) */
+      input[type="text"], 
+      input[type="number"], 
+      input[type="password"], 
+      textarea, 
+      select {
         font-size: 16px !important;
-      }
-
-      .groq-key-input {
-        width: 100% !important;
-        min-width: 100% !important;
+        line-height: 1.4 !important;
       }
 
       .btn {
@@ -842,7 +881,11 @@
         text-align: center;
         padding: 12px 16px;
         font-size: 14px;
-        margin-bottom: 4px;
+        min-height: 44px;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       .btn-secondary {
@@ -851,13 +894,15 @@
 
       .btn-danger {
         width: auto !important;
-        padding: 6px 10px !important;
+        padding: 8px 12px !important;
+        min-height: 38px;
       }
 
       /* Mobile layout for option panels */
       .option-box-flex {
         flex-direction: column !important;
         align-items: stretch !important;
+        gap: 8px !important;
       }
 
       .tools-grid {
@@ -878,124 +923,278 @@
         width: 100% !important;
       }
 
-      /* Table Touch Scrolling & Inputs */
+      /* Option 2 Reorder Buttons Keypad on Mobile */
+      .reorder-btn-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+      }
+
+      .reorder-btn-grid .btn {
+        margin-bottom: 0 !important;
+        font-size: 13px !important;
+        padding: 10px 6px !important;
+      }
+
+      /* Table Touch Scrolling & Sticky Topic # Column */
+      .table-mobile-hint {
+        display: block;
+      }
+
       .table-wrapper {
-        border-radius: 8px;
-        margin-top: 10px;
-        margin-bottom: 10px;
+        border-radius: 10px;
+        margin-top: 6px;
+        margin-bottom: 14px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        position: relative;
+      }
+
+      #data-table {
+        min-width: 680px;
+      }
+
+      /* Pinned First Column (Topic #) for seamless mobile browsing */
+      #data-table th:first-child,
+      #data-table td:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 3;
+        background: #090d16 !important;
+        border-right: 2px solid rgba(56, 189, 248, 0.35) !important;
+        min-width: 60px;
+        max-width: 72px;
+        text-align: center;
+      }
+
+      #data-table th:first-child {
+        z-index: 4;
+        background: #111827 !important;
+      }
+
+      #data-table th:first-child input,
+      #data-table td:first-child input {
+        text-align: center;
+        min-width: 45px;
       }
 
       th, td {
-        padding: 8px 6px;
-        font-size: 12px;
+        padding: 9px 8px;
+        font-size: 12.5px;
       }
 
-      td input[type="text"], td textarea {
-        font-size: 15px !important;
-        padding: 6px;
+      td input[type="text"] {
+        min-width: 140px;
+        padding: 8px !important;
+        font-size: 16px !important;
       }
 
       td textarea {
-        height: 85px;
+        min-width: 220px;
+        height: 95px !important;
+        padding: 8px !important;
+        font-size: 16px !important;
+        line-height: 1.4 !important;
       }
 
-      .preview-grid {
-        grid-template-columns: 1fr;
-        gap: 14px;
+      /* Bottom Table Actions on Mobile */
+      .table-bottom-actions {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
       }
 
-      .preview-poster {
-        height: 220px;
+      .table-bottom-actions button:nth-child(2) {
+        grid-column: 1 / -1 !important;
+        order: -1 !important;
+        padding: 14px !important;
+        font-size: 15px !important;
+        font-weight: 800 !important;
+        box-shadow: 0 4px 18px rgba(37, 99, 235, 0.6) !important;
       }
 
-      .multi-image-grid {
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-        gap: 6px;
+      .table-bottom-actions .btn {
+        margin-bottom: 0 !important;
       }
 
-      .multi-image-grid img {
-        height: 120px;
+      /* Section 2: Thumbnail Studio Mobile */
+      .thumb-header-flex {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+      }
+
+      .thumb-status-box {
+        width: 100% !important;
+        text-align: center;
       }
 
       #thumbnail-posters-grid {
-        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
+        grid-template-columns: repeat(2, 1fr) !important;
         gap: 10px !important;
       }
 
       #thumbnail-posters-grid .preview-poster {
-        height: 160px !important;
+        height: 165px !important;
       }
 
+      /* Section 3: Output Previews Mobile */
+      .output-cloud-flex {
+        flex-direction: column !important;
+        gap: 12px !important;
+      }
+
+      .output-privacy-box {
+        width: 100% !important;
+      }
+
+      .preview-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+      }
+
+      .preview-card {
+        padding: 15px 12px !important;
+        border-radius: 12px !important;
+      }
+
+      .preview-poster {
+        height: 220px !important;
+        border-radius: 8px !important;
+      }
+
+      .multi-image-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+      }
+
+      .multi-image-grid img {
+        height: 130px !important;
+      }
+
+      /* Fullscreen Image Lightbox Modal */
       .image-modal-close {
-        top: 12px;
-        right: 12px;
-        width: 40px;
-        height: 40px;
-        font-size: 22px;
+        top: 14px;
+        right: 14px;
+        width: 44px;
+        height: 44px;
+        font-size: 24px;
       }
 
       .image-modal-content {
-        max-width: 98vw;
-        max-height: 85vh;
-        width: 96vw;
-        height: 80vh;
+        max-width: 96vw;
+        max-height: 80vh;
+        width: auto;
+        height: auto;
       }
 
       .image-modal-caption {
-        font-size: 11px;
+        font-size: 11.5px;
       }
 
       /* Poster Wizard Modal Mobile Optimizations */
       #poster-wizard-modal > div {
-        width: 98vw !important;
-        max-height: 95vh !important;
-        border-radius: 8px !important;
+        width: 96vw !important;
+        max-height: 94vh !important;
+        border-radius: 12px !important;
       }
+
       .wizard-search-box-row {
         flex-direction: column !important;
         align-items: stretch !important;
-        gap: 6px !important;
+        gap: 8px !important;
       }
+
       .wizard-search-box-row input {
         width: 100% !important;
         min-width: 100% !important;
+        font-size: 16px !important;
       }
+
       .wizard-search-box-row button {
         width: 100% !important;
+        padding: 12px !important;
       }
+
       #wizard-poster-grid {
-        grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)) !important;
+        grid-template-columns: repeat(2, 1fr) !important;
         gap: 8px !important;
-        max-height: 200px !important;
+        max-height: 220px !important;
       }
+
       #wizard-poster-grid img {
-        height: 130px !important;
+        height: 140px !important;
       }
+
       #wizard-prompt-panel {
-        padding: 12px 8px !important;
+        padding: 14px 10px !important;
       }
+
       #wizard-prompt-panel > div {
         flex-direction: column !important;
         gap: 8px !important;
       }
+
       #wizard-prompt-panel button {
         width: 100% !important;
       }
+
       .wizard-custom-url-row {
         flex-direction: column !important;
-        gap: 6px !important;
+        gap: 8px !important;
       }
+
+      .wizard-custom-url-row input {
+        width: 100% !important;
+        font-size: 16px !important;
+      }
+
       .wizard-custom-url-row button {
         width: 100% !important;
+        padding: 11px !important;
+      }
+
+      /* Aurora Mobile GPU Performance */
+      .aurora-ribbon {
+        filter: blur(28px);
+      }
+      .aurora-rays {
+        filter: blur(14px);
+        width: 180vw;
       }
     }
 
+    /* Small Phones (<= 480px) */
     @media (max-width: 480px) {
       body {
-        padding: 8px 6px;
+        padding: 8px 6px calc(16px + env(safe-area-inset-bottom, 12px)) 6px;
       }
+
       .card {
-        padding: 12px 10px;
+        padding: 14px 10px;
+        border-radius: 12px;
+      }
+
+      header h1 {
+        font-size: 21px;
+      }
+
+      .section-btn {
+        font-size: 11.5px;
+        padding: 8px 2px;
+      }
+
+      .tab-btn {
+        padding: 7px 12px;
+        font-size: 12px;
+      }
+
+      #thumbnail-posters-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 6px !important;
+      }
+
+      #thumbnail-posters-grid .preview-poster {
+        height: 145px !important;
       }
     }
   </style>
@@ -1078,7 +1277,7 @@
             <input type="number" id="row-tgt-pos" value="2" min="1" style="width: 70px; padding: 6px; background: #0d0d16; border: 1px solid #33334d; color: #fff; border-radius: 5px;">
           </div>
         </div>
-        <div class="tools-grid" style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <div class="tools-grid reorder-btn-grid" style="display: flex; gap: 10px; flex-wrap: wrap;">
           <button class="btn btn-secondary" onclick="moveRowToPosition()">🔀 Move to Position</button>
           <button class="btn btn-secondary" style="background: #252538;" onclick="shiftRow('up')">⬆️ Move Up</button>
           <button class="btn btn-secondary" style="background: #252538;" onclick="shiftRow('down')">⬇️ Move Down</button>
@@ -1145,6 +1344,7 @@
       </div>
 
       <!-- Data Table -->
+      <div class="table-mobile-hint">↔️ Swipe table horizontally to edit all columns</div>
       <div class="table-wrapper">
         <table id="data-table">
           <thead>
@@ -1161,7 +1361,7 @@
         </table>
       </div>
 
-      <div class="tools-grid" style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+      <div class="tools-grid table-bottom-actions" style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
         <button class="btn btn-secondary" onclick="addRow()">+ Add New Row</button>
         <button class="btn" onclick="saveAndSync()">⚡ Save & Sync to Google Sheet</button>
         <button class="btn btn-secondary" onclick="fetchLiveGoogleSheetsData()">🔄 Reload Online Sheets</button>
@@ -1179,12 +1379,12 @@
       </p>
 
       <div style="background: #171728; border: 1px solid #33334d; border-radius: 10px; padding: 18px; margin-bottom: 20px;">
-        <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+        <div class="thumb-header-flex" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
           <div style="flex: 1; min-width: 280px;">
             <label style="font-size: 13px; font-weight: 600; color: #ff2a4b;">🏷️ Banner Headline Title Text:</label>
             <input type="text" id="thumb-title-input" value="LATEST MALAYALAM MOVIE UPDATES" style="width: 100%; padding: 10px; background: #0d0d16; border: 1px solid var(--accent-red); color: #fff; border-radius: 6px; font-weight: bold; margin-top: 6px;">
           </div>
-          <div style="background: #0d0d16; padding: 10px 16px; border-radius: 8px; border: 1px solid #2b2b40;">
+          <div class="thumb-status-box" style="background: #0d0d16; padding: 10px 16px; border-radius: 8px; border: 1px solid #2b2b40;">
             <span style="font-size: 13px; color: #aaa;">Status:</span>
             <span id="selected-posters-badge" style="font-size: 14px; font-weight: bold; color: #4eff8c; margin-left: 8px;">📸 0 Posters Selected</span>
           </div>
@@ -1193,7 +1393,7 @@
 
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
         <h4 style="color: #fff;">Available Poster Images from All Topics:</h4>
-        <div>
+        <div style="display: flex; gap: 8px;">
           <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="selectAllPosters(true)">✓ Select All</button>
           <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px; background: #282838;" onclick="selectAllPosters(false)">✗ Unselect All</button>
         </div>
@@ -1214,14 +1414,14 @@
         <div style="font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 5px;">🎬 24/7 Cloud Video Render & YouTube Auto Uploader</div>
         <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">Triggers GitHub Actions in the cloud to synthesize voice, render 1080p MP4 video, create 1280x720 thumbnail collage, and upload directly to YouTube!</p>
 
-        <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
+        <div class="output-cloud-flex" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
           <div style="flex: 1; min-width: 280px;">
             <label style="font-size: 13px; font-weight: 600; color: #aaa;">📸 Auto YouTube Thumbnail Collage:</label>
             <div id="cloud-thumb-summary" style="padding: 10px; background: #0d0d16; border: 1px solid #33334d; color: #4eff8c; border-radius: 5px; font-size: 13px; font-weight: bold; margin-top: 4px;">
               ✨ Automatic Collage (Selected posters from Thumbnail Studio)
             </div>
           </div>
-          <div style="width: 150px;">
+          <div class="output-privacy-box" style="width: 150px;">
             <label style="font-size: 13px; font-weight: 600; color: #aaa;">🔒 Privacy Status:</label>
             <select id="privacy-select" style="width: 100%; padding: 10px; background: #0d0d16; border: 1px solid #33334d; color: #fff; border-radius: 5px; margin-top: 4px;">
               <option value="unlisted">Unlisted</option>
