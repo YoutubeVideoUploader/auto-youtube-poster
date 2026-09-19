@@ -9,11 +9,39 @@ import re
 import io
 import json
 import time
+import datetime
 import urllib.parse
 import requests
 import pandas as pd
 from pathlib import Path
 from typing import Dict, List, Any, Tuple, Optional
+
+
+def format_cell_value(val: Any) -> str:
+    """Formats a cell value into a clean, JSON-serializable string, handling Timestamps, datetimes, and NaNs."""
+    if val is None or pd.isna(val):
+        return ""
+    if isinstance(val, (pd.Timestamp, datetime.datetime)):
+        if val.hour == 0 and val.minute == 0 and val.second == 0:
+            return val.strftime("%Y-%m-%d")
+        return val.strftime("%Y-%m-%d %H:%M:%S")
+    if isinstance(val, datetime.date):
+        return val.strftime("%Y-%m-%d")
+    s = str(val).strip()
+    return "" if s.lower() in ("nan", "none", "nat") else s
+
+
+def json_serial_fallback(obj: Any) -> Any:
+    """Fallback JSON serializer for Timestamps, datetimes, dates, NaNs, and custom types."""
+    if obj is None or pd.isna(obj):
+        return ""
+    if isinstance(obj, (pd.Timestamp, datetime.datetime)):
+        if obj.hour == 0 and obj.minute == 0 and obj.second == 0:
+            return obj.strftime("%Y-%m-%d")
+        return obj.strftime("%Y-%m-%d %H:%M:%S")
+    if isinstance(obj, datetime.date):
+        return obj.strftime("%Y-%m-%d")
+    return str(obj)
 
 BASE_DIR = Path(__file__).resolve().parent
 OUTPUT_DIR = BASE_DIR / "outputs"
@@ -116,11 +144,19 @@ class GoogleSheetManager:
 
             parsed_tabs[name] = df_tab
 
-        # Preserve any additional worksheets like 'Thumbnail Config' if present
+        # Preserve any additional worksheets like 'Thumbnail Config', 'Serper Keys', etc.
         for sheet_key in sheets_raw.keys():
             key_clean = str(sheet_key).strip()
             if key_clean not in parsed_tabs:
-                parsed_tabs[key_clean] = sheets_raw[sheet_key]
+                extra_df = sheets_raw[sheet_key]
+                if isinstance(extra_df, pd.DataFrame):
+                    extra_clean = extra_df.copy()
+                    extra_clean.columns = [str(c).strip() for c in extra_clean.columns]
+                    for c in extra_clean.columns:
+                        extra_clean[c] = extra_clean[c].apply(format_cell_value)
+                    parsed_tabs[key_clean] = extra_clean
+                else:
+                    parsed_tabs[key_clean] = extra_df
 
         self.data_cache = parsed_tabs
         self.save_local_cache()
@@ -177,11 +213,11 @@ class GoogleSheetManager:
 
         clean_rows = []
         for idx, (df_idx, row) in enumerate(df.iterrows(), start=1):
-            text_val = str(row[topic_col]).strip() if pd.notna(row[topic_col]) else ""
-            img_val = str(row[img_col]).strip() if img_col and pd.notna(row[img_col]) else ""
-            headline_val = str(row[headline_col]).strip() if headline_col and pd.notna(row[headline_col]) else ""
-            rel_date_val = str(row[rel_date_col]).strip() if rel_date_col and pd.notna(row[rel_date_col]) else ""
-            ott_plat_val = str(row[ott_plat_col]).strip() if ott_plat_col and pd.notna(row[ott_plat_col]) else ""
+            text_val = format_cell_value(row[topic_col]) if topic_col and topic_col in row else ""
+            img_val = format_cell_value(row[img_col]) if img_col and img_col in row else ""
+            headline_val = format_cell_value(row[headline_col]) if headline_col and headline_col in row else ""
+            rel_date_val = format_cell_value(row[rel_date_col]) if rel_date_col and rel_date_col in row else ""
+            ott_plat_val = format_cell_value(row[ott_plat_col]) if ott_plat_col and ott_plat_col in row else ""
             
             if not text_val or text_val.lower() == "nan":
                 continue
@@ -288,24 +324,49 @@ class GoogleSheetManager:
         OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
         cache_data = {}
         for tab_name, df in self.data_cache.items():
-            cache_data[tab_name] = df.to_dict(orient="records")
+            if isinstance(df, pd.DataFrame):
+                records = []
+                for row_dict in df.to_dict(orient="records"):
+                    clean_dict = {
+                        str(k): format_cell_value(v) if isinstance(v, (pd.Timestamp, datetime.datetime, datetime.date)) or pd.isna(v) else v
+                        for k, v in row_dict.items()
+                    }
+                    records.append(clean_dict)
+                cache_data[tab_name] = records
+            elif isinstance(df, list):
+                cache_data[tab_name] = df
+            else:
+                cache_data[tab_name] = []
 
         with open(CACHE_FILE, "w", encoding="utf-8") as f:
-            json.dump(cache_data, f, ensure_ascii=False, indent=2)
+            json.dump(cache_data, f, ensure_ascii=False, indent=2, default=json_serial_fallback)
 
     def sync_to_google_apps_script(self, tab_name: str, df: pd.DataFrame) -> bool:
         """Pushes table updates to Google Sheet using a Google Apps Script Web App webhook."""
         if not self.web_app_url:
             return False
 
+        if isinstance(df, pd.DataFrame):
+            records = []
+            for row_dict in df.to_dict(orient="records"):
+                clean_dict = {
+                    str(k): format_cell_value(v) if isinstance(v, (pd.Timestamp, datetime.datetime, datetime.date)) or pd.isna(v) else v
+                    for k, v in row_dict.items()
+                }
+                records.append(clean_dict)
+        elif isinstance(df, list):
+            records = df
+        else:
+            records = []
+
         payload = {
             "tab_name": tab_name,
-            "rows": df.to_dict(orient="records")
+            "rows": records
         }
 
         try:
             headers = {"Content-Type": "application/json"}
-            r = requests.post(self.web_app_url, data=json.dumps(payload), headers=headers, verify=False, timeout=20, allow_redirects=True)
+            r = requests.post(self.web_app_url, data=json.dumps(payload, default=json_serial_fallback), headers=headers, verify=False, timeout=20, allow_redirects=True)
             print(f"[SUCCESS] WebApp Sync Response Code: {r.status_code}")
             return r.status_code in [200, 302]
         except Exception as e:

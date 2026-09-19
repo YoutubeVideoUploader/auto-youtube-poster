@@ -453,7 +453,7 @@ def generate_audio_from_sheet(sheet_url: str = DEFAULT_SHEET_URL, model_key: str
             meta_data["topic_items"] = all_flat_topics
             meta_data["parsed_sections"] = {k: len(v) for k, v in parsed_sections.items()}
             with open(res["metadata_path"], 'w', encoding='utf-8') as f:
-                json.dump(meta_data, f, ensure_ascii=False, indent=2)
+                json.dump(meta_data, f, ensure_ascii=False, indent=2, default=str)
         except Exception as e:
             print(f"[!] Warning updating metadata JSON: {e}")
 
