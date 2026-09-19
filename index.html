@@ -2337,22 +2337,58 @@
       const movieQuery = cleanMovie + " Malayalam movie";
 
       // Parallel Search — Google Images (Serper API) + Backup Sources
-      const SERPER_KEY = '706d6e0c2e53e2d18b6f85808d560536e5d97ab7';
+      // Multi-Key Serper Pool (7,500 Total Free Google Image Searches with Auto-Failover)
+      const SERPER_KEYS = [
+        '706d6e0c2e53e2d18b6f85808d560536e5d97ab7',
+        '6fd2aecf0e6a8aaba3a1e5c6f3f63d54f6779236',
+        '8cc926c37bc6a93c0a28ea9bee6e25b62655b561'
+      ];
+
+      const fetchSerperImagesWithFallback = async (searchQuery, numResults = 12) => {
+        let startIdx = parseInt(localStorage.getItem('active_serper_key_idx') || '0', 10);
+        if (isNaN(startIdx) || startIdx < 0 || startIdx >= SERPER_KEYS.length) startIdx = 0;
+
+        for (let attempt = 0; attempt < SERPER_KEYS.length; attempt++) {
+          const currentIdx = (startIdx + attempt) % SERPER_KEYS.length;
+          const apiKey = SERPER_KEYS[currentIdx];
+          try {
+            const resp = await fetchWithTimeout('https://google.serper.dev/images', {
+              method: 'POST',
+              headers: {
+                'X-API-KEY': apiKey,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ q: searchQuery, num: numResults })
+            }, 5000);
+
+            if (resp.status === 403 || resp.status === 429) {
+              console.warn(`Serper Key ${currentIdx + 1} quota reached. Auto-switching to next key...`);
+              const nextIdx = (currentIdx + 1) % SERPER_KEYS.length;
+              localStorage.setItem('active_serper_key_idx', String(nextIdx));
+              continue;
+            }
+
+            if (resp.ok) {
+              const data = await resp.json();
+              if (currentIdx !== startIdx) {
+                localStorage.setItem('active_serper_key_idx', String(currentIdx));
+              }
+              return data.images || [];
+            }
+          } catch (e) {
+            // Try next key if network error
+          }
+        }
+        return [];
+      };
+
       const words = cleanMovie.split(/\s+/);
       const shortName = words.slice(0, 3).join(' ');  // First 3 words for broader search
       const tasks = [
-        // 1. ★ GOOGLE IMAGES (Primary - Real Google Images Search via Serper)
-        fetchWithTimeout('https://google.serper.dev/images', {
-          method: 'POST',
-          headers: {
-            'X-API-KEY': SERPER_KEY,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ q: cleanMovie + ' movie poster', num: 12 })
-        }, 5000)
-          .then(r => r.json())
-          .then(data => {
-            (data.images || []).forEach(img => {
+        // 1. ★ GOOGLE IMAGES (Primary - Multi-Key Auto-Rotating Pool)
+        fetchSerperImagesWithFallback(cleanMovie + ' movie poster', 12)
+          .then(images => {
+            (images || []).forEach(img => {
               const u = img.imageUrl || img.thumbnailUrl;
               appendPosterCard(u, img.title || cleanMovie, '★ Google Images');
             });
@@ -2360,17 +2396,9 @@
           .catch(() => {}),
 
         // 2. ★ GOOGLE IMAGES (Second Query - First Look & HD Teaser Poster)
-        fetchWithTimeout('https://google.serper.dev/images', {
-          method: 'POST',
-          headers: {
-            'X-API-KEY': SERPER_KEY,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ q: cleanMovie + ' first look poster HD', num: 8 })
-        }, 5000)
-          .then(r => r.json())
-          .then(data => {
-            (data.images || []).forEach(img => {
+        fetchSerperImagesWithFallback(cleanMovie + ' first look poster HD', 8)
+          .then(images => {
+            (images || []).forEach(img => {
               const u = img.imageUrl || img.thumbnailUrl;
               appendPosterCard(u, img.title || cleanMovie, '★ Google Images');
             });
