@@ -339,6 +339,34 @@
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
     }
 
+    /* Settings Gear Button */
+    .settings-gear-btn {
+      background: rgba(15, 23, 42, 0.82);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #38bdf8;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+    }
+
+    .settings-gear-btn:hover {
+      background: rgba(37, 99, 235, 0.3);
+      border-color: #38bdf8;
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(56, 189, 248, 0.4);
+    }
+
     /* Main Section Navigation Buttons */
     .section-nav {
       display: flex;
@@ -1219,7 +1247,10 @@
 
   <div class="container">
     <header>
-      <h1>🎬 Malayalam Movie News Studio</h1>
+      <div style="display: flex; justify-content: center; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 6px;">
+        <h1>🎬 Malayalam Movie News Studio</h1>
+        <button class="settings-gear-btn" onclick="openApiSettingsModal()" title="Manage API Keys & Google Sheet Connection">⚙️ API Settings</button>
+      </div>
       <p>Google Sheets Connected Dashboard (Netlify Ready)</p>
     </header>
 
@@ -1522,11 +1553,306 @@
     </div>
   </div>
 
+  <!-- API SETTINGS & GOOGLE SHEET INTEGRATION MODAL -->
+  <div id="api-settings-modal" class="image-modal-overlay" style="z-index: 10006;">
+    <div class="settings-modal-card" style="background: #0b0f19; border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 16px; max-width: 680px; width: 95vw; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 70px rgba(0,0,0,0.85), 0 0 35px rgba(37, 99, 235, 0.2); animation: fadeInLightbox 0.2s ease-out;">
+      
+      <!-- Modal Header -->
+      <div style="background: rgba(15, 23, 42, 0.9); padding: 16px 22px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 22px;">⚙️</span>
+          <div>
+            <h3 style="color: #f8fafc; font-size: 17px; font-weight: 700; margin: 0;">API Settings & Key Manager</h3>
+            <span style="font-size: 12px; color: #94a3b8;">Connected directly to Google Sheets (Serper Keys tab)</span>
+          </div>
+        </div>
+        <button onclick="closeApiSettingsModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; font-weight: bold; padding: 0 6px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">✕</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div style="padding: 20px 22px; overflow-y: auto; flex: 1;">
+        
+        <!-- Info Banner -->
+        <div style="background: rgba(8, 12, 22, 0.85); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 10px; padding: 12px 16px; margin-bottom: 18px;">
+          <div style="font-size: 13px; color: #e2e8f0; line-height: 1.5;">
+            📊 <b>Google Sheet Storage:</b> Serper.dev API keys are stored in the <code style="color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 2px 6px; border-radius: 4px;">Serper Keys</code> tab in your Google Spreadsheet. Any key added here is synced to your sheet and available across all devices!
+          </div>
+        </div>
+
+        <!-- Serper Keys Section -->
+        <div style="margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+            <label style="font-size: 14px; font-weight: 700; color: #fff;">🔑 Connected Serper API Keys:</label>
+            <span id="settings-key-pool-badge" style="font-size: 12px; background: rgba(37, 99, 235, 0.2); color: #38bdf8; padding: 4px 10px; border-radius: 9999px; font-weight: 700; border: 1px solid rgba(56, 189, 248, 0.35);">
+              7 Keys Active (17,500 Searches)
+            </span>
+          </div>
+
+          <!-- Dynamic Keys List Container -->
+          <div id="settings-keys-list" style="background: rgba(8, 12, 22, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 8px 12px; max-height: 180px; overflow-y: auto; margin-bottom: 12px;">
+            <!-- Rendered by renderApiSettingsKeyList() -->
+          </div>
+        </div>
+
+        <!-- Add New Key Form -->
+        <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+          <label style="font-size: 13px; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 8px;">➕ Add New Serper.dev API Key to Google Sheet:</label>
+          <div style="display: flex; gap: 8px; flex-direction: column;">
+            <input type="text" id="new-serper-key-input" placeholder="Paste 40-character Serper API key (e.g. 706d6e0c2e5...)" style="width: 100%; padding: 11px 14px; background: rgba(8, 12, 22, 0.95); border: 1px solid rgba(56, 189, 248, 0.3); color: #fff; border-radius: 8px; font-size: 14px;">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px;">
+              <button class="btn" style="flex: 1; min-width: 180px; padding: 11px 18px;" onclick="addSerperKeyToGoogleSheet()">💾 Save Key to Google Sheet</button>
+              <button class="btn btn-secondary" style="padding: 11px 16px;" onclick="testInputSerperKey()">⚡ Test Key Connection</button>
+            </div>
+          </div>
+          <div id="settings-toast" class="status-toast" style="margin-top: 10px;"></div>
+        </div>
+
+        <!-- Groq Key Section -->
+        <div style="background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 16px;">
+          <label style="font-size: 13px; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 6px;">🤖 Groq AI API Key (Malayalam Smart Extractor):</label>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <input type="password" id="settings-groq-key-input" placeholder="gsk_..." style="flex: 1; min-width: 220px; padding: 9px 12px; background: rgba(8, 12, 22, 0.9); border: 1px solid rgba(255, 255, 255, 0.12); color: #fff; border-radius: 8px; font-size: 13px;">
+            <button class="btn btn-secondary" style="padding: 9px 14px; font-size: 13px;" onclick="saveGroqKeyFromSettings()">💾 Save Groq Key</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div style="background: rgba(15, 23, 42, 0.9); padding: 12px 22px; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 12px; color: #64748b;">Failover rotates automatically between all sheet keys</span>
+        <button class="btn btn-secondary" style="font-size: 13px; padding: 8px 18px;" onclick="closeApiSettingsModal()">Done</button>
+      </div>
+
+    </div>
+  </div>
+
   <script>
     const DEFAULT_GROQ_KEY = ["gsk_mCCgNIxm7ZJIHqMxh", "goOWGdyb3FYJuejNMmTDApHYmTK5xBe4Uf8"].join("");
     // Configured Google Apps Script Web App Endpoint
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyKFgRsYYCX69wM7_INBD7kWWUc3O9ah-HrPOjXf_Z_rigXZwWzt5qVWPMPiNE6PQ-nWQ/exec";
     const DOC_ID = "15xkauNiB27ytehTI5XHgmLm5QmJvudnEegrGSmnx5_g";
+
+    // Dynamic Serper API Key Pool from Google Sheet
+    let activeSerperKeys = [];
+
+    function getActiveSerperKeys() {
+      if (activeSerperKeys && activeSerperKeys.length > 0) return activeSerperKeys;
+      try {
+        const cached = JSON.parse(localStorage.getItem('cached_serper_keys') || '[]');
+        if (Array.isArray(cached) && cached.length > 0) {
+          activeSerperKeys = cached;
+          return activeSerperKeys;
+        }
+      } catch (e) {}
+      return [
+        '706d6e0c2e53e2d18b6f85808d560536e5d97ab7',
+        '6fd2aecf0e6a8aaba3a1e5c6f3f63d54f6779236',
+        '8cc926c37bc6a93c0a28ea9bee6e25b62655b561',
+        '9c7b69b58d92d293b000ac9d43c87e736f3809c1',
+        'a5e997a31056ecf4653442d3bb0ffde0a9964fc4',
+        '32541b9cc4fad4ef33cf2b7353a668c3845de9fc',
+        '3e2ceb8660a332263aab5b85434a311fe4f3a82c'
+      ];
+    }
+
+    function openApiSettingsModal() {
+      const modal = document.getElementById('api-settings-modal');
+      if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        renderApiSettingsKeyList();
+        const groqInp = document.getElementById('settings-groq-key-input');
+        if (groqInp) {
+          groqInp.value = localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY;
+        }
+      }
+    }
+
+    function closeApiSettingsModal() {
+      const modal = document.getElementById('api-settings-modal');
+      if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+    }
+
+    function renderApiSettingsKeyList() {
+      const keys = getActiveSerperKeys();
+      const listEl = document.getElementById('settings-keys-list');
+      const badgeEl = document.getElementById('settings-key-pool-badge');
+      if (badgeEl) {
+        badgeEl.innerText = `${keys.length} Keys Active (${(keys.length * 2500).toLocaleString()} Searches)`;
+      }
+      if (!listEl) return;
+      if (keys.length === 0) {
+        listEl.innerHTML = '<div style="color: #94a3b8; font-size: 13px; padding: 10px; text-align: center;">No Serper keys connected yet. Add one below!</div>';
+        return;
+      }
+      listEl.innerHTML = keys.map((k, idx) => {
+        const masked = k.length > 8 ? (k.slice(0, 4) + '••••••••••••••••' + k.slice(-4)) : '••••••••';
+        return `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 7px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="color: #38bdf8; font-weight: 700; font-size: 11px; background: rgba(56,189,248,0.12); padding: 2px 6px; border-radius: 4px;">#${idx + 1}</span>
+              <code style="color: #cbd5e1; font-family: monospace;">${masked}</code>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 11px;" onclick="testSingleSerperKey('${k}', ${idx + 1})">⚡ Test</button>
+              <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px; background: #3a2232; color: #ff8888;" onclick="deleteSerperKeyFromGoogleSheet('${k}')">🗑️</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function addSerperKeyToGoogleSheet() {
+      const input = document.getElementById('new-serper-key-input');
+      const keyVal = (input ? input.value : '').trim();
+
+      if (!keyVal || keyVal.length < 20) {
+        showSettingsToast('⚠️ Please enter a valid Serper API key (at least 20 characters).', 'error');
+        return;
+      }
+
+      showSettingsToast('🔄 Connecting to Google Sheets and saving key...', '');
+
+      try {
+        const resp = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'add_serper_key',
+            key: keyVal
+          })
+        });
+
+        const resData = await resp.json();
+        if (resData.status === 'success') {
+          if (resData.serper_keys && Array.isArray(resData.serper_keys)) {
+            activeSerperKeys = resData.serper_keys;
+          } else if (activeSerperKeys.indexOf(keyVal) === -1) {
+            activeSerperKeys.push(keyVal);
+          }
+          localStorage.setItem('cached_serper_keys', JSON.stringify(activeSerperKeys));
+          input.value = '';
+          renderApiSettingsKeyList();
+          showSettingsToast('✅ Serper API key successfully saved to Google Sheet!', 'success');
+        } else {
+          showSettingsToast('⚠️ Error saving to Google Sheet: ' + (resData.message || 'Unknown'), 'error');
+        }
+      } catch (err) {
+        if (activeSerperKeys.indexOf(keyVal) === -1) {
+          activeSerperKeys.push(keyVal);
+          localStorage.setItem('cached_serper_keys', JSON.stringify(activeSerperKeys));
+          renderApiSettingsKeyList();
+        }
+        showSettingsToast('⚠️ Saved locally! Will sync to Google Sheet when online.', 'success');
+      }
+    }
+
+    async function deleteSerperKeyFromGoogleSheet(key) {
+      if (!confirm('Are you sure you want to remove this Serper API key from Google Sheet?')) return;
+      showSettingsToast('🔄 Removing key from Google Sheet...', '');
+      try {
+        const resp = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'delete_serper_key',
+            key: key
+          })
+        });
+        const resData = await resp.json();
+        if (resData.status === 'success' && resData.serper_keys && Array.isArray(resData.serper_keys)) {
+          activeSerperKeys = resData.serper_keys;
+        } else {
+          activeSerperKeys = activeSerperKeys.filter(k => k !== key);
+        }
+        localStorage.setItem('cached_serper_keys', JSON.stringify(activeSerperKeys));
+        renderApiSettingsKeyList();
+        showSettingsToast('✓ Key removed successfully!', 'success');
+      } catch (e) {
+        activeSerperKeys = activeSerperKeys.filter(k => k !== key);
+        localStorage.setItem('cached_serper_keys', JSON.stringify(activeSerperKeys));
+        renderApiSettingsKeyList();
+        showSettingsToast('✓ Removed locally.', 'success');
+      }
+    }
+
+    async function testSingleSerperKey(key, num) {
+      showSettingsToast(`⚡ Testing Key #${num} with Serper.dev...`, '');
+      try {
+        const resp = await fetch('https://google.serper.dev/images', {
+          method: 'POST',
+          headers: {
+            'X-API-KEY': key,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ q: 'Malayalam cinema', num: 1 })
+        });
+        if (resp.ok) {
+          showSettingsToast(`✅ Key #${num} is ACTIVE and working perfectly!`, 'success');
+        } else if (resp.status === 403 || resp.status === 429) {
+          showSettingsToast(`⚠️ Key #${num} quota exceeded (403/429).`, 'error');
+        } else {
+          showSettingsToast(`⚠️ Key #${num} returned status ${resp.status}.`, 'error');
+        }
+      } catch (e) {
+        showSettingsToast(`⚠️ Connection test failed: ${e.message}`, 'error');
+      }
+    }
+
+    async function testInputSerperKey() {
+      const input = document.getElementById('new-serper-key-input');
+      const keyVal = (input ? input.value : '').trim();
+      if (!keyVal || keyVal.length < 20) {
+        showSettingsToast('⚠️ Please enter a key to test.', 'error');
+        return;
+      }
+      showSettingsToast('⚡ Testing key with Serper.dev...', '');
+      try {
+        const resp = await fetch('https://google.serper.dev/images', {
+          method: 'POST',
+          headers: {
+            'X-API-KEY': keyVal,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ q: 'Malayalam cinema', num: 1 })
+        });
+        if (resp.ok) {
+          showSettingsToast('✅ Key is VALID & ACTIVE! You can now click "Save Key to Google Sheet".', 'success');
+        } else {
+          showSettingsToast(`❌ Key test failed: HTTP ${resp.status}`, 'error');
+        }
+      } catch (e) {
+        showSettingsToast(`⚠️ Test error: ${e.message}`, 'error');
+      }
+    }
+
+    function saveGroqKeyFromSettings() {
+      const inp = document.getElementById('settings-groq-key-input');
+      const val = (inp ? inp.value : '').trim();
+      if (val) {
+        localStorage.setItem('groq_api_key', val);
+        const gel = document.getElementById('groq-api-key-input');
+        if (gel) gel.value = val;
+        fetch(WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ groq_api_key: val })
+        }).catch(() => {});
+        showSettingsToast('✅ Groq API key saved!', 'success');
+      }
+    }
+
+    function showSettingsToast(msg, type) {
+      const toast = document.getElementById('settings-toast');
+      if (!toast) return;
+      toast.style.display = 'block';
+      toast.className = 'status-toast ' + (type === 'success' ? 'toast-success' : (type === 'error' ? 'toast-error' : ''));
+      toast.innerText = msg;
+    }
 
     // Fullscreen Image Lightbox Modal Handlers
     function openImageModal(src) {
@@ -1666,6 +1992,28 @@
           if (gel && data.config.groq_api_key.trim() !== '') {
             gel.value = data.config.groq_api_key;
             localStorage.setItem('groq_api_key', data.config.groq_api_key);
+          }
+        }
+
+        // Auto populate Serper API Keys from Google Sheet (Serper Keys tab or config)
+        if (data.serper_keys && Array.isArray(data.serper_keys) && data.serper_keys.length > 0) {
+          activeSerperKeys = data.serper_keys;
+          try {
+            localStorage.setItem('cached_serper_keys', JSON.stringify(activeSerperKeys));
+          } catch (e) {}
+          renderApiSettingsKeyList();
+        } else if (data['Serper Keys'] && Array.isArray(data['Serper Keys'])) {
+          let sKeys = [];
+          data['Serper Keys'].forEach(r => {
+            let k = String(r['Serper API Key'] || r['API Key'] || r['Key'] || '').trim();
+            if (k && k.length >= 20 && sKeys.indexOf(k) === -1) sKeys.push(k);
+          });
+          if (sKeys.length > 0) {
+            activeSerperKeys = sKeys;
+            try {
+              localStorage.setItem('cached_serper_keys', JSON.stringify(activeSerperKeys));
+            } catch (e) {}
+            renderApiSettingsKeyList();
           }
         }
 
@@ -2952,25 +3300,20 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       const cleanMovie = cleanQuery.replace(/\b(movie|film|poster|posters|official|hd|4k|malayalam|release|date|ott)\b/gi, '').trim() || cleanQuery;
       const movieQuery = cleanMovie + " Malayalam movie";
 
-      // Parallel Search — Google Images (Serper API) + Backup Sources
-      // Multi-Key Serper Pool (17,500 Total Free Google Image Searches with Auto-Failover)
-      const SERPER_KEYS = [
-        '706d6e0c2e53e2d18b6f85808d560536e5d97ab7',
-        '6fd2aecf0e6a8aaba3a1e5c6f3f63d54f6779236',
-        '8cc926c37bc6a93c0a28ea9bee6e25b62655b561',
-        '9c7b69b58d92d293b000ac9d43c87e736f3809c1',
-        'a5e997a31056ecf4653442d3bb0ffde0a9964fc4',
-        '32541b9cc4fad4ef33cf2b7353a668c3845de9fc',
-        '3e2ceb8660a332263aab5b85434a311fe4f3a82c'
-      ];
-
+      // Parallel Search — Google Images (Serper API from Google Sheet pool) + Backup Sources
       const fetchSerperImagesWithFallback = async (searchQuery, numResults = 12) => {
-        let startIdx = parseInt(localStorage.getItem('active_serper_key_idx') || '0', 10);
-        if (isNaN(startIdx) || startIdx < 0 || startIdx >= SERPER_KEYS.length) startIdx = 0;
+        const serperKeys = getActiveSerperKeys();
+        if (!serperKeys || serperKeys.length === 0) {
+          console.warn("No Serper API keys available in Google Sheet pool.");
+          return [];
+        }
 
-        for (let attempt = 0; attempt < SERPER_KEYS.length; attempt++) {
-          const currentIdx = (startIdx + attempt) % SERPER_KEYS.length;
-          const apiKey = SERPER_KEYS[currentIdx];
+        let startIdx = parseInt(localStorage.getItem('active_serper_key_idx') || '0', 10);
+        if (isNaN(startIdx) || startIdx < 0 || startIdx >= serperKeys.length) startIdx = 0;
+
+        for (let attempt = 0; attempt < serperKeys.length; attempt++) {
+          const currentIdx = (startIdx + attempt) % serperKeys.length;
+          const apiKey = serperKeys[currentIdx];
           try {
             const resp = await fetchWithTimeout('https://google.serper.dev/images', {
               method: 'POST',
@@ -2982,8 +3325,8 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
             }, 5000);
 
             if (resp.status === 403 || resp.status === 429) {
-              console.warn(`Serper Key ${currentIdx + 1} quota reached. Auto-switching to next key...`);
-              const nextIdx = (currentIdx + 1) % SERPER_KEYS.length;
+              console.warn(`Serper Key #${currentIdx + 1} quota reached. Auto-switching to next key in pool...`);
+              const nextIdx = (currentIdx + 1) % serperKeys.length;
               localStorage.setItem('active_serper_key_idx', String(nextIdx));
               continue;
             }

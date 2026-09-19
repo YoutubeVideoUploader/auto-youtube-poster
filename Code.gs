@@ -9,6 +9,7 @@ function doGet(e) {
       var ss = SpreadsheetApp.getActiveSpreadsheet();
       var result = {};
       var configObj = {};
+      var serperKeysList = [];
       var sheets = ss.getSheets();
       for (var i = 0; i < sheets.length; i++) {
         var s = sheets[i];
@@ -26,6 +27,15 @@ function doGet(e) {
           }
           result[name] = rows;
           
+          if (name === "Serper Keys" || name === "Serper_Keys" || name === "SerperKeys" || name === "API Keys") {
+            for (var sk = 1; sk < data.length; sk++) {
+              var keyVal = String(data[sk][0] || "").trim();
+              if (keyVal && keyVal.length >= 20 && serperKeysList.indexOf(keyVal) === -1) {
+                serperKeysList.push(keyVal);
+              }
+            }
+          }
+
           if (name === "Config" || name === "Settings") {
             for (var k = 1; k < data.length; k++) {
               var kname = String(data[k][0] || "").trim().toLowerCase();
@@ -33,11 +43,45 @@ function doGet(e) {
               if (kname.indexOf("groq") !== -1) {
                 configObj["groq_api_key"] = kval;
               }
+              if (kname.indexOf("serper") !== -1) {
+                var sKeys = kval.split(/[\r\n,]+/);
+                for (var si = 0; si < sKeys.length; si++) {
+                  var skItem = sKeys[si].trim();
+                  if (skItem && skItem.length >= 20 && serperKeysList.indexOf(skItem) === -1) {
+                    serperKeysList.push(skItem);
+                  }
+                }
+              }
             }
           }
         }
       }
+
+      // Auto-initialize Serper Keys sheet if not yet present
+      if (serperKeysList.length === 0) {
+        var skSheet = ss.getSheetByName("Serper Keys");
+        if (!skSheet) {
+          skSheet = ss.insertSheet("Serper Keys");
+          skSheet.appendRow(["Serper API Key", "Status", "Added Date"]);
+          var defaultKeys = [
+            '706d6e0c2e53e2d18b6f85808d560536e5d97ab7',
+            '6fd2aecf0e6a8aaba3a1e5c6f3f63d54f6779236',
+            '8cc926c37bc6a93c0a28ea9bee6e25b62655b561',
+            '9c7b69b58d92d293b000ac9d43c87e736f3809c1',
+            'a5e997a31056ecf4653442d3bb0ffde0a9964fc4',
+            '32541b9cc4fad4ef33cf2b7353a668c3845de9fc',
+            '3e2ceb8660a332263aab5b85434a311fe4f3a82c'
+          ];
+          for (var dk = 0; dk < defaultKeys.length; dk++) {
+            skSheet.appendRow([defaultKeys[dk], "Active", new Date().toISOString().split("T")[0]]);
+            serperKeysList.push(defaultKeys[dk]);
+          }
+        }
+      }
+
       result["config"] = configObj;
+      result["serper_keys"] = serperKeysList;
+
       if (e.parameter.callback) {
         var cb = e.parameter.callback;
         return ContentService.createTextOutput(cb + "(" + JSON.stringify(result) + ");")
@@ -67,6 +111,61 @@ function doPost(e) {
     // Save Groq API Key if provided in payload
     if (data.groq_api_key) {
       saveConfigSheet("GROQ_API_KEY", data.groq_api_key);
+    }
+
+    // 0. Handle Adding Serper API Key to Google Sheet
+    if (data.action === "add_serper_key" && data.key) {
+      var addedKey = String(data.key).trim();
+      var ss = SpreadsheetApp.getActiveSpreadsheet();
+      var skSheet = ss.getSheetByName("Serper Keys");
+      if (!skSheet) {
+        skSheet = ss.insertSheet("Serper Keys");
+        skSheet.appendRow(["Serper API Key", "Status", "Added Date"]);
+      }
+      var existingData = skSheet.getDataRange().getValues();
+      var exists = false;
+      for (var ek = 1; ek < existingData.length; ek++) {
+        if (String(existingData[ek][0]).trim() === addedKey) {
+          exists = true;
+          break;
+        }
+      }
+      if (!exists) {
+        skSheet.appendRow([addedKey, "Active", new Date().toISOString().split("T")[0]]);
+      }
+      var allKeys = [];
+      var updatedData = skSheet.getDataRange().getValues();
+      for (var uk = 1; uk < updatedData.length; uk++) {
+        var kVal = String(updatedData[uk][0] || "").trim();
+        if (kVal && kVal.length >= 20 && allKeys.indexOf(kVal) === -1) allKeys.push(kVal);
+      }
+      return ContentService.createTextOutput(JSON.stringify({"status": "success", "serper_keys": allKeys}))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // 0b. Handle Deleting Serper API Key from Google Sheet
+    if (data.action === "delete_serper_key" && data.key) {
+      var delKey = String(data.key).trim();
+      var ss = SpreadsheetApp.getActiveSpreadsheet();
+      var skSheet = ss.getSheetByName("Serper Keys");
+      if (skSheet) {
+        var rowsData = skSheet.getDataRange().getValues();
+        for (var rk = rowsData.length - 1; rk >= 1; rk--) {
+          if (String(rowsData[rk][0]).trim() === delKey) {
+            skSheet.deleteRow(rk + 1);
+          }
+        }
+      }
+      var remainingKeys = [];
+      if (skSheet) {
+        var remData = skSheet.getDataRange().getValues();
+        for (var rem = 1; rem < remData.length; rem++) {
+          var remVal = String(remData[rem][0] || "").trim();
+          if (remVal && remVal.length >= 20) remainingKeys.push(remVal);
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({"status": "success", "serper_keys": remainingKeys}))
+        .setMimeType(ContentService.MimeType.JSON);
     }
 
     // 1. Handle GitHub Action Trigger Request from Web App / Website
