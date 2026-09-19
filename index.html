@@ -2624,6 +2624,20 @@
       alert("✓ Renumbered all topic numbers sequentially (1..N)!");
     }
 
+    function cleanMalayalamDotsAndInitials(text) {
+      if (!text) return "";
+      let s = String(text);
+      // 1. Remove dots between letters/initials (e.g. എ.ഡി -> എഡി, എ.ഡിയെ -> എഡിയെ, K.G.F -> KGF)
+      s = s.replace(/([\u0D00-\u0D7FA-Za-z])\.([\u0D00-\u0D7FA-Za-z])/g, '$1$2');
+      s = s.replace(/([\u0D00-\u0D7FA-Za-z])\.([\u0D00-\u0D7FA-Za-z])/g, '$1$2');
+      // 2. Remove dots from initials with space or word (e.g. " എ. ഡി. " -> " എ ഡി ")
+      s = s.replace(/(?<=\s|^)([\u0D00-\u0D7FA-Za-z]{1,2})\.\s*(?=[\u0D00-\u0D7FA-Za-z])/g, '$1 ');
+      s = s.replace(/(?<=\s|^)([\u0D00-\u0D7FA-Za-z]{1,2})\.(?=\s)/g, '$1');
+      // 3. Clean up multiple spaces
+      s = s.replace(/ +/g, ' ').trim();
+      return s;
+    }
+
     async function autoExtractGroqMovieNames() {
       const keyInput = document.getElementById('groq-api-key-input');
       const apiKey = keyInput && keyInput.value.trim() ? keyInput.value.trim() : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
@@ -2637,23 +2651,37 @@
       if (statusBox) {
         statusBox.style.display = 'block';
         statusBox.className = 'status-toast';
-        statusBox.innerText = '🤖 Calling Groq AI to extract movie metadata... Please wait...';
+        statusBox.innerText = '🤖 Calling Groq AI to extract movie metadata & clean topic text... Please wait...';
       }
 
       const formattedTopics = rows.map((r, i) => `Topic #${i+1}: ${r.text || 'No text'}`).join('\n');
       
       let systemPrompt = "";
       if (activeTab === 'Movie Updates') {
-        systemPrompt = "You are an expert Malayalam movie news editor. For each topic text below, generate a short, catchy 1-line English Headline / Topic Heading summarizing the news. CRITICAL RULES: 1. ABSOLUTELY NO MALAYALAM SCRIPT (NO MALAYALAM CHARACTERS). The entire output headline MUST be written 100% using the English alphabet. 2. ALWAYS write Malayalam movie titles phonetically using the English alphabet (e.g. write 'Bethlehem Kudumba Unit' instead of 'ബത്‌ലഹേം കുടുംബ യൂണിറ്റ്', write 'Thudakkam' instead of 'തുടക്കം'). 3. Never translate Malayalam movie names to literal English meanings (e.g. write 'Thudakkam' instead of 'The Beginning'). 4. Keep headlines concise, exciting, and limited to 1 line per topic. Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"headline\": \"Girish A.D. Celebrates 300-Crore Success of 'Bethlehem Kudumba Unit'\"}]}. No extra text outside JSON.";
+        systemPrompt = "You are an expert Malayalam movie news editor. For each topic text below, generate metadata and clean the text:\n" +
+          "1. 'headline': Short, catchy 1-line English Headline / Topic Heading summarizing the news. CRITICAL RULES: ABSOLUTELY NO MALAYALAM SCRIPT (100% English alphabet). Always write movie titles phonetically in English (e.g. 'Bethlehem Kudumba Unit', 'Thudakkam'). Never translate names literally. Keep concise and limited to 1 line.\n" +
+          "2. 'cleaned_text': The original Malayalam news text cleaned so that dots/periods (.) are ONLY used at the actual end of complete sentences. Remove all periods/dots within names, initials, acronyms, and abbreviations (e.g. convert 'ഗിരീഷ് എ.ഡി' or 'എ.ഡിയെ' to 'ഗിരീഷ് എഡി' or 'ഗിരീഷ് എ ഡി', 'കെ.ജി.എഫ്' to 'കെജിഎഫ്', 'യു.എസ്.' to 'യുഎസ്', 'ഡോ.' to 'ഡോക്ടർ' or 'ഡോ'). Preserve real sentence-ending full stops at the end of complete sentences. Do not alter or translate the words.\n" +
+          "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"headline\": \"Girish A.D. Celebrates 300-Crore Success of 'Bethlehem Kudumba Unit'\", \"cleaned_text\": \"...\"}]}. No extra text outside JSON.";
       } else if (activeTab === 'Release Updates') {
-        systemPrompt = "You are an expert Malayalam movie news editor. For each topic text below, extract: 1. 'movie_name': Official movie title phonetically in English alphabet (e.g. 'Bethlehem Kudumba Unit', 'Thudakkam'). ABSOLUTELY NO MALAYALAM SCRIPT OR MALAYALAM CHARACTERS. 2. 'release_date': The theatrical release date EXPLICITLY mentioned in the text (e.g., 'October 2', 'September 25'). If no date is mentioned in the text, return '' (an empty string). DO NOT guess or search outside the text. Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"movie_name\": \"Bethlehem Kudumba Unit\", \"release_date\": \"October 2\"}]}. No extra text outside JSON.";
+        systemPrompt = "You are an expert Malayalam movie news editor. For each topic text below, extract metadata and clean the text:\n" +
+          "1. 'movie_name': Official movie title phonetically in English alphabet (e.g. 'Bethlehem Kudumba Unit', 'Thudakkam'). ABSOLUTELY NO MALAYALAM SCRIPT.\n" +
+          "2. 'release_date': The theatrical release date EXPLICITLY mentioned in the text (e.g., 'October 2', 'September 25'). If no date is mentioned in the text, return '' (an empty string). DO NOT guess or search outside the text.\n" +
+          "3. 'cleaned_text': The original Malayalam news text cleaned so that dots/periods (.) are ONLY used at the actual end of complete sentences. Remove all periods/dots within names, initials, acronyms, and abbreviations (e.g. 'എ.ഡി' to 'എഡി', 'കെ.ജി.എഫ്' to 'കെജിഎഫ്'). Preserve real sentence-ending full stops. Do not translate the words.\n" +
+          "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"movie_name\": \"Bethlehem Kudumba Unit\", \"release_date\": \"October 2\", \"cleaned_text\": \"...\"}]}. No extra text outside JSON.";
       } else { // OTT Updates
-        systemPrompt = "You are an expert Malayalam movie news editor. For each topic text below, extract: 1. 'movie_name': Official movie title phonetically in English alphabet (e.g. 'Bethlehem Kudumba Unit', 'Thudakkam'). ABSOLUTELY NO MALAYALAM SCRIPT OR MALAYALAM CHARACTERS. 2. 'release_date': The streaming / OTT release date EXPLICITLY mentioned in the text (e.g., 'September 28', 'Available Now'). If no date is mentioned in the text, return '' (an empty string). DO NOT guess or search outside the text. 3. 'ott_platform': The streaming platform name (e.g., 'Netflix', 'Disney+ Hotstar', 'Amazon Prime Video', 'SonyLIV', 'Zee5', 'ManoramaMAX', 'Simply South'). If not mentioned, write ''. Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"movie_name\": \"Bethlehem Kudumba Unit\", \"release_date\": \"September 28\", \"ott_platform\": \"Netflix\"}]}. No extra text outside JSON.";
+        systemPrompt = "You are an expert Malayalam movie news editor. For each topic text below, extract metadata and clean the text:\n" +
+          "1. 'movie_name': Official movie title phonetically in English alphabet (e.g. 'Bethlehem Kudumba Unit', 'Thudakkam'). ABSOLUTELY NO MALAYALAM SCRIPT.\n" +
+          "2. 'release_date': The streaming / OTT release date EXPLICITLY mentioned in the text (e.g., 'September 28', 'Available Now'). If no date is mentioned in the text, return '' (an empty string). DO NOT guess or search outside the text.\n" +
+          "3. 'ott_platform': The streaming platform name (e.g., 'Netflix', 'Disney+ Hotstar', 'Amazon Prime Video', 'SonyLIV', 'Zee5', 'ManoramaMAX', 'Simply South'). If not mentioned, write ''.\n" +
+          "4. 'cleaned_text': The original Malayalam news text cleaned so that dots/periods (.) are ONLY used at the actual end of complete sentences. Remove all periods/dots within names, initials, acronyms, and abbreviations (e.g. 'എ.ഡി' to 'എഡി', 'കെ.ജി.എഫ്' to 'കെജിഎഫ്'). Preserve real sentence-ending full stops. Do not translate the words.\n" +
+          "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"movie_name\": \"Bethlehem Kudumba Unit\", \"release_date\": \"September 28\", \"ott_platform\": \"Netflix\", \"cleaned_text\": \"...\"}]}. No extra text outside JSON.";
       }
 
       const candidateModels = [
         "openai/gpt-oss-20b",
         "openai/gpt-oss-120b",
+        "llama-3.3-70b-versatile",
+        "llama-3.1-8b-instant",
         "qwen/qwen3.8-27b"
       ];
 
@@ -2836,7 +2864,15 @@
               r.releaseDate = item.release_date || parseMalayalamDateFromText(r.text) || "";
               r.ottPlatform = item.ott_platform || parseMalayalamPlatformFromText(r.text) || "";
             }
+
+            // Clean Malayalam topic text: prioritize Groq AI cleaned_text, then normalize initials
+            const rawClean = (item.cleaned_text && item.cleaned_text.trim()) ? item.cleaned_text.trim() : (r.text || "");
+            r.text = cleanMalayalamDotsAndInitials(rawClean);
+
             count++;
+          } else if (r.text) {
+            // Even if beyond items length, clean existing text
+            r.text = cleanMalayalamDotsAndInitials(r.text);
           }
         }
 
@@ -2846,9 +2882,9 @@
 
         if (statusBox) {
           statusBox.className = 'status-toast toast-success';
-          statusBox.innerText = `🎉 Groq AI auto-filled metadata for ${count} rows!`;
+          statusBox.innerText = `🎉 Groq AI auto-filled metadata & cleaned topic text for ${count} rows!`;
         }
-        alert(`🎉 Groq AI auto-filled metadata for ${count} rows in ${activeTab}!`);
+        alert(`🎉 Groq AI auto-filled metadata & cleaned topic text for ${count} rows in ${activeTab}!`);
       } catch (err) {
         if (statusBox) {
           statusBox.className = 'status-toast toast-error';

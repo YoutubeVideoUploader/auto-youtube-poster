@@ -94,6 +94,22 @@ def upgrade_url_to_hd(url: str) -> str:
     return url_str
 
 
+def clean_malayalam_initial_dots(text: str) -> str:
+    """Removes dots from names, initials, acronyms, and abbreviations in Malayalam text while keeping sentence full stops."""
+    if not text:
+        return ""
+    s = str(text)
+    # 1. Remove dots between letters: e.g. എ.ഡി -> എഡി, എ.ഡിയെ -> എഡിയെ, K.G.F -> KGF
+    s = re.sub(r'([\u0D00-\u0D7FA-Za-z])\.([\u0D00-\u0D7FA-Za-z])', r'\1\2', s)
+    s = re.sub(r'([\u0D00-\u0D7FA-Za-z])\.([\u0D00-\u0D7FA-Za-z])', r'\1\2', s)
+    # 2. Remove dots from initials with space: e.g. " എ. ഡി. " -> " എ ഡി "
+    s = re.sub(r'(?<=\s|^)([\u0D00-\u0D7FA-Za-z]{1,2})\.\s*(?=[\u0D00-\u0D7FA-Za-z])', r'\1 ', s)
+    s = re.sub(r'(?<=\s|^)([\u0D00-\u0D7FA-Za-z]{1,2})\.(?=\s)', r'\1', s)
+    # 3. Clean up multiple spaces
+    s = re.sub(r' +', ' ', s).strip()
+    return s
+
+
 def download_single_target(target_str: str, save_path: str) -> bool:
     """
     Downloads an image target URL into save_path with Full HD resolution upgrading.
@@ -270,6 +286,8 @@ def fetch_all_sheets_data(sheet_url: str) -> Tuple[Dict[str, List[Dict[str, Any]
 
             # Convert any English words/acronyms in Google Sheet topic text into clean Malayalam script
             topic_val = pron_dict.replace_english_words(topic_val)
+            # Remove dots from names, initials, and acronyms (keeps sentence full stops)
+            topic_val = clean_malayalam_initial_dots(topic_val)
 
             valid_topic_idx += 1
 
