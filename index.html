@@ -1512,9 +1512,10 @@
         </div>
 
         <!-- Poster Images Grid -->
-        <div style="margin-bottom: 14px;">
+        <!-- Poster Images Grid -->
+        <div style="margin-bottom: 12px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <label style="font-size: 13px; font-weight: 700; color: #cbd5e1;">Click a Poster to Select:</label>
+            <label style="font-size: 13px; font-weight: 700; color: #cbd5e1;">Click Posters to Select / Deselect (Multiple Allowed):</label>
             <span id="wizard-search-status" style="font-size: 12px; color: #38bdf8;">Searching...</span>
           </div>
           <div id="wizard-poster-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; max-height: 250px; overflow-y: auto; background: rgba(8, 12, 22, 0.9); padding: 12px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);">
@@ -1522,19 +1523,33 @@
           </div>
         </div>
 
-        <!-- Custom Image URL Input Box -->
-        <div style="background: rgba(8, 12, 22, 0.85); padding: 12px 16px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);">
-          <label style="font-size: 12px; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 6px;">Or Paste Image URL Directly:</label>
-          <div class="wizard-custom-url-row" style="display: flex; gap: 8px;">
-            <input type="text" id="wizard-custom-url-input" placeholder="https://example.com/poster.jpg" style="flex: 1; padding: 9px 12px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(148, 163, 184, 0.16); color: #fff; border-radius: 6px; font-size: 13px;">
-            <button class="btn" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 9px 16px; font-size: 13px;" onclick="applyWizardCustomUrl()">✅ Apply URL</button>
+        <!-- Selected Posters Tray & Real-time Visual Counter -->
+        <div id="wizard-selected-tray-container" style="margin-bottom: 14px; background: rgba(8, 12, 22, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; padding: 12px 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 13px; font-weight: 700; color: #38bdf8;">Selected Posters:</span>
+              <span id="wizard-selected-count-badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; border: 1px solid rgba(56, 189, 248, 0.3);">0 Selected</span>
+            </div>
+            <button class="btn btn-secondary" style="padding: 3px 10px; font-size: 11px; color: #94a3b8;" onclick="clearWizardSelectedPosters()">Clear All</button>
+          </div>
+          <div id="wizard-selected-thumbnails" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; min-height: 58px; align-items: center;">
+            <span style="font-size: 12px; color: #64748b;">No posters selected yet. Click one or more images above to select!</span>
           </div>
         </div>
 
-        <!-- STEP CONFIRMATION PROMPT OVERLAY PANEL (Shows after URL selected) -->
+        <!-- Custom Image URL Input Box (Appends to Selection) -->
+        <div style="background: rgba(8, 12, 22, 0.85); padding: 12px 16px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 14px;">
+          <label style="font-size: 12px; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 6px;">Or Paste Image URL Directly (appends to selection):</label>
+          <div class="wizard-custom-url-row" style="display: flex; gap: 8px;">
+            <input type="text" id="wizard-custom-url-input" placeholder="https://example.com/poster.jpg (comma-separated for multiple)" style="flex: 1; padding: 9px 12px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(148, 163, 184, 0.16); color: #fff; border-radius: 6px; font-size: 13px;">
+            <button class="btn" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 9px 16px; font-size: 13px;" onclick="applyWizardCustomUrl()">➕ Add URL</button>
+          </div>
+        </div>
+
+        <!-- STEP CONFIRMATION PROMPT OVERLAY PANEL -->
         <div id="wizard-prompt-panel" style="display: none; margin-top: 14px; background: rgba(6, 78, 59, 0.45); border: 1px solid rgba(16, 185, 129, 0.45); border-radius: 10px; padding: 14px; text-align: center; animation: fadeInLightbox 0.2s ease-out;">
-          <div style="font-size: 15px; font-weight: 700; color: #6ee7b7; margin-bottom: 4px;">✅ Poster Saved for Topic #<span id="wizard-prompt-topic-num">1</span>!</div>
-          <p style="font-size: 13px; color: #d1fae5; margin-bottom: 12px;">Would you like to proceed to the next topic?</p>
+          <div style="font-size: 15px; font-weight: 700; color: #6ee7b7; margin-bottom: 4px;">✅ <span id="wizard-prompt-count-text">Posters</span> Saved for Topic #<span id="wizard-prompt-topic-num">1</span>!</div>
+          <p style="font-size: 13px; color: #d1fae5; margin-bottom: 12px;">Saved to Column C (comma-separated). Proceed to the next topic?</p>
           <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
             <button class="btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; font-weight: 800; font-size: 14px; padding: 9px 18px;" onclick="advancePosterWizardNext()">➡️ Next Movie (<span id="wizard-next-topic-title">Topic #2</span>)</button>
             <button class="btn btn-secondary" style="font-size: 13px; padding: 9px 14px;" onclick="closePosterWizard()">🛑 Finish Wizard</button>
@@ -1544,9 +1559,11 @@
       </div>
 
       <!-- Modal Footer -->
-      <div style="background: rgba(15, 23, 42, 0.85); padding: 12px 22px; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center;">
+      <div style="background: rgba(15, 23, 42, 0.85); padding: 12px 22px; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
         <button class="btn btn-secondary" style="font-size: 12px; padding: 7px 14px;" onclick="prevPosterWizardStep()">⬅️ Previous</button>
-        <span style="font-size: 12px; color: #64748b;">Select image or paste URL to continue</span>
+        <button class="btn" id="wizard-footer-save-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; font-weight: 700; font-size: 13px; padding: 8px 20px;" onclick="saveWizardSelectionAndNext()">
+          💾 Save Selected & Next ➡️
+        </button>
         <button class="btn btn-secondary" style="font-size: 12px; padding: 7px 14px;" onclick="advancePosterWizardNext()">Skip ➡️</button>
       </div>
 
@@ -3018,7 +3035,7 @@
       totalRows: 0,
       currentTopicName: '',
       currentSearchQuery: '',
-      selectedUrl: ''
+      selectedUrls: []
     };
 
     function startPosterWizard() {
@@ -3186,7 +3203,6 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       }
 
       posterWizardState.currentIndex = idx;
-      posterWizardState.selectedUrl = '';
 
       // Hide prompt panel for new step
       const promptPanel = document.getElementById('wizard-prompt-panel');
@@ -3195,14 +3211,26 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       const current = rows[idx];
       let rawMovieName = extractTopicMovieName(current);
 
+      // Pre-fill existing Image URLs if present
+      if (current.imgUrl && typeof current.imgUrl === 'string') {
+        posterWizardState.selectedUrls = current.imgUrl
+          .split(/[\r\n,]+/)
+          .map(u => u.trim())
+          .filter(u => u.toLowerCase().startsWith('http'));
+      } else {
+        posterWizardState.selectedUrls = [];
+      }
+      updateWizardSelectionUI();
+
       // Update Header & Progress Badges
       document.getElementById('wizard-progress-badge').innerText = `Step ${idx + 1} of ${rows.length}`;
       document.getElementById('wizard-topic-title').innerText = `Topic #${current.topicNum}: "${rawMovieName || 'Topic #' + current.topicNum}"`;
       document.getElementById('wizard-news-text').innerText = current.text || "(No news text)";
 
-      // Pre-fill existing Image URL if present
       const customUrlBox = document.getElementById('wizard-custom-url-input');
-      customUrlBox.value = current.imgUrl ? current.imgUrl.split(/[\r\n,]+/)[0].trim() : '';
+      if (customUrlBox) {
+        customUrlBox.value = posterWizardState.selectedUrls.join(', ');
+      }
 
       const statusBox = document.getElementById('wizard-search-status');
       if (statusBox) statusBox.innerText = '🤖 AI analyzing news context & generating smart search...';
@@ -3265,6 +3293,8 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         resultsCount++;
 
         let card = document.createElement('div');
+        card.className = 'wizard-poster-card';
+        card.dataset.url = url;
         card.style.cssText = `
           position: relative;
           cursor: pointer;
@@ -3272,20 +3302,23 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           border-radius: 8px;
           overflow: hidden;
           background: #161625;
-          transition: transform 0.2s, border-color 0.2s;
+          transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
         `;
-        let sourceBadge = source ? `<span style="position: absolute; top: 4px; left: 4px; background: rgba(8, 145, 178, 0.85); color: #fff; font-size: 9px; font-weight: bold; padding: 2px 5px; border-radius: 4px;">${escapeHtml(source)}</span>` : '';
+        let sourceBadge = source ? `<span style="position: absolute; top: 4px; left: 4px; background: rgba(8, 145, 178, 0.85); color: #fff; font-size: 9px; font-weight: bold; padding: 2px 5px; border-radius: 4px; z-index: 2;">${escapeHtml(source)}</span>` : '';
+        let orderBadge = `<span class="wizard-order-badge" style="display: none; position: absolute; top: 4px; right: 4px; background: #38bdf8; color: #020617; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 9999px; z-index: 2; box-shadow: 0 2px 6px rgba(0,0,0,0.6);">✓</span>`;
+
         card.innerHTML = `
           ${sourceBadge}
+          ${orderBadge}
           <img src="${url}" style="width: 100%; height: 160px; object-fit: cover; display: block;" onerror="this.parentNode.remove()" alt="Poster">
           <div style="padding: 4px; text-align: center; font-size: 10px; color: #aaa; background: #0d0d16; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(title || 'Poster ' + resultsCount)}</div>
         `;
-        card.onmouseover = () => card.style.borderColor = '#06b6d4';
-        card.onmouseout = () => card.style.borderColor = '#2b2b40';
-        card.onclick = () => selectWizardPoster(url);
+        card.onclick = () => toggleWizardPoster(url);
         grid.appendChild(card);
 
-        status.innerText = `⚡ Found ${resultsCount} poster(s)... Click any poster to select!`;
+        applyCardSelectionStyle(card, url);
+
+        status.innerText = `⚡ Found ${resultsCount} poster(s)... Click any poster to select/deselect!`;
       };
 
       const fetchWithTimeout = (url, options = {}, timeoutMs = 3500) => {
@@ -3441,6 +3474,8 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
 
       images.forEach((imgObj, i) => {
         let card = document.createElement('div');
+        card.className = 'wizard-poster-card';
+        card.dataset.url = imgObj.url;
         card.style.cssText = `
           position: relative;
           cursor: pointer;
@@ -3448,18 +3483,21 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           border-radius: 8px;
           overflow: hidden;
           background: #161625;
-          transition: transform 0.2s, border-color 0.2s;
+          transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
         `;
-        let sourceBadge = imgObj.source ? `<span style="position: absolute; top: 4px; left: 4px; background: rgba(8, 145, 178, 0.85); color: #fff; font-size: 9px; font-weight: bold; padding: 2px 5px; border-radius: 4px;">${escapeHtml(imgObj.source)}</span>` : '';
+        let sourceBadge = imgObj.source ? `<span style="position: absolute; top: 4px; left: 4px; background: rgba(8, 145, 178, 0.85); color: #fff; font-size: 9px; font-weight: bold; padding: 2px 5px; border-radius: 4px; z-index: 2;">${escapeHtml(imgObj.source)}</span>` : '';
+        let orderBadge = `<span class="wizard-order-badge" style="display: none; position: absolute; top: 4px; right: 4px; background: #38bdf8; color: #020617; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 9999px; z-index: 2; box-shadow: 0 2px 6px rgba(0,0,0,0.6);">✓</span>`;
+
         card.innerHTML = `
           ${sourceBadge}
+          ${orderBadge}
           <img src="${imgObj.url}" style="width: 100%; height: 160px; object-fit: cover; display: block;" onerror="this.src='https://via.placeholder.com/150x200/161625/a0a0b5?text=Poster'" alt="Poster">
           <div style="padding: 4px; text-align: center; font-size: 10px; color: #aaa; background: #0d0d16; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(imgObj.title || 'Poster ' + (i+1))}</div>
         `;
-        card.onmouseover = () => card.style.borderColor = '#06b6d4';
-        card.onmouseout = () => card.style.borderColor = '#2b2b40';
-        card.onclick = () => selectWizardPoster(imgObj.url);
+        card.onclick = () => toggleWizardPoster(imgObj.url);
         grid.appendChild(card);
+
+        applyCardSelectionStyle(card, imgObj.url);
       });
     }
 
@@ -3470,36 +3508,127 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(fullQuery)}`, '_blank');
     }
 
-    function selectWizardPoster(url) {
+    function toggleWizardPoster(url) {
       if (!url) return;
-      posterWizardState.selectedUrl = url;
+      const idx = posterWizardState.selectedUrls.indexOf(url);
+      if (idx !== -1) {
+        posterWizardState.selectedUrls.splice(idx, 1);
+      } else {
+        posterWizardState.selectedUrls.push(url);
+      }
+      updateWizardSelectionUI();
+    }
 
-      // Update Column C (Image URLs) in current store row
+    function applyCardSelectionStyle(card, url) {
+      if (!card) return;
+      const selIdx = posterWizardState.selectedUrls.indexOf(url);
+      const isSelected = selIdx !== -1;
+      const badge = card.querySelector('.wizard-order-badge');
+
+      if (isSelected) {
+        card.style.borderColor = '#38bdf8';
+        card.style.boxShadow = '0 0 14px rgba(56, 189, 248, 0.45)';
+        card.style.transform = 'scale(0.97)';
+        if (badge) {
+          badge.style.display = 'inline-flex';
+          badge.innerText = `✓ #${selIdx + 1}`;
+        }
+      } else {
+        card.style.borderColor = '#2b2b40';
+        card.style.boxShadow = 'none';
+        card.style.transform = 'scale(1)';
+        if (badge) {
+          badge.style.display = 'none';
+        }
+      }
+    }
+
+    function updateWizardSelectionUI() {
+      const selected = posterWizardState.selectedUrls;
+
+      // 1. Update all cards in grid
+      const cards = document.querySelectorAll('#wizard-poster-grid .wizard-poster-card');
+      cards.forEach(card => {
+        applyCardSelectionStyle(card, card.dataset.url);
+      });
+
+      // 2. Update count badge
+      const countBadge = document.getElementById('wizard-selected-count-badge');
+      if (countBadge) {
+        countBadge.innerText = `${selected.length} Selected`;
+      }
+
+      // 3. Update Selected Thumbnails Tray
+      const tray = document.getElementById('wizard-selected-thumbnails');
+      if (tray) {
+        if (selected.length === 0) {
+          tray.innerHTML = '<span style="font-size: 12px; color: #64748b;">No posters selected yet. Click one or more images above to select!</span>';
+        } else {
+          tray.innerHTML = selected.map((u, i) => `
+            <div style="position: relative; flex-shrink: 0; width: 52px; height: 68px; border-radius: 6px; overflow: hidden; border: 1.5px solid #38bdf8; background: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.5);">
+              <span style="position: absolute; top: 2px; left: 2px; background: rgba(2, 6, 23, 0.85); color: #38bdf8; font-size: 9px; font-weight: 800; padding: 1px 4px; border-radius: 3px; z-index: 2;">#${i + 1}</span>
+              <button onclick="event.stopPropagation(); toggleWizardPoster('${escapeJs(u)}')" title="Remove poster" style="position: absolute; top: 2px; right: 2px; background: rgba(239, 68, 68, 0.85); color: #fff; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2;">✕</button>
+              <img src="${u}" onerror="this.src='https://via.placeholder.com/52x68/161625/a0a0b5?text=Poster'" style="width: 100%; height: 100%; object-fit: cover; display: block;" alt="Thumb">
+            </div>
+          `).join('');
+        }
+      }
+
+      // 4. Update Custom URL box value with comma-separated list
+      const urlBox = document.getElementById('wizard-custom-url-input');
+      if (urlBox && document.activeElement !== urlBox) {
+        urlBox.value = selected.join(', ');
+      }
+
+      // 5. Update store row immediately in memory
       const tab = posterWizardState.activeTab;
       const idx = posterWizardState.currentIndex;
       if (store[tab] && store[tab][idx]) {
-        store[tab][idx].imgUrl = url;
+        store[tab][idx].imgUrl = selected.join(', ');
+        saveLocalStore();
+        renderTableRows();
+        if (activeSection === 'output') renderOutputPreviews();
+      }
+    }
+
+    function clearWizardSelectedPosters() {
+      posterWizardState.selectedUrls = [];
+      updateWizardSelectionUI();
+    }
+
+    function applyWizardCustomUrl() {
+      const urlBox = document.getElementById('wizard-custom-url-input');
+      const raw = urlBox ? urlBox.value.trim() : '';
+      if (!raw) {
+        alert("Please enter or paste an Image URL first.");
+        return;
+      }
+      const urls = raw.split(/[\r\n,]+/).map(u => u.trim()).filter(u => u.toLowerCase().startsWith('http'));
+      if (urls.length === 0) {
+        alert("Please enter a valid HTTP/HTTPS image URL.");
+        return;
+      }
+      urls.forEach(u => {
+        if (!posterWizardState.selectedUrls.includes(u)) {
+          posterWizardState.selectedUrls.push(u);
+        }
+      });
+      updateWizardSelectionUI();
+    }
+
+    function saveWizardSelectionAndNext() {
+      const selected = posterWizardState.selectedUrls;
+      const tab = posterWizardState.activeTab;
+      const idx = posterWizardState.currentIndex;
+
+      if (store[tab] && store[tab][idx]) {
+        store[tab][idx].imgUrl = selected.join(', ');
         saveLocalStore();
         renderTableRows();
         if (activeSection === 'output') renderOutputPreviews();
       }
 
-      // Update Custom URL input box value
-      const urlBox = document.getElementById('wizard-custom-url-input');
-      if (urlBox) urlBox.value = url;
-
-      // Show prompt panel and auto-scroll to it
       showWizardPromptPanel(idx);
-    }
-
-    function applyWizardCustomUrl() {
-      const urlBox = document.getElementById('wizard-custom-url-input');
-      const url = urlBox ? urlBox.value.trim() : '';
-      if (!url) {
-        alert("Please enter or paste an Image URL first.");
-        return;
-      }
-      selectWizardPoster(url);
     }
 
     function showWizardPromptPanel(currentIdx) {
@@ -3507,6 +3636,12 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       const promptPanel = document.getElementById('wizard-prompt-panel');
       const topicNumSpan = document.getElementById('wizard-prompt-topic-num');
       const nextTitleSpan = document.getElementById('wizard-next-topic-title');
+      const countTextSpan = document.getElementById('wizard-prompt-count-text');
+
+      const count = posterWizardState.selectedUrls.length;
+      if (countTextSpan) {
+        countTextSpan.innerText = count > 0 ? `${count} Poster${count > 1 ? 's' : ''}` : 'No Posters';
+      }
 
       if (topicNumSpan) topicNumSpan.innerText = rows[currentIdx].topicNum || (currentIdx + 1);
 
