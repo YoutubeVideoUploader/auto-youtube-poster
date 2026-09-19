@@ -103,8 +103,11 @@ def clean_malayalam_initial_dots(text: str) -> str:
     s = re.sub(r'([\u0D00-\u0D7FA-Za-z])\.([\u0D00-\u0D7FA-Za-z])', r'\1\2', s)
     s = re.sub(r'([\u0D00-\u0D7FA-Za-z])\.([\u0D00-\u0D7FA-Za-z])', r'\1\2', s)
     # 2. Remove dots from initials with space: e.g. " എ. ഡി. " -> " എ ഡി "
-    s = re.sub(r'(?<=\s|^)([\u0D00-\u0D7FA-Za-z]{1,2})\.\s*(?=[\u0D00-\u0D7FA-Za-z])', r'\1 ', s)
-    s = re.sub(r'(?<=\s|^)([\u0D00-\u0D7FA-Za-z]{1,2})\.(?=\s)', r'\1', s)
+    # Python re requires fixed-width lookbehind, so handle (?<=\s) and start of string ^ separately
+    s = re.sub(r'(?<=\s)([\u0D00-\u0D7FA-Za-z]{1,2})\.\s*(?=[\u0D00-\u0D7FA-Za-z])', r'\1 ', s)
+    s = re.sub(r'^([\u0D00-\u0D7FA-Za-z]{1,2})\.\s*(?=[\u0D00-\u0D7FA-Za-z])', r'\1 ', s)
+    s = re.sub(r'(?<=\s)([\u0D00-\u0D7FA-Za-z]{1,2})\.(?=\s)', r'\1', s)
+    s = re.sub(r'^([\u0D00-\u0D7FA-Za-z]{1,2})\.(?=\s)', r'\1', s)
     # 3. Clean up multiple spaces
     s = re.sub(r' +', ' ', s).strip()
     return s
