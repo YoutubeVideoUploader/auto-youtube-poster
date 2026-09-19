@@ -2654,27 +2654,25 @@
         statusBox.innerText = '🤖 Calling Groq AI to extract movie metadata & clean topic text... Please wait...';
       }
 
-      const formattedTopics = rows.map((r, i) => `Topic #${i+1}: ${r.text || 'No text'}`).join('\n');
-      
       let systemPrompt = "";
       if (activeTab === 'Movie Updates') {
         systemPrompt = "You are an expert Malayalam movie news editor. For each topic text below, generate metadata and clean the text:\n" +
           "1. 'headline': Short, catchy 1-line English Headline / Topic Heading summarizing the news. CRITICAL RULES: ABSOLUTELY NO MALAYALAM SCRIPT (100% English alphabet). Always write movie titles phonetically in English (e.g. 'Bethlehem Kudumba Unit', 'Thudakkam'). Never translate names literally. Keep concise and limited to 1 line.\n" +
           "2. 'cleaned_text': The original Malayalam news text cleaned so that dots/periods (.) are ONLY used at the actual end of complete sentences. Remove all periods/dots within names, initials, acronyms, and abbreviations (e.g. convert 'ഗിരീഷ് എ.ഡി' or 'എ.ഡിയെ' to 'ഗിരീഷ് എഡി' or 'ഗിരീഷ് എ ഡി', 'കെ.ജി.എഫ്' to 'കെജിഎഫ്', 'യു.എസ്.' to 'യുഎസ്', 'ഡോ.' to 'ഡോക്ടർ' or 'ഡോ'). Preserve real sentence-ending full stops at the end of complete sentences. Do not alter or translate the words.\n" +
-          "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"headline\": \"Girish A.D. Celebrates 300-Crore Success of 'Bethlehem Kudumba Unit'\", \"cleaned_text\": \"...\"}]}. No extra text outside JSON.";
+          "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order, with exactly one object for each given topic. Example: {\"items\": [{\"headline\": \"Girish A.D. Celebrates 300-Crore Success of 'Bethlehem Kudumba Unit'\", \"cleaned_text\": \"...\"}]}. No extra text outside JSON.";
       } else if (activeTab === 'Release Updates') {
         systemPrompt = "You are an expert Malayalam movie news editor. For each topic text below, extract metadata and clean the text:\n" +
           "1. 'movie_name': Official movie title phonetically in English alphabet (e.g. 'Bethlehem Kudumba Unit', 'Thudakkam'). ABSOLUTELY NO MALAYALAM SCRIPT.\n" +
           "2. 'release_date': The theatrical release date EXPLICITLY mentioned in the text (e.g., 'October 2', 'September 25'). If no date is mentioned in the text, return '' (an empty string). DO NOT guess or search outside the text.\n" +
           "3. 'cleaned_text': The original Malayalam news text cleaned so that dots/periods (.) are ONLY used at the actual end of complete sentences. Remove all periods/dots within names, initials, acronyms, and abbreviations (e.g. 'എ.ഡി' to 'എഡി', 'കെ.ജി.എഫ്' to 'കെജിഎഫ്'). Preserve real sentence-ending full stops. Do not translate the words.\n" +
-          "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"movie_name\": \"Bethlehem Kudumba Unit\", \"release_date\": \"October 2\", \"cleaned_text\": \"...\"}]}. No extra text outside JSON.";
+          "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order, with exactly one object for each given topic. Example: {\"items\": [{\"movie_name\": \"Bethlehem Kudumba Unit\", \"release_date\": \"October 2\", \"cleaned_text\": \"...\"}]}. No extra text outside JSON.";
       } else { // OTT Updates
         systemPrompt = "You are an expert Malayalam movie news editor. For each topic text below, extract metadata and clean the text:\n" +
           "1. 'movie_name': Official movie title phonetically in English alphabet (e.g. 'Bethlehem Kudumba Unit', 'Thudakkam'). ABSOLUTELY NO MALAYALAM SCRIPT.\n" +
           "2. 'release_date': The streaming / OTT release date EXPLICITLY mentioned in the text (e.g., 'September 28', 'Available Now'). If no date is mentioned in the text, return '' (an empty string). DO NOT guess or search outside the text.\n" +
           "3. 'ott_platform': The streaming platform name (e.g., 'Netflix', 'Disney+ Hotstar', 'Amazon Prime Video', 'SonyLIV', 'Zee5', 'ManoramaMAX', 'Simply South'). If not mentioned, write ''.\n" +
           "4. 'cleaned_text': The original Malayalam news text cleaned so that dots/periods (.) are ONLY used at the actual end of complete sentences. Remove all periods/dots within names, initials, acronyms, and abbreviations (e.g. 'എ.ഡി' to 'എഡി', 'കെ.ജി.എഫ്' to 'കെജിഎഫ്'). Preserve real sentence-ending full stops. Do not translate the words.\n" +
-          "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order. Example: {\"items\": [{\"movie_name\": \"Bethlehem Kudumba Unit\", \"release_date\": \"September 28\", \"ott_platform\": \"Netflix\", \"cleaned_text\": \"...\"}]}. No extra text outside JSON.";
+          "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order, with exactly one object for each given topic. Example: {\"items\": [{\"movie_name\": \"Bethlehem Kudumba Unit\", \"release_date\": \"September 28\", \"ott_platform\": \"Netflix\", \"cleaned_text\": \"...\"}]}. No extra text outside JSON.";
       }
 
       const candidateModels = [
@@ -2685,184 +2683,173 @@
         "qwen/qwen3.8-27b"
       ];
 
-      let lastErr = null;
-      let resData = null;
+      function parseMalayalamDateFromText(text) {
+        if (!text) return "";
+        const monthMap = {
+          'സെപ്റ്റംബർ': 'September', 'സെപ്തംബർ': 'September',
+          'ഓഗസ്റ്റ്': 'August', 'ആഗസ്റ്റ്': 'August',
+          'ഒക്ടോബർ': 'October', 'നവംബർ': 'November', 'ഡിസംബർ': 'December',
+          'ജനുവരി': 'January', 'ഫെബ്രുവരി': 'February', 'മാർച്ച്': 'March',
+          'ഏപ്രിൽ': 'April', 'മേയ്': 'May', 'മെയ്': 'May',
+          'ജൂൺ': 'June', 'ജൂലൈ': 'July'
+        };
+        const numberWordMap = {
+          'ഒന്ന്': '1', 'ഒന്നിന്': '1', 'രണ്ട്': '2', 'രണ്ടിന്': '2',
+          'മൂന്ന്': '3', 'മൂന്നിന്': '3', 'നാല്': '4', 'നാലിന്': '4',
+          'അഞ്ച്': '5', 'അഞ്ചിന്': '5', 'ആറ്': '6', 'ആറിന്': '6',
+          'ഏഴ്': '7', 'ഏഴിന്': '7', 'എട്ട്': '8', 'എട്ടിന്': '8',
+          'ഒൻപത്': '9', 'ഒമ്പത്': '9', 'ഒൻപതിന്': '9', 'ഒമ്പതിന്': '9',
+          'പത്ത്': '10', 'പത്തിന്': '10', 'പതിനൊന്ന്': '11', 'പതിനൊന്നിന്': '11',
+          'പന്ത്രണ്ട്': '12', 'പന്ത്രണ്ടിന്': '12', 'പതിമൂന്ന്': '13', 'പതിമൂന്നിന്': '13',
+          'പതിനാല്': '14', 'പതിനാലിന്': '14', 'പതിനഞ്ച്': '15', 'പതിനഞ്ചിന്': '15',
+          'പതിനാറ്': '16', 'പതിനാറിന്': '16', 'പതിനേഴ്': '17', 'പതിനേഴിന്': '17',
+          'പതിനെട്ട്': '18', 'പതിനെട്ടിന്': '18', 'പത്തൊൻപത്': '19', 'പത്തൊമ്പത്': '19',
+          'ഇരുപത്': '20', 'ഇരുപതിന്': '20', 'ഇരുപത്തൊന്ന്': '21', 'ഇരുപത്തൊന്നിന്': '21',
+          'ഇരുപത്തിരണ്ട്': '22', 'ഇരുപത്തിരണ്ടിന്': '22', 'ഇരുപത്തിമൂന്ന്': '23', 'ഇരുപത്തിമൂന്നിന്': '23',
+          'ഇരുപത്തിനാല്': '24', 'ഇരുപത്തിനാലിന്': '24', 'ഇരുപത്തിയഞ്ച്': '25', 'ഇരുപത്തിയഞ്ചിന്': '25',
+          'ഇരുപത്തിയാറ്': '26', 'ഇരുപത്തിയാറിന്': '26', 'ഇരുപത്തിഏഴ്': '27', 'ഇരുപത്തിഏഴിന്': '27',
+          'ഇരുപത്തിഎട്ട്': '28', 'ഇരുപത്തിഎട്ടിന്': '28', 'ഇരുപത്തൊൻപത്': '29', 'ഇരുപത്തൊമ്പത്': '29',
+          'മുപ്പത്': '30', 'മുപ്പതിന്': '30', 'മുപ്പത്തൊന്ന്': '31', 'മുപ്പത്തൊന്നിന്': '31'
+        };
+        for (const [mlMonth, enMonth] of Object.entries(monthMap)) {
+          if (text.includes(mlMonth)) {
+            const mAfter = text.match(new RegExp(`${mlMonth}\\s*(\\d{1,2})(?:[\\u0D00-\\u0D7F\\-]*)`));
+            if (mAfter) return `${enMonth} ${mAfter[1]}`;
 
-      for (const model of candidateModels) {
-        try {
-          const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Authorization': 'Bearer ' + apiKey,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              model: model,
-              messages: [
-                { role: 'system', content: systemPrompt },
-                { role: 'user', content: formattedTopics }
-              ],
-              temperature: 0.1,
-              response_format: { type: 'json_object' }
-            })
-          });
+            const mBefore = text.match(new RegExp(`(\\d{1,2})\\s*(?:[\\u0D00-\\u0D7F\\-]*)\\s*${mlMonth}`));
+            if (mBefore) return `${enMonth} ${mBefore[1]}`;
 
-          if (res.ok) {
-            resData = await res.json();
-            break;
-          } else {
-            const errText = await res.text();
-            lastErr = new Error(`Groq model '${model}' error ${res.status}: ${errText}`);
+            for (const [wMl, dNum] of Object.entries(numberWordMap)) {
+              if (text.includes(wMl)) return `${enMonth} ${dNum}`;
+            }
           }
-        } catch (err) {
-          lastErr = err;
         }
+        return "";
+      }
+
+      function parseMalayalamPlatformFromText(text) {
+        if (!text) return "";
+        const platformMap = [
+          { keys: ['ഹോട്ട്സ്റ്റാർ', 'hotstar'], name: 'Jio Hotstar' },
+          { keys: ['നെറ്റ്ഫ്ലിക്', 'netflix'], name: 'Netflix' },
+          { keys: ['സീ5', 'സീ 5', 'zee5', 'zee 5', 'സീ'], name: 'ZEE5' },
+          { keys: ['പ്രൈം', 'prime'], name: 'Prime Video' },
+          { keys: ['സൺ', 'sunnxt', 'sun nxt'], name: 'Sun NXT' },
+          { keys: ['മനോരമ', 'manoramamax'], name: 'ManoramaMAX' },
+          { keys: ['സോണി', 'sonyliv'], name: 'SonyLIV' },
+          { keys: ['സൈന', 'sainaplay'], name: 'Saina Play' },
+          { keys: ['സിംപ്ലി', 'simply south'], name: 'Simply South' }
+        ];
+        const tLow = text.toLowerCase();
+        for (const item of platformMap) {
+          for (const k of item.keys) {
+            if (tLow.includes(k)) return item.name;
+          }
+        }
+        return "";
+      }
+
+      function sanitizeField(val) {
+        if (!val) return "";
+        const s = String(val).trim();
+        if (/^(none|n\/a|not mentioned|unknown|null|undefined)$/i.test(s)) return "";
+        return s;
+      }
+
+      async function queryGroq(messages) {
+        let lastErr = null;
+        for (const model of candidateModels) {
+          try {
+            const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Authorization': 'Bearer ' + apiKey,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                model: model,
+                messages: messages,
+                temperature: 0.1,
+                max_tokens: 4096,
+                response_format: { type: 'json_object' }
+              })
+            });
+
+            if (res.ok) {
+              return await res.json();
+            } else {
+              const errText = await res.text();
+              lastErr = new Error(`Groq model '${model}' error ${res.status}: ${errText}`);
+            }
+          } catch (err) {
+            lastErr = err;
+          }
+        }
+        throw lastErr || new Error("Failed to connect to Groq AI.");
       }
 
       try {
-        if (!resData) {
-          throw lastErr || new Error("Failed to connect to Groq AI.");
-        }
+        const BATCH_SIZE = 4;
+        const totalBatches = Math.ceil(rows.length / BATCH_SIZE);
+        const allItems = [];
 
-        const content = resData.choices[0].message.content;
-        const parsed = JSON.parse(content);
-        const items = parsed.items || [];
+        for (let b = 0; b < totalBatches; b++) {
+          const start = b * BATCH_SIZE;
+          const end = Math.min(start + BATCH_SIZE, rows.length);
+          const batchRows = rows.slice(start, end);
 
-        function parseMalayalamDateFromText(text) {
-          if (!text) return "";
-          const monthMap = {
-            'സെപ്റ്റംബർ': 'September', 'സെപ്തംബർ': 'September',
-            'ഓഗസ്റ്റ്': 'August', 'ആഗസ്റ്റ്': 'August',
-            'ഒക്ടോബർ': 'October', 'നവംബർ': 'November', 'ഡിസംബർ': 'December',
-            'ജനുവരി': 'January', 'ഫെബ്രുവരി': 'February', 'മാർച്ച്': 'March',
-            'ഏപ്രിൽ': 'April', 'മേയ്': 'May', 'മെയ്': 'May',
-            'ജൂൺ': 'June', 'ജൂലൈ': 'July'
-          };
-          const numberWordMap = {
-            'ഒന്ന്': '1', 'ഒന്നിന്': '1', 'രണ്ട്': '2', 'രണ്ടിന്': '2',
-            'മൂന്ന്': '3', 'മൂന്നിന്': '3', 'നാല്': '4', 'നാലിന്': '4',
-            'അഞ്ച്': '5', 'അഞ്ചിന്': '5', 'ആറ്': '6', 'ആറിന്': '6',
-            'ഏഴ്': '7', 'ഏഴിന്': '7', 'എട്ട്': '8', 'എട്ടിന്': '8',
-            'ഒൻപത്': '9', 'ഒമ്പത്': '9', 'ഒൻപതിന്': '9', 'ഒമ്പതിന്': '9',
-            'പത്ത്': '10', 'പത്തിന്': '10', 'പതിനൊന്ന്': '11', 'പതിനൊന്നിന്': '11',
-            'പന്ത്രണ്ട്': '12', 'പന്ത്രണ്ടിന്': '12', 'പതിമൂന്ന്': '13', 'പതിമൂന്നിന്': '13',
-            'പതിനാല്': '14', 'പതിനാലിന്': '14', 'പതിനഞ്ച്': '15', 'പതിനഞ്ചിന്': '15',
-            'പതിനാറ്': '16', 'പതിനാറിന്': '16', 'പതിനേഴ്': '17', 'പതിനേഴിന്': '17',
-            'പതിനെട്ട്': '18', 'പതിനെട്ടിന്': '18', 'പത്തൊൻപത്': '19', 'പത്തൊമ്പത്': '19',
-            'ഇരുപത്': '20', 'ഇരുപതിന്': '20', 'ഇരുപത്തൊന്ന്': '21', 'ഇരുപത്തൊന്നിന്': '21',
-            'ഇരുപത്തിരണ്ട്': '22', 'ഇരുപത്തിരണ്ടിന്': '22', 'ഇരുപത്തിമൂന്ന്': '23', 'ഇരുപത്തിമൂന്നിന്': '23',
-            'ഇരുപത്തിനാല്': '24', 'ഇരുപത്തിനാലിന്': '24', 'ഇരുപത്തിയഞ്ച്': '25', 'ഇരുപത്തിയഞ്ചിന്': '25',
-            'ഇരുപത്തിയാറ്': '26', 'ഇരുപത്തിയാറിന്': '26', 'ഇരുപത്തിഏഴ്': '27', 'ഇരുപത്തിഏഴിന്': '27',
-            'ഇരുപത്തിഎട്ട്': '28', 'ഇരുപത്തിഎട്ടിന്': '28', 'ഇരുപത്തൊൻപത്': '29', 'ഇരുപത്തൊമ്പത്': '29',
-            'മുപ്പത്': '30', 'മുപ്പതിന്': '30', 'മുപ്പത്തൊന്ന്': '31', 'മുപ്പത്തൊന്നിന്': '31'
-          };
-          for (const [mlMonth, enMonth] of Object.entries(monthMap)) {
-            if (text.includes(mlMonth)) {
-              const mAfter = text.match(new RegExp(`${mlMonth}\\s*(\\d{1,2})(?:[\\u0D00-\\u0D7F\\-]*)`));
-              if (mAfter) return `${enMonth} ${mAfter[1]}`;
-
-              const mBefore = text.match(new RegExp(`(\\d{1,2})\\s*(?:[\\u0D00-\\u0D7F\\-]*)\\s*${mlMonth}`));
-              if (mBefore) return `${enMonth} ${mBefore[1]}`;
-
-              for (const [wMl, dNum] of Object.entries(numberWordMap)) {
-                if (text.includes(wMl)) return `${enMonth} ${dNum}`;
-              }
-            }
+          if (statusBox) {
+            statusBox.style.display = 'block';
+            statusBox.className = 'status-toast';
+            statusBox.innerText = `🤖 Groq AI: Processing batch ${b + 1} of ${totalBatches} (topics ${start + 1} to ${end} of ${rows.length})... Please wait...`;
           }
-          return "";
-        }
 
-        function parseMalayalamPlatformFromText(text) {
-          if (!text) return "";
-          const platformMap = [
-            { keys: ['ഹോട്ട്സ്റ്റാർ', 'hotstar'], name: 'Jio Hotstar' },
-            { keys: ['നെറ്റ്ഫ്ലിക്', 'netflix'], name: 'Netflix' },
-            { keys: ['സീ5', 'സീ 5', 'zee5', 'zee 5', 'സീ'], name: 'ZEE5' },
-            { keys: ['പ്രൈം', 'prime'], name: 'Prime Video' },
-            { keys: ['സൺ', 'sunnxt', 'sun nxt'], name: 'Sun NXT' },
-            { keys: ['മനോരമ', 'manoramamax'], name: 'ManoramaMAX' },
-            { keys: ['സോണി', 'sonyliv'], name: 'SonyLIV' },
-            { keys: ['സൈന', 'sainaplay'], name: 'Saina Play' },
-            { keys: ['സിംപ്ലി', 'simply south'], name: 'Simply South' }
-          ];
-          const tLow = text.toLowerCase();
-          for (const item of platformMap) {
-            for (const k of item.keys) {
-              if (tLow.includes(k)) return item.name;
-            }
-          }
-          return "";
-        }
+          const formattedTopics = batchRows.map((r, i) => `Topic #${start + i + 1}: ${r.text && r.text.trim() ? r.text.trim() : 'No text'}`).join('\n\n');
 
-        async function fetchOnlineReleaseDate(movieName, isOtt) {
-          if (!movieName || movieName.trim().length < 2) return "";
+          const resData = await queryGroq([
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: formattedTopics }
+          ]);
+
+          const content = resData.choices && resData.choices[0] && resData.choices[0].message ? resData.choices[0].message.content : "{}";
+          let parsed = {};
           try {
-            const query = `${movieName} Malayalam movie ${isOtt ? 'OTT' : 'theatrical'} release date`;
-            const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&utf8=&format=json&origin=*`;
-            const res = await fetch(wikiUrl);
-            if (res.ok) {
-              const data = await res.json();
-              const snippets = (data.query?.search || []).map(s => s.snippet || "").join(" ");
-              const months = "January|February|March|April|May|June|July|August|September|October|November|December";
-              const regex1 = new RegExp(`(${months})\\s+(\\d{1,2})(?:,\\s*(\\d{4}))?`, 'i');
-              const m1 = snippets.match(regex1);
-              if (m1) return `${m1[1]} ${m1[2]}` + (m1[3] ? `, ${m1[3]}` : "");
-
-              const regex2 = new RegExp(`(\\d{1,2})\\s+(${months})(?:\\s+(\\d{4}))?`, 'i');
-              const m2 = snippets.match(regex2);
-              if (m2) return `${m2[2]} ${m2[1]}` + (m2[3] ? `, ${m2[3]}` : "");
-            }
-          } catch (e) {
-            console.warn("Wiki search date fallback error:", e);
+            parsed = JSON.parse(content);
+          } catch (pe) {
+            console.error("JSON parse error for batch:", pe, content);
           }
 
-          try {
-            const keyInput = document.getElementById('groq-api-key-input');
-            const apiKey = keyInput && keyInput.value.trim() ? keyInput.value.trim() : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
-            if (apiKey) {
-              const gRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                method: 'POST',
-                headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  model: 'llama-3.1-8b-instant',
-                  messages: [
-                    { role: 'system', content: `For the Malayalam movie '${movieName}', what is its official ${isOtt ? 'OTT/streaming' : 'theatrical'} release date? Return ONLY a JSON object: {"release_date": "Month Day"}. If not known or unannounced, return {"release_date": ""}.` },
-                    { role: 'user', content: movieName }
-                  ],
-                  temperature: 0.1,
-                  response_format: { type: 'json_object' }
-                })
-              });
-              if (gRes.ok) {
-                const gData = await gRes.json();
-                const content = gData.choices?.[0]?.message?.content || "";
-                const parsedG = JSON.parse(content);
-                if (parsedG.release_date && parsedG.release_date.trim()) {
-                  return parsedG.release_date.trim();
-                }
-              }
-            }
-          } catch (e) {
-            console.warn("Groq search date fallback error:", e);
+          let batchItems = [];
+          if (Array.isArray(parsed)) {
+            batchItems = parsed;
+          } else if (Array.isArray(parsed.items)) {
+            batchItems = parsed.items;
+          } else if (Array.isArray(parsed.topics)) {
+            batchItems = parsed.topics;
+          } else if (typeof parsed === 'object' && parsed !== null) {
+            const arr = Object.values(parsed).find(v => Array.isArray(v));
+            if (arr) batchItems = arr;
           }
 
-          return "";
+          for (let j = 0; j < batchRows.length; j++) {
+            allItems.push(batchItems[j] || null);
+          }
         }
 
         let count = 0;
         for (let idx = 0; idx < rows.length; idx++) {
           const r = rows[idx];
-          if (idx < items.length && items[idx]) {
-            const item = items[idx];
+          const item = allItems[idx];
+          if (item) {
             if (activeTab === 'Movie Updates') {
-              r.headline = item.headline || item.movie_name || "";
+              r.headline = sanitizeField(item.headline || item.movie_name || r.headline || "");
             } else if (activeTab === 'Release Updates') {
-              r.headline = item.movie_name || "";
-              r.releaseDate = item.release_date || parseMalayalamDateFromText(r.text) || "";
+              r.headline = sanitizeField(item.movie_name || item.headline || r.headline || "");
+              r.releaseDate = sanitizeField(item.release_date) || parseMalayalamDateFromText(r.text) || r.releaseDate || "";
             } else { // OTT Updates
-              r.headline = item.movie_name || "";
-              r.releaseDate = item.release_date || parseMalayalamDateFromText(r.text) || "";
-              r.ottPlatform = item.ott_platform || parseMalayalamPlatformFromText(r.text) || "";
+              r.headline = sanitizeField(item.movie_name || item.headline || r.headline || "");
+              r.releaseDate = sanitizeField(item.release_date) || parseMalayalamDateFromText(r.text) || r.releaseDate || "";
+              r.ottPlatform = sanitizeField(item.ott_platform) || parseMalayalamPlatformFromText(r.text) || r.ottPlatform || "";
             }
 
             // Clean Malayalam topic text: prioritize Groq AI cleaned_text, then normalize initials
@@ -2871,7 +2858,6 @@
 
             count++;
           } else if (r.text) {
-            // Even if beyond items length, clean existing text
             r.text = cleanMalayalamDotsAndInitials(r.text);
           }
         }
@@ -2882,9 +2868,9 @@
 
         if (statusBox) {
           statusBox.className = 'status-toast toast-success';
-          statusBox.innerText = `🎉 Groq AI auto-filled metadata & cleaned topic text for ${count} rows!`;
+          statusBox.innerText = `🎉 Groq AI auto-filled metadata & cleaned topic text for all ${count} of ${rows.length} rows!`;
         }
-        alert(`🎉 Groq AI auto-filled metadata & cleaned topic text for ${count} rows in ${activeTab}!`);
+        alert(`🎉 Groq AI auto-filled metadata & cleaned topic text for all ${count} of ${rows.length} rows in ${activeTab}!`);
       } catch (err) {
         if (statusBox) {
           statusBox.className = 'status-toast toast-error';
