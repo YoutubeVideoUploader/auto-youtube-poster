@@ -2296,29 +2296,34 @@
 
       let systemPrompt = "";
       if (activeTab === 'Movie Updates') {
-        systemPrompt = "You are an expert Malayalam movie news editor. For each topic text below, generate metadata and clean the text:\n" +
-          "1. 'headline': Short, catchy 1-line English Headline / Topic Heading summarizing the news. CRITICAL RULES: ABSOLUTELY NO MALAYALAM SCRIPT (100% English alphabet). Always write movie titles phonetically in English (e.g. 'Bethlehem Kudumba Unit', 'Thudakkam'). Never translate names literally. Keep concise and limited to 1 line.\n" +
+        systemPrompt = "You are an expert Malayalam movie news editor and journalist. For each topic text below, generate metadata and clean the text:\n" +
+          "1. 'headline': Short, catchy 1-line English Headline / Topic Heading summarizing the news. CRITICAL SPELLING & ACCURACY RULES:\n" +
+          "   - ABSOLUTELY NO MALAYALAM SCRIPT (100% English alphabet).\n" +
+          "   - ENGLISH WORDS / LOANWORDS: If a movie title or phrase consists of English words written in Malayalam (e.g. ‘പിക്നിക്’ -> 'Picnic', ‘മാജിക് മഷ്റൂംസ്’ -> 'Magic Mushrooms', ‘മെഡിക്കൽ മിറക്കിൾ’ -> 'Medical Miracle', ‘ലോ ആൻഡ് ഓർഡർ’ -> 'Law & Order', ‘കൺട്രോൾ’ -> 'Control'), you MUST use standard, correct English dictionary spelling! NEVER use broken phonetic spellings like 'Piknik' or 'Majik'.\n" +
+          "   - OFFICIAL MALAYALAM INDUSTRY SPELLINGS: Use standard, official English spellings for all Malayalam film titles, actors, directors, writers, and producers as used in official posters and media (e.g. 'Kiran Josey' NOT 'Kiran Josi', 'Fahadh Faasil' NOT 'Fahad Fasil', 'Syam Pushkaran', 'Dileesh Pothan', 'Sandeep Pradeep', 'Mammootty', 'Mohanlal', 'Prithviraj', 'Tovino Thomas', 'Dulquer Salmaan', 'Naslen', 'Girish A.D.').\n" +
+          "   - NATIVE TITLES: For native Malayalam movie titles, use standard industry romanization (e.g. 'Bethlehem Kudumba Unit', 'Thudakkam', 'Varavu', 'Bhaskarabharanam', 'Premalu').\n" +
+          "   - Keep concise, engaging, and strictly limited to 1 line.\n" +
           "2. 'cleaned_text': The original Malayalam news text cleaned so that dots/periods (.) are ONLY used at the actual end of complete sentences. Remove all periods/dots within names, initials, acronyms, and abbreviations (e.g. convert 'ഗിരീഷ് എ.ഡി' or 'എ.ഡിയെ' to 'ഗിരീഷ് എഡി' or 'ഗിരീഷ് എ ഡി', 'കെ.ജി.എഫ്' to 'കെജിഎഫ്', 'യു.എസ്.' to 'യുഎസ്', 'ഡോ.' to 'ഡോക്ടർ' or 'ഡോ'). Preserve real sentence-ending full stops at the end of complete sentences. Do not alter or translate the words.\n" +
-          "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order, with exactly one object for each given topic. Example: {\"items\": [{\"headline\": \"Girish A.D. Celebrates 300-Crore Success of 'Bethlehem Kudumba Unit'\", \"cleaned_text\": \"...\"}]}. No extra text outside JSON.";
+          "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order, with exactly one object for each given topic. Example: {\"items\": [{\"headline\": \"Kiran Josey Debuts as Director with 'Picnic' Starring Sandeep Pradeep\", \"cleaned_text\": \"...\"}]}. No extra text outside JSON.";
       } else if (activeTab === 'Release Updates') {
         systemPrompt = "You are an expert Malayalam movie news editor. For each topic text below, extract metadata and clean the text:\n" +
-          "1. 'movie_name': Official movie title phonetically in English alphabet (e.g. 'Bethlehem Kudumba Unit', 'Thudakkam'). ABSOLUTELY NO MALAYALAM SCRIPT.\n" +
+          "1. 'movie_name': Official movie title in English alphabet. RULES: If the title is an English word (e.g. 'Picnic', 'Magic Mushrooms', 'Law & Order'), use standard English dictionary spelling, NOT broken phonetics like 'Piknik'. For Malayalam titles, use standard official Mollywood romanization (e.g. 'Bethlehem Kudumba Unit', 'Thudakkam', 'Dhoomakethu'). ABSOLUTELY NO MALAYALAM SCRIPT.\n" +
           "2. 'release_date': The theatrical release date EXPLICITLY mentioned in the text (e.g., 'October 2', 'September 25'). If no date is mentioned in the text, return '' (an empty string). DO NOT guess or search outside the text.\n" +
           "3. 'cleaned_text': The original Malayalam news text cleaned so that dots/periods (.) are ONLY used at the actual end of complete sentences. Remove all periods/dots within names, initials, acronyms, and abbreviations (e.g. 'എ.ഡി' to 'എഡി', 'കെ.ജി.എഫ്' to 'കെജിഎഫ്'). Preserve real sentence-ending full stops. Do not translate the words.\n" +
-          "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order, with exactly one object for each given topic. Example: {\"items\": [{\"movie_name\": \"Bethlehem Kudumba Unit\", \"release_date\": \"October 2\", \"cleaned_text\": \"...\"}]}. No extra text outside JSON.";
+          "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order, with exactly one object for each given topic. Example: {\"items\": [{\"movie_name\": \"Picnic\", \"release_date\": \"October 2\", \"cleaned_text\": \"...\"}]}. No extra text outside JSON.";
       } else { // OTT Updates
         systemPrompt = "You are an expert Malayalam movie news editor. For each topic text below, extract metadata and clean the text:\n" +
-          "1. 'movie_name': Official movie title phonetically in English alphabet (e.g. 'Bethlehem Kudumba Unit', 'Thudakkam'). ABSOLUTELY NO MALAYALAM SCRIPT.\n" +
+          "1. 'movie_name': Official movie title in English alphabet. RULES: If the title is an English word (e.g. 'Picnic', 'Magic Mushrooms'), use standard English dictionary spelling, NOT broken phonetics like 'Piknik'. For Malayalam titles, use standard official Mollywood romanization (e.g. 'Bethlehem Kudumba Unit', 'Varavu'). ABSOLUTELY NO MALAYALAM SCRIPT.\n" +
           "2. 'release_date': The streaming / OTT release date EXPLICITLY mentioned in the text (e.g., 'September 28', 'Available Now'). If no date is mentioned in the text, return '' (an empty string). DO NOT guess or search outside the text.\n" +
           "3. 'ott_platform': The streaming platform name (e.g., 'Netflix', 'Disney+ Hotstar', 'Amazon Prime Video', 'SonyLIV', 'Zee5', 'ManoramaMAX', 'Simply South'). If not mentioned, write ''.\n" +
           "4. 'cleaned_text': The original Malayalam news text cleaned so that dots/periods (.) are ONLY used at the actual end of complete sentences. Remove all periods/dots within names, initials, acronyms, and abbreviations (e.g. 'എ.ഡി' to 'എഡി', 'കെ.ജി.എഫ്' to 'കെജിഎഫ്'). Preserve real sentence-ending full stops. Do not translate the words.\n" +
-          "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order, with exactly one object for each given topic. Example: {\"items\": [{\"movie_name\": \"Bethlehem Kudumba Unit\", \"release_date\": \"September 28\", \"ott_platform\": \"Netflix\", \"cleaned_text\": \"...\"}]}. No extra text outside JSON.";
+          "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order, with exactly one object for each given topic. Example: {\"items\": [{\"movie_name\": \"Picnic\", \"release_date\": \"September 28\", \"ott_platform\": \"Netflix\", \"cleaned_text\": \"...\"}]}. No extra text outside JSON.";
       }
 
       const candidateModels = [
-        "openai/gpt-oss-20b",
-        "openai/gpt-oss-120b",
         "llama-3.3-70b-versatile",
+        "openai/gpt-oss-120b",
+        "openai/gpt-oss-20b",
         "llama-3.1-8b-instant",
         "qwen/qwen3.8-27b"
       ];
@@ -2393,6 +2398,29 @@
         if (!val) return "";
         const s = String(val).trim();
         if (/^(none|n\/a|not mentioned|unknown|null|undefined)$/i.test(s)) return "";
+        return s;
+      }
+
+      function fixCommonCinemaEnglishSpellings(str) {
+        if (!str) return "";
+        let s = String(str);
+        const replacements = [
+          [/\b(Piknik|Picnik|Piknic)\b/gi, 'Picnic'],
+          [/\bKiran Josi\b/gi, 'Kiran Josey'],
+          [/\bFahad Fasil\b/gi, 'Fahadh Faasil'],
+          [/\bMamootty\b/gi, 'Mammootty'],
+          [/\bMohan Lal\b/gi, 'Mohanlal'],
+          [/\bPrithvi Raj\b/gi, 'Prithviraj'],
+          [/\bMajic Mushrooms\b/gi, 'Magic Mushrooms'],
+          [/\bOttamthullal\b/gi, 'Ottamthullal'],
+          [/\bBethlehem Kudumba Yunit\b/gi, 'Bethlehem Kudumba Unit'],
+          [/\bMedikal Mirakkil\b/gi, 'Medical Miracle'],
+          [/\bMedical Mirakkil\b/gi, 'Medical Miracle'],
+          [/\bLaw And Order\b/gi, 'Law & Order']
+        ];
+        for (const [regex, rep] of replacements) {
+          s = s.replace(regex, rep);
+        }
         return s;
       }
 
@@ -2482,12 +2510,12 @@
           const item = allItems[idx];
           if (item) {
             if (activeTab === 'Movie Updates') {
-              r.headline = sanitizeField(item.headline || item.movie_name || r.headline || "");
+              r.headline = fixCommonCinemaEnglishSpellings(sanitizeField(item.headline || item.movie_name || r.headline || ""));
             } else if (activeTab === 'Release Updates') {
-              r.headline = sanitizeField(item.movie_name || item.headline || r.headline || "");
+              r.headline = fixCommonCinemaEnglishSpellings(sanitizeField(item.movie_name || item.headline || r.headline || ""));
               r.releaseDate = sanitizeField(item.release_date) || parseMalayalamDateFromText(r.text) || r.releaseDate || "";
             } else { // OTT Updates
-              r.headline = sanitizeField(item.movie_name || item.headline || r.headline || "");
+              r.headline = fixCommonCinemaEnglishSpellings(sanitizeField(item.movie_name || item.headline || r.headline || ""));
               r.releaseDate = sanitizeField(item.release_date) || parseMalayalamDateFromText(r.text) || r.releaseDate || "";
               r.ottPlatform = sanitizeField(item.ott_platform) || parseMalayalamPlatformFromText(r.text) || r.ottPlatform || "";
             }
