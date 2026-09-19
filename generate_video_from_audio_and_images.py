@@ -780,13 +780,27 @@ def create_headline_banner_overlay(headline_text: str, output_path: str, max_box
             lines = [lines[0], " ".join(lines[1:])]
 
     if len(lines) <= 1:
-        box_h = 125
+        box_h = 126
         line_height = 0
     else:
         box_h = 170
         line_height = 48
 
-    box_w = max_box_w
+    # Calculate required text width dynamically to hug content (eliminates blank space)
+    max_line_w = 0
+    for line in lines:
+        l_bbox = dummy_draw.textbbox((0, 0), line, font=title_font)
+        max_line_w = max(max_line_w, l_bbox[2] - l_bbox[0])
+
+    min_box_w = max(450, badge_w + left_pad + right_pad + 60)
+    needed_w = max_line_w + left_pad + right_pad
+    box_w = min(max_box_w, max(min_box_w, needed_w))
+
+    # Ensure even dimensions for video encoder compatibility
+    if box_w % 2 != 0:
+        box_w += 1
+    if box_h % 2 != 0:
+        box_h += 1
 
     canvas = Image.new("RGBA", (box_w, box_h), (0, 0, 0, 0))
     draw = ImageDraw.Draw(canvas)
