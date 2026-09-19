@@ -6,170 +6,237 @@
   <title>Malayalam Movie News - Studio Dashboard</title>
   <style>
     :root {
-      --bg-dark: #12121e;
-      --card-bg: #1a1a2e;
-      --card-inner: #161625;
-      --accent-red: #ff2a4b;
-      --accent-hover: #e02240;
-      --text-main: #f0f0f8;
-      --text-muted: #a0a0b5;
-      --border-color: #2b2b40;
+      --bg-dark: #07090e;
+      --bg-gradient: radial-gradient(circle at 50% -10%, rgba(37, 99, 235, 0.2) 0%, transparent 60%), radial-gradient(circle at 100% 60%, rgba(56, 189, 248, 0.08) 0%, transparent 50%), #07090e;
+      --card-bg: rgba(13, 18, 30, 0.72);
+      --card-inner: rgba(9, 13, 22, 0.88);
+      --accent-blue: #2563eb;
+      --accent-hover: #1d4ed8;
+      --accent-cyan: #38bdf8;
+      --accent-glow: 0 0 20px rgba(37, 99, 235, 0.45);
+      --cyan-glow: 0 0 16px rgba(56, 189, 248, 0.35);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-highlight: rgba(59, 130, 246, 0.35);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-      background-color: var(--bg-dark);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Helvetica, Arial, sans-serif;
+      background: var(--bg-gradient);
+      background-attachment: fixed;
       color: var(--text-main);
-      padding: 20px;
-      line-height: 1.5;
+      padding: 24px 20px;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
 
     .container {
-      max-width: 1100px;
+      max-width: 1120px;
       margin: 0 auto;
     }
 
     header {
       text-align: center;
-      margin-bottom: 25px;
+      margin-bottom: 30px;
+      position: relative;
     }
 
     header h1 {
-      font-size: 28px;
-      color: var(--accent-red);
-      margin-bottom: 5px;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 40%, #60a5fa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
     }
 
     header p {
       color: var(--text-muted);
       font-size: 14px;
+      font-weight: 500;
     }
 
-    /* Main Section Buttons */
+    /* Main Section Navigation Buttons */
     .section-nav {
       display: flex;
-      gap: 15px;
+      gap: 12px;
       margin-bottom: 25px;
       justify-content: center;
+      padding: 6px;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .section-btn {
       flex: 1;
-      max-width: 350px;
-      padding: 14px 20px;
-      background: #1e1e32;
-      border: 2px solid var(--border-color);
-      color: var(--text-main);
-      font-size: 16px;
-      font-weight: 700;
+      padding: 12px 18px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      font-size: 15px;
+      font-weight: 600;
       border-radius: 10px;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       text-align: center;
     }
 
     .section-btn:hover {
-      border-color: var(--accent-red);
+      color: #fff;
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.06);
     }
 
     .section-btn.active {
-      background: var(--accent-red);
-      border-color: var(--accent-red);
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      border-color: rgba(255, 255, 255, 0.15);
       color: #ffffff;
-      box-shadow: 0 4px 15px rgba(255, 42, 75, 0.4);
+      box-shadow: 0 4px 18px rgba(37, 99, 235, 0.5);
     }
 
     /* Category Sub-Tabs */
     .tab-bar {
       display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
+      gap: 8px;
+      margin-bottom: 22px;
       justify-content: center;
       flex-wrap: wrap;
     }
 
     .tab-btn {
-      background: #1a1a2e;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(10px);
       border: 1px solid var(--border-color);
       color: var(--text-muted);
-      padding: 10px 20px;
-      border-radius: 8px;
+      padding: 9px 18px;
+      border-radius: 9999px;
       cursor: pointer;
       font-weight: 600;
+      font-size: 13px;
       transition: all 0.2s ease;
     }
 
     .tab-btn:hover {
       color: #fff;
+      border-color: rgba(56, 189, 248, 0.3);
+      background: rgba(15, 23, 42, 0.8);
     }
 
     .tab-btn.active {
-      background: #282842;
-      color: var(--accent-red);
-      border-color: var(--accent-red);
+      background: rgba(37, 99, 235, 0.16);
+      color: #38bdf8;
+      border-color: rgba(56, 189, 248, 0.45);
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.25);
     }
 
-    /* Cards & Containers */
+    /* Cards & Containers with Glassmorphism */
     .card {
       background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 25px;
-      margin-bottom: 25px;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
 
     .card-title {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
-      margin-bottom: 15px;
-      color: var(--accent-red);
+      margin-bottom: 16px;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.01em;
     }
 
     /* Input & Form Styling */
     textarea {
       width: 100%;
       height: 120px;
-      background: #0d0d16;
+      background: var(--card-inner);
       border: 1px solid var(--border-color);
       color: #fff;
-      padding: 12px;
-      border-radius: 8px;
-      font-family: monospace;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 13px;
       margin-bottom: 15px;
       resize: vertical;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
     }
 
     .btn {
-      background: var(--accent-red);
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
       color: #fff;
-      border: none;
-      padding: 12px 24px;
-      font-size: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 11px 22px;
+      font-size: 14px;
       font-weight: 700;
-      border-radius: 8px;
+      border-radius: 9px;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s ease;
       display: inline-block;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
     }
 
-    .btn:hover { background: var(--accent-hover); }
+    .btn:hover {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.55);
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
 
     .btn-secondary {
-      background: #2e2e48;
-      color: #fff;
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      color: #cbd5e1;
+      box-shadow: none;
     }
-    .btn-secondary:hover { background: #3d3d60; }
+
+    .btn-secondary:hover {
+      background: rgba(51, 65, 85, 0.8);
+      color: #fff;
+      border-color: rgba(148, 163, 184, 0.28);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    }
 
     .btn-danger {
-      background: #8b1e2d;
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
       color: #fff;
       padding: 6px 12px;
       font-size: 12px;
+      border-radius: 6px;
+      box-shadow: 0 2px 10px rgba(220, 38, 38, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
-    .btn-danger:hover { background: #b32438; }
+
+    .btn-danger:hover {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      box-shadow: 0 4px 14px rgba(220, 38, 38, 0.45);
+    }
 
     /* Interactive Data Table */
     table {
@@ -178,32 +245,41 @@
       margin-top: 15px;
       margin-bottom: 15px;
       background: var(--card-inner);
-      border-radius: 8px;
+      border-radius: 10px;
       overflow: hidden;
+      border: 1px solid var(--border-color);
     }
 
     th, td {
-      padding: 12px;
+      padding: 12px 14px;
       text-align: left;
       border-bottom: 1px solid var(--border-color);
     }
 
     th {
-      background: #1f1f35;
-      color: var(--accent-red);
-      font-size: 13px;
+      background: rgba(15, 23, 42, 0.95);
+      color: #38bdf8;
+      font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.6px;
+      font-weight: 700;
     }
 
     td input, td textarea {
       width: 100%;
-      background: #0d0d16;
-      border: 1px solid #33334d;
+      background: rgba(8, 12, 22, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.16);
       color: #fff;
-      padding: 8px;
-      border-radius: 5px;
+      padding: 8px 10px;
+      border-radius: 6px;
       font-size: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    td input:focus, td textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
     }
 
     td textarea { height: 75px; }
@@ -219,24 +295,28 @@
     .preview-card {
       background: var(--card-inner);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 18px;
+      border-radius: 14px;
+      padding: 20px;
       position: relative;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
     }
 
     .preview-poster {
       width: 100%;
       height: 320px;
       object-fit: cover;
-      border-radius: 8px;
+      border-radius: 10px;
       margin-bottom: 12px;
-      background: #0d0d16;
+      background: #090d16;
       cursor: pointer;
-      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      border: 1px solid var(--border-color);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s, box-shadow 0.25s;
     }
+
     .preview-poster:hover {
       transform: scale(1.02);
-      box-shadow: 0 6px 22px rgba(255, 42, 75, 0.45);
+      border-color: rgba(56, 189, 248, 0.5);
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
     }
 
     .multi-image-grid {
@@ -245,20 +325,22 @@
       gap: 10px;
       margin-bottom: 12px;
     }
+
     .multi-image-grid img {
       width: 100%;
       height: 180px;
       object-fit: cover;
-      border-radius: 6px;
+      border-radius: 8px;
       border: 1px solid var(--border-color);
-      background: #0d0d16;
+      background: #090d16;
       cursor: pointer;
-      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s, box-shadow 0.25s;
     }
+
     .multi-image-grid img:hover {
-      transform: scale(1.04);
-      border-color: var(--accent-red) !important;
-      box-shadow: 0 4px 18px rgba(255, 42, 75, 0.55);
+      transform: scale(1.03);
+      border-color: #38bdf8 !important;
+      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.45);
     }
 
     /* Fullscreen Image Lightbox Modal */
@@ -268,8 +350,9 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(6, 6, 12, 0.95);
-      backdrop-filter: blur(12px);
+      background: rgba(4, 6, 12, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       z-index: 10000;
       display: none;
       align-items: center;
@@ -278,47 +361,52 @@
       animation: fadeInLightbox 0.2s ease-out;
       padding: 10px;
     }
+
     @keyframes fadeInLightbox {
-      from { opacity: 0; transform: scale(0.97); }
+      from { opacity: 0; transform: scale(0.98); }
       to { opacity: 1; transform: scale(1); }
     }
+
     .image-modal-content {
       max-width: 96vw;
       max-height: 92vh;
       width: 95vw;
       height: 90vh;
-      border-radius: 10px;
-      border: 2px solid var(--accent-red);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95);
+      border-radius: 12px;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95), 0 0 35px rgba(37, 99, 235, 0.35);
       object-fit: contain;
     }
+
     .image-modal-close {
       position: absolute;
       top: 25px;
       right: 35px;
-      background: rgba(255, 42, 75, 0.9);
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       color: #fff;
-      border: none;
-      font-size: 26px;
-      width: 48px;
-      height: 48px;
+      font-size: 22px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      box-shadow: 0 4px 20px rgba(255, 42, 75, 0.6);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
       transition: background 0.2s ease, transform 0.2s ease;
       z-index: 10001;
     }
+
     .image-modal-close:hover {
-      background: #e01b3c;
-      transform: scale(1.12);
+      background: #ef4444;
+      transform: scale(1.1);
     }
+
     .image-modal-caption {
       margin-top: 15px;
-      color: #aaa;
+      color: var(--text-muted);
       font-size: 13px;
       font-weight: 500;
       letter-spacing: 0.5px;
@@ -327,11 +415,12 @@
     .badge {
       display: inline-block;
       padding: 4px 10px;
-      background: #252540;
-      color: var(--accent-red);
-      font-size: 12px;
+      background: rgba(37, 99, 235, 0.14);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      font-size: 11px;
       font-weight: 700;
-      border-radius: 5px;
+      border-radius: 6px;
       margin-bottom: 8px;
     }
 
@@ -347,13 +436,14 @@
     .status-toast {
       margin-top: 15px;
       padding: 12px;
-      border-radius: 8px;
+      border-radius: 10px;
       display: none;
       font-weight: 600;
       text-align: center;
     }
-    .toast-success { background: #133820; color: #4eff8c; border: 1px solid #23683a; }
-    .toast-error { background: #3d1418; color: #ff4e5e; border: 1px solid #6b222a; }
+
+    .toast-success { background: rgba(6, 78, 59, 0.6); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .toast-error { background: rgba(127, 29, 29, 0.6); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
 
     /* Table Responsive Scroll Wrapper */
     .table-wrapper {
@@ -362,9 +452,10 @@
       -webkit-overflow-scrolling: touch;
       margin-top: 15px;
       margin-bottom: 15px;
-      border-radius: 8px;
+      border-radius: 10px;
       border: 1px solid var(--border-color);
     }
+
     .table-wrapper table {
       margin-top: 0;
       margin-bottom: 0;
@@ -378,11 +469,11 @@
     }
 
     .groq-key-input {
-      padding: 8px;
-      background: #0d0d16;
-      border: 1px solid #4c1d95;
+      padding: 8px 12px;
+      background: rgba(8, 12, 22, 0.9);
+      border: 1px solid rgba(59, 130, 246, 0.3);
       color: #fff;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 13px;
       flex: 1;
       min-width: 220px;
@@ -857,70 +948,70 @@
 
   <!-- AUTO-FETCH POSTER WIZARD MODAL -->
   <div id="poster-wizard-modal" class="image-modal-overlay" style="z-index: 10005;">
-    <div style="background: #161625; border: 2px solid #06b6d4; border-radius: 12px; max-width: 850px; width: 94vw; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.9); animation: fadeInLightbox 0.2s ease-out;">
+    <div style="background: #0b0f19; border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 16px; max-width: 860px; width: 94vw; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 70px rgba(0,0,0,0.85), 0 0 35px rgba(37, 99, 235, 0.2); animation: fadeInLightbox 0.2s ease-out;">
       
       <!-- Modal Header -->
-      <div style="background: #1f1f35; padding: 14px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+      <div style="background: rgba(15, 23, 42, 0.85); padding: 14px 22px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center;">
         <div>
-          <span id="wizard-progress-badge" style="background: #0891b2; color: #fff; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase;">Step 1 of 5</span>
-          <h3 id="wizard-topic-title" style="color: #67e8f9; margin-top: 4px; font-size: 18px;">Topic Poster Finder</h3>
+          <span id="wizard-progress-badge" style="background: rgba(37, 99, 235, 0.16); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 9999px; text-transform: uppercase;">Step 1 of 5</span>
+          <h3 id="wizard-topic-title" style="color: #f8fafc; margin-top: 5px; font-size: 18px; font-weight: 700;">Topic Poster Finder</h3>
         </div>
-        <button onclick="closePosterWizard()" style="background: transparent; border: none; color: #aaa; font-size: 26px; cursor: pointer; font-weight: bold; padding: 0 8px;">✕</button>
+        <button onclick="closePosterWizard()" style="background: transparent; border: none; color: #94a3b8; font-size: 26px; cursor: pointer; font-weight: bold; padding: 0 8px; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">✕</button>
       </div>
 
       <!-- Modal Body -->
-      <div style="padding: 18px; overflow-y: auto; flex: 1;">
+      <div style="padding: 18px 22px; overflow-y: auto; flex: 1;">
         
         <!-- Topic Info Card -->
-        <div style="background: #0d0d16; border: 1px solid #2b2b40; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;">
-          <div style="font-size: 12px; color: #888; font-weight: 600;">Malayalam News Summary:</div>
+        <div style="background: rgba(8, 12, 22, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 12px 16px; margin-bottom: 14px;">
+          <div style="font-size: 12px; color: #94a3b8; font-weight: 600;">Malayalam News Summary:</div>
           <div id="wizard-news-text" style="font-size: 13px; color: #e2e8f0; margin-top: 4px; max-height: 55px; overflow-y: auto;">-</div>
         </div>
 
         <!-- Search Controls & Google Images Quick Link -->
         <div class="wizard-search-box-row" style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center;">
-          <input type="text" id="wizard-search-input" placeholder="Search movie poster..." style="flex: 1; min-width: 200px; padding: 9px; background: #0d0d16; border: 1px solid #06b6d4; color: #fff; border-radius: 6px; font-size: 14px;">
-          <button class="btn" style="background: #0891b2; padding: 9px 14px; font-size: 13px;" onclick="triggerWizardPosterSearch()">🔍 Search</button>
-          <button class="btn btn-secondary" style="padding: 9px 14px; font-size: 13px; background: #1e293b; color: #38bdf8; border: 1px solid #0284c7;" onclick="openGoogleImagesTabFromWizard()">🌐 Google Images (New Tab)</button>
+          <input type="text" id="wizard-search-input" placeholder="Search movie poster..." style="flex: 1; min-width: 200px; padding: 10px 12px; background: rgba(8, 12, 22, 0.9); border: 1px solid rgba(56, 189, 248, 0.35); color: #fff; border-radius: 8px; font-size: 14px;">
+          <button class="btn" style="padding: 10px 16px; font-size: 13px;" onclick="triggerWizardPosterSearch()">🔍 Search</button>
+          <button class="btn btn-secondary" style="padding: 10px 16px; font-size: 13px;" onclick="openGoogleImagesTabFromWizard()">🌐 Google Images (New Tab)</button>
         </div>
 
         <!-- Poster Images Grid -->
         <div style="margin-bottom: 14px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <label style="font-size: 13px; font-weight: 700; color: #aaa;">Click a Poster to Select:</label>
-            <span id="wizard-search-status" style="font-size: 12px; color: #67e8f9;">Searching...</span>
+            <label style="font-size: 13px; font-weight: 700; color: #cbd5e1;">Click a Poster to Select:</label>
+            <span id="wizard-search-status" style="font-size: 12px; color: #38bdf8;">Searching...</span>
           </div>
-          <div id="wizard-poster-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; max-height: 250px; overflow-y: auto; background: #0d0d16; padding: 12px; border-radius: 8px; border: 1px solid #2b2b40;">
+          <div id="wizard-poster-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; max-height: 250px; overflow-y: auto; background: rgba(8, 12, 22, 0.9); padding: 12px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);">
             <!-- Rendered poster thumbnails -->
           </div>
         </div>
 
         <!-- Custom Image URL Input Box -->
-        <div style="background: #0d0d16; padding: 12px; border-radius: 8px; border: 1px solid #2b2b40;">
-          <label style="font-size: 12px; color: #aaa; font-weight: 600; display: block; margin-bottom: 6px;">Or Paste Image URL Directly:</label>
+        <div style="background: rgba(8, 12, 22, 0.85); padding: 12px 16px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);">
+          <label style="font-size: 12px; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 6px;">Or Paste Image URL Directly:</label>
           <div class="wizard-custom-url-row" style="display: flex; gap: 8px;">
-            <input type="text" id="wizard-custom-url-input" placeholder="https://example.com/poster.jpg" style="flex: 1; padding: 8px; background: #161625; border: 1px solid #33334d; color: #fff; border-radius: 5px; font-size: 13px;">
-            <button class="btn" style="background: #059669; padding: 8px 16px; font-size: 13px;" onclick="applyWizardCustomUrl()">✅ Apply URL</button>
+            <input type="text" id="wizard-custom-url-input" placeholder="https://example.com/poster.jpg" style="flex: 1; padding: 9px 12px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(148, 163, 184, 0.16); color: #fff; border-radius: 6px; font-size: 13px;">
+            <button class="btn" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 9px 16px; font-size: 13px;" onclick="applyWizardCustomUrl()">✅ Apply URL</button>
           </div>
         </div>
 
         <!-- STEP CONFIRMATION PROMPT OVERLAY PANEL (Shows after URL selected) -->
-        <div id="wizard-prompt-panel" style="display: none; margin-top: 14px; background: #064e3b; border: 1px solid #10b981; border-radius: 8px; padding: 14px; text-align: center; animation: fadeInLightbox 0.2s ease-out;">
+        <div id="wizard-prompt-panel" style="display: none; margin-top: 14px; background: rgba(6, 78, 59, 0.45); border: 1px solid rgba(16, 185, 129, 0.45); border-radius: 10px; padding: 14px; text-align: center; animation: fadeInLightbox 0.2s ease-out;">
           <div style="font-size: 15px; font-weight: 700; color: #6ee7b7; margin-bottom: 4px;">✅ Poster Saved for Topic #<span id="wizard-prompt-topic-num">1</span>!</div>
           <p style="font-size: 13px; color: #d1fae5; margin-bottom: 12px;">Would you like to proceed to the next topic?</p>
           <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-            <button class="btn" style="background: #10b981; color: #064e3b; font-weight: 800; font-size: 14px; padding: 9px 18px;" onclick="advancePosterWizardNext()">➡️ Next Movie (<span id="wizard-next-topic-title">Topic #2</span>)</button>
-            <button class="btn btn-secondary" style="background: #1e293b; color: #fff; font-size: 13px; padding: 9px 14px;" onclick="closePosterWizard()">🛑 Finish Wizard</button>
+            <button class="btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; font-weight: 800; font-size: 14px; padding: 9px 18px;" onclick="advancePosterWizardNext()">➡️ Next Movie (<span id="wizard-next-topic-title">Topic #2</span>)</button>
+            <button class="btn btn-secondary" style="font-size: 13px; padding: 9px 14px;" onclick="closePosterWizard()">🛑 Finish Wizard</button>
           </div>
         </div>
 
       </div>
 
       <!-- Modal Footer -->
-      <div style="background: #1f1f35; padding: 10px 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-        <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 14px;" onclick="prevPosterWizardStep()">⬅️ Previous</button>
-        <span style="font-size: 12px; color: #888;">Select image or paste URL to continue</span>
-        <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 14px;" onclick="advancePosterWizardNext()">Skip ➡️</button>
+      <div style="background: rgba(15, 23, 42, 0.85); padding: 12px 22px; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center;">
+        <button class="btn btn-secondary" style="font-size: 12px; padding: 7px 14px;" onclick="prevPosterWizardStep()">⬅️ Previous</button>
+        <span style="font-size: 12px; color: #64748b;">Select image or paste URL to continue</span>
+        <button class="btn btn-secondary" style="font-size: 12px; padding: 7px 14px;" onclick="advancePosterWizardNext()">Skip ➡️</button>
       </div>
 
     </div>
@@ -2163,46 +2254,74 @@
       return res ? res.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : "";
     }
 
-    async function fetchEnglishMovieNameWithGroq(malayalamText, apiKey) {
-      if (!malayalamText) return "";
-      if (apiKey) {
-        const modelsToTry = ["openai/gpt-oss-20b", "openai/gpt-oss-120b", "qwen/qwen3.8-27b"];
-        for (const model of modelsToTry) {
-          try {
-            const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-              method: 'POST',
-              headers: {
-                'Authorization': 'Bearer ' + apiKey,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                model: model,
-                messages: [
-                  {
-                    role: 'system',
-                    content: 'You are an expert Malayalam movie news editor. Extract ONLY the official movie title phonetically in the English alphabet from the text below. Return ONLY a JSON object: {"movie_name": "TitleInEnglish"}. Example: {"movie_name": "Bethlehem Kudumba Unit"}. Do not add any markdown formatting or extra text.'
-                  },
-                  { role: 'user', content: malayalamText }
-                ],
-                temperature: 0.1,
-                response_format: { type: 'json_object' }
-              })
-            });
-            if (res.ok) {
-              const data = await res.json();
-              const content = data.choices?.[0]?.message?.content || "";
-              const parsed = JSON.parse(content);
-              const val = parsed.movie_name || parsed.english_name || parsed.title || parsed.headline || parsed.movie_title || (parsed.items && parsed.items[0] && (parsed.items[0].movie_name || parsed.items[0].headline));
-              if (val && typeof val === 'string' && val.trim() && !/[\u0D00-\u0D7F]/.test(val)) {
-                return val.trim();
-              }
+    async function fetchSmartSearchDetailsWithGroq(newsText, rawTitle, apiKey) {
+      const fallbackQuery = transliterateMalayalamToEnglish(rawTitle || newsText) || "Malayalam movie";
+      const fallbackResult = {
+        movie_name: fallbackQuery,
+        smart_search_query: `${fallbackQuery} movie poster`,
+        industry: "Malayalam",
+        category: "Poster"
+      };
+
+      if (!apiKey) return fallbackResult;
+
+      const promptText = `News Text: ${newsText || rawTitle}\nRaw Title: ${rawTitle || ''}`;
+      const modelsToTry = ["openai/gpt-oss-20b", "openai/gpt-oss-120b", "qwen/qwen3.8-27b"];
+
+      for (const model of modelsToTry) {
+        try {
+          const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + apiKey,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              model: model,
+              messages: [
+                {
+                  role: 'system',
+                  content: `You are an expert Indian cinema news editor. Read the Malayalam movie news text and generate an optimal English Google Image search query.
+Instructions:
+1. "movie_name": Phonetic title in English alphabet (keep Malayalam/Tamil phonetic title, e.g. "Bethlehem Kudumba Unit", "Mookkuthi Amman 2").
+2. "industry": Film industry (Tamil, Malayalam, Telugu, Bollywood, etc.).
+3. "actors": Key actors or directors mentioned in English.
+4. "category": News type ("Teaser", "Poster", "Trailer", "Speech", "BoxOffice", "OTT", or "General").
+5. "smart_search_query": A clean, hyper-targeted 3-6 word English search query to find the exact official image on Google Images (e.g. "Mookkuthi Amman 2 Nayanthara first look poster", "Prithviraj Sukumaran speech writers Malayalam cinema", "Ottam Thullal Vishnu Unnikrishnan poster").
+Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "category", "smart_search_query". ABSOLUTELY NO MALAYALAM SCRIPT.`
+                },
+                { role: 'user', content: promptText }
+              ],
+              temperature: 0.1,
+              response_format: { type: 'json_object' }
+            })
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            const content = data.choices?.[0]?.message?.content || "";
+            const parsed = JSON.parse(content);
+            const mName = (parsed.movie_name || '').replace(/[\u0D00-\u0D7F]/g, '').trim();
+            const sQuery = (parsed.smart_search_query || '').replace(/[\u0D00-\u0D7F]/g, '').trim();
+            if (sQuery) {
+              return {
+                movie_name: mName || fallbackQuery,
+                smart_search_query: sQuery,
+                industry: parsed.industry || 'Malayalam',
+                category: parsed.category || 'Poster'
+              };
             }
-          } catch (e) {
-            console.warn("Groq English movie name extraction error:", e);
           }
+        } catch (e) {
+          console.warn("Groq Smart Search error:", e);
         }
       }
-      return transliterateMalayalamToEnglish(malayalamText);
+      return fallbackResult;
+    }
+
+    async function fetchEnglishMovieNameWithGroq(malayalamText, apiKey) {
+      const details = await fetchSmartSearchDetailsWithGroq(malayalamText, "", apiKey);
+      return details.movie_name;
     }
 
     async function loadWizardStep(idx) {
@@ -2232,37 +2351,29 @@
       const customUrlBox = document.getElementById('wizard-custom-url-input');
       customUrlBox.value = current.imgUrl ? current.imgUrl.split(/[\r\n,]+/)[0].trim() : '';
 
-      let englishMovieName = "";
+      const statusBox = document.getElementById('wizard-search-status');
+      if (statusBox) statusBox.innerText = '🤖 AI analyzing news context & generating smart search...';
 
-      // Check if raw title is already English
-      if (rawMovieName && !/[\u0D00-\u0D7F]/.test(rawMovieName)) {
-        englishMovieName = rawMovieName;
-      } else {
-        const statusBox = document.getElementById('wizard-search-status');
-        if (statusBox) statusBox.innerText = '🤖 Translating movie name to English...';
+      const keyInput = document.getElementById('groq-api-key-input');
+      const apiKey = keyInput && keyInput.value.trim() ? keyInput.value.trim() : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
 
-        const keyInput = document.getElementById('groq-api-key-input');
-        const apiKey = keyInput && keyInput.value.trim() ? keyInput.value.trim() : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
+      // Call Groq Smart Search Analyzer
+      const smartDetails = await fetchSmartSearchDetailsWithGroq(current.text, rawMovieName, apiKey);
+      const englishMovieName = (smartDetails.movie_name || "").replace(/[\u0D00-\u0D7F]/g, '').trim() || transliterateMalayalamToEnglish(rawMovieName);
 
-        englishMovieName = await fetchEnglishMovieNameWithGroq(rawMovieName || current.text, apiKey);
-
-        if (englishMovieName && !/[\u0D00-\u0D7F]/.test(englishMovieName)) {
-          if (!current.headline || /[\u0D00-\u0D7F]/.test(current.headline)) {
-            current.headline = englishMovieName;
-            saveLocalStore();
-            renderTableRows();
-          }
+      if (englishMovieName && !/[\u0D00-\u0D7F]/.test(englishMovieName)) {
+        if (!current.headline || /[\u0D00-\u0D7F]/.test(current.headline)) {
+          current.headline = englishMovieName;
+          saveLocalStore();
+          renderTableRows();
         }
       }
 
-      // Ensure NO Malayalam characters remain in search query under any circumstance
-      const cleanEnglishName = (englishMovieName || "").replace(/[\u0D00-\u0D7F]/g, '').trim() || transliterateMalayalamToEnglish(rawMovieName);
-
-      // Format search input box as: 'Movie Name (in English)' Movie poster
+      // Format search input box with the smart targeted query
       const searchBox = document.getElementById('wizard-search-input');
-      const searchQuery = cleanEnglishName ? `${cleanEnglishName} Movie poster` : `Malayalam movie poster`;
+      const searchQuery = smartDetails.smart_search_query || (englishMovieName ? `${englishMovieName} Movie poster` : `Malayalam movie poster`);
       searchBox.value = searchQuery;
-      posterWizardState.currentTopicName = cleanEnglishName || rawMovieName;
+      posterWizardState.currentTopicName = englishMovieName || rawMovieName;
 
       // Trigger automatic poster search for this topic
       triggerWizardPosterSearch();
@@ -2389,8 +2500,8 @@
       const words = cleanMovie.split(/\s+/);
       const shortName = words.slice(0, 3).join(' ');  // First 3 words for broader search
       const tasks = [
-        // 1. ★ GOOGLE IMAGES (Primary - Multi-Key Auto-Rotating Pool)
-        fetchSerperImagesWithFallback(cleanMovie + ' movie poster', 12)
+        // 1. ★ GOOGLE IMAGES (Primary - Smart Search Query from Groq)
+        fetchSerperImagesWithFallback(cleanQuery, 14)
           .then(images => {
             (images || []).forEach(img => {
               const u = img.imageUrl || img.thumbnailUrl;
@@ -2399,8 +2510,8 @@
           })
           .catch(() => {}),
 
-        // 2. ★ GOOGLE IMAGES (Second Query - First Look & HD Teaser Poster)
-        fetchSerperImagesWithFallback(cleanMovie + ' first look poster HD', 8)
+        // 2. ★ GOOGLE IMAGES (Second Query - Broader Movie Poster HD)
+        fetchSerperImagesWithFallback(cleanMovie + ' poster HD', 8)
           .then(images => {
             (images || []).forEach(img => {
               const u = img.imageUrl || img.thumbnailUrl;
