@@ -2337,13 +2337,15 @@
       const movieQuery = cleanMovie + " Malayalam movie";
 
       // Parallel Search — Google Images (Serper API) + Backup Sources
-      // Multi-Key Serper Pool (12,500 Total Free Google Image Searches with Auto-Failover)
+      // Multi-Key Serper Pool (17,500 Total Free Google Image Searches with Auto-Failover)
       const SERPER_KEYS = [
         '706d6e0c2e53e2d18b6f85808d560536e5d97ab7',
         '6fd2aecf0e6a8aaba3a1e5c6f3f63d54f6779236',
         '8cc926c37bc6a93c0a28ea9bee6e25b62655b561',
         '9c7b69b58d92d293b000ac9d43c87e736f3809c1',
-        'a5e997a31056ecf4653442d3bb0ffde0a9964fc4'
+        'a5e997a31056ecf4653442d3bb0ffde0a9964fc4',
+        '32541b9cc4fad4ef33cf2b7353a668c3845de9fc',
+        '3e2ceb8660a332263aab5b85434a311fe4f3a82c'
       ];
 
       const fetchSerperImagesWithFallback = async (searchQuery, numResults = 12) => {
