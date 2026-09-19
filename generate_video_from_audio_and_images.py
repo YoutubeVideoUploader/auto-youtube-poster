@@ -23,7 +23,7 @@ if hasattr(sys.stdout, 'reconfigure'):
 BASE_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE_DIR))
 
-from config import OUTPUT_DIR, BGM_VOLUME
+from config import OUTPUT_DIR, BGM_VOLUME, VOICE_VOLUME
 
 ASSETS_DIR = BASE_DIR / "assets"
 INTRO_BANNER_PATH = str(ASSETS_DIR / "intro_banner.jpg")
@@ -1348,8 +1348,9 @@ def generate_video(
             filter_complex = (
                 f"[2:a]atrim=0:{trimmed_bgm_dur:.2f},aloop=loop=-1:size={int(trimmed_bgm_dur * 44100)}[bgm_loop];"
                 f"[bgm_loop]volume={BGM_VOLUME},afade=t=out:st={fade_start:.2f}:d=5[bgm_ducked];"
-                f"[1:a]volume=4.0[voice];"
-                f"[voice][bgm_ducked]amix=inputs=2:duration=first:dropout_transition=3[aout]"
+                f"[1:a]acompressor=threshold=-20dB:ratio=3:attack=10:release=80:makeup=4dB,volume={VOICE_VOLUME}[voice];"
+                f"[voice][bgm_ducked]amix=inputs=2:duration=first:dropout_transition=2:normalize=0[mixed];"
+                f"[mixed]alimiter=limit=0.98:attack=5:release=50[aout]"
             )
 
             ffmpeg_cmd = [
@@ -1372,7 +1373,7 @@ def generate_video(
                 "ffmpeg", "-y",
                 "-i", combined_visuals,
                 "-i", audio_path,
-                "-filter_complex", "[1:a]volume=4.0[aout]",
+                "-filter_complex", f"[1:a]acompressor=threshold=-20dB:ratio=3:attack=10:release=80:makeup=4dB,volume={VOICE_VOLUME},alimiter=limit=0.98:attack=5:release=50[aout]",
                 "-map", "0:v",
                 "-map", "[aout]",
                 "-c:v", "copy",
@@ -1386,7 +1387,7 @@ def generate_video(
             "ffmpeg", "-y",
             "-i", combined_visuals,
             "-i", audio_path,
-            "-filter_complex", "[1:a]volume=4.0[aout]",
+            "-filter_complex", f"[1:a]acompressor=threshold=-20dB:ratio=3:attack=10:release=80:makeup=4dB,volume={VOICE_VOLUME},alimiter=limit=0.98:attack=5:release=50[aout]",
             "-map", "0:v",
             "-map", "[aout]",
             "-c:v", "copy",

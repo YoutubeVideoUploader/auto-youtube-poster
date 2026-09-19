@@ -22,8 +22,8 @@ ALT_SAMPLE_RATE = 48000      # Video production standard (48 kHz)
 DEFAULT_AUDIO_FORMAT = "wav"
 NORMALIZE_LOUDNESS = True
 TARGET_LUFS = -16.0          # Streaming / YouTube standard loudness
-SILENCE_TRIM_DB = 30         # dB threshold for trimming leading/trailing silence
-BGM_VOLUME = 0.12            # Background music volume level (increased for better audibility)
+VOICE_VOLUME = 2.2          # Voice narration volume multiplier in video mix (increased for audibility)
+BGM_VOLUME = 0.30            # Background music volume level (increased for clear audible music)
 
 # Default TTS Engine Models
 DEFAULT_MODEL_ID = "mms_malayalam"
