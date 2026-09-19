@@ -6,658 +6,397 @@
   <title>Malayalam Movie News - Studio Dashboard</title>
   <style>
     :root {
-      --bg-dark: #07090e;
-      --bg-gradient: radial-gradient(circle at 50% -10%, rgba(37, 99, 235, 0.2) 0%, transparent 60%), radial-gradient(circle at 100% 60%, rgba(56, 189, 248, 0.08) 0%, transparent 50%), #07090e;
-      --card-bg: rgba(13, 18, 30, 0.84);
-      --card-inner: rgba(9, 13, 22, 0.88);
+      --bg-dark: #090d16;
+      --card-bg: #0f172a;
+      --card-inner: #0b1120;
       --accent-blue: #2563eb;
       --accent-hover: #1d4ed8;
       --accent-cyan: #38bdf8;
-      --accent-glow: 0 0 20px rgba(37, 99, 235, 0.45);
-      --cyan-glow: 0 0 16px rgba(56, 189, 248, 0.35);
+      --accent-red: #ef4444;
+      --accent-green: #10b981;
       --text-main: #f8fafc;
-      --text-muted: #cbd5e1;
-      --border-color: rgba(255, 255, 255, 0.12);
-      --border-highlight: rgba(59, 130, 246, 0.35);
+      --text-muted: #94a3b8;
+      --border-color: #1e293b;
+      --border-highlight: #334155;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Helvetica, Arial, sans-serif;
-      background: var(--bg-gradient);
-      background-attachment: fixed;
+      background: var(--bg-dark);
       color: var(--text-main);
-      padding: 24px 20px;
-      line-height: 1.6;
+      padding: 20px 16px;
+      line-height: 1.5;
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
-      position: relative;
       overflow-x: hidden;
     }
 
     .container {
       max-width: 1120px;
       margin: 0 auto;
-      position: relative;
-      z-index: 2;
-    }
-
-    /* Aurora Borealis (Northern Lights) Animated Sky */
-    .aurora-sky-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      pointer-events: none;
-      z-index: 0;
-      background: radial-gradient(ellipse 130% 90% at 50% -25%, #050d18 0%, #030611 55%, #020308 100%);
-    }
-
-    /* Atmospheric dark vignette to maintain crisp foreground text contrast */
-    .aurora-sky-container::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: 
-        radial-gradient(ellipse 90% 50% at 50% 12%, rgba(3, 5, 12, 0.48) 0%, rgba(3, 5, 12, 0.22) 50%, rgba(2, 3, 8, 0.8) 100%),
-        linear-gradient(to bottom, rgba(3, 5, 12, 0.55) 0%, rgba(3, 5, 12, 0.2) 22%, transparent 45%, rgba(2, 3, 8, 0.75) 100%);
-      pointer-events: none;
-    }
-
-    /* Subtle twinkling stars in celestial night sky */
-    .aurora-stars {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: 
-        radial-gradient(1.5px 1.5px at 12% 18%, rgba(255, 255, 255, 0.85) 50%, transparent 100%),
-        radial-gradient(1px 1px at 28% 12%, rgba(255, 255, 255, 0.7) 50%, transparent 100%),
-        radial-gradient(2px 2px at 45% 22%, rgba(255, 255, 255, 0.9) 50%, transparent 100%),
-        radial-gradient(1.2px 1.2px at 68% 14%, rgba(255, 255, 255, 0.75) 50%, transparent 100%),
-        radial-gradient(1.8px 1.8px at 85% 25%, rgba(255, 255, 255, 0.8) 50%, transparent 100%),
-        radial-gradient(1px 1px at 22% 55%, rgba(255, 255, 255, 0.55) 50%, transparent 100%),
-        radial-gradient(1.5px 1.5px at 58% 65%, rgba(255, 255, 255, 0.65) 50%, transparent 100%),
-        radial-gradient(1px 1px at 92% 50%, rgba(255, 255, 255, 0.55) 50%, transparent 100%);
-      opacity: 0.85;
-      animation: starTwinkle 6s ease-in-out infinite alternate;
-    }
-
-    /* Vertical Shimmering Curtain Rays / Light Pillars */
-    .aurora-rays {
-      position: absolute;
-      top: -15%;
-      left: -25%;
-      width: 150vw;
-      height: 85vh;
-      background: repeating-linear-gradient(
-        90deg,
-        transparent 0%,
-        transparent 3%,
-        rgba(16, 185, 129, 0.12) 5%,
-        rgba(52, 211, 153, 0.2) 7%,
-        rgba(6, 182, 212, 0.16) 9%,
-        transparent 12%,
-        transparent 17%,
-        rgba(168, 85, 247, 0.18) 20%,
-        rgba(236, 72, 153, 0.14) 22%,
-        transparent 25%
-      );
-      filter: blur(18px);
-      mix-blend-mode: screen;
-      transform-origin: top center;
-      will-change: transform, opacity;
-      animation: auroraRaysCurtain 11s ease-in-out infinite alternate;
-      pointer-events: none;
-    }
-
-    /* Aurora Flowing Ribbons & Light Curtains */
-    .aurora-ribbon {
-      position: absolute;
-      filter: blur(38px);
-      mix-blend-mode: screen;
-      will-change: transform, opacity, border-radius;
-      pointer-events: none;
-      border-radius: 45% 55% 65% 35% / 40% 60% 40% 60%;
-    }
-
-    /* 1. Luminous Emerald & Arctic Green Aurora Ribbon */
-    .aurora-green {
-      top: -12%;
-      left: -12%;
-      width: 125vw;
-      height: 60vh;
-      background: linear-gradient(130deg, 
-        rgba(16, 185, 129, 0) 0%, 
-        rgba(16, 185, 129, 0.45) 25%, 
-        rgba(52, 211, 153, 0.55) 50%, 
-        rgba(6, 182, 212, 0.35) 75%, 
-        transparent 100%);
-      animation: auroraFlowGreen 10s ease-in-out infinite alternate;
-    }
-
-    /* 2. Deep Royal Purple & Violet Light Curtain */
-    .aurora-purple {
-      top: -5%;
-      left: 5%;
-      width: 120vw;
-      height: 65vh;
-      background: linear-gradient(115deg, 
-        rgba(139, 92, 246, 0) 0%, 
-        rgba(139, 92, 246, 0.45) 25%, 
-        rgba(124, 58, 237, 0.55) 50%, 
-        rgba(168, 85, 247, 0.35) 75%, 
-        transparent 100%);
-      animation: auroraFlowPurple 13s ease-in-out infinite alternate;
-    }
-
-    /* 3. Electric Pink & Magenta Shimmering Ribbon */
-    .aurora-pink {
-      top: 2%;
-      left: 15%;
-      width: 100vw;
-      height: 52vh;
-      background: linear-gradient(140deg, 
-        rgba(236, 72, 153, 0) 0%, 
-        rgba(236, 72, 153, 0.4) 30%, 
-        rgba(244, 63, 94, 0.45) 55%, 
-        rgba(192, 38, 211, 0.3) 80%, 
-        transparent 100%);
-      animation: auroraFlowPink 12s ease-in-out infinite alternate;
-    }
-
-    /* 4. Glowing Cyan & Emerald Core Curtain */
-    .aurora-cyan {
-      top: -10%;
-      right: -10%;
-      width: 95vw;
-      height: 58vh;
-      background: linear-gradient(125deg, 
-        rgba(6, 182, 212, 0.45) 0%, 
-        rgba(16, 185, 129, 0.4) 40%, 
-        rgba(37, 99, 235, 0.3) 75%, 
-        transparent 100%);
-      animation: auroraFlowCyan 14s ease-in-out infinite alternate;
-    }
-
-    /* 5. Vivid Ripple Wave Curtain */
-    .aurora-wave-glow {
-      top: -8%;
-      left: 20%;
-      width: 110vw;
-      height: 50vh;
-      background: radial-gradient(ellipse at 45% 30%, 
-        rgba(52, 211, 153, 0.35) 0%, 
-        rgba(6, 182, 212, 0.28) 35%, 
-        rgba(147, 51, 234, 0.22) 65%, 
-        transparent 85%);
-      filter: blur(45px);
-      animation: auroraWaveGlow 9s ease-in-out infinite alternate;
-    }
-
-    /* Shimmering vertical curtain rays keyframes */
-    @keyframes auroraRaysCurtain {
-      0% {
-        transform: translate3d(-80px, 0, 0) skewX(-14deg) scaleY(0.95);
-        opacity: 0.35;
-      }
-      50% {
-        transform: translate3d(90px, 25px, 0) skewX(12deg) scaleY(1.3);
-        opacity: 0.6;
-      }
-      100% {
-        transform: translate3d(-40px, -15px, 0) skewX(-8deg) scaleY(1.05);
-        opacity: 0.4;
-      }
-    }
-
-    /* Flowing Aurora Keyframe Movements with dynamic translation, skew & expansion */
-    @keyframes auroraFlowGreen {
-      0% {
-        transform: translate3d(-120px, -10px, 0) rotate(-6deg) skewX(-10deg) scaleY(0.95);
-        border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-        opacity: 0.38;
-      }
-      50% {
-        transform: translate3d(130px, 45px, 0) rotate(7deg) skewX(12deg) scaleY(1.35);
-        border-radius: 65% 35% 45% 55% / 55% 45% 65% 35%;
-        opacity: 0.58;
-      }
-      100% {
-        transform: translate3d(-60px, -25px, 0) rotate(-3deg) skewX(-5deg) scaleY(1.1);
-        border-radius: 50% 50% 60% 40% / 40% 60% 40% 60%;
-        opacity: 0.42;
-      }
-    }
-
-    @keyframes auroraFlowPurple {
-      0% {
-        transform: translate3d(100px, -30px, 0) rotate(8deg) skewX(10deg) scale(1, 0.95);
-        border-radius: 50% 50% 40% 60% / 60% 40% 60% 40%;
-        opacity: 0.35;
-      }
-      50% {
-        transform: translate3d(-140px, 50px, 0) rotate(-6deg) skewX(-12deg) scale(1.15, 1.35);
-        border-radius: 35% 65% 60% 40% / 45% 55% 40% 60%;
-        opacity: 0.55;
-      }
-      100% {
-        transform: translate3d(60px, 20px, 0) rotate(4deg) skewX(6deg) scale(0.95, 1.05);
-        border-radius: 60% 40% 50% 50% / 50% 50% 60% 40%;
-        opacity: 0.4;
-      }
-    }
-
-    @keyframes auroraFlowPink {
-      0% {
-        transform: translate3d(-40px, 0, 0) rotate(-6deg) skewX(-8deg) scale(0.95);
-        opacity: 0.3;
-      }
-      50% {
-        transform: translate3d(140px, -45px, 0) rotate(9deg) skewX(14deg) scale(1.28);
-        border-radius: 55% 45% 65% 35% / 45% 65% 35% 55%;
-        opacity: 0.52;
-      }
-      100% {
-        transform: translate3d(-90px, 35px, 0) rotate(-8deg) skewX(-10deg) scale(1.05);
-        opacity: 0.35;
-      }
-    }
-
-    @keyframes auroraFlowCyan {
-      0% {
-        transform: translate3d(90px, -15px, 0) rotate(6deg) skewX(8deg) scaleY(0.95);
-        opacity: 0.35;
-      }
-      50% {
-        transform: translate3d(-110px, 55px, 0) rotate(-9deg) skewX(-14deg) scaleY(1.36);
-        border-radius: 40% 60% 55% 45% / 60% 40% 50% 50%;
-        opacity: 0.58;
-      }
-      100% {
-        transform: translate3d(50px, -25px, 0) rotate(3deg) skewX(4deg) scaleY(1.05);
-        opacity: 0.4;
-      }
-    }
-
-    @keyframes auroraWaveGlow {
-      0% {
-        transform: translate3d(-80px, 20px, 0) rotate(3deg) scale(0.92, 1);
-        opacity: 0.28;
-      }
-      50% {
-        transform: translate3d(110px, -30px, 0) rotate(-5deg) scale(1.22, 1.28);
-        opacity: 0.5;
-      }
-      100% {
-        transform: translate3d(-30px, -10px, 0) rotate(1deg) scale(1, 0.95);
-        opacity: 0.32;
-      }
-    }
-
-    @keyframes starTwinkle {
-      0% { opacity: 0.65; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.03); }
-      100% { opacity: 0.6; transform: scale(0.98); }
     }
 
     header {
       text-align: center;
-      margin-bottom: 28px;
-      position: relative;
+      margin-bottom: 20px;
     }
 
     header h1 {
-      font-size: 34px;
+      font-size: 26px;
       font-weight: 800;
       letter-spacing: -0.02em;
       color: #ffffff;
-      background: linear-gradient(180deg, #ffffff 40%, #e2e8f0 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.95)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.85));
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     header p {
-      color: #f1f5f9;
-      font-size: 13.5px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 500;
       display: inline-block;
-      padding: 5px 16px;
+      padding: 3px 12px;
       border-radius: 9999px;
-      background: rgba(10, 15, 30, 0.78);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+      background: #111827;
+      border: 1px solid var(--border-color);
     }
 
     /* Settings Gear Button */
     .settings-gear-btn {
-      background: rgba(15, 23, 42, 0.82);
-      border: 1px solid rgba(56, 189, 248, 0.35);
+      background: #1e293b;
+      border: 1px solid #334155;
       color: #38bdf8;
-      font-size: 13px;
-      font-weight: 700;
-      padding: 6px 14px;
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 5px 12px;
       border-radius: 9999px;
       cursor: pointer;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+      transition: background 0.15s, border-color 0.15s;
     }
 
     .settings-gear-btn:hover {
-      background: rgba(37, 99, 235, 0.3);
+      background: #334155;
       border-color: #38bdf8;
       color: #ffffff;
-      transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(56, 189, 248, 0.4);
     }
 
-    /* Main Section Navigation Buttons */
+    /* Main Section Navigation */
     .section-nav {
       display: flex;
-      gap: 12px;
-      margin-bottom: 25px;
+      gap: 8px;
+      margin-bottom: 16px;
       justify-content: center;
-      padding: 7px;
-      background: rgba(10, 15, 30, 0.88);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      border-radius: 14px;
-      max-width: 820px;
+      padding: 5px;
+      background: #111827;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      max-width: 760px;
       margin-left: auto;
       margin-right: auto;
-      box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
 
     .section-btn {
       flex: 1;
-      padding: 12px 18px;
+      padding: 10px 14px;
       background: transparent;
       border: 1px solid transparent;
-      color: #cbd5e1;
-      font-size: 15px;
+      color: #94a3b8;
+      font-size: 14px;
       font-weight: 600;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: background 0.15s, color 0.15s;
       text-align: center;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
     }
 
     .section-btn:hover {
       color: #ffffff;
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(255, 255, 255, 0.12);
+      background: #1e293b;
     }
 
     .section-btn.active {
-      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-      border-color: rgba(255, 255, 255, 0.25);
+      background: #2563eb;
+      border-color: #3b82f6;
       color: #ffffff;
       font-weight: 700;
-      box-shadow: 0 4px 18px rgba(37, 99, 235, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.25);
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
     }
 
     /* Category Sub-Tabs */
     .tab-bar {
       display: flex;
-      gap: 10px;
-      margin-bottom: 22px;
+      gap: 8px;
+      margin-bottom: 18px;
       justify-content: center;
       flex-wrap: wrap;
     }
 
     .tab-btn {
-      background: rgba(11, 16, 32, 0.85);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      color: #cbd5e1;
-      padding: 9px 20px;
+      background: #111827;
+      border: 1px solid var(--border-color);
+      color: #94a3b8;
+      padding: 7px 16px;
       border-radius: 9999px;
       cursor: pointer;
       font-weight: 600;
-      font-size: 13.5px;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+      font-size: 13px;
+      transition: all 0.15s ease;
     }
 
     .tab-btn:hover {
       color: #ffffff;
-      border-color: rgba(56, 189, 248, 0.5);
-      background: rgba(20, 30, 56, 0.95);
-      transform: translateY(-1px);
+      border-color: #38bdf8;
+      background: #1e293b;
     }
 
     .tab-btn.active {
-      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      background: #2563eb;
       color: #ffffff !important;
       font-weight: 700;
-      border-color: rgba(96, 165, 250, 0.6);
-      box-shadow: 0 4px 18px rgba(37, 99, 235, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.25);
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+      border-color: #3b82f6;
     }
 
-    /* Cards & Containers with Glassmorphism */
+    /* Cards */
     .card {
       background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
     }
 
     .card-title {
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 700;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       color: #38bdf8;
       display: flex;
       align-items: center;
       gap: 8px;
-      letter-spacing: -0.01em;
+    }
+
+    /* Quick Tools Toolbar */
+    .tools-toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .tool-btn {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #cbd5e1;
+      padding: 7px 13px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .tool-btn:hover {
+      background: #334155;
+      color: #ffffff;
+      border-color: #475569;
+    }
+
+    .tool-btn.active {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #3b82f6;
+    }
+
+    /* Option Dashboard Panels */
+    .dashboard-panel {
+      background: var(--card-inner);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border-color);
+    }
+
+    .panel-close-btn {
+      background: transparent;
+      border: 1px solid #334155;
+      color: #94a3b8;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: bold;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .panel-close-btn:hover {
+      background: #ef4444;
+      border-color: #ef4444;
+      color: #ffffff;
     }
 
     /* Input & Form Styling */
     textarea {
       width: 100%;
-      height: 120px;
-      background: var(--card-inner);
+      height: 100px;
+      background: #060911;
       border: 1px solid var(--border-color);
       color: #fff;
-      padding: 12px 14px;
-      border-radius: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 13px;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
       resize: vertical;
-      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    textarea:focus {
+    textarea:focus, input:focus, select:focus {
       outline: none;
       border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
     }
 
     .btn {
-      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      background: #2563eb;
       color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 11px 22px;
-      font-size: 14px;
-      font-weight: 700;
-      border-radius: 9px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 9px 18px;
+      font-size: 13.5px;
+      font-weight: 600;
+      border-radius: 8px;
       cursor: pointer;
-      transition: all 0.2s ease;
-      display: inline-block;
-      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+      transition: background 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
     }
 
     .btn:hover {
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.55);
-      transform: translateY(-1px);
+      background: #1d4ed8;
     }
 
     .btn:active {
-      transform: translateY(0);
+      transform: scale(0.99);
     }
 
     .btn-secondary {
-      background: rgba(30, 41, 59, 0.7);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(148, 163, 184, 0.16);
+      background: #1e293b;
+      border: 1px solid #334155;
       color: #cbd5e1;
-      box-shadow: none;
     }
 
     .btn-secondary:hover {
-      background: rgba(51, 65, 85, 0.8);
+      background: #334155;
       color: #fff;
-      border-color: rgba(148, 163, 184, 0.28);
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+      border-color: #475569;
     }
 
     .btn-danger {
-      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      background: #dc2626;
       color: #fff;
-      padding: 6px 12px;
+      padding: 5px 10px;
       font-size: 12px;
       border-radius: 6px;
-      box-shadow: 0 2px 10px rgba(220, 38, 38, 0.3);
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .btn-danger:hover {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-      box-shadow: 0 4px 14px rgba(220, 38, 38, 0.45);
+      background: #b91c1c;
     }
 
     /* Interactive Data Table */
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 15px;
-      margin-bottom: 15px;
+      margin-top: 10px;
+      margin-bottom: 10px;
       background: var(--card-inner);
-      border-radius: 10px;
+      border-radius: 8px;
       overflow: hidden;
       border: 1px solid var(--border-color);
     }
 
     th, td {
-      padding: 12px 14px;
+      padding: 10px 12px;
       text-align: left;
       border-bottom: 1px solid var(--border-color);
     }
 
     th {
-      background: rgba(15, 23, 42, 0.95);
+      background: #0f172a;
       color: #38bdf8;
-      font-size: 12px;
+      font-size: 11.5px;
       text-transform: uppercase;
-      letter-spacing: 0.6px;
+      letter-spacing: 0.5px;
       font-weight: 700;
     }
 
     td input, td textarea {
       width: 100%;
-      background: rgba(8, 12, 22, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.16);
+      background: #060911;
+      border: 1px solid var(--border-color);
       color: #fff;
-      padding: 8px 10px;
+      padding: 7px 10px;
       border-radius: 6px;
-      font-size: 14px;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      font-size: 13.5px;
     }
 
-    td input:focus, td textarea:focus {
-      outline: none;
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
-    }
-
-    td textarea { height: 75px; }
+    td textarea { height: 70px; }
 
     /* Output Card Grid */
     .preview-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
-      gap: 24px;
-      margin-top: 15px;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 18px;
+      margin-top: 14px;
     }
 
     .preview-card {
       background: var(--card-inner);
       border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 20px;
+      border-radius: 12px;
+      padding: 16px;
       position: relative;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
     }
 
     .preview-poster {
       width: 100%;
-      height: 320px;
+      height: 280px;
       object-fit: cover;
-      border-radius: 10px;
-      margin-bottom: 12px;
-      background: #090d16;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background: #060911;
       cursor: pointer;
       border: 1px solid var(--border-color);
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s, box-shadow 0.25s;
-    }
-
-    .preview-poster:hover {
-      transform: scale(1.02);
-      border-color: rgba(56, 189, 248, 0.5);
-      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
+      display: block;
     }
 
     .multi-image-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 10px;
-      margin-bottom: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
     }
 
     .multi-image-grid img {
       width: 100%;
-      height: 180px;
+      height: 160px;
       object-fit: cover;
-      border-radius: 8px;
+      border-radius: 6px;
       border: 1px solid var(--border-color);
-      background: #090d16;
+      background: #060911;
       cursor: pointer;
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s, box-shadow 0.25s;
-    }
-
-    .multi-image-grid img:hover {
-      transform: scale(1.03);
-      border-color: #38bdf8 !important;
-      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.45);
+      display: block;
     }
 
     /* Fullscreen Image Lightbox Modal */
@@ -667,82 +406,68 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(4, 6, 12, 0.92);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: rgba(4, 6, 12, 0.94);
       z-index: 10000;
       display: none;
       align-items: center;
       justify-content: center;
       flex-direction: column;
-      animation: fadeInLightbox 0.2s ease-out;
-      padding: 10px;
-    }
-
-    @keyframes fadeInLightbox {
-      from { opacity: 0; transform: scale(0.98); }
-      to { opacity: 1; transform: scale(1); }
+      padding: 12px;
     }
 
     .image-modal-content {
-      max-width: 96vw;
-      max-height: 92vh;
-      width: 95vw;
-      height: 90vh;
-      border-radius: 12px;
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95), 0 0 35px rgba(37, 99, 235, 0.35);
+      max-width: 95vw;
+      max-height: 88vh;
+      border-radius: 10px;
+      border: 1px solid #334155;
       object-fit: contain;
     }
 
     .image-modal-close {
       position: absolute;
-      top: 25px;
-      right: 35px;
-      background: rgba(30, 41, 59, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      top: 20px;
+      right: 25px;
+      background: #1e293b;
+      border: 1px solid #334155;
       color: #fff;
-      font-size: 22px;
-      width: 44px;
-      height: 44px;
+      font-size: 20px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-      transition: background 0.2s ease, transform 0.2s ease;
       z-index: 10001;
     }
 
     .image-modal-close:hover {
       background: #ef4444;
-      transform: scale(1.1);
+      border-color: #ef4444;
     }
 
     .image-modal-caption {
-      margin-top: 15px;
+      margin-top: 12px;
       color: var(--text-muted);
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
-      letter-spacing: 0.5px;
     }
 
     .badge {
       display: inline-block;
-      padding: 4px 10px;
-      background: rgba(37, 99, 235, 0.14);
+      padding: 3px 8px;
+      background: rgba(37, 99, 235, 0.15);
       color: #38bdf8;
       border: 1px solid rgba(56, 189, 248, 0.3);
       font-size: 11px;
-      font-weight: 700;
-      border-radius: 6px;
-      margin-bottom: 8px;
+      font-weight: 600;
+      border-radius: 5px;
+      margin-bottom: 6px;
     }
 
     .preview-text {
-      font-size: 14px;
+      font-size: 13.5px;
       color: var(--text-main);
       display: -webkit-box;
       -webkit-line-clamp: 4;
@@ -751,51 +476,46 @@
     }
 
     .status-toast {
-      margin-top: 15px;
-      padding: 12px;
-      border-radius: 10px;
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 8px;
       display: none;
       font-weight: 600;
       text-align: center;
+      font-size: 13px;
     }
 
-    .toast-success { background: rgba(6, 78, 59, 0.6); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); }
-    .toast-error { background: rgba(127, 29, 29, 0.6); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .toast-success { background: #064e3b; color: #6ee7b7; border: 1px solid #10b981; }
+    .toast-error { background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
 
     /* Table Responsive Scroll Wrapper */
     .table-wrapper {
       width: 100%;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      margin-top: 15px;
-      margin-bottom: 15px;
-      border-radius: 10px;
+      margin-top: 10px;
+      margin-bottom: 12px;
+      border-radius: 8px;
       border: 1px solid var(--border-color);
     }
 
     .table-wrapper table {
       margin-top: 0;
       margin-bottom: 0;
-      min-width: 650px;
+      min-width: 620px;
     }
 
-    /* Table Mobile Swipe Indicator */
     .table-mobile-hint {
       display: none;
-      font-size: 12px;
+      background: #111827;
+      border: 1px solid #1e293b;
       color: #38bdf8;
+      font-size: 11.5px;
       font-weight: 600;
-      text-align: right;
-      margin-bottom: 6px;
-      letter-spacing: 0.2px;
-    }
-
-    .dashboard-panel {
-      background: #171728;
-      border-radius: 10px;
-      padding: 18px;
-      margin-bottom: 20px;
-      transition: all 0.2s ease;
+      text-align: center;
+      padding: 6px 10px;
+      border-radius: 6px;
+      margin-bottom: 8px;
     }
 
     .opt-action-group {
@@ -804,100 +524,64 @@
       width: 100%;
     }
 
-    .table-mobile-hint {
-      display: none;
-      background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(56, 189, 248, 0.2));
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      color: #38bdf8;
-      font-size: 12px;
-      font-weight: 600;
-      text-align: center;
-      padding: 7px 12px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-    }
-
     /* ==========================================================
-       MOBILE ADAPTIVE ENGINE (Responsive for Phones & Tablets)
+       MOBILE OPTIMIZATIONS (Smartphones & Small Screens)
        ========================================================== */
     @media (max-width: 768px) {
       body {
-        padding: max(10px, env(safe-area-inset-top, 10px)) max(8px, env(safe-area-inset-right, 8px)) calc(20px + env(safe-area-inset-bottom, 14px)) max(8px, env(safe-area-inset-left, 8px));
+        padding: max(10px, env(safe-area-inset-top, 10px)) max(8px, env(safe-area-inset-right, 8px)) calc(16px + env(safe-area-inset-bottom, 10px)) max(8px, env(safe-area-inset-left, 8px));
         -webkit-tap-highlight-color: transparent;
-        touch-action: manipulation;
       }
 
       .container {
-        padding-left: 0;
-        padding-right: 0;
         max-width: 100%;
       }
 
-      /* Mobile Header */
       header {
-        margin-bottom: 16px;
+        margin-bottom: 12px;
       }
 
       header h1 {
-        font-size: clamp(19px, 5.5vw, 24px);
+        font-size: 20px;
         line-height: 1.25;
-        margin-bottom: 6px;
       }
 
       header p {
-        font-size: 11.5px;
-        padding: 4px 10px;
-        max-width: 96vw;
-        line-height: 1.35;
+        font-size: 11px;
+        padding: 3px 8px;
       }
 
       .settings-gear-btn {
-        padding: 6px 14px;
-        font-size: 12.5px;
-        min-height: 38px;
+        padding: 5px 10px;
+        font-size: 11.5px;
       }
 
-      /* Mobile Segmented Section Navigation Bar */
       .section-nav {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 4px;
-        padding: 4px;
-        margin-bottom: 14px;
-        border-radius: 12px;
-        background: rgba(10, 15, 30, 0.95);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+        gap: 3px;
+        padding: 3px;
+        margin-bottom: 10px;
       }
 
       .section-btn {
-        max-width: 100%;
-        width: 100%;
         padding: 8px 2px;
         font-size: 11px;
         font-weight: 700;
-        border-radius: 8px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 2px;
-        text-align: center;
-        line-height: 1.15;
-        min-height: 48px;
-        word-break: break-word;
+        border-radius: 6px;
+        min-height: 44px;
+        line-height: 1.2;
       }
 
-      /* Mobile Subtabs - Smooth Touch Scroll */
       .tab-bar {
         display: flex;
         flex-wrap: nowrap;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
-        gap: 8px;
-        padding: 2px 2px 8px 2px;
-        margin-bottom: 14px;
-        scroll-snap-type: x mandatory;
+        gap: 6px;
+        padding: 2px 0 6px 0;
+        margin-bottom: 10px;
         justify-content: flex-start;
       }
 
@@ -907,63 +591,65 @@
 
       .tab-btn {
         flex: 1 0 auto;
-        scroll-snap-align: start;
         white-space: nowrap;
-        padding: 8px 14px;
-        font-size: 12.5px;
-        border-radius: 9999px;
-        text-align: center;
+        padding: 7px 12px;
+        font-size: 12px;
       }
 
-      /* Cards & Container Sizing */
       .card {
-        padding: 14px 10px;
-        border-radius: 12px;
-        margin-bottom: 16px;
-        overflow: hidden;
+        padding: 12px 10px;
+        border-radius: 10px;
+        margin-bottom: 14px;
       }
 
       .card-title {
-        font-size: 15px;
-        flex-wrap: wrap;
+        font-size: 14.5px;
+        margin-bottom: 10px;
+      }
+
+      /* Quick Tools Toolbar on Mobile */
+      .tools-toolbar {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
         gap: 6px;
+        padding-bottom: 4px;
         margin-bottom: 12px;
-        word-break: break-word;
       }
 
-      /* Option Panels on Mobile */
+      .tools-toolbar::-webkit-scrollbar {
+        display: none;
+      }
+
+      .tool-btn {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        font-size: 11.5px;
+        padding: 6px 10px;
+      }
+
       .dashboard-panel {
-        padding: 14px 10px !important;
-        margin-bottom: 14px !important;
-        border-radius: 10px !important;
+        padding: 12px 10px !important;
+        margin-bottom: 12px !important;
       }
 
-      .dashboard-panel label {
-        font-size: 13.5px !important;
-        line-height: 1.3 !important;
-      }
-
-      /* Prevent mobile browser auto-zoom on input focus (requires >=16px) */
+      /* Prevent mobile browser zoom on focus */
       input[type="text"], 
       input[type="number"], 
       input[type="password"], 
       textarea, 
       select {
         font-size: 16px !important;
-        line-height: 1.4 !important;
       }
 
       .btn {
         width: 100%;
-        text-align: center;
-        padding: 12px 14px;
-        font-size: 14px;
+        padding: 11px 12px;
+        font-size: 13.5px;
         min-height: 44px;
-        margin-bottom: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        touch-action: manipulation;
+        margin-bottom: 4px;
       }
 
       .btn-secondary {
@@ -974,110 +660,40 @@
         width: 100% !important;
         padding: 8px 10px !important;
         min-height: 38px;
-        font-size: 12.5px !important;
+        font-size: 12px !important;
       }
 
-      /* Mobile layout for option panels */
-      .option-box-flex {
-        flex-direction: column !important;
-        align-items: stretch !important;
-        gap: 8px !important;
-      }
-
-      #bulk-paste-box {
-        min-height: 90px !important;
-        width: 100% !important;
-      }
-
-      #bulk-paste-target-col {
-        width: 100% !important;
-      }
-
-      .tools-grid {
-        flex-direction: column !important;
-        align-items: stretch !important;
-        gap: 10px !important;
-      }
-
-      .tools-grid > div {
-        width: 100% !important;
-      }
-
-      .opt-action-group {
-        display: flex !important;
-        gap: 6px !important;
-        width: 100% !important;
-      }
-
-      .opt-action-group input[type="number"] {
-        width: 75px !important;
-        flex-shrink: 0 !important;
-      }
-
-      .opt-action-group select {
-        flex: 1 !important;
-        width: auto !important;
-      }
-
-      .opt-action-group .btn {
-        flex: 1 !important;
-        width: auto !important;
-        margin-bottom: 0 !important;
-      }
-
-      /* Option 2 Reorder Buttons Keypad on Mobile */
-      .reorder-btn-grid {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
-        gap: 8px !important;
-      }
-
-      .reorder-btn-grid .btn {
-        margin-bottom: 0 !important;
-        font-size: 13px !important;
-        padding: 10px 4px !important;
-        min-height: 44px !important;
-      }
-
-      /* Table Touch Scrolling & Sticky Topic # Column */
       .table-mobile-hint {
         display: block;
       }
 
       .table-wrapper {
-        border-radius: 10px;
-        margin-top: 6px;
-        margin-bottom: 14px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-        position: relative;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior-x: contain;
+        margin-top: 4px;
+        margin-bottom: 10px;
+        border-radius: 8px;
       }
 
       #data-table {
-        min-width: 680px;
+        min-width: 640px;
         border-collapse: separate;
         border-spacing: 0;
       }
 
-      /* Pinned First Column (Topic #) with drop-shadow */
+      /* Sticky Topic # Column */
       #data-table th:first-child,
       #data-table td:first-child {
         position: sticky;
         left: 0;
         z-index: 3;
-        background: #080c16 !important;
-        border-right: 2px solid rgba(56, 189, 248, 0.4) !important;
-        box-shadow: 4px 0 10px rgba(0, 0, 0, 0.55) !important;
-        min-width: 58px;
-        max-width: 70px;
+        background: #080d1a !important;
+        border-right: 2px solid #38bdf8 !important;
+        min-width: 52px;
+        max-width: 65px;
         text-align: center;
       }
 
       #data-table th:first-child {
         z-index: 4;
-        background: #0f172a !important;
       }
 
       #data-table th:first-child input,
@@ -1088,109 +704,77 @@
         color: #38bdf8 !important;
         background: transparent !important;
         border: none !important;
-        min-width: 40px;
-      }
-
-      #data-table tr {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      }
-
-      #data-table tbody tr:nth-child(even) td {
-        background-color: rgba(255, 255, 255, 0.02);
-      }
-
-      #data-table tbody tr:nth-child(even) td:first-child {
-        background: #0a101d !important;
       }
 
       th, td {
-        padding: 8px 6px;
-        font-size: 12.5px;
+        padding: 7px 5px;
+        font-size: 12px;
         vertical-align: top;
       }
 
       td input[type="text"] {
-        min-width: 130px;
+        min-width: 120px;
         padding: 8px !important;
         font-size: 16px !important;
-        background: rgba(8, 12, 22, 0.95) !important;
-        border: 1px solid rgba(255, 255, 255, 0.14) !important;
       }
 
       td textarea {
-        min-width: 200px;
-        height: 90px !important;
+        min-width: 180px;
+        height: 85px !important;
         padding: 8px !important;
         font-size: 16px !important;
-        line-height: 1.4 !important;
-        background: rgba(8, 12, 22, 0.95) !important;
-        border: 1px solid rgba(255, 255, 255, 0.14) !important;
       }
 
-      /* Bottom Table Actions on Mobile */
       .table-bottom-actions {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important;
-        gap: 8px !important;
+        gap: 6px !important;
       }
 
       .table-bottom-actions button:nth-child(2) {
         grid-column: 1 / -1 !important;
         order: -1 !important;
-        padding: 14px !important;
-        font-size: 15px !important;
+        padding: 13px !important;
+        font-size: 14.5px !important;
         font-weight: 800 !important;
-        box-shadow: 0 4px 18px rgba(37, 99, 235, 0.6) !important;
       }
 
       .table-bottom-actions .btn {
         margin-bottom: 0 !important;
       }
 
-      /* Section 2: Thumbnail Studio Mobile */
-      .thumb-header-flex {
-        flex-direction: column !important;
-        align-items: stretch !important;
-        gap: 12px !important;
+      .reorder-btn-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 6px !important;
       }
 
-      .thumb-status-box {
-        width: 100% !important;
-        text-align: center;
+      .reorder-btn-grid .btn {
+        margin-bottom: 0 !important;
+        font-size: 12.5px !important;
+        padding: 9px 4px !important;
       }
 
       #thumbnail-posters-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important;
+        gap: 6px !important;
       }
 
       #thumbnail-posters-grid .preview-poster {
-        height: 155px !important;
-      }
-
-      /* Section 3: Output Previews Mobile */
-      .output-cloud-flex {
-        flex-direction: column !important;
-        gap: 10px !important;
-      }
-
-      .output-privacy-box {
-        width: 100% !important;
+        height: 150px !important;
       }
 
       .preview-grid {
         grid-template-columns: 1fr !important;
-        gap: 14px !important;
+        gap: 12px !important;
       }
 
       .preview-card {
-        padding: 14px 10px !important;
-        border-radius: 12px !important;
+        padding: 12px 8px !important;
       }
 
       .preview-poster {
-        height: 200px !important;
-        border-radius: 8px !important;
+        height: 190px !important;
       }
 
       .multi-image-grid {
@@ -1199,193 +783,57 @@
       }
 
       .multi-image-grid img {
-        height: 120px !important;
+        height: 110px !important;
       }
 
-      /* Fullscreen Image Lightbox Modal */
-      .image-modal-close {
-        top: 10px;
-        right: 10px;
-        width: 44px;
-        height: 44px;
-        font-size: 24px;
-      }
-
-      .image-modal-content {
-        max-width: 96vw;
-        max-height: 80vh;
-        width: auto;
-        height: auto;
-      }
-
-      .image-modal-caption {
-        font-size: 11.5px;
-      }
-
-      /* Modals (Poster Wizard & Settings) */
+      /* Modals */
       .settings-modal-card,
       #poster-wizard-modal > div {
-        width: 98vw !important;
-        max-width: 98vw !important;
-        max-height: 95vh !important;
-        border-radius: 12px !important;
-      }
-
-      .settings-modal-card > div:first-child,
-      #poster-wizard-modal > div > div:first-child {
-        padding: 12px 14px !important;
-      }
-
-      .settings-modal-card > div:nth-child(2),
-      #poster-wizard-modal > div > div:nth-child(2) {
-        padding: 14px 12px !important;
+        width: 96vw !important;
+        max-width: 96vw !important;
+        max-height: 94vh !important;
       }
 
       .wizard-search-box-row {
         flex-direction: column !important;
         align-items: stretch !important;
-        gap: 8px !important;
       }
 
       .wizard-search-box-row input {
         width: 100% !important;
-        min-width: 100% !important;
         font-size: 16px !important;
-      }
-
-      .wizard-search-box-row button {
-        width: 100% !important;
-        padding: 12px !important;
       }
 
       #wizard-poster-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important;
-        max-height: 210px !important;
+        gap: 6px !important;
+        max-height: 200px !important;
       }
 
       #wizard-poster-grid img {
-        height: 130px !important;
-      }
-
-      #wizard-prompt-panel {
-        padding: 12px 10px !important;
-      }
-
-      #wizard-prompt-panel > div {
-        flex-direction: column !important;
-        gap: 8px !important;
-      }
-
-      #wizard-prompt-panel button {
-        width: 100% !important;
-      }
-
-      .wizard-custom-url-row {
-        flex-direction: column !important;
-        gap: 8px !important;
-      }
-
-      .wizard-custom-url-row input {
-        width: 100% !important;
-        font-size: 16px !important;
-      }
-
-      .wizard-custom-url-row button {
-        width: 100% !important;
-        padding: 11px !important;
-      }
-
-      /* Aurora Mobile GPU Performance */
-      .aurora-ribbon {
-        filter: blur(24px);
-      }
-      .aurora-rays {
-        filter: blur(12px);
-        width: 180vw;
+        height: 120px !important;
       }
     }
 
     /* Small Phones (<= 480px) */
     @media (max-width: 480px) {
-      body {
-        padding: max(8px, env(safe-area-inset-top, 8px)) max(6px, env(safe-area-inset-right, 6px)) calc(18px + env(safe-area-inset-bottom, 12px)) max(6px, env(safe-area-inset-left, 6px));
-      }
-
-      .card {
-        padding: 12px 8px;
-        border-radius: 10px;
-      }
-
       header h1 {
-        font-size: 19px;
+        font-size: 18px;
       }
 
       .section-btn {
-        font-size: 10.5px;
-        padding: 7px 1px;
+        font-size: 10px;
+        padding: 6px 1px;
       }
 
       .tab-btn {
-        padding: 6px 12px;
-        font-size: 12px;
-      }
-
-      #thumbnail-posters-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 6px !important;
-      }
-
-      #thumbnail-posters-grid .preview-poster {
-        height: 140px !important;
-      }
-    }
-
-    /* Extra-Small Phones (<= 380px) */
-    @media (max-width: 380px) {
-      .section-nav {
-        gap: 2px;
-        padding: 3px;
-      }
-
-      .section-btn {
-        font-size: 9.5px !important;
-        padding: 6px 1px !important;
-        min-height: 44px;
-      }
-
-      .tab-btn {
-        font-size: 11px !important;
-        padding: 5px 9px !important;
-      }
-
-      .reorder-btn-grid {
-        grid-template-columns: 1fr !important;
-      }
-
-      .table-bottom-actions {
-        grid-template-columns: 1fr !important;
+        padding: 5px 10px;
+        font-size: 11.5px;
       }
     }
   </style>
 </head>
 <body>
-
-  <!-- Aurora Borealis (Northern Lights) Animated Sky -->
-  <div class="aurora-sky-container" aria-hidden="true">
-    <!-- Celestial Twinkling Stars -->
-    <div class="aurora-stars"></div>
-
-    <!-- Vertical Shimmering Light Pillar Rays -->
-    <div class="aurora-rays"></div>
-
-    <!-- Flowing Aurora Ribbons & Waving Curtains (Green, Purple, Pink, Cyan, Core Glow) -->
-    <div class="aurora-ribbon aurora-green"></div>
-    <div class="aurora-ribbon aurora-purple"></div>
-    <div class="aurora-ribbon aurora-pink"></div>
-    <div class="aurora-ribbon aurora-cyan"></div>
-    <div class="aurora-ribbon aurora-wave-glow"></div>
-  </div>
 
   <div class="container">
     <header>
@@ -1414,11 +862,23 @@
     <div id="section-input" class="card">
       <div class="card-title">📋 Worksheet: <span id="active-tab-name">Movie Updates</span> <span id="loading-indicator" style="font-size: 13px; color: #4eff8c; margin-left: 10px;">(21 Topics Loaded ✓)</span></div>
       
+      <!-- Quick Tools Toolbar -->
+      <div class="tools-toolbar">
+        <button type="button" class="tool-btn" id="tool-btn-bulk" onclick="toggleToolPanel('bulk')">📋 Bulk Paste</button>
+        <button type="button" class="tool-btn" id="tool-btn-reorder" onclick="toggleToolPanel('reorder')">🔀 Reorder</button>
+        <button type="button" class="tool-btn" id="tool-btn-quick" onclick="toggleToolPanel('quick')">🛠️ Row Tools</button>
+        <button type="button" class="tool-btn" id="tool-btn-groq" onclick="toggleToolPanel('groq')">🤖 Groq AI</button>
+        <button type="button" class="tool-btn" id="tool-btn-wizard" onclick="toggleToolPanel('wizard')">🖼️ Poster Finder</button>
+      </div>
+
       <!-- Option 1: Single-Column or Full Table Bulk Paste Box -->
-      <div class="dashboard-panel" style="border: 1px dashed var(--accent-red);">
+      <div id="panel-bulk" class="dashboard-panel" style="display: none; border: 1px dashed var(--accent-red);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
           <label style="font-size: 15px; font-weight: 700; color: #fff;">📋 Option 1: Bulk Paste (Single Column or Full Table)</label>
-          <span style="font-size: 12px; background: #2b2b48; color: #4eff8c; padding: 3px 8px; border-radius: 5px;">Supports Single Column or ChatGPT Tables</span>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <span style="font-size: 12px; background: #2b2b48; color: #4eff8c; padding: 3px 8px; border-radius: 5px;">Supports Single Column or ChatGPT Tables</span>
+            <button type="button" class="panel-close-btn" onclick="toggleToolPanel('bulk')" title="Close Panel">✕</button>
+          </div>
         </div>
         <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center; flex-wrap: wrap;">
           <label style="font-size: 13px; color: #aaa;">Target Column:</label>
@@ -1438,8 +898,11 @@
       </div>
 
       <!-- Option 2: Adjust Row Position & Re-order Topics -->
-      <div class="dashboard-panel" style="border: 1px solid #33334d;">
-        <label style="font-size: 15px; font-weight: 700; color: #fff; display: block; margin-bottom: 10px;">🔀 Option 2: Adjust Row Position & Re-order Topics</label>
+      <div id="panel-reorder" class="dashboard-panel" style="display: none; border: 1px solid #33334d;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <label style="font-size: 15px; font-weight: 700; color: #fff; display: block;">🔀 Option 2: Adjust Row Position & Re-order Topics</label>
+          <button type="button" class="panel-close-btn" onclick="toggleToolPanel('reorder')" title="Close Panel">✕</button>
+        </div>
         <div class="tools-grid" style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 6px;">
             <label style="font-size: 13px; color: #aaa;">Source Row #:</label>
@@ -1459,8 +922,11 @@
       </div>
 
       <!-- Option 3: Quick Column & Row Management Tools -->
-      <div class="dashboard-panel" style="border: 1px solid #33334d;">
-        <label style="font-size: 15px; font-weight: 700; color: #fff; display: block; margin-bottom: 10px;">🛠️ Option 3: Quick Column & Row Tools</label>
+      <div id="panel-quick" class="dashboard-panel" style="display: none; border: 1px solid #33334d;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <label style="font-size: 15px; font-weight: 700; color: #fff; display: block;">🛠️ Option 3: Quick Column & Row Tools</label>
+          <button type="button" class="panel-close-btn" onclick="toggleToolPanel('quick')" title="Close Panel">✕</button>
+        </div>
         <div class="tools-grid" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
           <div>
             <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">Insert Blank Row at Position #:</label>
@@ -1487,10 +953,13 @@
       </div>
 
       <!-- Option 4: Auto-Extract Movie Names via Groq AI -->
-      <div class="dashboard-panel" style="border: 1px solid #7c3aed;">
+      <div id="panel-groq" class="dashboard-panel" style="display: none; border: 1px solid #7c3aed;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
           <label style="font-size: 15px; font-weight: 700; color: #a78bfa;">🤖 Option 4: Auto-Extract Movie Names via Groq AI</label>
-          <span style="font-size: 12px; background: #2e1065; color: #c4b5fd; padding: 3px 8px; border-radius: 5px;">Powered by Groq AI</span>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <span style="font-size: 12px; background: #2e1065; color: #c4b5fd; padding: 3px 8px; border-radius: 5px;">Powered by Groq AI</span>
+            <button type="button" class="panel-close-btn" onclick="toggleToolPanel('groq')" title="Close Panel">✕</button>
+          </div>
         </div>
         <p id="groq-opt-desc" style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
           Uses Groq AI to read all Malayalam news descriptions in <b>Movie Updates</b> and automatically generate a <b>1-Line Topic Headline (Col D)</b>!
@@ -1503,10 +972,13 @@
       </div>
 
       <!-- Option 5: Auto-Fetch Posters Wizard -->
-      <div class="dashboard-panel" style="border: 1px solid #06b6d4;">
+      <div id="panel-wizard" class="dashboard-panel" style="display: none; border: 1px solid #06b6d4;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
           <label style="font-size: 15px; font-weight: 700; color: #22d3ee;">🖼️ Option 5: Auto-Fetch Posters Wizard</label>
-          <span style="font-size: 12px; background: #083344; color: #67e8f9; padding: 3px 8px; border-radius: 5px;">Guided 1-Click Search Wizard</span>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <span style="font-size: 12px; background: #083344; color: #67e8f9; padding: 3px 8px; border-radius: 5px;">Guided 1-Click Search Wizard</span>
+            <button type="button" class="panel-close-btn" onclick="toggleToolPanel('wizard')" title="Close Panel">✕</button>
+          </div>
         </div>
         <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
           Opens an interactive poster finder wizard that loops step-by-step through each movie in <b id="wizard-active-tab-label">Movie Updates</b>, fetches movie posters, provides 1-click Google Image search, and fills Column C!
@@ -1791,6 +1263,29 @@
     // Configured Google Apps Script Web App Endpoint
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyKFgRsYYCX69wM7_INBD7kWWUc3O9ah-HrPOjXf_Z_rigXZwWzt5qVWPMPiNE6PQ-nWQ/exec";
     const DOC_ID = "15xkauNiB27ytehTI5XHgmLm5QmJvudnEegrGSmnx5_g";
+
+    // Quick Tools Panel Collapsible Toggle
+    function toggleToolPanel(toolId) {
+      const panelIds = ['bulk', 'reorder', 'quick', 'groq', 'wizard'];
+      panelIds.forEach(id => {
+        const panel = document.getElementById('panel-' + id);
+        const btn = document.getElementById('tool-btn-' + id);
+        if (!panel) return;
+        if (id === toolId) {
+          const isCurrentlyOpen = panel.style.display !== 'none' && panel.style.display !== '';
+          if (isCurrentlyOpen) {
+            panel.style.display = 'none';
+            if (btn) btn.classList.remove('active');
+          } else {
+            panel.style.display = 'block';
+            if (btn) btn.classList.add('active');
+          }
+        } else {
+          panel.style.display = 'none';
+          if (btn) btn.classList.remove('active');
+        }
+      });
+    }
 
     // Dynamic Serper API Key Pool from Google Sheet
     let activeSerperKeys = [];
@@ -2281,7 +1776,7 @@
 
         card.innerHTML = `
           <div style="position: relative;">
-            <img class="preview-poster" src="${p.url}" onerror="this.src='https://via.placeholder.com/220x160/161625/a0a0b5?text=Poster'" style="height: 240px; border-radius: 6px;" alt="Poster">
+            <img class="preview-poster" src="${p.url}" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/220x160/161625/a0a0b5?text=Poster'" style="height: 240px; border-radius: 6px;" alt="Poster">
             <input type="checkbox" id="poster-chk-${idx}" ${isChecked ? 'checked' : ''} onchange="togglePosterSelection('${escapeJs(p.url)}', this.checked)" style="position: absolute; top: 10px; right: 10px; width: 24px; height: 24px; accent-color: #ff2a4b; cursor: pointer;">
           </div>
           <div class="badge" style="font-size: 11px;">${p.tab} • Topic #${p.topicNum}</div>
@@ -3165,15 +2660,15 @@
         if (rawUrls.length > 1) {
           // Multiple Images: Render Multi-Image Grid Collage
           imgHtml = `<div class="multi-image-grid">` + 
-            rawUrls.map(u => `<img src="${u}" onclick="openImageModal(this.src)" title="Click for Fullscreen View" onerror="this.src='https://via.placeholder.com/150x120/161625/a0a0b5?text=Poster'" alt="Poster">`).join('') +
+            rawUrls.map(u => `<img src="${u}" loading="lazy" decoding="async" onclick="openImageModal(this.src)" title="Click for Fullscreen View" onerror="this.src='https://via.placeholder.com/150x120/161625/a0a0b5?text=Poster'" alt="Poster">`).join('') +
             `</div>`;
           countBadge = ` • 📸 ${rawUrls.length} Images Collaged`;
         } else if (rawUrls.length === 1) {
           // Single Image: Render standard single poster image
-          imgHtml = `<img class="preview-poster" src="${rawUrls[0]}" onclick="openImageModal(this.src)" title="Click for Fullscreen View" onerror="this.src='https://via.placeholder.com/400x220/161625/a0a0b5?text=Poster+Preview'" alt="Poster">`;
+          imgHtml = `<img class="preview-poster" src="${rawUrls[0]}" loading="lazy" decoding="async" onclick="openImageModal(this.src)" title="Click for Fullscreen View" onerror="this.src='https://via.placeholder.com/400x220/161625/a0a0b5?text=Poster+Preview'" alt="Poster">`;
         } else {
           // No Image
-          imgHtml = `<img class="preview-poster" src="https://via.placeholder.com/400x220/161625/a0a0b5?text=No+Poster+Image" alt="Poster">`;
+          imgHtml = `<img class="preview-poster" src="https://via.placeholder.com/400x220/161625/a0a0b5?text=No+Poster+Image" loading="lazy" decoding="async" alt="Poster">`;
         }
 
         let metaBadges = [];
@@ -3477,7 +2972,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         card.innerHTML = `
           ${sourceBadge}
           ${orderBadge}
-          <img src="${url}" style="width: 100%; height: 160px; object-fit: cover; display: block;" onerror="this.parentNode.remove()" alt="Poster">
+          <img src="${url}" loading="lazy" decoding="async" style="width: 100%; height: 160px; object-fit: cover; display: block;" onerror="this.parentNode.remove()" alt="Poster">
           <div style="padding: 4px; text-align: center; font-size: 10px; color: #aaa; background: #0d0d16; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(title || 'Poster ' + resultsCount)}</div>
         `;
         card.onclick = () => toggleWizardPoster(url);
@@ -3658,7 +3153,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         card.innerHTML = `
           ${sourceBadge}
           ${orderBadge}
-          <img src="${imgObj.url}" style="width: 100%; height: 160px; object-fit: cover; display: block;" onerror="this.src='https://via.placeholder.com/150x200/161625/a0a0b5?text=Poster'" alt="Poster">
+          <img src="${imgObj.url}" loading="lazy" decoding="async" style="width: 100%; height: 160px; object-fit: cover; display: block;" onerror="this.src='https://via.placeholder.com/150x200/161625/a0a0b5?text=Poster'" alt="Poster">
           <div style="padding: 4px; text-align: center; font-size: 10px; color: #aaa; background: #0d0d16; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(imgObj.title || 'Poster ' + (i+1))}</div>
         `;
         card.onclick = () => toggleWizardPoster(imgObj.url);
@@ -3735,7 +3230,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
             <div style="position: relative; flex-shrink: 0; width: 52px; height: 68px; border-radius: 6px; overflow: hidden; border: 1.5px solid #38bdf8; background: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.5);">
               <span style="position: absolute; top: 2px; left: 2px; background: rgba(2, 6, 23, 0.85); color: #38bdf8; font-size: 9px; font-weight: 800; padding: 1px 4px; border-radius: 3px; z-index: 2;">#${i + 1}</span>
               <button onclick="event.stopPropagation(); toggleWizardPoster('${escapeJs(u)}')" title="Remove poster" style="position: absolute; top: 2px; right: 2px; background: rgba(239, 68, 68, 0.85); color: #fff; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2;">✕</button>
-              <img src="${u}" onerror="this.src='https://via.placeholder.com/52x68/161625/a0a0b5?text=Poster'" style="width: 100%; height: 100%; object-fit: cover; display: block;" alt="Thumb">
+              <img src="${u}" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/52x68/161625/a0a0b5?text=Poster'" style="width: 100%; height: 100%; object-fit: cover; display: block;" alt="Thumb">
             </div>
           `).join('');
         }
