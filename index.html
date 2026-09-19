@@ -1120,7 +1120,7 @@
 
         <!-- Search Controls & Google Images Quick Link -->
         <div class="wizard-search-box-row" style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center;">
-          <input type="text" id="wizard-search-input" placeholder="Search movie poster..." style="flex: 1; min-width: 200px; padding: 10px 12px; background: rgba(8, 12, 22, 0.9); border: 1px solid rgba(56, 189, 248, 0.35); color: #fff; border-radius: 8px; font-size: 14px;">
+          <input type="text" id="wizard-search-input" placeholder="Search movie poster..." onkeydown="if(event.key==='Enter') triggerWizardPosterSearch()" style="flex: 1; min-width: 200px; padding: 10px 12px; background: rgba(8, 12, 22, 0.9); border: 1px solid rgba(56, 189, 248, 0.35); color: #fff; border-radius: 8px; font-size: 14px;">
           <button class="btn" style="padding: 10px 16px; font-size: 13px;" onclick="triggerWizardPosterSearch()">🔍 Search</button>
           <button class="btn btn-secondary" style="padding: 10px 16px; font-size: 13px;" onclick="openGoogleImagesTabFromWizard()">🌐 Google Images (New Tab)</button>
         </div>
@@ -2870,6 +2870,12 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       const promptPanel = document.getElementById('wizard-prompt-panel');
       if (promptPanel) promptPanel.style.display = 'none';
 
+      // Clear previous search results from the grid
+      const grid = document.getElementById('wizard-poster-grid');
+      if (grid) {
+        grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #64748b; font-size: 13px; padding: 28px 10px;">Click 🔍 Search above to fetch posters for this movie.</div>';
+      }
+
       const current = rows[idx];
       let rawMovieName = extractTopicMovieName(current);
 
@@ -2895,7 +2901,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       }
 
       const statusBox = document.getElementById('wizard-search-status');
-      if (statusBox) statusBox.innerText = '🤖 AI analyzing news context & generating smart search...';
+      if (statusBox) statusBox.innerText = '🤖 Preparing search query...';
 
       const keyInput = document.getElementById('groq-api-key-input');
       const apiKey = keyInput && keyInput.value.trim() ? keyInput.value.trim() : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
@@ -2918,8 +2924,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       searchBox.value = searchQuery;
       posterWizardState.currentTopicName = englishMovieName || rawMovieName;
 
-      // Trigger automatic poster search for this topic
-      triggerWizardPosterSearch();
+      if (statusBox) statusBox.innerText = 'Ready. Click 🔍 Search to find posters.';
     }
 
     function triggerWizardPosterSearch() {
