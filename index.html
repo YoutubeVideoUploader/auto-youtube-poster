@@ -849,6 +849,7 @@
       <button class="section-btn active" id="sec-input-btn" onclick="switchSection('input')">📥 Input & Data Editor</button>
       <button class="section-btn" id="sec-thumb-btn" onclick="switchSection('thumbnail')">🖼️ Thumbnail Studio</button>
       <button class="section-btn" id="sec-output-btn" onclick="switchSection('output')">📺 Output & Slide Preview</button>
+      <button class="section-btn" id="sec-news-btn" onclick="switchSection('news')">📰 Live Cinema News</button>
     </div>
 
     <!-- Category Sub Tabs -->
@@ -1084,6 +1085,125 @@
 
       <div id="preview-container" class="preview-grid">
         <!-- Topic cards dynamically rendered -->
+      </div>
+    </div>
+
+    <!-- SECTION 4: LIVE CINEMA NEWS FEED -->
+    <div id="section-news" class="card" style="display: none;">
+      <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <span>📰 Live Cinema News Feed (Times of India)</span>
+        <span id="news-counter-badge" style="font-size: 13px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 12px; border-radius: 9999px; display: none;">Story 1 of 10</span>
+      </div>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 18px;">
+        Browse the latest breaking cinema headlines from Times of India, swipe through articles, and convert them to natural Malayalam spoken scripts with Groq AI with one tap!
+      </p>
+
+      <!-- Control Bar -->
+      <div class="dashboard-panel" style="border: 1px solid rgba(56, 189, 248, 0.3); margin-bottom: 20px;">
+        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 220px;">
+            <label style="font-size: 13px; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 6px;">🎯 Cinema Industry Feed:</label>
+            <select id="news-industry-select" style="width: 100%; padding: 10px 14px; background: rgba(8, 12, 22, 0.95); border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 14px;">
+              <option value="malayalam" selected>🎬 Malayalam Cinema (Times of India)</option>
+              <option value="tamil">⭐ Tamil Cinema / Kollywood (Times of India)</option>
+            </select>
+          </div>
+          <div style="margin-top: 24px;">
+            <button id="btn-fetch-news" class="btn" onclick="fetchLatestCinemaNews()" style="padding: 11px 22px; font-size: 14px; font-weight: 700;">
+              ⚡ Show Latest News
+            </button>
+          </div>
+        </div>
+        <div id="news-fetch-status" class="status-toast" style="margin-top: 10px;"></div>
+      </div>
+
+      <!-- Initial Empty State Prompt -->
+      <div id="news-empty-state" style="text-align: center; padding: 40px 20px; background: rgba(15, 23, 42, 0.6); border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 12px; margin-bottom: 20px;">
+        <div style="font-size: 42px; margin-bottom: 10px;">📰</div>
+        <h3 style="color: #f1f5f9; font-size: 17px; margin-bottom: 6px;">Ready to Fetch Today's Breaking Movie News</h3>
+        <p style="color: var(--text-muted); font-size: 13px; max-width: 480px; margin: 0 auto;">
+          Click the <b>⚡ Show Latest News</b> button above to connect to Times of India and load the latest cinema headlines into a swipeable card box.
+        </p>
+      </div>
+
+      <!-- Main News Carousel Card Box -->
+      <div id="news-carousel-wrapper" style="display: none;">
+        <!-- Mobile Swipe Hint -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: #94a3b8; font-size: 12px;">
+          <span>👈 Swipe left/right on mobile or use arrows 👉</span>
+          <span id="news-source-tag" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 2px 8px; border-radius: 4px; font-weight: 600;">Times of India</span>
+        </div>
+
+        <!-- The Swipeable Card Container -->
+        <div id="news-swipe-card" style="background: #0b1120; border: 1px solid #1e293b; border-radius: 16px; padding: 20px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); touch-action: pan-y;">
+          
+          <!-- Card Content Grid: Thumbnail Image + Story Details -->
+          <div style="display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start;">
+            <!-- Thumbnail Poster (if available) -->
+            <div id="news-card-img-wrap" style="width: 150px; min-width: 130px; height: 190px; border-radius: 10px; overflow: hidden; background: #1e293b; border: 1px solid #334155; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <img id="news-card-img" src="" alt="Story Poster" style="width: 100%; height: 100%; object-fit: cover; display: none;" onerror="this.style.display='none'; document.getElementById('news-card-img-placeholder').style.display='flex';">
+              <div id="news-card-img-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; color: #64748b; font-size: 28px;">
+                🎬
+                <span style="font-size: 11px; margin-top: 4px; color: #94a3b8;">Cinema News</span>
+              </div>
+            </div>
+
+            <!-- Text Content -->
+            <div style="flex: 1; min-width: 250px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span id="news-card-date" style="font-size: 12px; color: #38bdf8; font-weight: 600;">Today</span>
+              </div>
+              <h3 id="news-card-title" style="color: #f8fafc; font-size: 18px; font-weight: 700; line-height: 1.4; margin-bottom: 10px;">
+                Story Title Loading...
+              </h3>
+              <p id="news-card-snippet" style="color: #cbd5e1; font-size: 14px; line-height: 1.6; margin-bottom: 14px;">
+                Story summary...
+              </p>
+              <div>
+                <a id="news-card-link" href="#" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 6px; color: #38bdf8; text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 12px; background: rgba(56, 189, 248, 0.1); border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.25);">
+                  🔗 Read Full Article on Times of India ↗
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Carousel Arrow Navigation Bar -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #1e293b; flex-wrap: wrap; gap: 10px;">
+            <button class="btn btn-secondary" onclick="prevNewsStory()" style="padding: 8px 16px; font-size: 13px; font-weight: 600;">
+              ◀ Previous Story
+            </button>
+            <span id="news-bottom-counter" style="font-size: 13px; color: #94a3b8; font-weight: 600;">Story 1 of 10</span>
+            <button class="btn btn-secondary" onclick="nextNewsStory()" style="padding: 8px 16px; font-size: 13px; font-weight: 600;">
+              Next Story ▶
+            </button>
+          </div>
+
+          <!-- Convert to Malayalam Button -->
+          <div style="margin-top: 18px; text-align: center;">
+            <button id="btn-convert-ml" class="btn" onclick="convertCurrentNewsToMalayalam()" style="background: linear-gradient(135deg, #059669, #10b981); color: #fff; width: 100%; font-size: 15px; font-weight: 700; padding: 12px 18px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);">
+              🤖 Convert into Malayalam Speaking Text (Groq AI)
+            </button>
+          </div>
+
+          <!-- Converted Malayalam Text Output Box -->
+          <div id="news-ml-result-box" style="display: none; margin-top: 16px; background: rgba(8, 12, 22, 0.95); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 16px; animation: fadeInLightbox 0.2s ease-out;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+              <span style="font-size: 13px; font-weight: 700; color: #34d399;">🎙️ Converted Malayalam Voice Script (3-4 Lines):</span>
+              <span style="font-size: 11px; background: rgba(16, 185, 129, 0.2); color: #6ee7b7; padding: 2px 8px; border-radius: 4px;">Ready for Presentation</span>
+            </div>
+            <textarea id="news-ml-text" rows="4" style="width: 100%; background: #070b14; border: 1px solid #1e293b; color: #f1f5f9; padding: 12px; border-radius: 8px; font-size: 14.5px; line-height: 1.6; resize: vertical; margin-bottom: 12px;"></textarea>
+            
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button class="btn btn-secondary" onclick="copyMalayalamNewsScript()" style="flex: 1; min-width: 140px; padding: 9px 14px; font-size: 13px;">
+                📋 Copy Malayalam Text
+              </button>
+              <button class="btn" onclick="addCurrentNewsToWorksheet()" style="flex: 1; min-width: 180px; padding: 9px 14px; font-size: 13px; background: #2563eb;">
+                ➕ Add as New Topic in Worksheet
+              </button>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
 
@@ -1726,13 +1846,21 @@
       document.getElementById('sec-input-btn').className = (sec === 'input') ? 'section-btn active' : 'section-btn';
       document.getElementById('sec-thumb-btn').className = (sec === 'thumbnail') ? 'section-btn active' : 'section-btn';
       document.getElementById('sec-output-btn').className = (sec === 'output') ? 'section-btn active' : 'section-btn';
+      const newsBtn = document.getElementById('sec-news-btn');
+      if (newsBtn) newsBtn.className = (sec === 'news') ? 'section-btn active' : 'section-btn';
 
       document.getElementById('section-input').style.display = (sec === 'input') ? 'block' : 'none';
       document.getElementById('section-thumbnail').style.display = (sec === 'thumbnail') ? 'block' : 'none';
       document.getElementById('section-output').style.display = (sec === 'output') ? 'block' : 'none';
+      const secNews = document.getElementById('section-news');
+      if (secNews) secNews.style.display = (sec === 'news') ? 'block' : 'none';
+
+      const subTabs = document.querySelector('.tab-bar');
+      if (subTabs) subTabs.style.display = (sec === 'input' || sec === 'output') ? 'flex' : 'none';
 
       if (sec === 'thumbnail') renderThumbnailStudio();
       if (sec === 'output') renderOutputPreviews();
+      if (sec === 'news') initNewsSection();
     }
 
     function renderThumbnailStudio() {
@@ -3369,6 +3497,351 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       if (posterWizardState.currentIndex > 0) {
         loadWizardStep(posterWizardState.currentIndex - 1);
       }
+    }
+
+    // ==========================================
+    // LIVE CINEMA NEWS FEED (TIMES OF INDIA & GROQ AI)
+    // ==========================================
+    let liveNewsArticles = [];
+    let currentNewsIndex = 0;
+    let newsSwipeInitialized = false;
+
+    function initNewsSection() {
+      if (!newsSwipeInitialized) {
+        initNewsSwipe();
+        newsSwipeInitialized = true;
+      }
+    }
+
+    async function fetchLatestCinemaNews() {
+      const status = document.getElementById('news-fetch-status');
+      const fetchBtn = document.getElementById('btn-fetch-news');
+      const emptyState = document.getElementById('news-empty-state');
+      const carouselWrap = document.getElementById('news-carousel-wrapper');
+      const badge = document.getElementById('news-counter-badge');
+      const industrySel = document.getElementById('news-industry-select');
+      const industry = industrySel ? industrySel.value : 'malayalam';
+
+      if (fetchBtn) {
+        fetchBtn.disabled = true;
+        fetchBtn.innerText = '⚡ Fetching Breaking News...';
+      }
+
+      if (status) {
+        status.style.display = 'block';
+        status.className = 'status-toast';
+        status.innerText = `Connecting to Times of India live news feed via Serper...`;
+      }
+
+      // Pick Serper key from pool or localStorage
+      let apiKey = null;
+      if (typeof activeSerperKeys !== 'undefined' && activeSerperKeys && activeSerperKeys.length > 0) {
+        let idx = parseInt(localStorage.getItem('active_serper_key_idx') || '0', 10);
+        if (isNaN(idx) || idx < 0 || idx >= activeSerperKeys.length) idx = 0;
+        apiKey = activeSerperKeys[idx];
+      }
+      if (!apiKey && typeof SERPER_KEYS !== 'undefined' && SERPER_KEYS.length > 0) {
+        apiKey = SERPER_KEYS[0];
+      }
+      if (!apiKey) {
+        apiKey = localStorage.getItem('serper_api_key');
+      }
+      if (!apiKey) {
+        apiKey = '706d6e0c2e53e2d18b6f85808d560536e5d97ab7';
+      }
+
+      const searchQuery = (industry === 'tamil') 
+        ? 'site:timesofindia.indiatimes.com Tamil movie news'
+        : 'site:timesofindia.indiatimes.com Malayalam movie news';
+
+      try {
+        let items = [];
+        
+        // Attempt 1: Past 24 hours news query
+        const resp = await fetch('https://google.serper.dev/news', {
+          method: 'POST',
+          headers: {
+            'X-API-KEY': apiKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            q: searchQuery,
+            tbs: 'qdr:d',
+            gl: 'in',
+            hl: 'en',
+            num: 15
+          })
+        });
+
+        if (resp.ok) {
+          const data = await resp.json();
+          items = data.news || [];
+        }
+
+        // Attempt 2: If 24h filter returned fewer than 3 items, fetch past week
+        if (items.length < 3) {
+          const respFallback = await fetch('https://google.serper.dev/news', {
+            method: 'POST',
+            headers: {
+              'X-API-KEY': apiKey,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              q: searchQuery,
+              gl: 'in',
+              hl: 'en',
+              num: 15
+            })
+          });
+          if (respFallback.ok) {
+            const fbData = await respFallback.json();
+            if (fbData.news && fbData.news.length > items.length) {
+              items = fbData.news;
+            }
+          }
+        }
+
+        if (items.length === 0) {
+          if (status) {
+            status.innerText = 'No news articles found right now. Please check API settings or try again.';
+          }
+          return;
+        }
+
+        liveNewsArticles = items.map(it => ({
+          title: it.title || 'Untitled Movie News',
+          snippet: it.snippet || 'No article summary available.',
+          link: it.link || '#',
+          date: it.date || 'Today',
+          imageUrl: it.imageUrl || '',
+          source: it.source || 'Times of India',
+          malayalamScript: null
+        }));
+
+        currentNewsIndex = 0;
+
+        if (status) {
+          status.innerText = `✓ Loaded ${liveNewsArticles.length} breaking cinema stories from Times of India!`;
+          setTimeout(() => { if (status) status.style.display = 'none'; }, 3000);
+        }
+
+        if (emptyState) emptyState.style.display = 'none';
+        if (carouselWrap) carouselWrap.style.display = 'block';
+        if (badge) badge.style.display = 'inline-block';
+
+        renderCurrentNewsCard();
+        initNewsSection();
+
+      } catch (err) {
+        console.error("Fetch latest news error:", err);
+        if (status) {
+          status.innerText = `Failed to fetch news: ${err.message}. Please check Serper key in API Settings.`;
+        }
+      } finally {
+        if (fetchBtn) {
+          fetchBtn.disabled = false;
+          fetchBtn.innerText = '⚡ Refresh Latest News';
+        }
+      }
+    }
+
+    function renderCurrentNewsCard() {
+      if (!liveNewsArticles || liveNewsArticles.length === 0) return;
+      const cur = liveNewsArticles[currentNewsIndex];
+      if (!cur) return;
+
+      const total = liveNewsArticles.length;
+      const idxDisplay = currentNewsIndex + 1;
+
+      // Update counters
+      const counterBadge = document.getElementById('news-counter-badge');
+      const bottomCounter = document.getElementById('news-bottom-counter');
+      if (counterBadge) counterBadge.innerText = `Story ${idxDisplay} of ${total}`;
+      if (bottomCounter) bottomCounter.innerText = `Story ${idxDisplay} of ${total}`;
+
+      // Update source & date
+      const dateElem = document.getElementById('news-card-date');
+      const sourceTag = document.getElementById('news-source-tag');
+      if (dateElem) dateElem.innerText = `📅 ${cur.date || 'Today'}`;
+      if (sourceTag) sourceTag.innerText = cur.source || 'Times of India';
+
+      // Update Title & Snippet
+      const titleElem = document.getElementById('news-card-title');
+      const snippetElem = document.getElementById('news-card-snippet');
+      const linkElem = document.getElementById('news-card-link');
+      if (titleElem) titleElem.innerText = cur.title;
+      if (snippetElem) snippetElem.innerText = cur.snippet;
+      if (linkElem) {
+        linkElem.href = cur.link;
+        linkElem.style.display = cur.link && cur.link !== '#' ? 'inline-flex' : 'none';
+      }
+
+      // Update Image
+      const imgElem = document.getElementById('news-card-img');
+      const placeholder = document.getElementById('news-card-img-placeholder');
+      if (cur.imageUrl && cur.imageUrl.startsWith('http')) {
+        imgElem.src = cur.imageUrl;
+        imgElem.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
+      } else {
+        imgElem.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'flex';
+      }
+
+      // Check if Malayalam has already been generated for this story
+      const mlResultBox = document.getElementById('news-ml-result-box');
+      const mlTextElem = document.getElementById('news-ml-text');
+      const convertBtn = document.getElementById('btn-convert-ml');
+
+      if (cur.malayalamScript) {
+        if (mlTextElem) mlTextElem.value = cur.malayalamScript;
+        if (mlResultBox) mlResultBox.style.display = 'block';
+        if (convertBtn) convertBtn.innerText = '🔄 Re-Convert Malayalam Script (Groq AI)';
+      } else {
+        if (mlResultBox) mlResultBox.style.display = 'none';
+        if (convertBtn) convertBtn.innerText = '🤖 Convert into Malayalam Speaking Text (Groq AI)';
+      }
+    }
+
+    function nextNewsStory() {
+      if (!liveNewsArticles || liveNewsArticles.length === 0) return;
+      currentNewsIndex = (currentNewsIndex + 1) % liveNewsArticles.length;
+      renderCurrentNewsCard();
+    }
+
+    function prevNewsStory() {
+      if (!liveNewsArticles || liveNewsArticles.length === 0) return;
+      currentNewsIndex = (currentNewsIndex - 1 + liveNewsArticles.length) % liveNewsArticles.length;
+      renderCurrentNewsCard();
+    }
+
+    function initNewsSwipe() {
+      const card = document.getElementById('news-swipe-card');
+      if (!card) return;
+
+      let startX = 0;
+      let startY = 0;
+
+      card.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches.length > 0) {
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+        }
+      }, { passive: true });
+
+      card.addEventListener('touchend', (e) => {
+        if (!e.changedTouches || e.changedTouches.length === 0) return;
+        const diffX = e.changedTouches[0].clientX - startX;
+        const diffY = e.changedTouches[0].clientY - startY;
+
+        // If horizontal motion exceeds 40px and is predominantly horizontal
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+          if (diffX < 0) {
+            nextNewsStory(); // swipe left -> next
+          } else {
+            prevNewsStory(); // swipe right -> prev
+          }
+        }
+      }, { passive: true });
+    }
+
+    async function convertCurrentNewsToMalayalam() {
+      if (!liveNewsArticles || liveNewsArticles.length === 0) return;
+      const cur = liveNewsArticles[currentNewsIndex];
+      if (!cur) return;
+
+      const btn = document.getElementById('btn-convert-ml');
+      const resultBox = document.getElementById('news-ml-result-box');
+      const mlTextElem = document.getElementById('news-ml-text');
+      const keyInput = document.getElementById('groq-api-key-input');
+      const apiKey = keyInput && keyInput.value.trim() ? keyInput.value.trim() : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = '⏳ Groq AI is generating spoken Malayalam script...';
+      }
+
+      const promptText = `News Title: ${cur.title}\nNews Story: ${cur.snippet}`;
+      const systemPrompt = "You are an expert Malayalam movie news presenter and scriptwriter for a popular YouTube channel.\n" +
+        "Convert this English cinema news story into a lively, engaging 3-to-4 line Malayalam spoken news paragraph ready to be read aloud by a news presenter.\n" +
+        "Rules:\n" +
+        "1. Write 100% in pure Malayalam script (മലയാളത്തിൽ). ABSOLUTELY NO ENGLISH SCRIPT.\n" +
+        "2. Keep it energetic, natural, engaging, and conversational for YouTube viewers (strictly 3 to 4 sentences).\n" +
+        "3. Write English loanwords and terms in standard Malayalam phonetics (e.g. 'ബോക്സ് ഓഫീസ്', 'റിലീസ്', 'കളക്ഷൻ', 'ടീസർ', 'പോസ്റ്റർ', 'ഡയറക്ടർ').\n" +
+        "4. Put periods (.) ONLY at the actual end of complete sentences. DO NOT place dots inside initials or abbreviations (e.g. write 'ഗിരീഷ് എഡി' or 'എ ഡി', 'കെജിഎഫ്', 'യുഎസ്').\n" +
+        "5. No hashtags, no bullet points, no disclaimers. Return ONLY the spoken Malayalam text.";
+
+      try {
+        const resData = await queryGroq([
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: promptText }
+        ]);
+
+        const content = resData.choices?.[0]?.message?.content || "";
+        const cleanContent = cleanMalayalamDotsAndInitials(content.trim());
+
+        cur.malayalamScript = cleanContent;
+        if (mlTextElem) mlTextElem.value = cleanContent;
+        if (resultBox) {
+          resultBox.style.display = 'block';
+          resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      } catch (err) {
+        console.error("Groq AI conversion error:", err);
+        alert(`Groq AI Conversion Error: ${err.message}`);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = '🔄 Re-Convert Malayalam Script (Groq AI)';
+        }
+      }
+    }
+
+    function copyMalayalamNewsScript() {
+      const mlTextElem = document.getElementById('news-ml-text');
+      if (!mlTextElem || !mlTextElem.value.trim()) return;
+      navigator.clipboard.writeText(mlTextElem.value.trim()).then(() => {
+        alert('📋 Malayalam news script copied to clipboard!');
+      }).catch(() => {
+        mlTextElem.select();
+        document.execCommand('copy');
+        alert('📋 Malayalam news script copied!');
+      });
+    }
+
+    function addCurrentNewsToWorksheet() {
+      if (!liveNewsArticles || liveNewsArticles.length === 0) return;
+      const cur = liveNewsArticles[currentNewsIndex];
+      if (!cur) return;
+
+      const mlText = cur.malayalamScript || cur.snippet || cur.title;
+      const targetTab = 'Movie Updates';
+
+      if (!store[targetTab]) store[targetTab] = [];
+      const rows = store[targetTab];
+      const newTopicNum = rows.length + 1;
+
+      // Extract a clean movie headline
+      let headline = cur.title.split(/[:\-\|]/)[0].replace(/['"“”]/g, '').trim();
+      if (typeof fixCommonCinemaEnglishSpellings === 'function') {
+        headline = fixCommonCinemaEnglishSpellings(headline);
+      }
+
+      rows.push({
+        topicNum: newTopicNum,
+        headline: headline,
+        text: mlText,
+        imgUrl: cur.imageUrl || "",
+        releaseDate: "",
+        ottPlatform: ""
+      });
+
+      saveLocalStore();
+      if (activeTab === targetTab) {
+        renderTableRows();
+      }
+
+      alert(`✅ Added as Topic #${newTopicNum} to ${targetTab}! You can view it in the 'Input & Data Editor' tab.`);
     }
 
     // Auto load on page start
