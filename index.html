@@ -3533,22 +3533,31 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         status.innerText = `Connecting to Times of India live news feed via Serper...`;
       }
 
-      // Pick Serper key from pool or localStorage
-      let apiKey = null;
-      if (typeof activeSerperKeys !== 'undefined' && activeSerperKeys && activeSerperKeys.length > 0) {
-        let idx = parseInt(localStorage.getItem('active_serper_key_idx') || '0', 10);
-        if (isNaN(idx) || idx < 0 || idx >= activeSerperKeys.length) idx = 0;
-        apiKey = activeSerperKeys[idx];
+      // Check browser offline status
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        if (status) {
+          status.innerText = '⚠️ Internet Disconnected: Your PC is currently offline. Please check your Wi-Fi/network connection and click Refresh.';
+        }
+        if (fetchBtn) {
+          fetchBtn.disabled = false;
+          fetchBtn.innerText = '⚡ Refresh Latest News';
+        }
+        return;
       }
-      if (!apiKey && typeof SERPER_KEYS !== 'undefined' && SERPER_KEYS.length > 0) {
-        apiKey = SERPER_KEYS[0];
-      }
-      if (!apiKey) {
-        apiKey = localStorage.getItem('serper_api_key');
-      }
-      if (!apiKey) {
-        apiKey = '706d6e0c2e53e2d18b6f85808d560536e5d97ab7';
-      }
+
+      // Retrieve Serper key pool with fallback
+      const serperKeys = (typeof getActiveSerperKeys === 'function') ? getActiveSerperKeys() : [
+        '706d6e0c2e53e2d18b6f85808d560536e5d97ab7',
+        '6fd2aecf0e6a8aaba3a1e5c6f3f63d54f6779236',
+        '8cc926c37bc6a93c0a28ea9bee6e25b62655b561',
+        '9c7b69b58d92d293b000ac9d43c87e736f3809c1',
+        'a5e997a31056ecf4653442d3bb0ffde0a9964fc4',
+        '32541b9cc4fad4ef33cf2b7353a668c3845de9fc',
+        '3e2ceb8660a332263aab5b85434a311fe4f3a82c'
+      ];
+
+      let startIdx = parseInt(localStorage.getItem('active_serper_key_idx') || '0', 10);
+      if (isNaN(startIdx) || startIdx < 0 || startIdx >= serperKeys.length) startIdx = 0;
 
       const searchQuery = (industry === 'tamil') 
         ? 'site:timesofindia.indiatimes.com Tamil movie news'
@@ -3556,49 +3565,84 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
 
       try {
         let items = [];
-        
-        // Attempt 1: Past 24 hours news query
-        const resp = await fetch('https://google.serper.dev/news', {
-          method: 'POST',
-          headers: {
-            'X-API-KEY': apiKey,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            q: searchQuery,
-            tbs: 'qdr:d',
-            gl: 'in',
-            hl: 'en',
-            num: 15
-          })
-        });
+        let keySuccess = false;
 
-        if (resp.ok) {
-          const data = await resp.json();
-          items = data.news || [];
+        for (let attempt = 0; attempt < serperKeys.length; attempt++) {
+          const currentIdx = (startIdx + attempt) % serperKeys.length;
+          const apiKey = serperKeys[currentIdx];
+
+          try {
+            // Attempt 1: Past 24 hours news query
+            const resp = await fetch('https://google.serper.dev/news', {
+              method: 'POST',
+              headers: {
+                'X-API-KEY': apiKey,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                q: searchQuery,
+                tbs: 'qdr:d',
+                gl: 'in',
+                hl: 'en',
+                num: 15
+              })
+            });
+
+            if (resp.status === 403 || resp.status === 429) {
+              console.warn(`Serper Key #${currentIdx + 1} quota reached. Trying next key in pool...`);
+              const nextIdx = (currentIdx + 1) % serperKeys.length;
+              localStorage.setItem('active_serper_key_idx', String(nextIdx));
+              continue;
+            }
+
+            if (resp.ok) {
+              const data = await resp.json();
+              items = data.news || [];
+              keySuccess = true;
+              if (currentIdx !== startIdx) {
+                localStorage.setItem('active_serper_key_idx', String(currentIdx));
+              }
+
+              // Attempt 2: If 24h filter returned fewer than 3 items, fetch broader query
+              if (items.length < 3) {
+                try {
+                  const respFallback = await fetch('https://google.serper.dev/news', {
+                    method: 'POST',
+                    headers: {
+                      'X-API-KEY': apiKey,
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                      q: searchQuery,
+                      gl: 'in',
+                      hl: 'en',
+                      num: 15
+                    })
+                  });
+                  if (respFallback.ok) {
+                    const fbData = await respFallback.json();
+                    if (fbData.news && fbData.news.length > items.length) {
+                      items = fbData.news;
+                    }
+                  }
+                } catch (fallbackErr) {}
+              }
+              break; // Key worked, exit loop
+            }
+          } catch (fetchErr) {
+            // If DNS/network error, rethrow so outer catch handles it
+            if (fetchErr.name === 'TypeError' || (typeof navigator !== 'undefined' && !navigator.onLine)) {
+              throw fetchErr;
+            }
+            console.warn(`Serper fetch error with key #${currentIdx + 1}:`, fetchErr);
+          }
         }
 
-        // Attempt 2: If 24h filter returned fewer than 3 items, fetch past week
-        if (items.length < 3) {
-          const respFallback = await fetch('https://google.serper.dev/news', {
-            method: 'POST',
-            headers: {
-              'X-API-KEY': apiKey,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              q: searchQuery,
-              gl: 'in',
-              hl: 'en',
-              num: 15
-            })
-          });
-          if (respFallback.ok) {
-            const fbData = await respFallback.json();
-            if (fbData.news && fbData.news.length > items.length) {
-              items = fbData.news;
-            }
+        if (!keySuccess && items.length === 0) {
+          if (status) {
+            status.innerText = '⚠️ All Serper keys in the pool were unable to fetch news. Please check your API Settings.';
           }
+          return;
         }
 
         if (items.length === 0) {
@@ -3622,7 +3666,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
 
         if (status) {
           status.innerText = `✓ Loaded ${liveNewsArticles.length} breaking cinema stories from Times of India!`;
-          setTimeout(() => { if (status) status.style.display = 'none'; }, 3000);
+          setTimeout(() => { if (status) status.style.display = 'none'; }, 3500);
         }
 
         if (emptyState) emptyState.style.display = 'none';
@@ -3635,7 +3679,13 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       } catch (err) {
         console.error("Fetch latest news error:", err);
         if (status) {
-          status.innerText = `Failed to fetch news: ${err.message}. Please check Serper key in API Settings.`;
+          status.style.display = 'block';
+          status.className = 'status-toast';
+          if (err.name === 'TypeError' || !navigator.onLine || (err.message && err.message.toLowerCase().includes('failed to fetch'))) {
+            status.innerText = `⚠️ Connection failed: Could not reach news server (Internet disconnected or blocked). Please verify your Wi-Fi/Internet connection and click Refresh.`;
+          } else {
+            status.innerText = `Failed to fetch news: ${err.message}. Please check Serper key in API Settings.`;
+          }
         }
       } finally {
         if (fetchBtn) {
@@ -3755,6 +3805,11 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       const mlTextElem = document.getElementById('news-ml-text');
       const keyInput = document.getElementById('groq-api-key-input');
       const apiKey = keyInput && keyInput.value.trim() ? keyInput.value.trim() : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
+
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        alert("⚠️ Network offline: Your computer is currently disconnected from the Internet. Please check your Wi-Fi connection to use Groq AI.");
+        return;
+      }
 
       if (btn) {
         btn.disabled = true;
