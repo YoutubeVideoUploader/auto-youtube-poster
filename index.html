@@ -1098,12 +1098,25 @@
         Browse the latest breaking cinema headlines from Times of India, swipe through articles, and convert them to natural Malayalam spoken scripts with Groq AI with one tap!
       </p>
 
+      <!-- Sub-Tabs: All Movie News / Theater Releases / OTT Releases -->
+      <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+        <button id="news-subtab-all" class="btn" onclick="switchNewsSubTab('all')" style="padding: 9px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 700; border: 1px solid #38bdf8; background: #0284c7; color: #fff; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s;">
+          🎬 All Movie News
+        </button>
+        <button id="news-subtab-theater" class="btn btn-secondary" onclick="switchNewsSubTab('theater')" style="padding: 9px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 600; border: 1px solid #334155; background: #0f172a; color: #94a3b8; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s;">
+          🍿 Theater Releases
+        </button>
+        <button id="news-subtab-ott" class="btn btn-secondary" onclick="switchNewsSubTab('ott')" style="padding: 9px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 600; border: 1px solid #334155; background: #0f172a; color: #94a3b8; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s;">
+          📺 OTT Releases
+        </button>
+      </div>
+
       <!-- Control Bar -->
       <div class="dashboard-panel" style="border: 1px solid rgba(56, 189, 248, 0.3); margin-bottom: 20px;">
         <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
           <div style="flex: 1; min-width: 220px;">
             <label style="font-size: 13px; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 6px;">🎯 Cinema Industry Feed:</label>
-            <select id="news-industry-select" style="width: 100%; padding: 10px 14px; background: rgba(8, 12, 22, 0.95); border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 14px;">
+            <select id="news-industry-select" onchange="fetchLatestCinemaNews()" style="width: 100%; padding: 10px 14px; background: rgba(8, 12, 22, 0.95); border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 14px;">
               <option value="malayalam" selected>🎬 Malayalam Cinema (Times of India)</option>
               <option value="tamil">⭐ Tamil Cinema / Kollywood (Times of India)</option>
             </select>
@@ -1197,8 +1210,8 @@
               <button class="btn btn-secondary" onclick="copyMalayalamNewsScript()" style="flex: 1; min-width: 140px; padding: 9px 14px; font-size: 13px;">
                 📋 Copy Malayalam Text
               </button>
-              <button class="btn" onclick="addCurrentNewsToWorksheet()" style="flex: 1; min-width: 180px; padding: 9px 14px; font-size: 13px; background: #2563eb;">
-                ➕ Add as New Topic in Worksheet
+              <button id="btn-add-news-worksheet" class="btn" onclick="addCurrentNewsToWorksheet()" style="flex: 1; min-width: 180px; padding: 9px 14px; font-size: 13px; background: #2563eb;">
+                ➕ Add as New Topic in Worksheet (Movie Updates)
               </button>
             </div>
           </div>
@@ -3518,12 +3531,49 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
     let liveNewsArticles = [];
     let currentNewsIndex = 0;
     let newsSwipeInitialized = false;
+    let activeNewsSubTab = 'all'; // 'all' | 'theater' | 'ott'
 
     function initNewsSection() {
       if (!newsSwipeInitialized) {
         initNewsSwipe();
         newsSwipeInitialized = true;
       }
+    }
+
+    function switchNewsSubTab(tab) {
+      if (activeNewsSubTab === tab) return;
+      activeNewsSubTab = tab;
+
+      const tabs = ['all', 'theater', 'ott'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`news-subtab-${t}`);
+        if (!btn) return;
+        if (t === tab) {
+          btn.style.background = '#0284c7';
+          btn.style.borderColor = '#38bdf8';
+          btn.style.color = '#fff';
+          btn.style.fontWeight = '700';
+          btn.className = 'btn';
+        } else {
+          btn.style.background = '#0f172a';
+          btn.style.borderColor = '#334155';
+          btn.style.color = '#94a3b8';
+          btn.style.fontWeight = '600';
+          btn.className = 'btn btn-secondary';
+        }
+      });
+
+      const subTabWorksheetLabels = {
+        'all': 'Movie Updates',
+        'theater': 'Release Updates',
+        'ott': 'OTT Updates'
+      };
+      const addWsBtn = document.getElementById('btn-add-news-worksheet');
+      if (addWsBtn) {
+        addWsBtn.innerText = `➕ Add as New Topic in Worksheet (${subTabWorksheetLabels[tab]})`;
+      }
+
+      fetchLatestCinemaNews();
     }
 
     async function fetchLatestCinemaNews() {
@@ -3535,15 +3585,21 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       const industrySel = document.getElementById('news-industry-select');
       const industry = industrySel ? industrySel.value : 'malayalam';
 
+      const subTabLabels = {
+        'all': 'breaking cinema news',
+        'theater': 'theater release updates',
+        'ott': 'OTT streaming release updates'
+      };
+
       if (fetchBtn) {
         fetchBtn.disabled = true;
-        fetchBtn.innerText = '⚡ Fetching Breaking News...';
+        fetchBtn.innerText = '⚡ Fetching News...';
       }
 
       if (status) {
         status.style.display = 'block';
         status.className = 'status-toast';
-        status.innerText = `Connecting to Times of India live news feed via Serper...`;
+        status.innerText = `Connecting to live feed for ${subTabLabels[activeNewsSubTab]}...`;
       }
 
       // Check browser offline status
@@ -3572,9 +3628,34 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       let startIdx = parseInt(localStorage.getItem('active_serper_key_idx') || '0', 10);
       if (isNaN(startIdx) || startIdx < 0 || startIdx >= serperKeys.length) startIdx = 0;
 
-      const searchQuery = (industry === 'tamil') 
-        ? 'Tamil movie news Times of India'
-        : 'Malayalam movie news Times of India';
+      let searchQuery = '';
+      let fallbackQuery = '';
+
+      if (activeNewsSubTab === 'theater') {
+        if (industry === 'tamil') {
+          searchQuery = 'Tamil movies in theatres';
+          fallbackQuery = 'Tamil movie release date';
+        } else {
+          searchQuery = 'Malayalam movie release date Times of India';
+          fallbackQuery = 'Malayalam movies in theatres';
+        }
+      } else if (activeNewsSubTab === 'ott') {
+        if (industry === 'tamil') {
+          searchQuery = 'Tamil movie OTT release date';
+          fallbackQuery = 'Tamil movies streaming OTT release';
+        } else {
+          searchQuery = 'Malayalam movie OTT release date';
+          fallbackQuery = 'Malayalam movies streaming OTT release';
+        }
+      } else {
+        if (industry === 'tamil') {
+          searchQuery = 'Tamil movie news Times of India';
+          fallbackQuery = 'Tamil cinema news latest';
+        } else {
+          searchQuery = 'Malayalam movie news Times of India';
+          fallbackQuery = 'Malayalam cinema news latest';
+        }
+      }
 
       try {
         let items = [];
@@ -3585,7 +3666,6 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           const apiKey = serperKeys[currentIdx];
 
           try {
-            // Attempt 1: Fetch fresh breaking cinema news from Times of India
             const resp = await fetch('https://google.serper.dev/news', {
               method: 'POST',
               headers: {
@@ -3614,10 +3694,9 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
                 localStorage.setItem('active_serper_key_idx', String(currentIdx));
               }
 
-              // Fallback if returned fewer than 3 items: try broader query
-              if (items.length < 3) {
+              // Fallback if fewer than 3 items returned
+              if (items.length < 3 && fallbackQuery) {
                 try {
-                  const fallbackQuery = (industry === 'tamil') ? 'Tamil cinema news latest' : 'Malayalam cinema news latest';
                   const respFallback = await fetch('https://google.serper.dev/news', {
                     method: 'POST',
                     headers: {
@@ -3643,7 +3722,6 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
               console.warn(`Serper HTTP status ${resp.status} with key #${currentIdx + 1}`);
             }
           } catch (fetchErr) {
-            // If DNS/network error, rethrow so outer catch handles it
             if (fetchErr.name === 'TypeError' || (typeof navigator !== 'undefined' && !navigator.onLine)) {
               throw fetchErr;
             }
@@ -3660,7 +3738,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
 
         if (items.length === 0) {
           if (status) {
-            status.innerText = 'No news articles found right now. Please check API settings or try again.';
+            status.innerText = `No ${subTabLabels[activeNewsSubTab]} found right now. Please try again or switch sub-tabs.`;
           }
           return;
         }
@@ -3672,13 +3750,14 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           date: it.date || 'Today',
           imageUrl: it.imageUrl || '',
           source: it.source || 'Times of India',
+          category: activeNewsSubTab,
           malayalamScript: null
         }));
 
         currentNewsIndex = 0;
 
         if (status) {
-          status.innerText = `✓ Loaded ${liveNewsArticles.length} breaking cinema stories from Times of India!`;
+          status.innerText = `✓ Loaded ${liveNewsArticles.length} ${subTabLabels[activeNewsSubTab]}!`;
           setTimeout(() => { if (status) status.style.display = 'none'; }, 3500);
         }
 
@@ -3764,6 +3843,17 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         if (mlResultBox) mlResultBox.style.display = 'none';
         if (convertBtn) convertBtn.innerText = '🤖 Convert into Malayalam Speaking Text (Groq AI)';
       }
+
+      // Update worksheet button label
+      const subTabWorksheetLabels = {
+        'all': 'Movie Updates',
+        'theater': 'Release Updates',
+        'ott': 'OTT Updates'
+      };
+      const addWsBtn = document.getElementById('btn-add-news-worksheet');
+      if (addWsBtn) {
+        addWsBtn.innerText = `➕ Add as New Topic in Worksheet (${subTabWorksheetLabels[activeNewsSubTab]})`;
+      }
     }
 
     function nextNewsStory() {
@@ -3830,14 +3920,37 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       }
 
       const promptText = `News Title: ${cur.title}\nNews Story: ${cur.snippet}`;
-      const systemPrompt = "You are an expert Malayalam movie news presenter and scriptwriter for a popular YouTube channel.\n" +
-        "Convert this English cinema news story into a lively, engaging 3-to-4 line Malayalam spoken news paragraph ready to be read aloud by a news presenter.\n" +
-        "Rules:\n" +
-        "1. Write 100% in pure Malayalam script (മലയാളത്തിൽ). ABSOLUTELY NO ENGLISH SCRIPT.\n" +
-        "2. Keep it energetic, natural, engaging, and conversational for YouTube viewers (strictly 3 to 4 sentences).\n" +
-        "3. Write English loanwords and terms in standard Malayalam phonetics (e.g. 'ബോക്സ് ഓഫീസ്', 'റിലീസ്', 'കളക്ഷൻ', 'ടീസർ', 'പോസ്റ്റർ', 'ഡയറക്ടർ').\n" +
-        "4. Put periods (.) ONLY at the actual end of complete sentences. DO NOT place dots inside initials or abbreviations (e.g. write 'ഗിരീഷ് എഡി' or 'എ ഡി', 'കെജിഎഫ്', 'യുഎസ്').\n" +
-        "5. No hashtags, no bullet points, no disclaimers. Return ONLY the spoken Malayalam text.";
+      
+      let systemPrompt = "";
+      if (activeNewsSubTab === 'theater') {
+        systemPrompt = "You are an expert Malayalam movie news presenter and scriptwriter for a popular YouTube channel.\n" +
+          "Convert this cinema theatrical release news story into a lively, engaging 3-to-4 line Malayalam spoken news paragraph ready to be read aloud by a news presenter.\n" +
+          "Rules:\n" +
+          "1. Write 100% in pure Malayalam script (മലയാളത്തിൽ). ABSOLUTELY NO ENGLISH SCRIPT.\n" +
+          "2. Highlight the movie name and the theatrical / big screen release date clearly.\n" +
+          "3. Keep it energetic, natural, engaging, and conversational for YouTube viewers (strictly 3 to 4 sentences).\n" +
+          "4. Write English loanwords and terms in standard Malayalam phonetics (e.g. 'തിയേറ്റർ റിലീസ്', 'ബോക്സ് ഓഫീസ്', 'ഫസ്റ്റ് ഡേ').\n" +
+          "5. Put periods (.) ONLY at the actual end of complete sentences. DO NOT place dots inside initials or abbreviations (e.g. write 'ഗിരീഷ് എഡി' or 'എ ഡി', 'കെജിഎഫ്', 'യുഎസ്').\n" +
+          "6. No hashtags, no bullet points, no disclaimers. Return ONLY the spoken Malayalam text.";
+      } else if (activeNewsSubTab === 'ott') {
+        systemPrompt = "You are an expert Malayalam movie news presenter and scriptwriter for a popular YouTube channel.\n" +
+          "Convert this cinema OTT streaming release news story into a lively, engaging 3-to-4 line Malayalam spoken news paragraph ready to be read aloud by a news presenter.\n" +
+          "Rules:\n" +
+          "1. Write 100% in pure Malayalam script (മലയാളത്തിൽ). ABSOLUTELY NO ENGLISH SCRIPT.\n" +
+          "2. Highlight the movie name, the OTT streaming platform (e.g. നെറ്റ്ഫ്ലിക്സ്, ആമസോൺ പ്രൈം, ഡിസ്നി പ്ലസ് ഹോട്ട്സ്റ്റാർ, സോണി ലിവ്, മനോരമ മാക്സ്), and the streaming release date.\n" +
+          "3. Keep it energetic, natural, engaging, and conversational for YouTube viewers (strictly 3 to 4 sentences).\n" +
+          "4. Put periods (.) ONLY at the actual end of complete sentences. DO NOT place dots inside initials or abbreviations (e.g. write 'ഗിരീഷ് എഡി' or 'എ ഡി', 'കെജിഎഫ്', 'യുഎസ്').\n" +
+          "5. No hashtags, no bullet points, no disclaimers. Return ONLY the spoken Malayalam text.";
+      } else {
+        systemPrompt = "You are an expert Malayalam movie news presenter and scriptwriter for a popular YouTube channel.\n" +
+          "Convert this English cinema news story into a lively, engaging 3-to-4 line Malayalam spoken news paragraph ready to be read aloud by a news presenter.\n" +
+          "Rules:\n" +
+          "1. Write 100% in pure Malayalam script (മലയാളത്തിൽ). ABSOLUTELY NO ENGLISH SCRIPT.\n" +
+          "2. Keep it energetic, natural, engaging, and conversational for YouTube viewers (strictly 3 to 4 sentences).\n" +
+          "3. Write English loanwords and terms in standard Malayalam phonetics (e.g. 'ബോക്സ് ഓഫീസ്', 'റിലീസ്', 'കളക്ഷൻ', 'ടീസർ', 'പോസ്റ്റർ', 'ഡയറക്ടർ').\n" +
+          "4. Put periods (.) ONLY at the actual end of complete sentences. DO NOT place dots inside initials or abbreviations (e.g. write 'ഗിരീഷ് എഡി' or 'എ ഡി', 'കെജിഎഫ്', 'യുഎസ്').\n" +
+          "5. No hashtags, no bullet points, no disclaimers. Return ONLY the spoken Malayalam text.";
+      }
 
       try {
         const resData = await queryGroq([
@@ -3883,7 +3996,12 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       if (!cur) return;
 
       const mlText = cur.malayalamScript || cur.snippet || cur.title;
-      const targetTab = 'Movie Updates';
+      let targetTab = 'Movie Updates';
+      if (activeNewsSubTab === 'theater') {
+        targetTab = 'Release Updates';
+      } else if (activeNewsSubTab === 'ott') {
+        targetTab = 'OTT Updates';
+      }
 
       if (!store[targetTab]) store[targetTab] = [];
       const rows = store[targetTab];
@@ -3895,13 +4013,26 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         headline = fixCommonCinemaEnglishSpellings(headline);
       }
 
+      // Detect OTT platform if applicable
+      let ottPlatform = "";
+      if (activeNewsSubTab === 'ott') {
+        const fullText = (cur.title + " " + cur.snippet).toLowerCase();
+        if (fullText.includes('netflix')) ottPlatform = 'Netflix';
+        else if (fullText.includes('hotstar') || fullText.includes('disney')) ottPlatform = 'Disney+ Hotstar';
+        else if (fullText.includes('prime') || fullText.includes('amazon')) ottPlatform = 'Amazon Prime Video';
+        else if (fullText.includes('sonyliv') || fullText.includes('sony liv')) ottPlatform = 'SonyLIV';
+        else if (fullText.includes('zee5')) ottPlatform = 'Zee5';
+        else if (fullText.includes('manorama')) ottPlatform = 'ManoramaMAX';
+        else if (fullText.includes('simply south')) ottPlatform = 'Simply South';
+      }
+
       rows.push({
         topicNum: newTopicNum,
         headline: headline,
         text: mlText,
         imgUrl: cur.imageUrl || "",
         releaseDate: "",
-        ottPlatform: ""
+        ottPlatform: ottPlatform
       });
 
       saveLocalStore();
