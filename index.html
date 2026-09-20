@@ -2406,6 +2406,59 @@
       return s;
     }
 
+    async function queryGroq(messages, options = {}) {
+      const keyInput = document.getElementById('groq-api-key-input');
+      const apiKey = options.apiKey || (keyInput && keyInput.value.trim() ? keyInput.value.trim() : '') || (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
+      if (!apiKey) throw new Error("Please enter or sync your Groq API Key in API Settings!");
+
+      const isJson = (options.jsonMode !== undefined) 
+        ? !!options.jsonMode 
+        : (messages && messages.some(m => typeof m.content === 'string' && m.content.toLowerCase().includes('return only a json')));
+
+      const candidateModels = [
+        "openai/gpt-oss-120b",
+        "openai/gpt-oss-20b",
+        "qwen/qwen3.8-27b",
+        "groq/compound-mini"
+      ];
+
+      let lastErr = null;
+      for (const model of candidateModels) {
+        try {
+          const bodyPayload = {
+            model: model,
+            messages: messages,
+            temperature: options.temperature !== undefined ? options.temperature : 0.2
+          };
+          if (isJson) {
+            bodyPayload.response_format = { type: 'json_object' };
+          }
+          if (options.max_tokens) {
+            bodyPayload.max_tokens = options.max_tokens;
+          }
+
+          const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + apiKey,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(bodyPayload)
+          });
+
+          if (res.ok) {
+            return await res.json();
+          } else {
+            const errText = await res.text();
+            lastErr = new Error(`Groq model '${model}' error ${res.status}: ${errText}`);
+          }
+        } catch (err) {
+          lastErr = err;
+        }
+      }
+      throw lastErr || new Error("Failed to connect to Groq AI.");
+    }
+
     async function autoExtractGroqMovieNames() {
       const keyInput = document.getElementById('groq-api-key-input');
       const apiKey = keyInput && keyInput.value.trim() ? keyInput.value.trim() : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
@@ -2447,14 +2500,6 @@
           "4. 'cleaned_text': The original Malayalam news text cleaned so that dots/periods (.) are ONLY used at the actual end of complete sentences. Remove all periods/dots within names, initials, acronyms, and abbreviations (e.g. 'എ.ഡി' to 'എഡി', 'കെ.ജി.എഫ്' to 'കെജിഎഫ്'). Preserve real sentence-ending full stops. Do not translate the words.\n" +
           "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order, with exactly one object for each given topic. Example: {\"items\": [{\"movie_name\": \"Picnic\", \"release_date\": \"September 28\", \"ott_platform\": \"Netflix\", \"cleaned_text\": \"...\"}]}. No extra text outside JSON.";
       }
-
-      const candidateModels = [
-        "llama-3.3-70b-versatile",
-        "openai/gpt-oss-120b",
-        "openai/gpt-oss-20b",
-        "llama-3.1-8b-instant",
-        "qwen/qwen3.8-27b"
-      ];
 
       function parseMalayalamDateFromText(text) {
         if (!text) return "";
@@ -2550,38 +2595,6 @@
           s = s.replace(regex, rep);
         }
         return s;
-      }
-
-      async function queryGroq(messages) {
-        let lastErr = null;
-        for (const model of candidateModels) {
-          try {
-            const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-              method: 'POST',
-              headers: {
-                'Authorization': 'Bearer ' + apiKey,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                model: model,
-                messages: messages,
-                temperature: 0.1,
-                max_tokens: 4096,
-                response_format: { type: 'json_object' }
-              })
-            });
-
-            if (res.ok) {
-              return await res.json();
-            } else {
-              const errText = await res.text();
-              lastErr = new Error(`Groq model '${model}' error ${res.status}: ${errText}`);
-            }
-          } catch (err) {
-            lastErr = err;
-          }
-        }
-        throw lastErr || new Error("Failed to connect to Groq AI.");
       }
 
       try {
@@ -3830,7 +3843,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         const resData = await queryGroq([
           { role: 'system', content: systemPrompt },
           { role: 'user', content: promptText }
-        ]);
+        ], { apiKey: apiKey, jsonMode: false });
 
         const content = resData.choices?.[0]?.message?.content || "";
         const cleanContent = cleanMalayalamDotsAndInitials(content.trim());
