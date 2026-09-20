@@ -1342,11 +1342,12 @@ def generate_video(
         try:
             bgm_info = sf.info(str(BGM_PATH))
             full_bgm_dur = bgm_info.duration
-            trimmed_bgm_dur = max(5.0, full_bgm_dur - 5.0)
+            trimmed_bgm_dur = max(5.0, full_bgm_dur)
+            bgm_sr = getattr(bgm_info, 'samplerate', 44100) or 44100
             fade_start = max(0.0, total_audio_duration - 5.0)
 
             filter_complex = (
-                f"[2:a]atrim=0:{trimmed_bgm_dur:.2f},aloop=loop=-1:size={int(trimmed_bgm_dur * 44100)}[bgm_loop];"
+                f"[2:a]atrim=0:{trimmed_bgm_dur:.2f},aloop=loop=-1:size={int(trimmed_bgm_dur * bgm_sr)}[bgm_loop];"
                 f"[bgm_loop]volume={BGM_VOLUME},afade=t=out:st={fade_start:.2f}:d=5[bgm_ducked];"
                 f"[1:a]acompressor=threshold=-20dB:ratio=3:attack=10:release=80:makeup=4dB,volume={VOICE_VOLUME}[voice];"
                 f"[voice][bgm_ducked]amix=inputs=2:duration=first:dropout_transition=2:normalize=0[mixed];"
