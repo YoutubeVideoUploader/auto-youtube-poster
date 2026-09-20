@@ -4003,6 +4003,49 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       }, { passive: true });
     }
 
+    function parseMovieReleaseDate(dateStr, contextText) {
+      const currentYear = new Date().getFullYear();
+      const text = ((dateStr || '') + ' ' + (contextText || '')).trim();
+      if (!text) return null;
+
+      // 1. "18 Sep 2026" or "18 September 2026" or "18 Sep"
+      const m1 = text.match(/(\d{1,2})\s+(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember))(?:\s+(\d{4}))?/i);
+      if (m1) {
+        const day = parseInt(m1[1], 10);
+        const monthStr = m1[2];
+        const year = m1[3] ? parseInt(m1[3], 10) : currentYear;
+        const d = new Date(`${monthStr} ${day}, ${year}`);
+        if (!isNaN(d.getTime())) return d;
+      }
+
+      // 2. "September 18, 2026" or "September 18"
+      const m2 = text.match(/(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember))\s+(\d{1,2})(?:,?\s+(\d{4}))?/i);
+      if (m2) {
+        const monthStr = m2[1];
+        const day = parseInt(m2[2], 10);
+        const year = m2[3] ? parseInt(m2[3], 10) : currentYear;
+        const d = new Date(`${monthStr} ${day}, ${year}`);
+        if (!isNaN(d.getTime())) return d;
+      }
+
+      // 3. Check Malayalam date in context if parseMalayalamDateFromText is available
+      if (typeof parseMalayalamDateFromText === 'function') {
+        const mlDateStr = parseMalayalamDateFromText(text);
+        if (mlDateStr) {
+          const d = new Date(`${mlDateStr}, ${currentYear}`);
+          if (!isNaN(d.getTime())) return d;
+        }
+      }
+
+      // 4. Fallback to standard Date.parse if dateStr is provided
+      if (dateStr && !dateStr.includes('ago') && !dateStr.includes('Today') && !dateStr.includes('Yesterday')) {
+        const d = new Date(dateStr);
+        if (!isNaN(d.getTime())) return d;
+      }
+
+      return null;
+    }
+
     async function convertCurrentNewsToMalayalam() {
       if (!liveNewsArticles || liveNewsArticles.length === 0) return;
       const cur = liveNewsArticles[currentNewsIndex];
@@ -4024,37 +4067,104 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         btn.innerText = '⏳ Groq AI is generating spoken Malayalam script...';
       }
 
-      const promptText = `News Title: ${cur.title}\nNews Story: ${cur.snippet}`;
+      // Real-time date comparison for past vs future tense
+      const now = new Date();
+      const todayFormatted = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+      const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+      const relDate = parseMovieReleaseDate(cur.date, cur.snippet);
+      let isReleased = false;
+      let relDateFormatted = "";
+      if (relDate) {
+        relDateFormatted = relDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+        const relMidnight = new Date(relDate.getFullYear(), relDate.getMonth(), relDate.getDate()).getTime();
+        isReleased = relMidnight <= todayMidnight;
+      }
+
+      let promptText = `Today's Actual Date: ${todayFormatted}\nNews Title: ${cur.title}\nNews Story: ${cur.snippet}`;
+      if (cur.date) {
+        promptText += `\nSpecified Release Date: ${cur.date}`;
+      }
+      if (relDateFormatted) {
+        promptText += `\nRelease Status: ${isReleased ? 'ALREADY RELEASED / PAST / TODAY (Must use Past or Present Continuous Tense)' : 'UPCOMING RELEASE / IN THE FUTURE (Must use Future Tense)'}`;
+      }
       
       let systemPrompt = "";
       if (activeNewsSubTab === 'theater') {
+        let tenseRule = "";
+        if (relDate) {
+          if (isReleased) {
+            tenseRule = `CRITICAL TENSE RULE (MOVIE ALREADY IN THEATERS):
+- Today is ${todayFormatted}. The theatrical release date is ${relDateFormatted}, which has ALREADY PASSED (or is TODAY).
+- You MUST write the Malayalam script in PAST TENSE or PRESENT CONTINUOUS TENSE.
+- Use natural Malayalam phrases such as: 'തിയേറ്ററുകളിൽ എത്തിക്കഴിഞ്ഞു' (has already arrived), 'ഇപ്പോൾ തിയേറ്ററുകളിൽ വിജയകരമായി പ്രദർശനം തുടരുന്നു' (currently running), 'തിയേറ്ററുകളിൽ റിലീസ് ചെയ്തു' (released in theaters), 'തിയേറ്ററുകളിലെത്തി'.
+- STRICTLY FORBIDDEN: DO NOT use future tense like 'തിയേറ്ററുകളിലെത്തും' or 'റിലീസ് ചെയ്യും' or 'റിലീസിനൊരുങ്ങുന്നു'.`;
+          } else {
+            tenseRule = `CRITICAL TENSE RULE (UPCOMING THEATRICAL RELEASE):
+- Today is ${todayFormatted}. The theatrical release date is ${relDateFormatted}, which is in the FUTURE.
+- You MUST write the Malayalam script in FUTURE TENSE.
+- Use natural Malayalam phrases such as: 'തിയേറ്ററുകളിലെത്തും' (will arrive in theaters), 'തിയേറ്ററുകളിലേക്ക് എത്താൻ ഒരുങ്ങുന്നു' (getting ready to hit theaters), 'തിയേറ്ററുകളിൽ റിലീസ് ചെയ്യും' (will release in theaters).
+- STRICTLY FORBIDDEN: DO NOT use past tense like 'റിലീസ് ചെയ്തു' or 'എത്തിക്കഴിഞ്ഞു' or 'പ്രദർശനം തുടരുന്നു'.`;
+          }
+        } else {
+          tenseRule = `CRITICAL TENSE RULE:
+- Today is ${todayFormatted}. Compare any release date in the news with today's date:
+- If the theatrical release date is in the past or today, use PAST/PRESENT TENSE ('തിയേറ്ററുകളിൽ എത്തിക്കഴിഞ്ഞു', 'പ്രദർശനം തുടരുന്നു', 'റിലീസ് ചെയ്തു'). Never say 'തിയേറ്ററുകളിലെത്തും'.
+- If the theatrical release date is in the future, use FUTURE TENSE ('തിയേറ്ററുകളിലെത്തും', 'റിലീസ് ചെയ്യും'). Never say 'റിലീസ് ചെയ്തു'.`;
+        }
+
         systemPrompt = "You are an expert Malayalam movie news presenter and scriptwriter for a popular YouTube channel.\n" +
           "Convert this cinema theatrical release news story into a lively, engaging 3-to-4 line Malayalam spoken news paragraph ready to be read aloud by a news presenter.\n" +
           "Rules:\n" +
-          "1. Write 100% in pure Malayalam script (മലയാളത്തിൽ). ABSOLUTELY NO ENGLISH SCRIPT.\n" +
-          "2. Highlight the movie name and the theatrical / big screen release date clearly.\n" +
-          "3. Keep it energetic, natural, engaging, and conversational for YouTube viewers (strictly 3 to 4 sentences).\n" +
-          "4. Write English loanwords and terms in standard Malayalam phonetics (e.g. 'തിയേറ്റർ റിലീസ്', 'ബോക്സ് ഓഫീസ്', 'ഫസ്റ്റ് ഡേ').\n" +
-          "5. Put periods (.) ONLY at the actual end of complete sentences. DO NOT place dots inside initials or abbreviations (e.g. write 'ഗിരീഷ് എഡി' or 'എ ഡി', 'കെജിഎഫ്', 'യുഎസ്').\n" +
-          "6. No hashtags, no bullet points, no disclaimers. Return ONLY the spoken Malayalam text.";
+          "1. " + tenseRule + "\n" +
+          "2. Write 100% in pure Malayalam script (മലയാളത്തിൽ). ABSOLUTELY NO ENGLISH SCRIPT.\n" +
+          "3. Highlight the movie name and the theatrical / big screen release date clearly.\n" +
+          "4. Keep it energetic, natural, engaging, and conversational for YouTube viewers (strictly 3 to 4 sentences).\n" +
+          "5. Write English loanwords and terms in standard Malayalam phonetics (e.g. 'തിയേറ്റർ റിലീസ്', 'ബോക്സ് ഓഫീസ്', 'ഫസ്റ്റ് ഡേ').\n" +
+          "6. Put periods (.) ONLY at the actual end of complete sentences. DO NOT place dots inside initials or abbreviations (e.g. write 'ഗിരീഷ് എഡി' or 'എ ഡി', 'കെജിഎഫ്', 'യുഎസ്').\n" +
+          "7. No hashtags, no bullet points, no disclaimers. Return ONLY the spoken Malayalam text.";
       } else if (activeNewsSubTab === 'ott') {
+        let tenseRule = "";
+        if (relDate) {
+          if (isReleased) {
+            tenseRule = `CRITICAL TENSE RULE (ALREADY STREAMING ON OTT):
+- Today is ${todayFormatted}. The OTT streaming release date is ${relDateFormatted}, which has ALREADY PASSED (or is TODAY).
+- You MUST write the Malayalam script in PAST TENSE or PRESENT CONTINUOUS TENSE.
+- Use natural Malayalam phrases such as: 'സ്ട്രീമിംഗ് ആരംഭിച്ചു' (streaming has begun), 'ഇപ്പോൾ സ്ട്രീം ചെയ്യുന്നു' or 'ഇപ്പോൾ കാണാം' (currently streaming / can be watched now), 'ഒടിടിയിൽ എത്തിക്കഴിഞ്ഞു' (has arrived on OTT).
+- STRICTLY FORBIDDEN: DO NOT use future tense like 'സ്ട്രീമിംഗ് ആരംഭിക്കും' or 'ഒടിടിയിലെത്തും' or 'സ്ട്രീമിംഗിന് ഒരുങ്ങുന്നു'.`;
+          } else {
+            tenseRule = `CRITICAL TENSE RULE (UPCOMING OTT STREAMING):
+- Today is ${todayFormatted}. The OTT streaming release date is ${relDateFormatted}, which is in the FUTURE.
+- You MUST write the Malayalam script in FUTURE TENSE.
+- Use natural Malayalam phrases such as: 'സ്ട്രീമിംഗ് ആരംഭിക്കും' (streaming will begin), 'ഒടിടി റിലീസിനായി ഒരുങ്ങുന്നു' (getting ready for OTT release), 'ഒടിടിയിലെത്തും' (will arrive on OTT).
+- STRICTLY FORBIDDEN: DO NOT use past tense like 'സ്ട്രീമിംഗ് ആരംഭിച്ചു' or 'എത്തിക്കഴിഞ്ഞു' or 'ഇപ്പോൾ കാണാം'.`;
+          }
+        } else {
+          tenseRule = `CRITICAL TENSE RULE:
+- Today is ${todayFormatted}. Compare any OTT streaming date in the news with today's date:
+- If the streaming date is in the past or today, use PAST/PRESENT TENSE ('സ്ട്രീമിംഗ് ആരംഭിച്ചു', 'ഇപ്പോൾ കാണാം', 'ഒടിടിയിൽ എത്തിക്കഴിഞ്ഞു'). Never say 'സ്ട്രീമിംഗ് ആരംഭിക്കും'.
+- If the streaming date is in the future, use FUTURE TENSE ('സ്ട്രീമിംഗ് ആരംഭിക്കും', 'ഒടിടിയിലെത്തും'). Never say 'സ്ട്രീമിംഗ് ആരംഭിച്ചു'.`;
+        }
+
         systemPrompt = "You are an expert Malayalam movie news presenter and scriptwriter for a popular YouTube channel.\n" +
           "Convert this cinema OTT streaming release news story into a lively, engaging 3-to-4 line Malayalam spoken news paragraph ready to be read aloud by a news presenter.\n" +
           "Rules:\n" +
-          "1. Write 100% in pure Malayalam script (മലയാളത്തിൽ). ABSOLUTELY NO ENGLISH SCRIPT.\n" +
-          "2. Highlight the movie name, the OTT streaming platform (e.g. നെറ്റ്ഫ്ലിക്സ്, ആമസോൺ പ്രൈം, ഡിസ്നി പ്ലസ് ഹോട്ട്സ്റ്റാർ, സോണി ലിവ്, മനോരമ മാക്സ്), and the streaming release date.\n" +
-          "3. Keep it energetic, natural, engaging, and conversational for YouTube viewers (strictly 3 to 4 sentences).\n" +
-          "4. Put periods (.) ONLY at the actual end of complete sentences. DO NOT place dots inside initials or abbreviations (e.g. write 'ഗിരീഷ് എഡി' or 'എ ഡി', 'കെജിഎഫ്', 'യുഎസ്').\n" +
-          "5. No hashtags, no bullet points, no disclaimers. Return ONLY the spoken Malayalam text.";
+          "1. " + tenseRule + "\n" +
+          "2. Write 100% in pure Malayalam script (മലയാളത്തിൽ). ABSOLUTELY NO ENGLISH SCRIPT.\n" +
+          "3. Highlight the movie name, the OTT streaming platform (e.g. നെറ്റ്ഫ്ലിക്സ്, ആമസോൺ പ്രൈം, ഡിസ്നി പ്ലസ് ഹോട്ട്സ്റ്റാർ, സോണി ലിവ്, മനോരമ മാക്സ്, സീ5), and the streaming release date.\n" +
+          "4. Keep it energetic, natural, engaging, and conversational for YouTube viewers (strictly 3 to 4 sentences).\n" +
+          "5. Put periods (.) ONLY at the actual end of complete sentences. DO NOT place dots inside initials or abbreviations (e.g. write 'ഗിരീഷ് എഡി' or 'എ ഡി', 'കെജിഎഫ്', 'യുഎസ്').\n" +
+          "6. No hashtags, no bullet points, no disclaimers. Return ONLY the spoken Malayalam text.";
       } else {
         systemPrompt = "You are an expert Malayalam movie news presenter and scriptwriter for a popular YouTube channel.\n" +
           "Convert this English cinema news story into a lively, engaging 3-to-4 line Malayalam spoken news paragraph ready to be read aloud by a news presenter.\n" +
           "Rules:\n" +
-          "1. Write 100% in pure Malayalam script (മലയാളത്തിൽ). ABSOLUTELY NO ENGLISH SCRIPT.\n" +
-          "2. Keep it energetic, natural, engaging, and conversational for YouTube viewers (strictly 3 to 4 sentences).\n" +
-          "3. Write English loanwords and terms in standard Malayalam phonetics (e.g. 'ബോക്സ് ഓഫീസ്', 'റിലീസ്', 'കളക്ഷൻ', 'ടീസർ', 'പോസ്റ്റർ', 'ഡയറക്ടർ').\n" +
-          "4. Put periods (.) ONLY at the actual end of complete sentences. DO NOT place dots inside initials or abbreviations (e.g. write 'ഗിരീഷ് എഡി' or 'എ ഡി', 'കെജിഎഫ്', 'യുഎസ്').\n" +
-          "5. No hashtags, no bullet points, no disclaimers. Return ONLY the spoken Malayalam text.";
+          "1. Today's date is " + todayFormatted + ". Use past tense for events/releases that have already happened, and future tense for upcoming events/releases.\n" +
+          "2. Write 100% in pure Malayalam script (മലയാളത്തിൽ). ABSOLUTELY NO ENGLISH SCRIPT.\n" +
+          "3. Keep it energetic, natural, engaging, and conversational for YouTube viewers (strictly 3 to 4 sentences).\n" +
+          "4. Write English loanwords and terms in standard Malayalam phonetics (e.g. 'ബോക്സ് ഓഫീസ്', 'റിലീസ്', 'കളക്ഷൻ', 'ടീസർ', 'പോസ്റ്റർ', 'ഡയറക്ടർ').\n" +
+          "5. Put periods (.) ONLY at the actual end of complete sentences. DO NOT place dots inside initials or abbreviations (e.g. write 'ഗിരീഷ് എഡി' or 'എ ഡി', 'കെജിഎഫ്', 'യുഎസ്').\n" +
+          "6. No hashtags, no bullet points, no disclaimers. Return ONLY the spoken Malayalam text.";
       }
 
       try {
