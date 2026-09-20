@@ -3560,8 +3560,8 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       if (isNaN(startIdx) || startIdx < 0 || startIdx >= serperKeys.length) startIdx = 0;
 
       const searchQuery = (industry === 'tamil') 
-        ? 'site:timesofindia.indiatimes.com Tamil movie news'
-        : 'site:timesofindia.indiatimes.com Malayalam movie news';
+        ? 'Tamil movie news Times of India'
+        : 'Malayalam movie news Times of India';
 
       try {
         let items = [];
@@ -3572,7 +3572,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           const apiKey = serperKeys[currentIdx];
 
           try {
-            // Attempt 1: Past 24 hours news query
+            // Attempt 1: Fetch fresh breaking cinema news from Times of India
             const resp = await fetch('https://google.serper.dev/news', {
               method: 'POST',
               headers: {
@@ -3581,10 +3581,8 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
               },
               body: JSON.stringify({
                 q: searchQuery,
-                tbs: 'qdr:d',
                 gl: 'in',
-                hl: 'en',
-                num: 15
+                hl: 'en'
               })
             });
 
@@ -3603,9 +3601,10 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
                 localStorage.setItem('active_serper_key_idx', String(currentIdx));
               }
 
-              // Attempt 2: If 24h filter returned fewer than 3 items, fetch broader query
+              // Fallback if returned fewer than 3 items: try broader query
               if (items.length < 3) {
                 try {
+                  const fallbackQuery = (industry === 'tamil') ? 'Tamil cinema news latest' : 'Malayalam cinema news latest';
                   const respFallback = await fetch('https://google.serper.dev/news', {
                     method: 'POST',
                     headers: {
@@ -3613,10 +3612,9 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
                       'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                      q: searchQuery,
+                      q: fallbackQuery,
                       gl: 'in',
-                      hl: 'en',
-                      num: 15
+                      hl: 'en'
                     })
                   });
                   if (respFallback.ok) {
@@ -3628,6 +3626,8 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
                 } catch (fallbackErr) {}
               }
               break; // Key worked, exit loop
+            } else {
+              console.warn(`Serper HTTP status ${resp.status} with key #${currentIdx + 1}`);
             }
           } catch (fetchErr) {
             // If DNS/network error, rethrow so outer catch handles it
