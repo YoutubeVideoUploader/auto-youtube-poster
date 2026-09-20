@@ -3661,71 +3661,149 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         let items = [];
         let keySuccess = false;
 
-        for (let attempt = 0; attempt < serperKeys.length; attempt++) {
-          const currentIdx = (startIdx + attempt) % serperKeys.length;
-          const apiKey = serperKeys[currentIdx];
+        // Dedicated scraper for Times of India Latest Malayalam Movies page (requested by user)
+        if (activeNewsSubTab === 'theater' && industry === 'malayalam') {
+          for (let attempt = 0; attempt < serperKeys.length; attempt++) {
+            const currentIdx = (startIdx + attempt) % serperKeys.length;
+            const apiKey = serperKeys[currentIdx];
+            try {
+              const scrapeResp = await fetch('https://scrape.serper.dev', {
+                method: 'POST',
+                headers: {
+                  'X-API-KEY': apiKey,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  url: 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/malayalam-movies'
+                })
+              });
 
-          try {
-            const resp = await fetch('https://google.serper.dev/news', {
-              method: 'POST',
-              headers: {
-                'X-API-KEY': apiKey,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                q: searchQuery,
-                gl: 'in',
-                hl: 'en'
-              })
-            });
-
-            if (resp.status === 403 || resp.status === 429) {
-              console.warn(`Serper Key #${currentIdx + 1} quota reached. Trying next key in pool...`);
-              const nextIdx = (currentIdx + 1) % serperKeys.length;
-              localStorage.setItem('active_serper_key_idx', String(nextIdx));
-              continue;
-            }
-
-            if (resp.ok) {
-              const data = await resp.json();
-              items = data.news || [];
-              keySuccess = true;
-              if (currentIdx !== startIdx) {
-                localStorage.setItem('active_serper_key_idx', String(currentIdx));
+              if (scrapeResp.status === 403 || scrapeResp.status === 429) {
+                const nextIdx = (currentIdx + 1) % serperKeys.length;
+                localStorage.setItem('active_serper_key_idx', String(nextIdx));
+                continue;
               }
 
-              // Fallback if fewer than 3 items returned
-              if (items.length < 3 && fallbackQuery) {
-                try {
-                  const respFallback = await fetch('https://google.serper.dev/news', {
-                    method: 'POST',
-                    headers: {
-                      'X-API-KEY': apiKey,
-                      'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                      q: fallbackQuery,
-                      gl: 'in',
-                      hl: 'en'
-                    })
-                  });
-                  if (respFallback.ok) {
-                    const fbData = await respFallback.json();
-                    if (fbData.news && fbData.news.length > items.length) {
-                      items = fbData.news;
-                    }
+              if (scrapeResp.ok) {
+                const scrapeData = await scrapeResp.json();
+                const text = scrapeData.text || '';
+                const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+                const movies = [];
+                let currentTitle = null;
+                let currentDetails = [];
+
+                for (const line of lines) {
+                  if (line.startsWith('Latest Malayalam') || line.includes('Subscribe') || line.includes('Stories that shape') || line.includes('TOI Life') || line.includes('Read More') || line.includes('subscribing') || line.includes('inbox') || line.includes('culture stories') || line.includes('Select a City')) {
+                    continue;
                   }
-                } catch (fallbackErr) {}
+                  const dateMatch = line.match(/(\d{1,2}\s+[A-Za-z]{3}\s+\d{4})/);
+                  if (dateMatch && currentTitle) {
+                    const releaseDate = dateMatch[1];
+                    const dur = line.includes('|') ? line.split('|')[1].trim() : '';
+                    const det = currentDetails.filter(d => !d.startsWith('Critic')).join(' • ');
+                    movies.push({
+                      title: currentTitle,
+                      date: releaseDate,
+                      snippet: `Theatrical Release: ${releaseDate}${dur ? ' (' + dur + ')' : ''}. ${det}`,
+                      link: 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/malayalam-movies',
+                      source: 'Times of India (Theaters)',
+                      imageUrl: '',
+                      category: 'theater',
+                      malayalamScript: null
+                    });
+                    currentTitle = null;
+                    currentDetails = [];
+                  } else if (!currentTitle) {
+                    currentTitle = line;
+                    currentDetails = [];
+                  } else {
+                    currentDetails.push(line);
+                  }
+                }
+
+                if (movies.length > 0) {
+                  items = movies;
+                  keySuccess = true;
+                  if (currentIdx !== startIdx) {
+                    localStorage.setItem('active_serper_key_idx', String(currentIdx));
+                  }
+                  break;
+                }
               }
-              break; // Key worked, exit loop
-            } else {
-              console.warn(`Serper HTTP status ${resp.status} with key #${currentIdx + 1}`);
+            } catch (err) {
+              console.warn("Serper TOI scrape error:", err);
             }
-          } catch (fetchErr) {
-            if (fetchErr.name === 'TypeError' || (typeof navigator !== 'undefined' && !navigator.onLine)) {
-              throw fetchErr;
+          }
+        }
+
+        // Standard news query fallback if scrape did not run or returned 0
+        if (items.length === 0) {
+          for (let attempt = 0; attempt < serperKeys.length; attempt++) {
+            const currentIdx = (startIdx + attempt) % serperKeys.length;
+            const apiKey = serperKeys[currentIdx];
+
+            try {
+              const resp = await fetch('https://google.serper.dev/news', {
+                method: 'POST',
+                headers: {
+                  'X-API-KEY': apiKey,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  q: searchQuery,
+                  gl: 'in',
+                  hl: 'en'
+                })
+              });
+
+              if (resp.status === 403 || resp.status === 429) {
+                console.warn(`Serper Key #${currentIdx + 1} quota reached. Trying next key in pool...`);
+                const nextIdx = (currentIdx + 1) % serperKeys.length;
+                localStorage.setItem('active_serper_key_idx', String(nextIdx));
+                continue;
+              }
+
+              if (resp.ok) {
+                const data = await resp.json();
+                items = data.news || [];
+                keySuccess = true;
+                if (currentIdx !== startIdx) {
+                  localStorage.setItem('active_serper_key_idx', String(currentIdx));
+                }
+
+                // Fallback if fewer than 3 items returned
+                if (items.length < 3 && fallbackQuery) {
+                  try {
+                    const respFallback = await fetch('https://google.serper.dev/news', {
+                      method: 'POST',
+                      headers: {
+                        'X-API-KEY': apiKey,
+                        'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({
+                        q: fallbackQuery,
+                        gl: 'in',
+                        hl: 'en'
+                      })
+                    });
+                    if (respFallback.ok) {
+                      const fbData = await respFallback.json();
+                      if (fbData.news && fbData.news.length > items.length) {
+                        items = fbData.news;
+                      }
+                    }
+                  } catch (fallbackErr) {}
+                }
+                break; // Key worked, exit loop
+              } else {
+                console.warn(`Serper HTTP status ${resp.status} with key #${currentIdx + 1}`);
+              }
+            } catch (fetchErr) {
+              if (fetchErr.name === 'TypeError' || (typeof navigator !== 'undefined' && !navigator.onLine)) {
+                throw fetchErr;
+              }
+              console.warn(`Serper fetch error with key #${currentIdx + 1}:`, fetchErr);
             }
-            console.warn(`Serper fetch error with key #${currentIdx + 1}:`, fetchErr);
           }
         }
 
@@ -3743,16 +3821,20 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           return;
         }
 
-        liveNewsArticles = items.map(it => ({
-          title: it.title || 'Untitled Movie News',
-          snippet: it.snippet || 'No article summary available.',
-          link: it.link || '#',
-          date: it.date || 'Today',
-          imageUrl: it.imageUrl || '',
-          source: it.source || 'Times of India',
-          category: activeNewsSubTab,
-          malayalamScript: null
-        }));
+        if (items.length > 0 && items[0].category === 'theater') {
+          liveNewsArticles = items;
+        } else {
+          liveNewsArticles = items.map(it => ({
+            title: it.title || 'Untitled Movie News',
+            snippet: it.snippet || 'No article summary available.',
+            link: it.link || '#',
+            date: it.date || 'Today',
+            imageUrl: it.imageUrl || '',
+            source: it.source || 'Times of India',
+            category: activeNewsSubTab,
+            malayalamScript: null
+          }));
+        }
 
         currentNewsIndex = 0;
 
@@ -3828,6 +3910,29 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       } else {
         imgElem.style.display = 'none';
         if (placeholder) placeholder.style.display = 'flex';
+
+        // Auto-fetch official poster for theatrical releases if missing image
+        if (cur.category === 'theater' && cur.title && !cur._fetchingPoster) {
+          cur._fetchingPoster = true;
+          const serperKeys = (typeof getActiveSerperKeys === 'function') ? getActiveSerperKeys() : [];
+          const apiKey = serperKeys[0];
+          if (apiKey) {
+            fetch('https://google.serper.dev/images', {
+              method: 'POST',
+              headers: { 'X-API-KEY': apiKey, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ q: cur.title + ' Malayalam movie poster', num: 1 })
+            }).then(r => r.json()).then(data => {
+              if (data.images && data.images[0] && data.images[0].imageUrl) {
+                cur.imageUrl = data.images[0].imageUrl;
+                if (imgElem && liveNewsArticles && liveNewsArticles[currentNewsIndex] === cur) {
+                  imgElem.src = cur.imageUrl;
+                  imgElem.style.display = 'block';
+                  if (placeholder) placeholder.style.display = 'none';
+                }
+              }
+            }).catch(() => {});
+          }
+        }
       }
 
       // Check if Malayalam has already been generated for this story
@@ -4031,7 +4136,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         headline: headline,
         text: mlText,
         imgUrl: cur.imageUrl || "",
-        releaseDate: "",
+        releaseDate: cur.date || "",
         ottPlatform: ottPlatform
       });
 
