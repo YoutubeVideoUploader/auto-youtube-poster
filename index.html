@@ -1178,6 +1178,15 @@
                   🔗 Read Full Article on Times of India ↗
                 </a>
               </div>
+
+              <!-- User Custom Correction / Note Box -->
+              <div style="margin-top: 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 8px; padding: 8px 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <label style="font-size: 11px; font-weight: 700; color: #38bdf8;">✏️ Add / Correct Details (e.g. Director, Lead Cast):</label>
+                  <span style="font-size: 10px; color: #94a3b8;">Overrides AI guesswork</span>
+                </div>
+                <input type="text" id="news-card-notes" placeholder="e.g. Directed by Ranjith, starring Prakash Varma" style="width: 100%; padding: 7px 10px; background: rgba(8, 12, 22, 0.95); border: 1px solid rgba(255, 255, 255, 0.12); color: #fff; border-radius: 6px; font-size: 12.5px;" oninput="saveCurrentNewsNote(this.value)">
+              </div>
             </div>
           </div>
 
@@ -4253,6 +4262,12 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         linkElem.style.display = cur.link && cur.link !== '#' ? 'inline-flex' : 'none';
       }
 
+      // Update custom notes input
+      const notesElem = document.getElementById('news-card-notes');
+      if (notesElem) {
+        notesElem.value = cur.customNotes || '';
+      }
+
       // Update Image
       const imgElem = document.getElementById('news-card-img');
       const placeholder = document.getElementById('news-card-img-placeholder');
@@ -4312,6 +4327,14 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       const addWsBtn = document.getElementById('btn-add-news-worksheet');
       if (addWsBtn) {
         addWsBtn.innerText = `➕ Add as New Topic in Worksheet (${subTabWorksheetLabels[activeNewsSubTab]})`;
+      }
+    }
+
+    function saveCurrentNewsNote(val) {
+      if (!liveNewsArticles || liveNewsArticles.length === 0) return;
+      const cur = liveNewsArticles[currentNewsIndex];
+      if (cur) {
+        cur.customNotes = val;
       }
     }
 
@@ -4500,6 +4523,11 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       }
 
       let promptText = `News Title: ${cur.title}\nNews Story: ${cur.snippet}`;
+      const notesElem = document.getElementById('news-card-notes');
+      const customNotes = ((notesElem ? notesElem.value : '') || cur.customNotes || '').trim();
+      if (customNotes) {
+        promptText += `\nUSER VERIFIED CREDITS & CORRECTIONS (HIGHEST PRIORITY - ALWAYS FOLLOW THIS OVER STORY CONTRADICTIONS): ${customNotes}`;
+      }
       if (cur.platform) {
         promptText += `\nOTT Platform: ${cur.platform}`;
       }
@@ -4515,7 +4543,12 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       promptText += `\nCRITICAL INSTRUCTION: Base your Malayalam script SOLELY on the news details above. ABSOLUTELY NEVER invent lead actors, directors, fictitious runtimes, or unmentioned facts.`;
       
       const strictFactRule = 
-        "- STRICT FACTUAL GROUNDING & ZERO HALLUCINATIONS (CRITICAL): Rely SOLELY and STRICTLY on the facts, people, and details explicitly mentioned in the provided News Title and Story. ABSOLUTELY NEVER invent or introduce superstar actors (e.g. Mammootty, Mohanlal, Suresh Gopi, Tovino Thomas, Dulquer) or directors unless their name is explicitly stated in the provided snippet! If the news is about Rashmika Mandanna, talk strictly about Rashmika Mandanna. ABSOLUTELY NEVER invent movie runtimes (e.g. '2 hours 38 minutes') or fictitious budgets unless explicitly stated.\n";
+        "- STRICT FACTUAL GROUNDING & ZERO UNKNOWN/HALLUCINATED INFO (CRITICAL):\n" +
+        "  1. NEVER INVENT OR GUESS ROLES: NEVER assume or guess who directed the film or who is in the lead role! If the news does not explicitly state 'directed by [Name]' (സംവിധായകൻ / സംവിധാനം), DO NOT call anyone the director. If an actor is mentioned (e.g. Prakash Varma), NEVER assume they are the director. If director is not confirmed in the text, simply say 'ചിത്രം' without stating a director.\n" +
+        "  2. NO ASSUMING LEAD ROLES FROM CAMEOS / GUESTS: If an actor (e.g. Mammootty) only has a cameo, special appearance, or is merely mentioned, NEVER falsely call them the lead actor (നായകൻ).\n" +
+        "  3. NO INVENTED GENRES OR REACTION: Never introduce genres (e.g. 'ക്രൈം ആക്ഷൻ ഡ്രാമ') or fake audience reactions unless explicitly present in the provided text.\n" +
+        "  4. USER VERIFIED NOTES OVERRIDE EVERYTHING: If the user provided 'USER VERIFIED CREDITS & CORRECTIONS' above, treat that as absolute 100% ground truth and follow it strictly.\n" +
+        "  5. ZERO OUTSIDE HALLUCINATIONS: Rely SOLELY and STRICTLY on the facts, people, and details explicitly mentioned in the provided text. Never invent movie runtimes or unmentioned facts.\n";
 
       const cinemaVocabRules = 
         "CRITICAL CINEMA JOURNALISM VOCABULARY & SPOKEN STYLE:\n" +
@@ -4568,7 +4601,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           "2. " + strictFactRule + "\n" +
           "3. " + cinemaVocabRules + "\n" +
           "4. NO OVER-DETAILED EXPLANATIONS: Do NOT narrate lengthy plot synopses, character backstories, or production trivia. Stick directly to the core exciting facts.\n" +
-          "5. CORE IMPORTANT FACTS ONLY: State the Movie Name, Lead Star / Director, Theatrical Release Date / Status, and 1 quick punchline on audience hype.\n" +
+          "5. CORE IMPORTANT FACTS ONLY: State the Movie Name, Lead Star / Director (ONLY IF EXPLICITLY CONFIRMED IN TEXT OR USER NOTES - NEVER GUESS ROLES), Theatrical Release Date / Status, and 1 quick punchline on audience hype.\n" +
           "6. NATURAL SPOKEN NEWS BROADCASTING: Maintain an energetic, authentic spoken Malayalam broadcasting style (വാർത്താ അവതരണം).\n" +
           "7. RESPECTFUL PRONOUNS (STRICTLY FORBIDDEN: 'അവൻ'): Never ever refer to directors, actors, or filmmakers as 'അവൻ'. Always use 'അദ്ദേഹം' (he/him) or use their professional name/title ('സംവിധായകൻ', 'താരം').\n" +
           "8. NEVER TRANSLATE PUBLICATION TIMESTAMPS: Do NOT include or translate article publishing timestamps like '5 hours ago' ('5 മണിക്കൂർ മുമ്പ്'), 'yesterday', or 'today' from article metadata. News presenters present the story, not the publishing timestamp.\n" +
