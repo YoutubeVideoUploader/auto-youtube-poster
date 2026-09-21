@@ -57,14 +57,18 @@ class YouTubeUploader:
             if creds and creds.expired and creds.refresh_token:
                 try:
                     creds.refresh(Request())
-                except Exception:
+                    print("[OK] Successfully refreshed YouTube OAuth access token.")
+                except Exception as refresh_err:
+                    print(f"[!] Warning: Failed to refresh YouTube OAuth token: {refresh_err}")
                     creds = None
 
             if not creds:
                 if not self.client_secrets_file.exists():
                     raise FileNotFoundError(
-                        f"Google OAuth client_secret.json file not found at: {self.client_secrets_file}\n"
-                        f"Please download your client_secret.json from Google Cloud Console and place it in the project root folder."
+                        f"YouTube OAuth authentication failed: No valid token available and client_secret.json not found at: {self.client_secrets_file}\n"
+                        f"If running in GitHub Actions, your 'YOUTUBE_TOKEN_JSON' repository secret is either expired, missing, or invalid.\n"
+                        f"Note: Google expires refresh tokens after 7 days if your Google Cloud project is in 'Testing' mode.\n"
+                        f"Please generate a fresh token using 'python get_youtube_token.py' and update the YOUTUBE_TOKEN_JSON secret in your GitHub repository settings."
                     )
 
                 flow = InstalledAppFlow.from_client_secrets_file(str(self.client_secrets_file), SCOPES)
