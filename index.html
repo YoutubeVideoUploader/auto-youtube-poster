@@ -4505,8 +4505,13 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       }
       if (relDateFormatted) {
         promptText += `\nMovie Release Date: ${relDateFormatted} (${isReleased ? 'ALREADY RELEASED / PAST / TODAY -> Use Past or Present Continuous Tense' : 'UPCOMING RELEASE / IN THE FUTURE -> Use Future Tense'})`;
+      } else if (cur.date) {
+        promptText += `\nMovie Release Date: ${cur.date}`;
       }
       promptText += `\nToday's Actual Date: ${todayFormatted}`;
+      if (activeNewsSubTab === 'ott') {
+        promptText += `\nMANDATORY OTT REQUIREMENT: Seamlessly weave BOTH the OTT Platform (${cur.platform || 'Platform mentioned in news'}) AND the exact Release Date / Status (${relDateFormatted || cur.date || 'Date mentioned in news'}) into your 1-to-2 sentence Malayalam update along with the Movie Name. Under NO circumstances should you omit either the platform or the release date!`;
+      }
       promptText += `\nCRITICAL INSTRUCTION: Base your Malayalam script SOLELY on the news details above. ABSOLUTELY NEVER invent lead actors, directors, fictitious runtimes, or unmentioned facts.`;
       
       const strictFactRule = 
@@ -4596,13 +4601,16 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         }
 
         const ottFewShotDemo = 
-          "\nFEW-SHOT DEMONSTRATIONS (ULTRA-MINIMAL & FACT-FOCUSED - STRICTLY 1 TO 2 SHORT SENTENCES):\n" +
-          "Example 1 (Already streaming):\n" +
+          "\nFEW-SHOT DEMONSTRATIONS (ULTRA-MINIMAL WITH BOTH PLATFORM & RELEASE DATE - STRICTLY 1 TO 2 SHORT SENTENCES):\n" +
+          "Example 1 (Already streaming on OTT with past release date):\n" +
           "News Title: Thudakkam streaming on JioHotstar from September 18\n" +
-          "Spoken Script: 'തുടക്കം' എന്ന ചിത്രം ജിയോ ഹോട്ട്സ്റ്റാറിലൂടെ ഒടിടി സ്ട്രീമിംഗ് ആരംഭിച്ചു കഴിഞ്ഞു.\n\n" +
-          "Example 2 (Upcoming streaming):\n" +
+          "Spoken Script: 'തുടക്കം' എന്ന മലയാള ചിത്രം കഴിഞ്ഞ സെപ്റ്റംബർ പതിനെട്ട് മുതൽ ജിയോ ഹോട്ട്സ്റ്റാറിലൂടെ ഒടിടി സ്ട്രീമിംഗ് ആരംഭിച്ചു കഴിഞ്ഞു.\n\n" +
+          "Example 2 (Upcoming OTT streaming with future release date):\n" +
           "News Title: Bethlehem Kudumba Unit to stream on SonyLIV on October 10\n" +
-          "Spoken Script: 'ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ്' ഒക്ടോബർ പത്ത് മുതൽ സോണി ലിവിലൂടെ ഒടിടി സ്ട്രീമിംഗ് ആരംഭിക്കും.\n";
+          "Spoken Script: 'ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ്' ഈ വരുന്ന ഒക്ടോബർ പത്ത് മുതൽ സോണി ലിവിലൂടെ ഒടിടി സ്ട്രീമിംഗ് ആരംഭിക്കും.\n\n" +
+          "Example 3 (Already streaming / date unspecified):\n" +
+          "News Title: CID Ramachandran Retd SI now on ManoramaMAX\n" +
+          "Spoken Script: 'സിഐഡി രാമചന്ദ്രൻ' എന്ന ചിത്രം ഇപ്പോൾ മനോരമ മാക്സിലൂടെ ഒടിടി സ്ട്രീമിംഗ് ആരംഭിച്ചിരിക്കുകയാണ്.\n";
 
         systemPrompt = "You are a professional Malayalam cinema news anchor and scriptwriter for a top YouTube entertainment channel.\n" +
           "Your task is to convert this cinema OTT streaming release story into an ULTRA-MINIMAL, CRISP 1-to-2 sentence Malayalam update (വാർത്താ അവതരണം) ready to be read aloud by a presenter. DO NOT MAKE A BIG PARAGRAPH.\n" +
@@ -4610,8 +4618,8 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           "1. " + tenseRule + "\n" +
           "2. " + strictFactRule + "\n" +
           "3. " + cinemaVocabRules + "\n" +
-          "4. ULTRA-MINIMAL UPDATE ONLY (NO BIG PARAGRAPHS): Do NOT write lengthy paragraphs or multi-sentence essays. Do NOT add unnecessary filler sentences about family audience, theatrical run recap, or watching comfortably at home. Strictly 1 to 2 crisp, short presenter lines max (maximum 15 to 25 words total).\n" +
-          "5. CORE FACTS ONLY: State ONLY the Movie Name, OTT Platform (e.g. നെറ്റ്ഫ്ലിക്സ്, ആമസോൺ പ്രൈം, ജിയോ ഹോട്ട്സ്റ്റാർ, സോണി ലിവ്, മനോരമ മാക്സ്, സീ5), and exact Streaming Date or Status.\n" +
+          "4. ULTRA-MINIMAL UPDATE ONLY (NO BIG PARAGRAPHS): Do NOT write lengthy paragraphs or multi-sentence essays. Seamlessly combine the Movie Name, OTT Platform, and Release Date into 1 to 2 crisp, punchy presenter sentences (maximum 15 to 25 words total). Absolutely NO filler sentences about family audience or watching comfortably at home.\n" +
+          "5. MANDATORY CORE FACTS (ALWAYS INCLUDE BOTH PLATFORM & RELEASE DATE): You MUST ALWAYS explicitly include BOTH the OTT Streaming Platform (e.g. നെറ്റ്ഫ്ലിക്സ്, ആമസോൺ പ്രൈം, ജിയോ ഹോട്ട്സ്റ്റാർ, സോണി ലിവ്, മനോരമ മാക്സ്, സീ5) AND the exact Streaming Release Date or Status (e.g. 'കഴിഞ്ഞ സെപ്റ്റംബർ പതിനെട്ട് മുതൽ' for past releases, or 'ഈ വരുന്ന ഒക്ടോബർ പത്ത് മുതൽ' for upcoming releases) along with the Movie Name.\n" +
           "6. NATURAL SPOKEN NEWS BROADCASTING: Maintain an authentic, energetic Malayalam broadcasting style (വാർത്താ അവതരണം).\n" +
           "7. RESPECTFUL PRONOUNS (STRICTLY FORBIDDEN: 'അവൻ'): Never ever refer to directors, actors, or filmmakers as 'അവൻ'. Always use 'അദ്ദേഹം' (he/him) or their professional title.\n" +
           "8. NEVER TRANSLATE PUBLICATION TIMESTAMPS: Do NOT include article publishing timestamps like '5 hours ago' ('5 മണിക്കൂർ മുമ്പ്') or metadata publication dates.\n" +
