@@ -406,3 +406,28 @@ class GoogleSheetManager:
             print(f"[!] Warning reading Groq key from Config sheet: {e}")
 
         return os.getenv("GROQ_API_KEY", "")
+
+    def get_gemini_api_key(self) -> str:
+        """Reads GEMINI_API_KEY from Google Sheet 'Config' worksheet tab or environment."""
+        if not self.web_app_url:
+            return os.getenv("GEMINI_API_KEY", "")
+
+        try:
+            r = requests.get(f"{self.web_app_url}?action=get_data", verify=False, timeout=10)
+            if r.status_code == 200:
+                data = r.json()
+                config = data.get("config", {})
+                if config.get("gemini_api_key"):
+                    return config["gemini_api_key"]
+                
+                # Check Config sheet directly if present in JSON
+                config_rows = data.get("Config") or data.get("Settings") or []
+                for row in config_rows:
+                    kname = str(row.get("Key Name", "")).strip().lower()
+                    kval = str(row.get("Key Value", "")).strip()
+                    if "gemini" in kname and kval:
+                        return kval
+        except Exception as e:
+            print(f"[!] Warning reading Gemini key from Config sheet: {e}")
+
+        return os.getenv("GEMINI_API_KEY", "")

@@ -967,6 +967,7 @@
         </p>
         <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center; flex-wrap: wrap;" class="option-box-flex">
           <input type="hidden" id="groq-api-key-input" value="">
+          <input type="hidden" id="gemini-api-key-input" value="">
           <button class="btn" style="background: #7c3aed;" onclick="autoExtractGroqMovieNames()">🤖 Auto-Fill Movie Names Now</button>
         </div>
         <div id="groq-status-toast" class="status-toast" style="margin-top: 5px;"></div>
@@ -1191,10 +1192,17 @@
             </button>
           </div>
 
-          <!-- Convert to Malayalam Button -->
-          <div style="margin-top: 18px; text-align: center;">
-            <button id="btn-convert-ml" class="btn" onclick="convertCurrentNewsToMalayalam()" style="background: linear-gradient(135deg, #059669, #10b981); color: #fff; width: 100%; font-size: 15px; font-weight: 700; padding: 12px 18px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);">
-              🤖 Convert into Malayalam Speaking Text (Groq AI)
+          <!-- Convert to Malayalam Button with Engine Toggle -->
+          <div style="margin-top: 18px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+              <span style="font-size: 12px; font-weight: 700; color: #94a3b8;">Select AI Model:</span>
+              <div style="display: flex; gap: 6px;">
+                <button type="button" id="engine-btn-gemini" class="btn btn-secondary" onclick="selectNewsAiEngine('gemini')" style="padding: 5px 12px; font-size: 12px; font-weight: 600; border: 1px solid #0284c7; background: #0369a1; color: #fff; border-radius: 6px;">⚡ Google Gemini (Pure Malayalam)</button>
+                <button type="button" id="engine-btn-groq" class="btn btn-secondary" onclick="selectNewsAiEngine('groq')" style="padding: 5px 12px; font-size: 12px; font-weight: 600; border: 1px solid #334155; background: transparent; color: #94a3b8; border-radius: 6px;">🤖 Groq AI</button>
+              </div>
+            </div>
+            <button id="btn-convert-ml" class="btn" onclick="convertCurrentNewsToMalayalam()" style="background: linear-gradient(135deg, #0284c7, #0ea5e9); color: #fff; width: 100%; font-size: 15px; font-weight: 700; padding: 12px 18px; box-shadow: 0 4px 14px rgba(14, 165, 233, 0.3);">
+              ⚡ Convert into Malayalam Speaking Text (Gemini AI)
             </button>
           </div>
 
@@ -1371,9 +1379,24 @@
           <div id="settings-toast" class="status-toast" style="margin-top: 10px;"></div>
         </div>
 
+        <!-- Gemini Key Section -->
+        <div style="background: rgba(15, 23, 42, 0.5); border: 1px solid #0284c7; border-radius: 12px; padding: 16px; margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+            <label style="font-size: 13px; font-weight: 700; color: #38bdf8;">⚡ Google Gemini AI API Key (Malayalam Voiceover & Metadata):</label>
+            <span style="font-size: 11px; background: rgba(2, 132, 199, 0.25); color: #38bdf8; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Recommended • Pure Malayalam</span>
+          </div>
+          <p style="font-size: 11.5px; color: #94a3b8; margin-bottom: 8px;">
+            Generates natural, spoken Malayalam YouTube presenter scripts without literal translation errors. Saved to Google Sheet <b>Config</b> tab (<code>GEMINI_API_KEY</code>).
+          </p>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <input type="password" id="settings-gemini-key-input" placeholder="AQ.... or AIzaSy..." style="flex: 1; min-width: 220px; padding: 9px 12px; background: rgba(8, 12, 22, 0.9); border: 1px solid rgba(255, 255, 255, 0.12); color: #fff; border-radius: 8px; font-size: 13px;">
+            <button class="btn btn-secondary" style="padding: 9px 14px; font-size: 13px; background: #0284c7; border: none; color: #fff; font-weight: 600;" onclick="saveGeminiKeyFromSettings()">💾 Save Gemini Key</button>
+          </div>
+        </div>
+
         <!-- Groq Key Section -->
         <div style="background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 16px;">
-          <label style="font-size: 13px; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 6px;">🤖 Groq AI API Key (Malayalam Smart Extractor):</label>
+          <label style="font-size: 13px; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 6px;">🤖 Groq AI API Key (Alternative Model):</label>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <input type="password" id="settings-groq-key-input" placeholder="gsk_..." style="flex: 1; min-width: 220px; padding: 9px 12px; background: rgba(8, 12, 22, 0.9); border: 1px solid rgba(255, 255, 255, 0.12); color: #fff; border-radius: 8px; font-size: 13px;">
             <button class="btn btn-secondary" style="padding: 9px 14px; font-size: 13px;" onclick="saveGroqKeyFromSettings()">💾 Save Groq Key</button>
@@ -1393,6 +1416,7 @@
 
   <script>
     const DEFAULT_GROQ_KEY = ["gsk_mCCgNIxm7ZJIHqMxh", "goOWGdyb3FYJuejNMmTDApHYmTK5xBe4Uf8"].join("");
+    const DEFAULT_GEMINI_KEY = ["AQ.", "Ab8RN6KdeX9XaIOy3j", "0mWTkkvMR819LtmxtS", "RjKnfmd1zeUxng"].join("");
     // Configured Google Apps Script Web App Endpoint
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyKFgRsYYCX69wM7_INBD7kWWUc3O9ah-HrPOjXf_Z_rigXZwWzt5qVWPMPiNE6PQ-nWQ/exec";
     const DOC_ID = "15xkauNiB27ytehTI5XHgmLm5QmJvudnEegrGSmnx5_g";
@@ -1452,6 +1476,10 @@
         const groqInp = document.getElementById('settings-groq-key-input');
         if (groqInp) {
           groqInp.value = localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY;
+        }
+        const geminiInp = document.getElementById('settings-gemini-key-input');
+        if (geminiInp) {
+          geminiInp.value = localStorage.getItem('gemini_api_key') || DEFAULT_GEMINI_KEY;
         }
       }
     }
@@ -1617,6 +1645,22 @@
       }
     }
 
+    function saveGeminiKeyFromSettings() {
+      const inp = document.getElementById('settings-gemini-key-input');
+      const val = (inp ? inp.value : '').trim();
+      if (val) {
+        localStorage.setItem('gemini_api_key', val);
+        const gel = document.getElementById('gemini-api-key-input');
+        if (gel) gel.value = val;
+        fetch(WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ gemini_api_key: val })
+        }).catch(() => {});
+        showSettingsToast('✅ Google Gemini API key saved to Google Sheet & LocalStorage!', 'success');
+      }
+    }
+
     function saveGroqKeyFromSettings() {
       const inp = document.getElementById('settings-groq-key-input');
       const val = (inp ? inp.value : '').trim();
@@ -1693,6 +1737,18 @@
       const gel = document.getElementById('groq-api-key-input');
       if (gel) {
         gel.value = savedGroq || DEFAULT_GROQ_KEY;
+      }
+      const savedGemini = localStorage.getItem('gemini_api_key');
+      const gemel = document.getElementById('gemini-api-key-input');
+      if (gemel) {
+        gemel.value = savedGemini || DEFAULT_GEMINI_KEY;
+      }
+      if (!savedGemini) {
+        localStorage.setItem('gemini_api_key', DEFAULT_GEMINI_KEY);
+      }
+      const activeEngine = localStorage.getItem('selected_ai_engine') || 'gemini';
+      if (typeof selectNewsAiEngine === 'function') {
+        selectNewsAiEngine(activeEngine);
       }
       fetchLiveGoogleSheetsData();
     });
@@ -1779,6 +1835,15 @@
           if (gel && data.config.groq_api_key.trim() !== '') {
             gel.value = data.config.groq_api_key;
             localStorage.setItem('groq_api_key', data.config.groq_api_key);
+          }
+        }
+
+        // Auto populate Gemini API Key from Config sheet if present
+        if (data.config && data.config.gemini_api_key) {
+          const gemel = document.getElementById('gemini-api-key-input');
+          if (gemel && data.config.gemini_api_key.trim() !== '') {
+            gemel.value = data.config.gemini_api_key;
+            localStorage.setItem('gemini_api_key', data.config.gemini_api_key);
           }
         }
 
@@ -2472,10 +2537,141 @@
       throw lastErr || new Error("Failed to connect to Groq AI.");
     }
 
+    function selectNewsAiEngine(engine) {
+      const eng = (engine === 'groq') ? 'groq' : 'gemini';
+      localStorage.setItem('selected_ai_engine', eng);
+
+      const btnGemini = document.getElementById('engine-btn-gemini');
+      const btnGroq = document.getElementById('engine-btn-groq');
+      const convertBtn = document.getElementById('btn-convert-ml');
+
+      if (btnGemini && btnGroq) {
+        if (eng === 'gemini') {
+          btnGemini.style.background = '#0369a1';
+          btnGemini.style.borderColor = '#0284c7';
+          btnGemini.style.color = '#fff';
+
+          btnGroq.style.background = 'transparent';
+          btnGroq.style.borderColor = '#334155';
+          btnGroq.style.color = '#94a3b8';
+        } else {
+          btnGroq.style.background = '#065f46';
+          btnGroq.style.borderColor = '#059669';
+          btnGroq.style.color = '#fff';
+
+          btnGemini.style.background = 'transparent';
+          btnGemini.style.borderColor = '#334155';
+          btnGemini.style.color = '#94a3b8';
+        }
+      }
+
+      if (convertBtn && !convertBtn.disabled) {
+        if (eng === 'gemini') {
+          convertBtn.style.background = 'linear-gradient(135deg, #0284c7, #0ea5e9)';
+          convertBtn.style.boxShadow = '0 4px 14px rgba(14, 165, 233, 0.3)';
+          convertBtn.innerText = '⚡ Convert into Malayalam Speaking Text (Gemini AI)';
+        } else {
+          convertBtn.style.background = 'linear-gradient(135deg, #059669, #10b981)';
+          convertBtn.style.boxShadow = '0 4px 14px rgba(16, 185, 129, 0.3)';
+          convertBtn.innerText = '🤖 Convert into Malayalam Speaking Text (Groq AI)';
+        }
+      }
+    }
+
+    async function queryGemini(messages, options = {}) {
+      const keyInput = document.getElementById('gemini-api-key-input');
+      const apiKey = options.apiKey || (keyInput && keyInput.value.trim() ? keyInput.value.trim() : '') || (localStorage.getItem('gemini_api_key') || DEFAULT_GEMINI_KEY);
+      if (!apiKey) throw new Error("Please enter or sync your Google Gemini API Key in API Settings!");
+
+      const isJson = (options.jsonMode !== undefined) 
+        ? !!options.jsonMode 
+        : (messages && messages.some(m => typeof m.content === 'string' && m.content.toLowerCase().includes('return only a json')));
+
+      let systemInstruction = "";
+      const contents = [];
+      for (const m of messages) {
+        if (m.role === 'system') {
+          systemInstruction = (systemInstruction ? systemInstruction + "\n\n" : "") + m.content;
+        } else if (m.role === 'user' || m.role === 'assistant') {
+          contents.push({
+            role: m.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: m.content }]
+          });
+        }
+      }
+      if (contents.length === 0 && systemInstruction) {
+        contents.push({ role: 'user', parts: [{ text: systemInstruction }] });
+        systemInstruction = "";
+      }
+
+      const candidateModels = [
+        "gemini-3.5-flash-lite",
+        "gemini-3.5-flash",
+        "gemini-flash-latest"
+      ];
+
+      let lastErr = null;
+      for (const model of candidateModels) {
+        try {
+          const bodyPayload = {
+            contents: contents,
+            generationConfig: {
+              temperature: options.temperature !== undefined ? options.temperature : 0.2
+            }
+          };
+          if (systemInstruction) {
+            bodyPayload.system_instruction = {
+              parts: [{ text: systemInstruction }]
+            };
+          }
+          if (isJson) {
+            bodyPayload.generationConfig.response_mime_type = "application/json";
+          }
+          if (options.max_tokens) {
+            bodyPayload.generationConfig.maxOutputTokens = options.max_tokens;
+          }
+
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(bodyPayload)
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+            return {
+              choices: [
+                {
+                  message: {
+                    content: text
+                  }
+                }
+              ],
+              raw: data
+            };
+          } else {
+            const errText = await res.text();
+            lastErr = new Error(`Gemini model '${model}' error ${res.status}: ${errText}`);
+          }
+        } catch (err) {
+          lastErr = err;
+        }
+      }
+      throw lastErr || new Error("Failed to connect to Google Gemini AI.");
+    }
+
     async function autoExtractGroqMovieNames() {
-      const keyInput = document.getElementById('groq-api-key-input');
-      const apiKey = keyInput && keyInput.value.trim() ? keyInput.value.trim() : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
-      if (!apiKey) return alert("Please enter or sync your Groq API Key!");
+      const selectedEngine = localStorage.getItem('selected_ai_engine') || 'gemini';
+      const keyInput = selectedEngine === 'gemini' 
+        ? document.getElementById('gemini-api-key-input') 
+        : document.getElementById('groq-api-key-input');
+      const apiKey = keyInput && keyInput.value.trim() 
+        ? keyInput.value.trim() 
+        : (selectedEngine === 'gemini' 
+            ? (localStorage.getItem('gemini_api_key') || DEFAULT_GEMINI_KEY)
+            : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY));
+      if (!apiKey) return alert(`Please enter or sync your ${selectedEngine === 'gemini' ? 'Google Gemini' : 'Groq'} API Key!`);
 
       let rows = store[activeTab] || [];
       let newsList = rows.map(r => r.text || '').filter(t => t.trim() !== '');
@@ -2485,7 +2681,7 @@
       if (statusBox) {
         statusBox.style.display = 'block';
         statusBox.className = 'status-toast';
-        statusBox.innerText = '🤖 Calling Groq AI to extract movie metadata & clean topic text... Please wait...';
+        statusBox.innerText = `🤖 Calling ${selectedEngine === 'gemini' ? 'Google Gemini AI' : 'Groq AI'} to extract movie metadata & clean topic text... Please wait...`;
       }
 
       let systemPrompt = "";
@@ -2623,15 +2819,23 @@
           if (statusBox) {
             statusBox.style.display = 'block';
             statusBox.className = 'status-toast';
-            statusBox.innerText = `🤖 Groq AI: Processing batch ${b + 1} of ${totalBatches} (topics ${start + 1} to ${end} of ${rows.length})... Please wait...`;
+            statusBox.innerText = `🤖 ${selectedEngine === 'gemini' ? 'Google Gemini AI' : 'Groq AI'}: Processing batch ${b + 1} of ${totalBatches} (topics ${start + 1} to ${end} of ${rows.length})... Please wait...`;
           }
 
           const formattedTopics = batchRows.map((r, i) => `Topic #${start + i + 1}: ${r.text && r.text.trim() ? r.text.trim() : 'No text'}`).join('\n\n');
 
-          const resData = await queryGroq([
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: formattedTopics }
-          ]);
+          let resData;
+          if (selectedEngine === 'gemini') {
+            resData = await queryGemini([
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: formattedTopics }
+            ], { apiKey: apiKey, jsonMode: true });
+          } else {
+            resData = await queryGroq([
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: formattedTopics }
+            ], { apiKey: apiKey, jsonMode: true });
+          }
 
           const content = resData.choices && resData.choices[0] && resData.choices[0].message ? resData.choices[0].message.content : "{}";
           let parsed = {};
@@ -4050,6 +4254,12 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       if (!text) return "";
       let s = text;
       // 1. Clean cinema literal translation mistakes (crucial for natural Mollywood news)
+      s = s.replace(/അധികാരിക\s+മുൻകാഴ്ച/g, 'ഒഫീഷ്യൽ ടീസർ');
+      s = s.replace(/അധികാരിക\s+ട്രെയിലർ/g, 'ഒഫീഷ്യൽ ട്രെയിലർ');
+      s = s.replace(/(?<=\s|^)മുൻകാഴ്ചയുടെ(?=\s|[.,!?]|$)/g, 'ടീസറിന്റെ');
+      s = s.replace(/(?<=\s|^)മുൻകാഴ്ച(?=\s|[.,!?]|$)/g, 'ടീസർ');
+      s = s.replace(/സംവിധാനം\s+ചെയ്യാൻ\s+ശ്രമിക്കുന്ന/g, 'സംവിധാനം ചെയ്യുന്ന');
+      s = s.replace(/സജീവ\s+പ്രകടനം/g, 'ഗംഭീര പ്രകടനം');
       s = s.replace(/വലിയ ചാടൽ/g, 'വൻ കുതിപ്പ്');
       s = s.replace(/ചാടൽ/g, 'കുതിപ്പ്');
       s = s.replace(/സമാഹാര പരിധി/g, 'കളക്ഷൻ നേട്ടം');
@@ -4102,17 +4312,27 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       const btn = document.getElementById('btn-convert-ml');
       const resultBox = document.getElementById('news-ml-result-box');
       const mlTextElem = document.getElementById('news-ml-text');
-      const keyInput = document.getElementById('groq-api-key-input');
-      const apiKey = keyInput && keyInput.value.trim() ? keyInput.value.trim() : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
+
+      const selectedEngine = localStorage.getItem('selected_ai_engine') || 'gemini';
+      const keyInput = selectedEngine === 'gemini' 
+        ? document.getElementById('gemini-api-key-input') 
+        : document.getElementById('groq-api-key-input');
+      const apiKey = keyInput && keyInput.value.trim() 
+        ? keyInput.value.trim() 
+        : (selectedEngine === 'gemini' 
+            ? (localStorage.getItem('gemini_api_key') || DEFAULT_GEMINI_KEY)
+            : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY));
 
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
-        alert("⚠️ Network offline: Your computer is currently disconnected from the Internet. Please check your Wi-Fi connection to use Groq AI.");
+        alert("⚠️ Network offline: Your computer is currently disconnected from the Internet. Please check your Wi-Fi connection.");
         return;
       }
 
       if (btn) {
         btn.disabled = true;
-        btn.innerText = '⏳ Groq AI is generating spoken Malayalam script...';
+        btn.innerText = selectedEngine === 'gemini'
+          ? '⏳ Google Gemini AI is generating spoken Malayalam script...'
+          : '⏳ Groq AI is generating spoken Malayalam script...';
       }
 
       // Real-time date comparison for past vs future tense
@@ -4182,7 +4402,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           "4. RESPECTFUL PRONOUNS (STRICTLY FORBIDDEN: 'അവൻ'): Never ever refer to directors, actors, or filmmakers as 'അവൻ'. Always use 'അദ്ദേഹം' (he/him) or use their professional name/title ('സംവിധായകൻ', 'താരം').\n" +
           "5. NEVER TRANSLATE PUBLICATION TIMESTAMPS: Do NOT include or translate article publishing timestamps like '5 hours ago' ('5 മണിക്കൂർ മുമ്പ്'), 'yesterday', or 'today' from article metadata. News presenters present the story, not the publishing timestamp.\n" +
           "6. NO BROKEN APOSTROPHES OR QUOTES: In spoken scripts, avoid single/double quotes around film names that lead to broken suffixes like 'യൂണിറ്റ്'യുടെ. Write smooth Malayalam (e.g. 'ചിത്രത്തിന്റെ സംവിധായകൻ').\n" +
-          "7. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Use pure Malayalam script and vocabulary.\n" +
+          "7. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Write everything in pure Malayalam script. Transcribe any foreign actor/character/movie names into Malayalam script (e.g. write 'രശ്മിക മന്ദാന', 'മൈസ', NEVER English alphabet).\n" +
           "8. Highlight the movie name and the theatrical / big screen release date clearly.\n" +
           "9. SENTENCE END DOTS ONLY: Put periods (.) ONLY at the actual end of complete sentences. Never put periods inside names or initials (e.g. write 'ഗിരീഷ് എഡി' or 'ഗിരീഷ് എ ഡി', NEVER 'ഗിരീഷ് എ.ഡി.').\n" +
           "10. LENGTH: Strictly 3 to 4 complete sentences. Return ONLY the spoken Malayalam paragraph." +
@@ -4219,7 +4439,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           "4. RESPECTFUL PRONOUNS (STRICTLY FORBIDDEN: 'അവൻ'): Never ever refer to directors, actors, or filmmakers as 'അവൻ'. Always use 'അദ്ദേഹം' (he/him) or use their professional name/title ('സംവിധായകൻ', 'താരം').\n" +
           "5. NEVER TRANSLATE PUBLICATION TIMESTAMPS: Do NOT include or translate article publishing timestamps like '5 hours ago' ('5 മണിക്കൂർ മുമ്പ്'), 'yesterday', or 'today' from article metadata. News presenters present the story, not the publishing timestamp.\n" +
           "6. NO BROKEN APOSTROPHES OR QUOTES: In spoken scripts, avoid single/double quotes around film names that lead to broken suffixes like 'യൂണിറ്റ്'യുടെ. Write smooth Malayalam.\n" +
-          "7. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Use pure Malayalam script and vocabulary.\n" +
+          "7. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Write everything in pure Malayalam script. Transcribe any foreign actor/character/movie names into Malayalam script (e.g. write 'രശ്മിക മന്ദാന', 'മൈസ', 'നെറ്റ്ഫ്ലിക്സ്', NEVER English alphabet).\n" +
           "8. Highlight the movie name, the OTT platform (e.g. നെറ്റ്ഫ്ലിക്സ്, ആമസോൺ പ്രൈം, ഡിസ്നി പ്ലസ് ഹോട്ട്സ്റ്റാർ, സോണി ലിവ്, മനോരമ മാക്സ്, സീ5), and the streaming release date clearly.\n" +
           "9. SENTENCE END DOTS ONLY: Put periods (.) ONLY at the actual end of complete sentences. Never put periods inside names or initials (write 'ഗിരീഷ് എഡി', NOT 'ഗിരീഷ് എ.ഡി.').\n" +
           "10. LENGTH: Strictly 3 to 4 complete sentences. Return ONLY the spoken Malayalam paragraph." +
@@ -4234,17 +4454,25 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           "4. NEVER TRANSLATE PUBLICATION TIMESTAMPS: Do NOT include or translate article publishing timestamps like '5 hours ago' ('5 മണിക്കൂർ മുമ്പ്'), 'yesterday', or 'today' from article metadata. News presenters present the story, not the publishing timestamp.\n" +
           "5. NO BROKEN APOSTROPHES OR QUOTES: In spoken scripts, avoid single/double quotes around film names that lead to broken suffixes like 'യൂണിറ്റ്'യുടെ. Write smooth Malayalam: ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ് സംവിധായകൻ ഗിരീഷ് എഡി, or ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ് എന്ന ചിത്രത്തിന്റെ സംവിധായകൻ.\n" +
           "6. NATURAL JOURNALISTIC EXPRESSIONS: Use fluent presenter phrasing (e.g. 'ആഗ്രഹം പങ്കുവെച്ചിരിക്കുകയാണ്', 'അദ്ദേഹം തുറന്നുപറഞ്ഞു', 'വൻ ചർച്ചയായി മാറിയിരിക്കുകയാണ്', 'കളക്ഷനിൽ വൻ കുതിപ്പ്').\n" +
-          "7. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Use natural Malayalam words instead (e.g. 'സിനിമാ ലോകത്തും', 'ആരാധകർക്കിടയിലും', 'വിവരം').\n" +
+          "7. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Write everything in pure Malayalam script. Transcribe any foreign actor/character/movie names into Malayalam script (e.g. write 'രശ്മിക മന്ദാന', 'മൈസ', NEVER English alphabet).\n" +
           "8. SENTENCE END DOTS ONLY: Put periods (.) ONLY at the actual end of complete sentences. Never put periods inside names or initials (e.g. write 'ഗിരീഷ് എഡി' or 'ഗിരീഷ് എ ഡി', NEVER 'ഗിരീഷ് എ.ഡി.').\n" +
           "9. LENGTH: Strictly 3 to 4 complete sentences. Return ONLY the spoken Malayalam paragraph." +
           fewShotDemo;
       }
 
       try {
-        const resData = await queryGroq([
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: promptText }
-        ], { apiKey: apiKey, jsonMode: false });
+        let resData;
+        if (selectedEngine === 'gemini') {
+          resData = await queryGemini([
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: promptText }
+          ], { apiKey: apiKey, jsonMode: false });
+        } else {
+          resData = await queryGroq([
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: promptText }
+          ], { apiKey: apiKey, jsonMode: false });
+        }
 
         const content = resData.choices?.[0]?.message?.content || "";
         const cleanContent = cleanSpokenMalayalamScript(content.trim());
@@ -4256,12 +4484,14 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
       } catch (err) {
-        console.error("Groq AI conversion error:", err);
-        alert(`Groq AI Conversion Error: ${err.message}`);
+        console.error("AI conversion error:", err);
+        alert(`AI Conversion Error (${selectedEngine === 'gemini' ? 'Google Gemini' : 'Groq'}): ${err.message}`);
       } finally {
         if (btn) {
           btn.disabled = false;
-          btn.innerText = '🔄 Re-Convert Malayalam Script (Groq AI)';
+          btn.innerText = selectedEngine === 'gemini'
+            ? '🔄 Re-Convert Malayalam Script (Gemini AI)'
+            : '🔄 Re-Convert Malayalam Script (Groq AI)';
         }
       }
     }

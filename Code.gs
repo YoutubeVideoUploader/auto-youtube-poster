@@ -43,6 +43,9 @@ function doGet(e) {
               if (kname.indexOf("groq") !== -1) {
                 configObj["groq_api_key"] = kval;
               }
+              if (kname.indexOf("gemini") !== -1) {
+                configObj["gemini_api_key"] = kval;
+              }
               if (kname.indexOf("serper") !== -1) {
                 var sKeys = kval.split(/[\r\n,]+/);
                 for (var si = 0; si < sKeys.length; si++) {
@@ -111,6 +114,11 @@ function doPost(e) {
     // Save Groq API Key if provided in payload
     if (data.groq_api_key) {
       saveConfigSheet("GROQ_API_KEY", data.groq_api_key);
+    }
+
+    // Save Gemini API Key if provided in payload
+    if (data.gemini_api_key) {
+      saveConfigSheet("GEMINI_API_KEY", data.gemini_api_key);
     }
 
     // 0. Handle Adding Serper API Key to Google Sheet
