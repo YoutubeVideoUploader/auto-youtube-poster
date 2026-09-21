@@ -4049,25 +4049,38 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
     function cleanSpokenMalayalamScript(text) {
       if (!text) return "";
       let s = text;
-      // 1. Clean quote suffix artifacts like 'ടൈറ്റിൽ'യുടെ -> 'ടൈറ്റിൽ' സംവിധായകൻ or എന്ന ചിത്രത്തിന്റെ
+      // 1. Clean cinema literal translation mistakes (crucial for natural Mollywood news)
+      s = s.replace(/വലിയ ചാടൽ/g, 'വൻ കുതിപ്പ്');
+      s = s.replace(/ചാടൽ/g, 'കുതിപ്പ്');
+      s = s.replace(/സമാഹാര പരിധി/g, 'കളക്ഷൻ നേട്ടം');
+      s = s.replace(/വില്പന ചരിത്രത്തിൽ/g, 'ബോക്സ് ഓഫീസ് ചരിത്രത്തിൽ');
+      s = s.replace(/വില്പന ചരിത്രം/g, 'ബോക്സ് ഓഫീസ് ചരിത്രം');
+      s = s.replace(/ശേഖരത്തിൽ/g, 'കളക്ഷനിൽ');
+      s = s.replace(/ശേഖരം/g, 'കളക്ഷൻ');
+      s = s.replace(/സമാഹാരം/g, 'കളക്ഷൻ');
+
+      // 2. Clean quote suffix artifacts like 'ടൈറ്റിൽ'യുടെ -> 'ടൈറ്റിൽ' സംവിധായകൻ or എന്ന ചിത്രത്തിന്റെ
       s = s.replace(/['’"“”]യുടെ\s+(സംവിധായക|ഡയറക്ടർ)/g, " $1");
       s = s.replace(/['’"“”]യുടെ/g, " എന്ന ചിത്രത്തിന്റെ");
       s = s.replace(/['’"“”]ൽ/g, " ചിത്രത്തിൽ");
 
-      // 2. Fix disrespectful pronouns 'അവൻ' -> 'അദ്ദേഹം'
+      // 3. Fix disrespectful pronouns 'അവൻ' -> 'അദ്ദേഹം'
       s = s.replace(/(?<=\s|^)അവൻ(?=\s|[.,!?]|$)/g, "അദ്ദേഹം");
       s = s.replace(/(?<=\s|^)അവന്(?=\s|[.,!?]|$)/g, "അദ്ദേഹത്തിന്");
       s = s.replace(/(?<=\s|^)അവന്റെ(?=\s|[.,!?]|$)/g, "അദ്ദേഹത്തിന്റെ");
 
-      // 3. Remove accidental publication timestamp phrases translated from metadata
+      // 4. Remove accidental publication timestamp phrases translated from metadata
       s = s.replace(/\b\d+\s*മണിക്കൂർ\s*(?:മുമ്പ്|മുൻപ്|കഴിഞ്ഞ്|ശേഷവും)\b/g, "");
       s = s.replace(/\b\d+\s*ദിവസം\s*(?:മുമ്പ്|മുൻപ്)\b/g, "");
       s = s.replace(/\b\d+\s*മിനിറ്റ്\s*(?:മുമ്പ്|മുൻപ്)\b/g, "");
 
-      // 4. Dot cleaning (dots only at sentence ends)
+      // 5. Clean hyphenated or awkward day numbers
+      s = s.replace(/(\d+)\s*[-‑]\s*ാം/g, '$1-ാം');
+
+      // 6. Dot cleaning (dots only at sentence ends)
       s = cleanMalayalamDotsAndInitials(s);
 
-      // 5. Clean up multiple spaces
+      // 7. Clean up multiple spaces
       s = s.replace(/\s+/g, ' ').trim();
       return s;
     }
@@ -4112,6 +4125,14 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         promptText += `\nMovie Release Date: ${relDateFormatted} (${isReleased ? 'ALREADY RELEASED / PAST / TODAY -> Use Past or Present Continuous Tense' : 'UPCOMING RELEASE / IN THE FUTURE -> Use Future Tense'})`;
       }
       
+      const cinemaVocabRules = 
+        "CRITICAL CINEMA JOURNALISM VOCABULARY (STRICT MALAYALAM INDUSTRY JARGON):\n" +
+        "- BOX OFFICE & COLLECTIONS: Always use 'ബോക്സ് ഓഫീസ് കളക്ഷൻ' or 'കളക്ഷൻ'. ABSOLUTELY NEVER translate collection as 'ശേഖരം' or 'സമാഹാരം'!\n" +
+        "- SURGE / JUMP IN COLLECTION: Always write 'കളക്ഷനിൽ വൻ കുതിപ്പ്' or 'വലിയ വർധനവ്'. ABSOLUTELY NEVER write 'വലിയ ചാടൽ' or 'ചാടൽ'!\n" +
+        "- MILESTONES & RECORDS: Always write 'പുതിയ കളക്ഷൻ റെക്കോർഡ്' or 'ചരിത്ര നേട്ടം' or 'നാഴികക്കല്ല്'. ABSOLUTELY NEVER write 'സമാഹാര പരിധി'!\n" +
+        "- BOX OFFICE / THEATRE RUN: Always write 'ബോക്സ് ഓഫീസിൽ', 'തിയേറ്ററുകളിൽ'. ABSOLUTELY NEVER translate box office/sales as 'വില്പന' or 'വില്പന ചരിത്രം'!\n" +
+        "- SPOKEN DAY COUNTS & NUMBERS: When referring to day counts or percentages in speech, write them out smoothly in Malayalam (e.g. 'മുപ്പത്തിയൊന്നാം ദിവസവും', 'ഇരുപത്തിരണ്ട് ശതമാനം വർധനവ്').\n";
+
       let systemPrompt = "";
       if (activeNewsSubTab === 'theater') {
         let tenseRule = "";
@@ -4140,14 +4161,15 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           "Your task is to summarize this cinema theatrical release news story into an engaging, natural 3-to-4 sentence spoken Malayalam news script (വാർത്താ അവതരണം) ready to be read aloud by a presenter.\n" +
           "CRITICAL VOICE & JOURNALISM RULES:\n" +
           "1. " + tenseRule + "\n" +
-          "2. NATURAL SPOKEN NEWS BROADCASTING: Do NOT perform a literal, mechanical word-by-word translation. Rephrase and express the core news story in authentic, high-impact spoken Malayalam broadcasting style.\n" +
-          "3. RESPECTFUL PRONOUNS (STRICTLY FORBIDDEN: 'അവൻ'): Never ever refer to directors, actors, or filmmakers as 'അവൻ'. Always use 'അദ്ദേഹം' (he/him) or use their professional name/title ('സംവിധായകൻ', 'താരം').\n" +
-          "4. NEVER TRANSLATE PUBLICATION TIMESTAMPS: Do NOT include or translate article publishing timestamps like '5 hours ago' ('5 മണിക്കൂർ മുമ്പ്'), 'yesterday', or 'today' from article metadata. News presenters present the story, not the publishing timestamp.\n" +
-          "5. NO BROKEN APOSTROPHES OR QUOTES: In spoken scripts, avoid single/double quotes around film names that lead to broken suffixes like 'യൂണിറ്റ്'യുടെ. Write smooth Malayalam (e.g. 'ചിത്രത്തിന്റെ സംവിധായകൻ').\n" +
-          "6. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Use pure Malayalam script and vocabulary.\n" +
-          "7. Highlight the movie name and the theatrical / big screen release date clearly.\n" +
-          "8. SENTENCE END DOTS ONLY: Put periods (.) ONLY at the actual end of complete sentences. Never put periods inside names or initials (e.g. write 'ഗിരീഷ് എഡി' or 'ഗിരീഷ് എ ഡി', NEVER 'ഗിരീഷ് എ.ഡി.').\n" +
-          "9. LENGTH: Strictly 3 to 4 complete sentences. Return ONLY the spoken Malayalam paragraph.";
+          "2. " + cinemaVocabRules + "\n" +
+          "3. NATURAL SPOKEN NEWS BROADCASTING: Do NOT perform a literal, mechanical word-by-word translation. Rephrase and express the core news story in authentic, high-impact spoken Malayalam broadcasting style.\n" +
+          "4. RESPECTFUL PRONOUNS (STRICTLY FORBIDDEN: 'അവൻ'): Never ever refer to directors, actors, or filmmakers as 'അവൻ'. Always use 'അദ്ദേഹം' (he/him) or use their professional name/title ('സംവിധായകൻ', 'താരം').\n" +
+          "5. NEVER TRANSLATE PUBLICATION TIMESTAMPS: Do NOT include or translate article publishing timestamps like '5 hours ago' ('5 മണിക്കൂർ മുമ്പ്'), 'yesterday', or 'today' from article metadata. News presenters present the story, not the publishing timestamp.\n" +
+          "6. NO BROKEN APOSTROPHES OR QUOTES: In spoken scripts, avoid single/double quotes around film names that lead to broken suffixes like 'യൂണിറ്റ്'യുടെ. Write smooth Malayalam (e.g. 'ചിത്രത്തിന്റെ സംവിധായകൻ').\n" +
+          "7. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Use pure Malayalam script and vocabulary.\n" +
+          "8. Highlight the movie name and the theatrical / big screen release date clearly.\n" +
+          "9. SENTENCE END DOTS ONLY: Put periods (.) ONLY at the actual end of complete sentences. Never put periods inside names or initials (e.g. write 'ഗിരീഷ് എഡി' or 'ഗിരീഷ് എ ഡി', NEVER 'ഗിരീഷ് എ.ഡി.').\n" +
+          "10. LENGTH: Strictly 3 to 4 complete sentences. Return ONLY the spoken Malayalam paragraph.";
       } else if (activeNewsSubTab === 'ott') {
         let tenseRule = "";
         if (relDate) {
@@ -4175,26 +4197,28 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           "Your task is to summarize this cinema OTT streaming release story into an engaging, natural 3-to-4 sentence spoken Malayalam news script (വാർത്താ അവതരണം) ready to be read aloud by a presenter.\n" +
           "CRITICAL VOICE & JOURNALISM RULES:\n" +
           "1. " + tenseRule + "\n" +
-          "2. NATURAL SPOKEN NEWS BROADCASTING: Do NOT perform a literal, mechanical word-by-word translation. Rephrase and express the core news story in authentic, high-impact spoken Malayalam broadcasting style.\n" +
-          "3. RESPECTFUL PRONOUNS (STRICTLY FORBIDDEN: 'അവൻ'): Never ever refer to directors, actors, or filmmakers as 'അവൻ'. Always use 'അദ്ദേഹം' (he/him) or use their professional name/title ('സംവിധായകൻ', 'താരം').\n" +
-          "4. NEVER TRANSLATE PUBLICATION TIMESTAMPS: Do NOT include or translate article publishing timestamps like '5 hours ago' ('5 മണിക്കൂർ മുമ്പ്'), 'yesterday', or 'today' from article metadata. News presenters present the story, not the publishing timestamp.\n" +
-          "5. NO BROKEN APOSTROPHES OR QUOTES: In spoken scripts, avoid single/double quotes around film names that lead to broken suffixes like 'യൂണിറ്റ്'യുടെ. Write smooth Malayalam.\n" +
-          "6. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Use pure Malayalam script and vocabulary.\n" +
-          "7. Highlight the movie name, the OTT platform (e.g. നെറ്റ്ഫ്ലിക്സ്, ആമസോൺ പ്രൈം, ഡിസ്നി പ്ലസ് ഹോട്ട്സ്റ്റാർ, സോണി ലിവ്, മനോരമ മാക്സ്, സീ5), and the streaming release date clearly.\n" +
-          "8. SENTENCE END DOTS ONLY: Put periods (.) ONLY at the actual end of complete sentences. Never put periods inside names or initials (write 'ഗിരീഷ് എഡി', NOT 'ഗിരീഷ് എ.ഡി.').\n" +
-          "9. LENGTH: Strictly 3 to 4 complete sentences. Return ONLY the spoken Malayalam paragraph.";
+          "2. " + cinemaVocabRules + "\n" +
+          "3. NATURAL SPOKEN NEWS BROADCASTING: Do NOT perform a literal, mechanical word-by-word translation. Rephrase and express the core news story in authentic, high-impact spoken Malayalam broadcasting style.\n" +
+          "4. RESPECTFUL PRONOUNS (STRICTLY FORBIDDEN: 'അവൻ'): Never ever refer to directors, actors, or filmmakers as 'അവൻ'. Always use 'അദ്ദേഹം' (he/him) or use their professional name/title ('സംവിധായകൻ', 'താരം').\n" +
+          "5. NEVER TRANSLATE PUBLICATION TIMESTAMPS: Do NOT include or translate article publishing timestamps like '5 hours ago' ('5 മണിക്കൂർ മുമ്പ്'), 'yesterday', or 'today' from article metadata. News presenters present the story, not the publishing timestamp.\n" +
+          "6. NO BROKEN APOSTROPHES OR QUOTES: In spoken scripts, avoid single/double quotes around film names that lead to broken suffixes like 'യൂണിറ്റ്'യുടെ. Write smooth Malayalam.\n" +
+          "7. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Use pure Malayalam script and vocabulary.\n" +
+          "8. Highlight the movie name, the OTT platform (e.g. നെറ്റ്ഫ്ലിക്സ്, ആമസോൺ പ്രൈം, ഡിസ്നി പ്ലസ് ഹോട്ട്സ്റ്റാർ, സോണി ലിവ്, മനോരമ മാക്സ്, സീ5), and the streaming release date clearly.\n" +
+          "9. SENTENCE END DOTS ONLY: Put periods (.) ONLY at the actual end of complete sentences. Never put periods inside names or initials (write 'ഗിരീഷ് എഡി', NOT 'ഗിരീഷ് എ.ഡി.').\n" +
+          "10. LENGTH: Strictly 3 to 4 complete sentences. Return ONLY the spoken Malayalam paragraph.";
       } else {
         systemPrompt = "You are an expert Malayalam cinema news anchor and scriptwriter for a leading YouTube entertainment news channel (like Cue Studio, Behindwoods Ice, Movie Man).\n" +
           "Your task is to summarize this cinema news story into an engaging, natural, 3-to-4 sentence Malayalam spoken news script (വാർത്താ അവതരണം) ready to be read aloud with emotion by a presenter.\n" +
           "CRITICAL VOICE & JOURNALISM RULES:\n" +
-          "1. NATURAL SPOKEN NEWS BROADCASTING: Do NOT perform a literal, mechanical word-by-word translation. Rephrase and express the core news story in authentic, fluent Malayalam broadcasting style.\n" +
-          "2. RESPECTFUL PRONOUNS (STRICTLY FORBIDDEN: 'അവൻ'): Never ever refer to directors, actors, or filmmakers as 'അവൻ'. Always use 'അദ്ദേഹം' (he/him) or use their professional name/title ('ഗിരീഷ് എഡി', 'സംവിധായകൻ', 'താരം').\n" +
-          "3. NEVER TRANSLATE PUBLICATION TIMESTAMPS: Do NOT include or translate article publishing timestamps like '5 hours ago' ('5 മണിക്കൂർ മുമ്പ്'), 'yesterday', or 'today'. News presenters present the story, not the publishing timestamp.\n" +
-          "4. NO BROKEN APOSTROPHES OR QUOTES: In spoken scripts, avoid single/double quotes around film names that lead to broken suffixes like 'യൂണിറ്റ്'യുടെ. Write smooth Malayalam: ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ് സംവിധായകൻ ഗിരീഷ് എഡി, or ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ് എന്ന ചിത്രത്തിന്റെ സംവിധായകൻ.\n" +
-          "5. NATURAL JOURNALISTIC EXPRESSIONS: Use fluent presenter phrasing (e.g. 'ആഗ്രഹം പങ്കുവെച്ചിരിക്കുകയാണ്', 'അദ്ദേഹം തുറന്നുപറഞ്ഞു', 'വൻ ചർച്ചയായി മാറിയിരിക്കുകയാണ്').\n" +
-          "6. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Use natural Malayalam words instead (e.g. 'സിനിമാ ലോകത്തും', 'ആരാധകർക്കിടയിലും', 'വിവരം').\n" +
-          "7. SENTENCE END DOTS ONLY: Put periods (.) ONLY at the actual end of complete sentences. Never put periods inside names or initials (e.g. write 'ഗിരീഷ് എഡി' or 'ഗിരീഷ് എ ഡി', NEVER 'ഗിരീഷ് എ.ഡി.').\n" +
-          "8. LENGTH: Strictly 3 to 4 complete sentences. Return ONLY the spoken Malayalam paragraph.";
+          "1. " + cinemaVocabRules + "\n" +
+          "2. NATURAL SPOKEN NEWS BROADCASTING: Do NOT perform a literal, mechanical word-by-word translation. Rephrase and express the core news story in authentic, fluent Malayalam broadcasting style.\n" +
+          "3. RESPECTFUL PRONOUNS (STRICTLY FORBIDDEN: 'അവൻ'): Never ever refer to directors, actors, or filmmakers as 'അവൻ'. Always use 'അദ്ദേഹം' (he/him) or use their professional name/title ('ഗിരീഷ് എഡി', 'സംവിധായകൻ', 'താരം').\n" +
+          "4. NEVER TRANSLATE PUBLICATION TIMESTAMPS: Do NOT include or translate article publishing timestamps like '5 hours ago' ('5 മണിക്കൂർ മുമ്പ്'), 'yesterday', or 'today'. News presenters present the story, not the publishing timestamp.\n" +
+          "5. NO BROKEN APOSTROPHES OR QUOTES: In spoken scripts, avoid single/double quotes around film names that lead to broken suffixes like 'യൂണിറ്റ്'യുടെ. Write smooth Malayalam: ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ് സംവിധായകൻ ഗിരീഷ് എഡി, or ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ് എന്ന ചിത്രത്തിന്റെ സംവിധായകൻ.\n" +
+          "6. NATURAL JOURNALISTIC EXPRESSIONS: Use fluent presenter phrasing (e.g. 'ആഗ്രഹം പങ്കുവെച്ചിരിക്കുകയാണ്', 'അദ്ദേഹം തുറന്നുപറഞ്ഞു', 'വൻ ചർച്ചയായി മാറിയിരിക്കുകയാണ്', 'കളക്ഷനിൽ വൻ കുതിപ്പ്').\n" +
+          "7. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Use natural Malayalam words instead (e.g. 'സിനിമാ ലോകത്തും', 'ആരാധകർക്കിടയിലും', 'വിവരം').\n" +
+          "8. SENTENCE END DOTS ONLY: Put periods (.) ONLY at the actual end of complete sentences. Never put periods inside names or initials (e.g. write 'ഗിരീഷ് എഡി' or 'ഗിരീഷ് എ ഡി', NEVER 'ഗിരീഷ് എ.ഡി.').\n" +
+          "9. LENGTH: Strictly 3 to 4 complete sentences. Return ONLY the spoken Malayalam paragraph.";
       }
 
       try {
