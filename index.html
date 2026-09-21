@@ -1847,6 +1847,29 @@
           }
         }
 
+        // Fallback: Check raw Config / Settings rows directly if present in sheet data
+        const rawConfigRows = data.Config || data.Settings || [];
+        if (Array.isArray(rawConfigRows) && rawConfigRows.length > 0) {
+          rawConfigRows.forEach(row => {
+            const kname = String(row['Key Name'] || '').trim().toLowerCase();
+            const kval = String(row['Key Value'] || '').trim();
+            if (kname.indexOf('gemini') !== -1 && kval) {
+              const gemel = document.getElementById('gemini-api-key-input');
+              if (gemel) gemel.value = kval;
+              const setGem = document.getElementById('settings-gemini-key-input');
+              if (setGem) setGem.value = kval;
+              localStorage.setItem('gemini_api_key', kval);
+            }
+            if (kname.indexOf('groq') !== -1 && kval) {
+              const gel = document.getElementById('groq-api-key-input');
+              if (gel) gel.value = kval;
+              const setGroq = document.getElementById('settings-groq-key-input');
+              if (setGroq) setGroq.value = kval;
+              localStorage.setItem('groq_api_key', kval);
+            }
+          });
+        }
+
         // Auto populate Serper API Keys from Google Sheet (Serper Keys tab or config)
         if (data.serper_keys && Array.isArray(data.serper_keys) && data.serper_keys.length > 0) {
           activeSerperKeys = data.serper_keys;
@@ -2929,6 +2952,8 @@
 
       const groqKeyInput = document.getElementById('groq-api-key-input');
       const groqKeyVal = groqKeyInput ? groqKeyInput.value.trim() : "";
+      const geminiKeyInput = document.getElementById('gemini-api-key-input');
+      const geminiKeyVal = (geminiKeyInput ? geminiKeyInput.value.trim() : "") || localStorage.getItem('gemini_api_key') || DEFAULT_GEMINI_KEY;
 
       let payload = {
         tab_name: activeTab,
@@ -2941,7 +2966,8 @@
           "Image URLs": r.imgUrl
         })),
         thumbnail_urls: selectedPosterUrls.length > 0 ? selectedPosterUrls.join(",") : "",
-        groq_api_key: groqKeyVal
+        groq_api_key: groqKeyVal,
+        gemini_api_key: geminiKeyVal
       };
 
       fetch(WEB_APP_URL, {
