@@ -4500,6 +4500,9 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       }
 
       let promptText = `News Title: ${cur.title}\nNews Story: ${cur.snippet}`;
+      if (cur.platform) {
+        promptText += `\nOTT Platform: ${cur.platform}`;
+      }
       if (relDateFormatted) {
         promptText += `\nMovie Release Date: ${relDateFormatted} (${isReleased ? 'ALREADY RELEASED / PAST / TODAY -> Use Past or Present Continuous Tense' : 'UPCOMING RELEASE / IN THE FUTURE -> Use Future Tense'})`;
       }
@@ -4576,7 +4579,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
             tenseRule = `CRITICAL TENSE RULE (ALREADY STREAMING ON OTT):
 - Today is ${todayFormatted}. The OTT streaming release date is ${relDateFormatted}, which has ALREADY PASSED (or is TODAY).
 - You MUST write the Malayalam script in PAST TENSE or PRESENT CONTINUOUS TENSE.
-- Use natural Malayalam phrases such as: 'സ്ട്രീമിംഗ് ആരംഭിച്ചു' (streaming has begun), 'ഇപ്പോൾ സ്ട്രീം ചെയ്യുന്നു' or 'ഇപ്പോൾ കാണാം' (currently streaming / can be watched now), 'ഒടിടിയിൽ എത്തിക്കഴിഞ്ഞു' (has arrived on OTT).
+- Use natural Malayalam phrases such as: 'സ്ട്രീമിംഗ് ആരംഭിച്ചു കഴിഞ്ഞു', 'സ്ട്രീമിംഗ് ആരംഭിച്ചു', 'ഇപ്പോൾ സ്ട്രീം ചെയ്യുന്നു', 'ഇപ്പോൾ കാണാം', 'ഒടിടിയിൽ എത്തിക്കഴിഞ്ഞു'.
 - STRICTLY FORBIDDEN: DO NOT use future tense like 'സ്ട്രീമിംഗ് ആരംഭിക്കും' or 'ഒടിടിയിലെത്തും' or 'സ്ട്രീമിംഗിന് ഒരുങ്ങുന്നു'.`;
           } else {
             tenseRule = `CRITICAL TENSE RULE (UPCOMING OTT STREAMING):
@@ -4588,30 +4591,34 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         } else {
           tenseRule = `CRITICAL TENSE RULE:
 - Today is ${todayFormatted}. Compare any OTT streaming date in the news with today's date:
-- If the streaming date is in the past or today, use PAST/PRESENT TENSE ('സ്ട്രീമിംഗ് ആരംഭിച്ചു', 'ഇപ്പോൾ കാണാം', 'ഒടിടിയിൽ എത്തിക്കഴിഞ്ഞു'). Never say 'സ്ട്രീമിംഗ് ആരംഭിക്കും'.
+- If the streaming date is in the past or today, use PAST/PRESENT TENSE ('സ്ട്രീമിംഗ് ആരംഭിച്ചു കഴിഞ്ഞു', 'സ്ട്രീമിംഗ് ആരംഭിച്ചു', 'ഇപ്പോൾ കാണാം', 'ഒടിടിയിൽ എത്തിക്കഴിഞ്ഞു'). Never say 'സ്ട്രീമിംഗ് ആരംഭിക്കും'.
 - If the streaming date is in the future, use FUTURE TENSE ('സ്ട്രീമിംഗ് ആരംഭിക്കും', 'ഒടിടിയിലെത്തും'). Never say 'സ്ട്രീമിംഗ് ആരംഭിച്ചു'.`;
         }
 
         const ottFewShotDemo = 
-          "\nFEW-SHOT DEMONSTRATION (CRISP & FACT-FOCUSED - never copy actors from examples):\n" +
-          "News Title: Nivin Pauly starrer 'Bethlehem Kudumba Unit' to stream on SonyLIV from October 10\n" +
-          "Spoken Script: തിയേറ്ററുകളിൽ വൻ വിജയം നേടിയ നിവിൻ പോളി ചിത്രം 'ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ്' ഒക്ടോബർ പത്തിന് സോണി ലിവിലൂടെ ഒടിടി സ്ട്രീമിംഗ് ആരംഭിക്കും. കുടുംബ പ്രേക്ഷകർ ഒന്നടങ്കം ഏറ്റെടുത്ത ഈ കോമഡി എന്റർടെയ്നർ ഇനി പ്രേക്ഷകർക്ക് ഒടിടിയിലും ആസ്വദിക്കാം.\n";
+          "\nFEW-SHOT DEMONSTRATIONS (ULTRA-MINIMAL & FACT-FOCUSED - STRICTLY 1 TO 2 SHORT SENTENCES):\n" +
+          "Example 1 (Already streaming):\n" +
+          "News Title: Thudakkam streaming on JioHotstar from September 18\n" +
+          "Spoken Script: 'തുടക്കം' എന്ന ചിത്രം ജിയോ ഹോട്ട്സ്റ്റാറിലൂടെ ഒടിടി സ്ട്രീമിംഗ് ആരംഭിച്ചു കഴിഞ്ഞു.\n\n" +
+          "Example 2 (Upcoming streaming):\n" +
+          "News Title: Bethlehem Kudumba Unit to stream on SonyLIV on October 10\n" +
+          "Spoken Script: 'ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ്' ഒക്ടോബർ പത്ത് മുതൽ സോണി ലിവിലൂടെ ഒടിടി സ്ട്രീമിംഗ് ആരംഭിക്കും.\n";
 
-        systemPrompt = "You are a professional Malayalam cinema news anchor and scriptwriter for a top YouTube entertainment channel (like Cue Studio, Behindwoods Ice, Movie Man).\n" +
-          "Your task is to summarize this cinema OTT streaming release story into a CRISP, PUNCHY, and FACT-FOCUSED 2-to-3 sentence spoken Malayalam news script (വാർത്താ അവതരണം) ready to be read aloud by a presenter.\n" +
+        systemPrompt = "You are a professional Malayalam cinema news anchor and scriptwriter for a top YouTube entertainment channel.\n" +
+          "Your task is to convert this cinema OTT streaming release story into an ULTRA-MINIMAL, CRISP 1-to-2 sentence Malayalam update (വാർത്താ അവതരണം) ready to be read aloud by a presenter. DO NOT MAKE A BIG PARAGRAPH.\n" +
           "CRITICAL VOICE & JOURNALISM RULES:\n" +
           "1. " + tenseRule + "\n" +
           "2. " + strictFactRule + "\n" +
           "3. " + cinemaVocabRules + "\n" +
-          "4. NO OVER-DETAILED EXPLANATIONS: Do NOT narrate long plot breakdowns, extensive backstories, or filler details. Go straight to the essential facts.\n" +
-          "5. CORE IMPORTANT FACTS ONLY: Clearly highlight the Movie Name, Lead Star, Streaming Platform (e.g. നെറ്റ്ഫ്ലിക്സ്, ആമസോൺ പ്രൈം, ഡിസ്നി പ്ലസ് ഹോട്ട്സ്റ്റാർ, സോണി ലിവ്, മനോരമ മാക്സ്, സീ5), and exact Streaming Date / Status.\n" +
+          "4. ULTRA-MINIMAL UPDATE ONLY (NO BIG PARAGRAPHS): Do NOT write lengthy paragraphs or multi-sentence essays. Do NOT add unnecessary filler sentences about family audience, theatrical run recap, or watching comfortably at home. Strictly 1 to 2 crisp, short presenter lines max (maximum 15 to 25 words total).\n" +
+          "5. CORE FACTS ONLY: State ONLY the Movie Name, OTT Platform (e.g. നെറ്റ്ഫ്ലിക്സ്, ആമസോൺ പ്രൈം, ജിയോ ഹോട്ട്സ്റ്റാർ, സോണി ലിവ്, മനോരമ മാക്സ്, സീ5), and exact Streaming Date or Status.\n" +
           "6. NATURAL SPOKEN NEWS BROADCASTING: Maintain an authentic, energetic Malayalam broadcasting style (വാർത്താ അവതരണം).\n" +
-          "7. RESPECTFUL PRONOUNS (STRICTLY FORBIDDEN: 'അവൻ'): Never ever refer to directors, actors, or filmmakers as 'അവൻ'. Always use 'അദ്ദേഹം' (he/him) or use their professional name/title ('സംവിധായകൻ', 'താരം').\n" +
-          "8. NEVER TRANSLATE PUBLICATION TIMESTAMPS: Do NOT include or translate article publishing timestamps like '5 hours ago' ('5 മണിക്കൂർ മുമ്പ്'), 'yesterday', or 'today' from article metadata. News presenters present the story, not the publishing timestamp.\n" +
-          "9. NO BROKEN APOSTROPHES OR QUOTES: In spoken scripts, avoid single/double quotes around film names that lead to broken suffixes like 'യൂണിറ്റ്'യുടെ. Write smooth Malayalam.\n" +
-          "10. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Write everything in pure Malayalam script. Transcribe any foreign actor/character/movie names into Malayalam script (e.g. write 'രശ്മിക മന്ദാന', 'മൈസ', 'നെറ്റ്ഫ്ലിക്സ്', NEVER English alphabet).\n" +
-          "11. SENTENCE END DOTS ONLY: Put periods (.) ONLY at the actual end of complete sentences. Never put periods inside names or initials (write 'ഗിരീഷ് എഡി', NOT 'ഗിരീഷ് എ.ഡി.').\n" +
-          "12. LENGTH: Strictly 2 to 3 short, punchy sentences. Return ONLY the spoken Malayalam paragraph." +
+          "7. RESPECTFUL PRONOUNS (STRICTLY FORBIDDEN: 'അവൻ'): Never ever refer to directors, actors, or filmmakers as 'അവൻ'. Always use 'അദ്ദേഹം' (he/him) or their professional title.\n" +
+          "8. NEVER TRANSLATE PUBLICATION TIMESTAMPS: Do NOT include article publishing timestamps like '5 hours ago' ('5 മണിക്കൂർ മുമ്പ്') or metadata publication dates.\n" +
+          "9. NO BROKEN APOSTROPHES OR QUOTES: In spoken scripts, avoid quotes that break Malayalam suffixes.\n" +
+          "10. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Write everything in pure Malayalam script (e.g. 'നെറ്റ്ഫ്ലിക്സ്', 'സോണി ലിവ്', 'ജിയോ ഹോട്ട്സ്റ്റാർ', NEVER English alphabet).\n" +
+          "11. SENTENCE END DOTS ONLY: Put periods (.) ONLY at the actual end of complete sentences. Never put periods inside names or initials.\n" +
+          "12. LENGTH: Strictly 1 to 2 very short, minimal sentences (maximum 15 to 25 words total). Under NO circumstances should you output a 3-sentence or long paragraph. Return ONLY the spoken Malayalam update." +
           ottFewShotDemo;
       } else {
         systemPrompt = "You are an expert Malayalam cinema news anchor and scriptwriter for a leading YouTube entertainment news channel (like Cue Studio, Behindwoods Ice, Movie Man).\n" +
