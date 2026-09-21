@@ -3818,6 +3818,27 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         addWsBtn.innerText = `➕ Add as New Topic in Worksheet (${subTabWorksheetLabels[tab]})`;
       }
 
+      const industrySel = document.getElementById('news-industry-select');
+      if (industrySel) {
+        const curVal = industrySel.value || 'malayalam';
+        if (tab === 'ott') {
+          industrySel.innerHTML = `
+            <option value="malayalam" ${curVal === 'malayalam' ? 'selected' : ''}>🎬 Malayalam Cinema OTT (Cinebuds)</option>
+            <option value="tamil" ${curVal === 'tamil' ? 'selected' : ''}>⭐ Tamil Cinema OTT (Cinebuds)</option>
+          `;
+        } else if (tab === 'theater') {
+          industrySel.innerHTML = `
+            <option value="malayalam" ${curVal === 'malayalam' ? 'selected' : ''}>🎬 Malayalam Cinema (Times of India)</option>
+            <option value="tamil" ${curVal === 'tamil' ? 'selected' : ''}>⭐ Tamil Cinema / Kollywood</option>
+          `;
+        } else {
+          industrySel.innerHTML = `
+            <option value="malayalam" ${curVal === 'malayalam' ? 'selected' : ''}>🎬 Malayalam Cinema (Times of India)</option>
+            <option value="tamil" ${curVal === 'tamil' ? 'selected' : ''}>⭐ Tamil Cinema / Kollywood (Times of India)</option>
+          `;
+        }
+      }
+
       fetchLatestCinemaNews();
     }
 
@@ -3981,6 +4002,93 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           }
         }
 
+        // Dedicated scraper for Cinebuds OTT Release Dates (requested by user)
+        if (activeNewsSubTab === 'ott') {
+          const cinebudsUrl = industry === 'tamil'
+            ? 'https://cinebuds.com/tamil-movies-digital-release-dates/'
+            : 'https://cinebuds.com/malayalam-movies-ott-release-dates/';
+
+          for (let attempt = 0; attempt < serperKeys.length; attempt++) {
+            const currentIdx = (startIdx + attempt) % serperKeys.length;
+            const apiKey = serperKeys[currentIdx];
+            try {
+              const scrapeResp = await fetch('https://scrape.serper.dev', {
+                method: 'POST',
+                headers: {
+                  'X-API-KEY': apiKey,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: cinebudsUrl })
+              });
+
+              if (scrapeResp.status === 403 || scrapeResp.status === 429) {
+                const nextIdx = (currentIdx + 1) % serperKeys.length;
+                localStorage.setItem('active_serper_key_idx', String(nextIdx));
+                continue;
+              }
+
+              if (scrapeResp.ok) {
+                const scrapeData = await scrapeResp.json();
+                const text = scrapeData.text || '';
+                const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+                const movies = [];
+                const seen = new Set();
+
+                for (const line of lines) {
+                  if (line.includes('Movie Name') || line.includes('OTT Platform') || (line.includes('Movie') && line.includes('Platform'))) {
+                    continue;
+                  }
+                  const parts = line.split(/\s{2,}|\t+/).map(p => p.trim()).filter(Boolean);
+                  if (parts.length >= 3) {
+                    let movie = parts[0];
+                    let platform = parts[1];
+                    let date = parts[2];
+
+                    if (/\d{1,2}\s+[A-Za-z]{3,}\s+\d{4}/.test(platform)) {
+                      const tmp = platform;
+                      platform = date;
+                      date = tmp;
+                    }
+
+                    if (movie.toLowerCase() === 'movie' || movie.toLowerCase() === 'movie name' || movie.includes('Release Dates') || movie.includes('Cinebuds') || movie.length > 50) {
+                      continue;
+                    }
+
+                    const cleanKey = movie.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    if (!cleanKey || seen.has(cleanKey)) continue;
+                    seen.add(cleanKey);
+
+                    movies.push({
+                      title: movie,
+                      platform: platform,
+                      date: date,
+                      snippet: `${movie} OTT digital streaming release on ${platform} (${date}). Official ${industry === 'tamil' ? 'Tamil' : 'Malayalam'} OTT premiere.`,
+                      link: cinebudsUrl,
+                      source: `Cinebuds (${industry === 'tamil' ? 'Tamil' : 'Malayalam'} OTT)`,
+                      imageUrl: '',
+                      category: 'ott',
+                      malayalamScript: null
+                    });
+
+                    if (movies.length >= 30) break;
+                  }
+                }
+
+                if (movies.length > 0) {
+                  items = movies;
+                  keySuccess = true;
+                  if (currentIdx !== startIdx) {
+                    localStorage.setItem('active_serper_key_idx', String(currentIdx));
+                  }
+                  break;
+                }
+              }
+            } catch (err) {
+              console.warn("Serper Cinebuds scrape error:", err);
+            }
+          }
+        }
+
         // Standard news query fallback if scrape did not run or returned 0
         if (items.length === 0) {
           for (let attempt = 0; attempt < serperKeys.length; attempt++) {
@@ -4066,7 +4174,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           return;
         }
 
-        if (items.length > 0 && items[0].category === 'theater') {
+        if (items.length > 0 && (items[0].category === 'theater' || items[0].category === 'ott')) {
           liveNewsArticles = items;
         } else {
           liveNewsArticles = items.map(it => ({
@@ -4156,16 +4264,18 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         imgElem.style.display = 'none';
         if (placeholder) placeholder.style.display = 'flex';
 
-        // Auto-fetch official poster for theatrical releases if missing image
-        if (cur.category === 'theater' && cur.title && !cur._fetchingPoster) {
+        // Auto-fetch official poster for theatrical or OTT releases if missing image
+        if ((cur.category === 'theater' || cur.category === 'ott') && cur.title && !cur._fetchingPoster) {
           cur._fetchingPoster = true;
           const serperKeys = (typeof getActiveSerperKeys === 'function') ? getActiveSerperKeys() : [];
           const apiKey = serperKeys[0];
           if (apiKey) {
+            const industrySel = document.getElementById('news-industry-select');
+            const lang = (industrySel && industrySel.value === 'tamil') ? 'Tamil' : 'Malayalam';
             fetch('https://google.serper.dev/images', {
               method: 'POST',
               headers: { 'X-API-KEY': apiKey, 'Content-Type': 'application/json' },
-              body: JSON.stringify({ q: cur.title + ' Malayalam movie poster', num: 1 })
+              body: JSON.stringify({ q: cur.title + ' ' + lang + ' movie poster', num: 1 })
             }).then(r => r.json()).then(data => {
               if (data.images && data.images[0] && data.images[0].imageUrl) {
                 cur.imageUrl = data.images[0].imageUrl;
@@ -4589,9 +4699,9 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         headline = fixCommonCinemaEnglishSpellings(headline);
       }
 
-      // Detect OTT platform if applicable
-      let ottPlatform = "";
-      if (activeNewsSubTab === 'ott') {
+      // Detect OTT platform if applicable (prioritize Cinebuds platform)
+      let ottPlatform = cur.platform || "";
+      if (activeNewsSubTab === 'ott' && !ottPlatform) {
         const fullText = (cur.title + " " + cur.snippet).toLowerCase();
         if (fullText.includes('netflix')) ottPlatform = 'Netflix';
         else if (fullText.includes('hotstar') || fullText.includes('disney')) ottPlatform = 'Disney+ Hotstar';
