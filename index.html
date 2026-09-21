@@ -1096,7 +1096,7 @@
         <span id="news-counter-badge" style="font-size: 13px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 12px; border-radius: 9999px; display: none;">Story 1 of 10</span>
       </div>
       <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 18px;">
-        Browse the latest breaking cinema headlines from Times of India, swipe through articles, and convert them to natural Malayalam spoken scripts with Groq AI with one tap!
+        Browse the latest breaking cinema headlines from Times of India, swipe through articles, and convert them to natural Malayalam spoken scripts with Google Gemini AI with one tap!
       </p>
 
       <!-- Sub-Tabs: All Movie News / Theater Releases / OTT Releases -->
@@ -2537,13 +2537,36 @@
       throw lastErr || new Error("Failed to connect to Groq AI.");
     }
 
+    function updateNewsConvertButtonState() {
+      const convertBtn = document.getElementById('btn-convert-ml');
+      if (!convertBtn || convertBtn.disabled) return;
+      const eng = localStorage.getItem('selected_ai_engine') || 'gemini';
+      const cur = (typeof liveNewsArticles !== 'undefined' && liveNewsArticles && liveNewsArticles.length > 0 && typeof currentNewsIndex === 'number' && currentNewsIndex >= 0 && currentNewsIndex < liveNewsArticles.length)
+        ? liveNewsArticles[currentNewsIndex]
+        : null;
+      const hasScript = !!(cur && cur.malayalamScript);
+
+      if (eng === 'gemini') {
+        convertBtn.style.background = 'linear-gradient(135deg, #0284c7, #0ea5e9)';
+        convertBtn.style.boxShadow = '0 4px 14px rgba(14, 165, 233, 0.3)';
+        convertBtn.innerText = hasScript 
+          ? '🔄 Re-Convert Malayalam Script (Gemini AI)' 
+          : '⚡ Convert into Malayalam Speaking Text (Gemini AI)';
+      } else {
+        convertBtn.style.background = 'linear-gradient(135deg, #059669, #10b981)';
+        convertBtn.style.boxShadow = '0 4px 14px rgba(16, 185, 129, 0.3)';
+        convertBtn.innerText = hasScript 
+          ? '🔄 Re-Convert Malayalam Script (Groq AI)' 
+          : '🤖 Convert into Malayalam Speaking Text (Groq AI)';
+      }
+    }
+
     function selectNewsAiEngine(engine) {
       const eng = (engine === 'groq') ? 'groq' : 'gemini';
       localStorage.setItem('selected_ai_engine', eng);
 
       const btnGemini = document.getElementById('engine-btn-gemini');
       const btnGroq = document.getElementById('engine-btn-groq');
-      const convertBtn = document.getElementById('btn-convert-ml');
 
       if (btnGemini && btnGroq) {
         if (eng === 'gemini') {
@@ -2565,17 +2588,7 @@
         }
       }
 
-      if (convertBtn && !convertBtn.disabled) {
-        if (eng === 'gemini') {
-          convertBtn.style.background = 'linear-gradient(135deg, #0284c7, #0ea5e9)';
-          convertBtn.style.boxShadow = '0 4px 14px rgba(14, 165, 233, 0.3)';
-          convertBtn.innerText = '⚡ Convert into Malayalam Speaking Text (Gemini AI)';
-        } else {
-          convertBtn.style.background = 'linear-gradient(135deg, #059669, #10b981)';
-          convertBtn.style.boxShadow = '0 4px 14px rgba(16, 185, 129, 0.3)';
-          convertBtn.innerText = '🤖 Convert into Malayalam Speaking Text (Groq AI)';
-        }
-      }
+      updateNewsConvertButtonState();
     }
 
     async function queryGemini(messages, options = {}) {
@@ -2892,17 +2905,19 @@
         renderTableRows();
         if (activeSection === 'output') renderOutputPreviews();
 
+        const engDisplayName = selectedEngine === 'gemini' ? 'Google Gemini AI' : 'Groq AI';
         if (statusBox) {
           statusBox.className = 'status-toast toast-success';
-          statusBox.innerText = `🎉 Groq AI auto-filled metadata & cleaned topic text for all ${count} of ${rows.length} rows!`;
+          statusBox.innerText = `🎉 ${engDisplayName} auto-filled metadata & cleaned topic text for all ${count} of ${rows.length} rows!`;
         }
-        alert(`🎉 Groq AI auto-filled metadata & cleaned topic text for all ${count} of ${rows.length} rows in ${activeTab}!`);
+        alert(`🎉 ${engDisplayName} auto-filled metadata & cleaned topic text for all ${count} of ${rows.length} rows in ${activeTab}!`);
       } catch (err) {
+        const engDisplayName = selectedEngine === 'gemini' ? 'Google Gemini AI' : 'Groq AI';
         if (statusBox) {
           statusBox.className = 'status-toast toast-error';
-          statusBox.innerText = `❌ Groq AI Error: ${err.message}`;
+          statusBox.innerText = `❌ ${engDisplayName} Error: ${err.message}`;
         }
-        alert(`❌ Groq AI Error: ${err.message}`);
+        alert(`❌ ${engDisplayName} Error: ${err.message}`);
       }
     }
 
@@ -4142,16 +4157,15 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       // Check if Malayalam has already been generated for this story
       const mlResultBox = document.getElementById('news-ml-result-box');
       const mlTextElem = document.getElementById('news-ml-text');
-      const convertBtn = document.getElementById('btn-convert-ml');
 
       if (cur.malayalamScript) {
         if (mlTextElem) mlTextElem.value = cur.malayalamScript;
         if (mlResultBox) mlResultBox.style.display = 'block';
-        if (convertBtn) convertBtn.innerText = '🔄 Re-Convert Malayalam Script (Groq AI)';
       } else {
+        if (mlTextElem) mlTextElem.value = '';
         if (mlResultBox) mlResultBox.style.display = 'none';
-        if (convertBtn) convertBtn.innerText = '🤖 Convert into Malayalam Speaking Text (Groq AI)';
       }
+      updateNewsConvertButtonState();
 
       // Update worksheet button label
       const subTabWorksheetLabels = {
@@ -4349,11 +4363,16 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         isReleased = relMidnight <= todayMidnight;
       }
 
-      let promptText = `Today's Actual Date: ${todayFormatted}\nNews Title: ${cur.title}\nNews Story: ${cur.snippet}`;
+      let promptText = `News Title: ${cur.title}\nNews Story: ${cur.snippet}`;
       if (relDateFormatted) {
         promptText += `\nMovie Release Date: ${relDateFormatted} (${isReleased ? 'ALREADY RELEASED / PAST / TODAY -> Use Past or Present Continuous Tense' : 'UPCOMING RELEASE / IN THE FUTURE -> Use Future Tense'})`;
       }
+      promptText += `\nToday's Actual Date: ${todayFormatted}`;
+      promptText += `\nCRITICAL INSTRUCTION: Base your Malayalam script SOLELY on the news details above. ABSOLUTELY NEVER invent lead actors, directors, fictitious runtimes, or unmentioned facts.`;
       
+      const strictFactRule = 
+        "- STRICT FACTUAL GROUNDING & ZERO HALLUCINATIONS (CRITICAL): Rely SOLELY and STRICTLY on the facts, people, and details explicitly mentioned in the provided News Title and Story. ABSOLUTELY NEVER invent or introduce superstar actors (e.g. Mammootty, Mohanlal, Suresh Gopi, Tovino Thomas, Dulquer) or directors unless their name is explicitly stated in the provided snippet! If the news is about Rashmika Mandanna, talk strictly about Rashmika Mandanna. ABSOLUTELY NEVER invent movie runtimes (e.g. '2 hours 38 minutes') or fictitious budgets unless explicitly stated.\n";
+
       const cinemaVocabRules = 
         "CRITICAL CINEMA JOURNALISM VOCABULARY & SPOKEN STYLE:\n" +
         "- YOUTUBE PRESENTER VOICE (NO BOOKISH ESSAYS): Write in lively, spoken Malayalam. STRICTLY FORBIDDEN: Words like 'പ്രതിജ്ഞാബദ്ധനാണ്', 'എന്ന് വിളിക്കുകയും ചെയ്തു', 'സ്വന്തം കഴിവുകൾ മതിയായതാണോ എന്ന ഭയം', 'വിശ്വസിക്കുകയും ചെയ്തു'. Use presenter speech: 'ആഗ്രഹം പങ്കുവെച്ചിരിക്കുകയാണ്', 'അദ്ദേഹം വ്യക്തമാക്കി', 'വൻ ചർച്ചയായി മാറിയിരിക്കുകയാണ്'.\n" +
@@ -4365,7 +4384,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         "- SPOKEN DAY COUNTS & NUMBERS: When referring to day counts or percentages in speech, write them out smoothly in Malayalam (e.g. 'മുപ്പത്തിയൊന്നാം ദിവസവും', 'ഇരുപത്തിരണ്ട് ശതമാനം വർധനവ്').\n";
 
       const fewShotDemo = 
-        "\nFEW-SHOT VOICE DEMONSTRATION:\n" +
+        "\nFEW-SHOT VOICE DEMONSTRATION (Strictly illustrative of tone - never copy names into other stories):\n" +
         "News Title: Girish A.D. on teaming up with Mohanlal and Mammootty\n" +
         "Spoken Script: മലയാളത്തിന്റെ ഇതിഹാസ താരങ്ങളായ മമ്മൂട്ടിയെയും മോഹൻലാലിനെയും ഒന്നിപ്പിച്ച് ഒരു ചിത്രം സംവിധാനം ചെയ്യാനുള്ള വലിയ ആഗ്രഹം പങ്കുവെച്ചിരിക്കുകയാണ് 'ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ്' സംവിധായകൻ ഗിരീഷ് എഡി. ഇതൊരു വലിയ ഉത്തരവാദിത്വമാണെന്നും അതുകൊണ്ട് തന്നെ തനിക്ക് ചെറിയൊരു ഭയമുണ്ടെന്നും അദ്ദേഹം തുറന്നുപറഞ്ഞു. പ്രേമലുവിന്റെ വമ്പൻ വിജയത്തിന് ശേഷം ഗിരീഷ് എഡി പങ്കുവെച്ച ഈ വലിയ സ്വപ്നം ഇപ്പോൾ സിനിമാ പ്രേമികൾക്കിടയിൽ വൻ ചർച്ചയായി മാറിയിരിക്കുകയാണ്.\n";
 
@@ -4394,7 +4413,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         }
 
         const theaterFewShotDemo = 
-          "\nFEW-SHOT DEMONSTRATION (CRISP & FACT-FOCUSED):\n" +
+          "\nFEW-SHOT DEMONSTRATION (CRISP & FACT-FOCUSED - never copy actors from examples):\n" +
           "News Title: Tovino Thomas' investigative thriller 'Anweshippin Kandethum' releasing on October 2\n" +
           "Spoken Script: ടൊവിനോ തോമസ് നായകനായെത്തുന്ന ഏറ്റവും പുതിയ ഇൻവെസ്റ്റിഗേഷൻ ത്രില്ലർ ചിത്രം 'അന്വേഷിപ്പിൻ കണ്ടെത്തും' ഈ വരുന്ന ഒക്ടോബർ രണ്ടിന് തിയേറ്ററുകളിലെത്തും. നവാഗതനായ ഡാർവിൻ കുര്യാക്കോസ് സംവിധാനം ചെയ്യുന്ന ഈ ചിത്രത്തിനായി വലിയ ആകാംക്ഷയോടെയാണ് ഇപ്പോൾ സിനിമാ പ്രേമികൾ കാത്തിരിക്കുന്നത്.\n";
 
@@ -4402,16 +4421,17 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           "Your task is to summarize this cinema theatrical release news story into a CRISP, PUNCHY, and FACT-FOCUSED 2-to-3 sentence spoken Malayalam news script (വാർത്താ അവതരണം) ready to be read aloud by a presenter.\n" +
           "CRITICAL VOICE & JOURNALISM RULES:\n" +
           "1. " + tenseRule + "\n" +
-          "2. " + cinemaVocabRules + "\n" +
-          "3. NO OVER-DETAILED EXPLANATIONS: Do NOT narrate lengthy plot synopses, character backstories, or production trivia. Stick directly to the core exciting facts.\n" +
-          "4. CORE IMPORTANT FACTS ONLY: State the Movie Name, Lead Star / Director, Theatrical Release Date / Status, and 1 quick punchline on audience hype.\n" +
-          "5. NATURAL SPOKEN NEWS BROADCASTING: Maintain an energetic, authentic spoken Malayalam broadcasting style (വാർത്താ അവതരണം).\n" +
-          "6. RESPECTFUL PRONOUNS (STRICTLY FORBIDDEN: 'അവൻ'): Never ever refer to directors, actors, or filmmakers as 'അവൻ'. Always use 'അദ്ദേഹം' (he/him) or use their professional name/title ('സംവിധായകൻ', 'താരം').\n" +
-          "7. NEVER TRANSLATE PUBLICATION TIMESTAMPS: Do NOT include or translate article publishing timestamps like '5 hours ago' ('5 മണിക്കൂർ മുമ്പ്'), 'yesterday', or 'today' from article metadata. News presenters present the story, not the publishing timestamp.\n" +
-          "8. NO BROKEN APOSTROPHES OR QUOTES: In spoken scripts, avoid single/double quotes around film names that lead to broken suffixes like 'യൂണിറ്റ്'യുടെ. Write smooth Malayalam (e.g. 'ചിത്രത്തിന്റെ സംവിധായകൻ').\n" +
-          "9. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Write everything in pure Malayalam script. Transcribe any foreign actor/character/movie names into Malayalam script (e.g. write 'രശ്മിക മന്ദാന', 'മൈസ', NEVER English alphabet).\n" +
-          "10. SENTENCE END DOTS ONLY: Put periods (.) ONLY at the actual end of complete sentences. Never put periods inside names or initials (e.g. write 'ഗിരീഷ് എഡി' or 'ഗിരീഷ് എ ഡി', NEVER 'ഗിരീഷ് എ.ഡി.').\n" +
-          "11. LENGTH: Strictly 2 to 3 short, punchy sentences. Return ONLY the spoken Malayalam paragraph." +
+          "2. " + strictFactRule + "\n" +
+          "3. " + cinemaVocabRules + "\n" +
+          "4. NO OVER-DETAILED EXPLANATIONS: Do NOT narrate lengthy plot synopses, character backstories, or production trivia. Stick directly to the core exciting facts.\n" +
+          "5. CORE IMPORTANT FACTS ONLY: State the Movie Name, Lead Star / Director, Theatrical Release Date / Status, and 1 quick punchline on audience hype.\n" +
+          "6. NATURAL SPOKEN NEWS BROADCASTING: Maintain an energetic, authentic spoken Malayalam broadcasting style (വാർത്താ അവതരണം).\n" +
+          "7. RESPECTFUL PRONOUNS (STRICTLY FORBIDDEN: 'അവൻ'): Never ever refer to directors, actors, or filmmakers as 'അവൻ'. Always use 'അദ്ദേഹം' (he/him) or use their professional name/title ('സംവിധായകൻ', 'താരം').\n" +
+          "8. NEVER TRANSLATE PUBLICATION TIMESTAMPS: Do NOT include or translate article publishing timestamps like '5 hours ago' ('5 മണിക്കൂർ മുമ്പ്'), 'yesterday', or 'today' from article metadata. News presenters present the story, not the publishing timestamp.\n" +
+          "9. NO BROKEN APOSTROPHES OR QUOTES: In spoken scripts, avoid single/double quotes around film names that lead to broken suffixes like 'യൂണിറ്റ്'യുടെ. Write smooth Malayalam (e.g. 'ചിത്രത്തിന്റെ സംവിധായകൻ').\n" +
+          "10. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Write everything in pure Malayalam script. Transcribe any foreign actor/character/movie names into Malayalam script (e.g. write 'രശ്മിക മന്ദാന', 'മൈസ', NEVER English alphabet).\n" +
+          "11. SENTENCE END DOTS ONLY: Put periods (.) ONLY at the actual end of complete sentences. Never put periods inside names or initials (e.g. write 'ഗിരീഷ് എഡി' or 'ഗിരീഷ് എ ഡി', NEVER 'ഗിരീഷ് എ.ഡി.').\n" +
+          "12. LENGTH: Strictly 2 to 3 short, punchy sentences. Return ONLY the spoken Malayalam paragraph." +
           theaterFewShotDemo;
       } else if (activeNewsSubTab === 'ott') {
         let tenseRule = "";
@@ -4437,7 +4457,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         }
 
         const ottFewShotDemo = 
-          "\nFEW-SHOT DEMONSTRATION (CRISP & FACT-FOCUSED):\n" +
+          "\nFEW-SHOT DEMONSTRATION (CRISP & FACT-FOCUSED - never copy actors from examples):\n" +
           "News Title: Nivin Pauly starrer 'Bethlehem Kudumba Unit' to stream on SonyLIV from October 10\n" +
           "Spoken Script: തിയേറ്ററുകളിൽ വൻ വിജയം നേടിയ നിവിൻ പോളി ചിത്രം 'ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ്' ഒക്ടോബർ പത്തിന് സോണി ലിവിലൂടെ ഒടിടി സ്ട്രീമിംഗ് ആരംഭിക്കും. കുടുംബ പ്രേക്ഷകർ ഒന്നടങ്കം ഏറ്റെടുത്ത ഈ കോമഡി എന്റർടെയ്നർ ഇനി പ്രേക്ഷകർക്ക് ഒടിടിയിലും ആസ്വദിക്കാം.\n";
 
@@ -4445,30 +4465,32 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           "Your task is to summarize this cinema OTT streaming release story into a CRISP, PUNCHY, and FACT-FOCUSED 2-to-3 sentence spoken Malayalam news script (വാർത്താ അവതരണം) ready to be read aloud by a presenter.\n" +
           "CRITICAL VOICE & JOURNALISM RULES:\n" +
           "1. " + tenseRule + "\n" +
-          "2. " + cinemaVocabRules + "\n" +
-          "3. NO OVER-DETAILED EXPLANATIONS: Do NOT narrate long plot breakdowns, extensive backstories, or filler details. Go straight to the essential facts.\n" +
-          "4. CORE IMPORTANT FACTS ONLY: Clearly highlight the Movie Name, Lead Star, Streaming Platform (e.g. നെറ്റ്ഫ്ലിക്സ്, ആമസോൺ പ്രൈം, ഡിസ്നി പ്ലസ് ഹോട്ട്സ്റ്റാർ, സോണി ലിവ്, മനോരമ മാക്സ്, സീ5), and exact Streaming Date / Status.\n" +
-          "5. NATURAL SPOKEN NEWS BROADCASTING: Maintain an authentic, energetic Malayalam broadcasting style (വാർത്താ അവതരണം).\n" +
-          "6. RESPECTFUL PRONOUNS (STRICTLY FORBIDDEN: 'അവൻ'): Never ever refer to directors, actors, or filmmakers as 'അവൻ'. Always use 'അദ്ദേഹം' (he/him) or use their professional name/title ('സംവിധായകൻ', 'താരം').\n" +
-          "7. NEVER TRANSLATE PUBLICATION TIMESTAMPS: Do NOT include or translate article publishing timestamps like '5 hours ago' ('5 മണിക്കൂർ മുമ്പ്'), 'yesterday', or 'today' from article metadata. News presenters present the story, not the publishing timestamp.\n" +
-          "8. NO BROKEN APOSTROPHES OR QUOTES: In spoken scripts, avoid single/double quotes around film names that lead to broken suffixes like 'യൂണിറ്റ്'യുടെ. Write smooth Malayalam.\n" +
-          "9. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Write everything in pure Malayalam script. Transcribe any foreign actor/character/movie names into Malayalam script (e.g. write 'രശ്മിക മന്ദാന', 'മൈസ', 'നെറ്റ്ഫ്ലിക്സ്', NEVER English alphabet).\n" +
-          "10. SENTENCE END DOTS ONLY: Put periods (.) ONLY at the actual end of complete sentences. Never put periods inside names or initials (write 'ഗിരീഷ് എഡി', NOT 'ഗിരീഷ് എ.ഡി.').\n" +
-          "11. LENGTH: Strictly 2 to 3 short, punchy sentences. Return ONLY the spoken Malayalam paragraph." +
+          "2. " + strictFactRule + "\n" +
+          "3. " + cinemaVocabRules + "\n" +
+          "4. NO OVER-DETAILED EXPLANATIONS: Do NOT narrate long plot breakdowns, extensive backstories, or filler details. Go straight to the essential facts.\n" +
+          "5. CORE IMPORTANT FACTS ONLY: Clearly highlight the Movie Name, Lead Star, Streaming Platform (e.g. നെറ്റ്ഫ്ലിക്സ്, ആമസോൺ പ്രൈം, ഡിസ്നി പ്ലസ് ഹോട്ട്സ്റ്റാർ, സോണി ലിവ്, മനോരമ മാക്സ്, സീ5), and exact Streaming Date / Status.\n" +
+          "6. NATURAL SPOKEN NEWS BROADCASTING: Maintain an authentic, energetic Malayalam broadcasting style (വാർത്താ അവതരണം).\n" +
+          "7. RESPECTFUL PRONOUNS (STRICTLY FORBIDDEN: 'അവൻ'): Never ever refer to directors, actors, or filmmakers as 'അവൻ'. Always use 'അദ്ദേഹം' (he/him) or use their professional name/title ('സംവിധായകൻ', 'താരം').\n" +
+          "8. NEVER TRANSLATE PUBLICATION TIMESTAMPS: Do NOT include or translate article publishing timestamps like '5 hours ago' ('5 മണിക്കൂർ മുമ്പ്'), 'yesterday', or 'today' from article metadata. News presenters present the story, not the publishing timestamp.\n" +
+          "9. NO BROKEN APOSTROPHES OR QUOTES: In spoken scripts, avoid single/double quotes around film names that lead to broken suffixes like 'യൂണിറ്റ്'യുടെ. Write smooth Malayalam.\n" +
+          "10. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Write everything in pure Malayalam script. Transcribe any foreign actor/character/movie names into Malayalam script (e.g. write 'രശ്മിക മന്ദാന', 'മൈസ', 'നെറ്റ്ഫ്ലിക്സ്', NEVER English alphabet).\n" +
+          "11. SENTENCE END DOTS ONLY: Put periods (.) ONLY at the actual end of complete sentences. Never put periods inside names or initials (write 'ഗിരീഷ് എഡി', NOT 'ഗിരീഷ് എ.ഡി.').\n" +
+          "12. LENGTH: Strictly 2 to 3 short, punchy sentences. Return ONLY the spoken Malayalam paragraph." +
           ottFewShotDemo;
       } else {
         systemPrompt = "You are an expert Malayalam cinema news anchor and scriptwriter for a leading YouTube entertainment news channel (like Cue Studio, Behindwoods Ice, Movie Man).\n" +
           "Your task is to summarize this cinema news story into an engaging, natural, 3-to-4 sentence Malayalam spoken news script (വാർത്താ അവതരണം) ready to be read aloud with emotion by a presenter.\n" +
           "CRITICAL VOICE & JOURNALISM RULES:\n" +
-          "1. " + cinemaVocabRules + "\n" +
-          "2. NATURAL SPOKEN NEWS BROADCASTING: Do NOT perform a literal, mechanical word-by-word translation. Rephrase and express the core news story in authentic, fluent Malayalam broadcasting style.\n" +
-          "3. RESPECTFUL PRONOUNS (STRICTLY FORBIDDEN: 'അവൻ'): Never ever refer to directors, actors, or filmmakers as 'അവൻ'. Always use 'അദ്ദേഹം' (he/him) or use their professional name/title ('ഗിരീഷ് എഡി', 'സംവിധായകൻ', 'താരം').\n" +
-          "4. NEVER TRANSLATE PUBLICATION TIMESTAMPS: Do NOT include or translate article publishing timestamps like '5 hours ago' ('5 മണിക്കൂർ മുമ്പ്'), 'yesterday', or 'today' from article metadata. News presenters present the story, not the publishing timestamp.\n" +
-          "5. NO BROKEN APOSTROPHES OR QUOTES: In spoken scripts, avoid single/double quotes around film names that lead to broken suffixes like 'യൂണിറ്റ്'യുടെ. Write smooth Malayalam: ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ് സംവിധായകൻ ഗിരീഷ് എഡി, or ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ് എന്ന ചിത്രത്തിന്റെ സംവിധായകൻ.\n" +
-          "6. NATURAL JOURNALISTIC EXPRESSIONS: Use fluent presenter phrasing (e.g. 'ആഗ്രഹം പങ്കുവെച്ചിരിക്കുകയാണ്', 'അദ്ദേഹം തുറന്നുപറഞ്ഞു', 'വൻ ചർച്ചയായി മാറിയിരിക്കുകയാണ്', 'കളക്ഷനിൽ വൻ കുതിപ്പ്').\n" +
-          "7. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Write everything in pure Malayalam script. Transcribe any foreign actor/character/movie names into Malayalam script (e.g. write 'രശ്മിക മന്ദാന', 'മൈസ', NEVER English alphabet).\n" +
-          "8. SENTENCE END DOTS ONLY: Put periods (.) ONLY at the actual end of complete sentences. Never put periods inside names or initials (e.g. write 'ഗിരീഷ് എഡി' or 'ഗിരീഷ് എ ഡി', NEVER 'ഗിരീഷ് എ.ഡി.').\n" +
-          "9. LENGTH: Strictly 3 to 4 complete sentences. Return ONLY the spoken Malayalam paragraph." +
+          "1. " + strictFactRule + "\n" +
+          "2. " + cinemaVocabRules + "\n" +
+          "3. NATURAL SPOKEN NEWS BROADCASTING: Do NOT perform a literal, mechanical word-by-word translation. Rephrase and express the core news story in authentic, fluent Malayalam broadcasting style.\n" +
+          "4. RESPECTFUL PRONOUNS (STRICTLY FORBIDDEN: 'അവൻ'): Never ever refer to directors, actors, or filmmakers as 'അവൻ'. Always use 'അദ്ദേഹം' (he/him) or use their professional name/title ('ഗിരീഷ് എഡി', 'സംവിധായകൻ', 'താരം').\n" +
+          "5. NEVER TRANSLATE PUBLICATION TIMESTAMPS: Do NOT include or translate article publishing timestamps like '5 hours ago' ('5 മണിക്കൂർ മുമ്പ്'), 'yesterday', or 'today' from article metadata. News presenters present the story, not the publishing timestamp.\n" +
+          "6. NO BROKEN APOSTROPHES OR QUOTES: In spoken scripts, avoid single/double quotes around film names that lead to broken suffixes like 'യൂണിറ്റ്'യുടെ. Write smooth Malayalam: ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ് സംവിധായകൻ ഗിരീഷ് എഡി, or ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ് എന്ന ചിത്രത്തിന്റെ സംവിധായകൻ.\n" +
+          "7. NATURAL JOURNALISTIC EXPRESSIONS: Use fluent presenter phrasing (e.g. 'ആഗ്രഹം പങ്കുവെച്ചിരിക്കുകയാണ്', 'അദ്ദേഹം തുറന്നുപറഞ്ഞു', 'വൻ ചർച്ചയായി മാറിയിരിക്കുകയാണ്', 'കളക്ഷനിൽ വൻ കുതിപ്പ്').\n" +
+          "8. 100% MALAYALAM SCRIPT & VOCABULARY: ABSOLUTELY NO ENGLISH / LATIN WORDS. Write everything in pure Malayalam script. Transcribe any foreign actor/character/movie names into Malayalam script (e.g. write 'രശ്മിക മന്ദാന', 'മൈസ', NEVER English alphabet).\n" +
+          "9. SENTENCE END DOTS ONLY: Put periods (.) ONLY at the actual end of complete sentences. Never put periods inside names or initials (e.g. write 'ഗിരീഷ് എഡി' or 'ഗിരീഷ് എ ഡി', NEVER 'ഗിരീഷ് എ.ഡി.').\n" +
+          "10. LENGTH: Strictly 3 to 4 complete sentences. Return ONLY the spoken Malayalam paragraph." +
           fewShotDemo;
       }
 
@@ -4478,12 +4500,12 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           resData = await queryGemini([
             { role: 'system', content: systemPrompt },
             { role: 'user', content: promptText }
-          ], { apiKey: apiKey, jsonMode: false });
+          ], { apiKey: apiKey, jsonMode: false, temperature: 0.1 });
         } else {
           resData = await queryGroq([
             { role: 'system', content: systemPrompt },
             { role: 'user', content: promptText }
-          ], { apiKey: apiKey, jsonMode: false });
+          ], { apiKey: apiKey, jsonMode: false, temperature: 0.1 });
         }
 
         const content = resData.choices?.[0]?.message?.content || "";
@@ -4501,10 +4523,8 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       } finally {
         if (btn) {
           btn.disabled = false;
-          btn.innerText = selectedEngine === 'gemini'
-            ? '🔄 Re-Convert Malayalam Script (Gemini AI)'
-            : '🔄 Re-Convert Malayalam Script (Groq AI)';
         }
+        updateNewsConvertButtonState();
       }
     }
 
