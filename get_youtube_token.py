@@ -46,15 +46,27 @@ def generate_token():
     )
     flow.oauth2session.verify = False
 
+    # Set unbuffered stdout
+    sys.stdout.reconfigure(line_buffering=True)
+
     print("\n[INFO] Starting OAuth server on http://localhost:8085...")
     sys.stdout.flush()
+
+    prompt_msg = (
+        "\n==================================================\n"
+        "AUTH_URL_START\n{url}\nAUTH_URL_END\n"
+        "==================================================\n"
+        "Waiting for authentication in browser...\n"
+    )
 
     creds = flow.run_local_server(
         host='localhost',
         port=8085,
-        authorization_prompt_message='\n[LINK] PLEASE CLICK THIS GOOGLE LOGIN LINK:\n------------------------------------------------------------\n{url}\n------------------------------------------------------------\n',
+        authorization_prompt_message=prompt_msg,
         success_message='[SUCCESS] YouTube Authentication Completed! You can close this tab now.',
-        open_browser=True
+        open_browser=False,
+        prompt='consent',
+        access_type='offline'
     )
 
     TOKEN_FILE.parent.mkdir(parents=True, exist_ok=True)
