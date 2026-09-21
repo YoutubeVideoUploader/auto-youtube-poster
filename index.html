@@ -1118,8 +1118,12 @@
           <div style="flex: 1; min-width: 220px;">
             <label style="font-size: 13px; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 6px;">🎯 Cinema Industry Feed:</label>
             <select id="news-industry-select" onchange="fetchLatestCinemaNews()" style="width: 100%; padding: 10px 14px; background: rgba(8, 12, 22, 0.95); border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 14px;">
-              <option value="malayalam" selected>🎬 Malayalam Cinema (Times of India)</option>
-              <option value="tamil">⭐ Tamil Cinema / Kollywood (Times of India)</option>
+              <option value="malayalam" selected>🎬 Malayalam Cinema (Breaking News)</option>
+              <option value="tamil">⭐ Tamil Cinema / Kollywood (Breaking News)</option>
+              <option value="telugu">🏹 Telugu Cinema / Tollywood (Breaking News)</option>
+              <option value="kannada">🦁 Kannada Cinema / Sandalwood (Breaking News)</option>
+              <option value="hindi">🌟 Hindi Cinema / Bollywood (Breaking News)</option>
+              <option value="global">🌍 Global / Hollywood Cinema (Breaking News)</option>
             </select>
           </div>
           <div style="margin-top: 24px;">
@@ -3834,16 +3838,28 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           industrySel.innerHTML = `
             <option value="malayalam" ${curVal === 'malayalam' ? 'selected' : ''}>🎬 Malayalam Cinema OTT (Cinebuds)</option>
             <option value="tamil" ${curVal === 'tamil' ? 'selected' : ''}>⭐ Tamil Cinema OTT (Cinebuds)</option>
+            <option value="telugu" ${curVal === 'telugu' ? 'selected' : ''}>🏹 Telugu Cinema OTT (Cinebuds)</option>
+            <option value="kannada" ${curVal === 'kannada' ? 'selected' : ''}>🦁 Kannada Cinema OTT (Cinebuds)</option>
+            <option value="hindi" ${curVal === 'hindi' ? 'selected' : ''}>🌟 Hindi Cinema OTT (Cinebuds)</option>
+            <option value="global" ${curVal === 'global' ? 'selected' : ''}>🌍 Global / Hollywood OTT</option>
           `;
         } else if (tab === 'theater') {
           industrySel.innerHTML = `
-            <option value="malayalam" ${curVal === 'malayalam' ? 'selected' : ''}>🎬 Malayalam Cinema (Times of India)</option>
-            <option value="tamil" ${curVal === 'tamil' ? 'selected' : ''}>⭐ Tamil Cinema / Kollywood</option>
+            <option value="malayalam" ${curVal === 'malayalam' ? 'selected' : ''}>🎬 Malayalam Cinema (TOI Theaters)</option>
+            <option value="tamil" ${curVal === 'tamil' ? 'selected' : ''}>⭐ Tamil Cinema / Kollywood (TOI Theaters)</option>
+            <option value="telugu" ${curVal === 'telugu' ? 'selected' : ''}>🏹 Telugu Cinema / Tollywood (TOI Theaters)</option>
+            <option value="kannada" ${curVal === 'kannada' ? 'selected' : ''}>🦁 Kannada Cinema / Sandalwood (TOI Theaters)</option>
+            <option value="hindi" ${curVal === 'hindi' ? 'selected' : ''}>🌟 Hindi Cinema / Bollywood (TOI Theaters)</option>
+            <option value="global" ${curVal === 'global' ? 'selected' : ''}>🌍 Global / Hollywood Cinema (TOI Theaters)</option>
           `;
         } else {
           industrySel.innerHTML = `
-            <option value="malayalam" ${curVal === 'malayalam' ? 'selected' : ''}>🎬 Malayalam Cinema (Times of India)</option>
-            <option value="tamil" ${curVal === 'tamil' ? 'selected' : ''}>⭐ Tamil Cinema / Kollywood (Times of India)</option>
+            <option value="malayalam" ${curVal === 'malayalam' ? 'selected' : ''}>🎬 Malayalam Cinema (Breaking News)</option>
+            <option value="tamil" ${curVal === 'tamil' ? 'selected' : ''}>⭐ Tamil Cinema / Kollywood (Breaking News)</option>
+            <option value="telugu" ${curVal === 'telugu' ? 'selected' : ''}>🏹 Telugu Cinema / Tollywood (Breaking News)</option>
+            <option value="kannada" ${curVal === 'kannada' ? 'selected' : ''}>🦁 Kannada Cinema / Sandalwood (Breaking News)</option>
+            <option value="hindi" ${curVal === 'hindi' ? 'selected' : ''}>🌟 Hindi Cinema / Bollywood (Breaking News)</option>
+            <option value="global" ${curVal === 'global' ? 'selected' : ''}>🌍 Global / Hollywood Cinema (Breaking News)</option>
           `;
         }
       }
@@ -3910,6 +3926,18 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         if (industry === 'tamil') {
           searchQuery = 'Tamil movies in theatres';
           fallbackQuery = 'Tamil movie release date';
+        } else if (industry === 'telugu') {
+          searchQuery = 'Telugu movies in theatres';
+          fallbackQuery = 'Telugu movie release date';
+        } else if (industry === 'kannada') {
+          searchQuery = 'Kannada movies in theatres';
+          fallbackQuery = 'Kannada movie release date';
+        } else if (industry === 'hindi') {
+          searchQuery = 'Bollywood Hindi movies in theatres';
+          fallbackQuery = 'Hindi movie release date';
+        } else if (industry === 'global') {
+          searchQuery = 'Hollywood English movies in theatres box office';
+          fallbackQuery = 'Hollywood movie release date';
         } else {
           searchQuery = 'Malayalam movie release date Times of India';
           fallbackQuery = 'Malayalam movies in theatres';
@@ -3918,6 +3946,18 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         if (industry === 'tamil') {
           searchQuery = 'Tamil movie OTT release date';
           fallbackQuery = 'Tamil movies streaming OTT release';
+        } else if (industry === 'telugu') {
+          searchQuery = 'Telugu movie OTT release date aha netflix prime';
+          fallbackQuery = 'Telugu movies streaming OTT release';
+        } else if (industry === 'kannada') {
+          searchQuery = 'Kannada movie OTT release date zee5';
+          fallbackQuery = 'Kannada movies streaming OTT release';
+        } else if (industry === 'hindi') {
+          searchQuery = 'Hindi Bollywood movie OTT release date netflix prime';
+          fallbackQuery = 'Hindi movies streaming OTT release';
+        } else if (industry === 'global') {
+          searchQuery = 'Hollywood movies OTT digital release date Netflix Disney Prime Apple TV';
+          fallbackQuery = 'English movies digital streaming premiere release dates';
         } else {
           searchQuery = 'Malayalam movie OTT release date';
           fallbackQuery = 'Malayalam movies streaming OTT release';
@@ -3926,6 +3966,18 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         if (industry === 'tamil') {
           searchQuery = 'Tamil movie news Times of India';
           fallbackQuery = 'Tamil cinema news latest';
+        } else if (industry === 'telugu') {
+          searchQuery = 'Telugu movie news 123telugu Times of India';
+          fallbackQuery = 'Tollywood cinema news latest';
+        } else if (industry === 'kannada') {
+          searchQuery = 'Kannada movie news Times of India';
+          fallbackQuery = 'Sandalwood cinema news latest';
+        } else if (industry === 'hindi') {
+          searchQuery = 'Bollywood movie news Pinkvilla Bollywood Hungama';
+          fallbackQuery = 'Hindi cinema news latest';
+        } else if (industry === 'global') {
+          searchQuery = 'Hollywood movie news Deadline Variety Hollywood Reporter';
+          fallbackQuery = 'Hollywood cinema entertainment news latest';
         } else {
           searchQuery = 'Malayalam movie news Times of India';
           fallbackQuery = 'Malayalam cinema news latest';
@@ -3936,8 +3988,19 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         let items = [];
         let keySuccess = false;
 
-        // Dedicated scraper for Times of India Latest Malayalam Movies page (requested by user)
-        if (activeNewsSubTab === 'theater' && industry === 'malayalam') {
+        // Dedicated scraper for Times of India Latest Movies page across industries
+        if (activeNewsSubTab === 'theater') {
+          const toiUrls = {
+            'malayalam': 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/malayalam-movies',
+            'tamil': 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/tamil-movies',
+            'telugu': 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/telugu-movies',
+            'kannada': 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/kannada-movies',
+            'hindi': 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/hindi-movies',
+            'global': 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/english-movies'
+          };
+          const toiUrl = toiUrls[industry] || toiUrls['malayalam'];
+          const indLabel = industry === 'global' ? 'Hollywood' : (industry.charAt(0).toUpperCase() + industry.slice(1));
+
           for (let attempt = 0; attempt < serperKeys.length; attempt++) {
             const currentIdx = (startIdx + attempt) % serperKeys.length;
             const apiKey = serperKeys[currentIdx];
@@ -3949,7 +4012,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
                   'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                  url: 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/malayalam-movies'
+                  url: toiUrl
                 })
               });
 
@@ -3968,7 +4031,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
                 let currentDetails = [];
 
                 for (const line of lines) {
-                  if (line.startsWith('Latest Malayalam') || line.includes('Subscribe') || line.includes('Stories that shape') || line.includes('TOI Life') || line.includes('Read More') || line.includes('subscribing') || line.includes('inbox') || line.includes('culture stories') || line.includes('Select a City')) {
+                  if (line.startsWith('Latest') || line.includes('Subscribe') || line.includes('Stories that shape') || line.includes('TOI Life') || line.includes('Read More') || line.includes('subscribing') || line.includes('inbox') || line.includes('culture stories') || line.includes('Select a City')) {
                     continue;
                   }
                   const dateMatch = line.match(/(\d{1,2}\s+[A-Za-z]{3}\s+\d{4})/);
@@ -3980,8 +4043,8 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
                       title: currentTitle,
                       date: releaseDate,
                       snippet: `Theatrical Release: ${releaseDate}${dur ? ' (' + dur + ')' : ''}. ${det}`,
-                      link: 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/malayalam-movies',
-                      source: 'Times of India (Theaters)',
+                      link: toiUrl,
+                      source: `Times of India (${indLabel} Theaters)`,
                       imageUrl: '',
                       category: 'theater',
                       malayalamScript: null
@@ -4012,10 +4075,16 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         }
 
         // Dedicated scraper for Cinebuds OTT Release Dates (requested by user)
-        if (activeNewsSubTab === 'ott') {
-          const cinebudsUrl = industry === 'tamil'
-            ? 'https://cinebuds.com/tamil-movies-digital-release-dates/'
-            : 'https://cinebuds.com/malayalam-movies-ott-release-dates/';
+        if (activeNewsSubTab === 'ott' && industry !== 'global') {
+          const cinebudsUrls = {
+            'malayalam': 'https://cinebuds.com/malayalam-movies-ott-release-dates/',
+            'tamil': 'https://cinebuds.com/tamil-movies-digital-release-dates/',
+            'telugu': 'https://cinebuds.com/telugu-movies-digital-release-dates/',
+            'kannada': 'https://cinebuds.com/kannada-movies-digital-release-dates/',
+            'hindi': 'https://cinebuds.com/hindi-movies-digital-release-dates/'
+          };
+          const cinebudsUrl = cinebudsUrls[industry] || cinebudsUrls['malayalam'];
+          const indLabel = industry.charAt(0).toUpperCase() + industry.slice(1);
 
           for (let attempt = 0; attempt < serperKeys.length; attempt++) {
             const currentIdx = (startIdx + attempt) % serperKeys.length;
@@ -4071,9 +4140,9 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
                       title: movie,
                       platform: platform,
                       date: date,
-                      snippet: `${movie} OTT digital streaming release on ${platform} (${date}). Official ${industry === 'tamil' ? 'Tamil' : 'Malayalam'} OTT premiere.`,
+                      snippet: `${movie} OTT digital streaming release on ${platform} (${date}). Official ${indLabel} OTT premiere.`,
                       link: cinebudsUrl,
-                      source: `Cinebuds (${industry === 'tamil' ? 'Tamil' : 'Malayalam'} OTT)`,
+                      source: `Cinebuds (${indLabel} OTT)`,
                       imageUrl: '',
                       category: 'ott',
                       malayalamScript: null
@@ -4286,7 +4355,15 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           const apiKey = serperKeys[0];
           if (apiKey) {
             const industrySel = document.getElementById('news-industry-select');
-            const lang = (industrySel && industrySel.value === 'tamil') ? 'Tamil' : 'Malayalam';
+            const langMap = {
+              'tamil': 'Tamil',
+              'telugu': 'Telugu',
+              'kannada': 'Kannada',
+              'hindi': 'Hindi',
+              'global': 'Hollywood English',
+              'malayalam': 'Malayalam'
+            };
+            const lang = langMap[industrySel ? industrySel.value : ''] || 'Malayalam';
             fetch('https://google.serper.dev/images', {
               method: 'POST',
               headers: { 'X-API-KEY': apiKey, 'Content-Type': 'application/json' },
@@ -4756,8 +4833,13 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         else if (fullText.includes('prime') || fullText.includes('amazon')) ottPlatform = 'Amazon Prime Video';
         else if (fullText.includes('sonyliv') || fullText.includes('sony liv')) ottPlatform = 'SonyLIV';
         else if (fullText.includes('zee5')) ottPlatform = 'Zee5';
+        else if (fullText.includes('aha')) ottPlatform = 'Aha';
+        else if (fullText.includes('apple')) ottPlatform = 'Apple TV+';
+        else if (fullText.includes('jiocinema') || fullText.includes('jio cinema')) ottPlatform = 'JioCinema';
         else if (fullText.includes('manorama')) ottPlatform = 'ManoramaMAX';
         else if (fullText.includes('simply south')) ottPlatform = 'Simply South';
+        else if (fullText.includes('paramount')) ottPlatform = 'Paramount+';
+        else if (fullText.includes('hulu')) ottPlatform = 'Hulu';
       }
 
       rows.push({
