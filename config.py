@@ -23,7 +23,7 @@ DEFAULT_AUDIO_FORMAT = "wav"
 NORMALIZE_LOUDNESS = True
 TARGET_LUFS = -16.0          # Streaming / YouTube standard loudness
 VOICE_VOLUME = 2.2          # Voice narration volume multiplier in video mix (increased for audibility)
-BGM_VOLUME = 0.30            # Background music volume level (increased for clear audible music)
+BGM_VOLUME = 0.20            # Background music volume level (reduced slightly for subtle, elegant background balance)
 
 # Default TTS Engine Models
 DEFAULT_MODEL_ID = "mms_malayalam"
