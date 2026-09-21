@@ -1796,6 +1796,142 @@
       ]
     };
 
+    const ML_MONTHS = [
+      { ml: 'സെപ്റ്റംബർ', en: 'Sep', fullEn: 'September' },
+      { ml: 'സെപ്തംബർ', en: 'Sep', fullEn: 'September' },
+      { ml: 'ഓഗസ്റ്റ്', en: 'Aug', fullEn: 'August' },
+      { ml: 'ആഗസ്റ്റ്', en: 'Aug', fullEn: 'August' },
+      { ml: 'ഒക്ടോബർ', en: 'Oct', fullEn: 'October' },
+      { ml: 'നവംബർ', en: 'Nov', fullEn: 'November' },
+      { ml: 'ഡിസംബർ', en: 'Dec', fullEn: 'December' },
+      { ml: 'ജനുവരി', en: 'Jan', fullEn: 'January' },
+      { ml: 'ഫെബ്രുവരി', en: 'Feb', fullEn: 'February' },
+      { ml: 'മാർച്ച്', en: 'Mar', fullEn: 'March' },
+      { ml: 'ഏപ്രിൽ', en: 'Apr', fullEn: 'April' },
+      { ml: 'മേയ്', en: 'May', fullEn: 'May' },
+      { ml: 'മെയ്', en: 'May', fullEn: 'May' },
+      { ml: 'ജൂൺ', en: 'Jun', fullEn: 'June' },
+      { ml: 'ജൂലൈ', en: 'Jul', fullEn: 'July' }
+    ];
+
+    const ML_NUM_WORDS = [
+      { word: 'മുപ്പത്തൊന്നിന്', num: 31 }, { word: 'മുപ്പത്തൊന്നാം', num: 31 }, { word: 'മുപ്പത്തൊന്ന്', num: 31 },
+      { word: 'മുപ്പതിന്', num: 30 }, { word: 'മുപ്പതാം', num: 30 }, { word: 'മുപ്പത്', num: 30 },
+      { word: 'ഇരുപത്തൊമ്പതിന്', num: 29 }, { word: 'ഇരുപത്തൊൻപതിന്', num: 29 }, { word: 'ഇരുപത്തൊമ്പതാം', num: 29 }, { word: 'ഇരുപത്തൊൻപതാം', num: 29 }, { word: 'ഇരുപത്തൊമ്പത്', num: 29 }, { word: 'ഇരുപത്തൊൻപത്', num: 29 },
+      { word: 'ഇരുപത്തിയെട്ടിന്', num: 28 }, { word: 'ഇരുപത്തിഎട്ടിന്', num: 28 }, { word: 'ഇരുപത്തിയെട്ടാം', num: 28 }, { word: 'ഇരുപത്തിഎട്ടാം', num: 28 }, { word: 'ഇരുപത്തിയെട്ട്', num: 28 }, { word: 'ഇരുപത്തിഎട്ട്', num: 28 },
+      { word: 'ഇരുപത്തിയേഴിന്', num: 27 }, { word: 'ഇരുപത്തിഏഴിന്', num: 27 }, { word: 'ഇരുപത്തിയേഴാം', num: 27 }, { word: 'ഇരുപത്തിഏഴാം', num: 27 }, { word: 'ഇരുപത്തിയേഴ്', num: 27 }, { word: 'ഇരുപത്തിഏഴ്', num: 27 },
+      { word: 'ഇരുപത്തിയാറിന്', num: 26 }, { word: 'ഇരുപത്തിയാറാം', num: 26 }, { word: 'ഇരുപത്തിയാറ്', num: 26 },
+      { word: 'ഇരുപത്തിയഞ്ചിന്', num: 25 }, { word: 'ഇരുപത്തിയഞ്ചാം', num: 25 }, { word: 'ഇരുപത്തിയഞ്ച്', num: 25 },
+      { word: 'ഇരുപത്തിനാലിന്', num: 24 }, { word: 'ഇരുപത്തിനാലാം', num: 24 }, { word: 'ഇരുപത്തിനാല്', num: 24 },
+      { word: 'ഇരുപത്തിമൂന്നിന്', num: 23 }, { word: 'ഇരുപത്തിമൂന്നാം', num: 23 }, { word: 'ഇരുപത്തിമൂന്ന്', num: 23 },
+      { word: 'ഇരുപത്തിരണ്ടിന്', num: 22 }, { word: 'ഇരുപത്തിരണ്ടാം', num: 22 }, { word: 'ഇരുപത്തിരണ്ട്', num: 22 },
+      { word: 'ഇരുപത്തൊന്നിന്', num: 21 }, { word: 'ഇരുപത്തൊന്നാം', num: 21 }, { word: 'ഇരുപത്തൊന്ന്', num: 21 },
+      { word: 'ഇരുപതിന്', num: 20 }, { word: 'ഇരുപതാം', num: 20 }, { word: 'ഇരുപത്', num: 20 },
+      { word: 'പത്തൊമ്പതിന്', num: 19 }, { word: 'പത്തൊൻപതിന്', num: 19 }, { word: 'പത്തൊമ്പതാം', num: 19 }, { word: 'പത്തൊൻപതാം', num: 19 }, { word: 'പത്തൊമ്പത്', num: 19 }, { word: 'പത്തൊൻപത്', num: 19 },
+      { word: 'പതിനെട്ടിനാണ്', num: 18 }, { word: 'പതിനെട്ടിന്', num: 18 }, { word: 'പതിനെട്ടാം', num: 18 }, { word: 'പതിനെട്ട്', num: 18 },
+      { word: 'പതിനേഴിനാണ്', num: 17 }, { word: 'പതിനേഴിന്', num: 17 }, { word: 'പതിനേഴാം', num: 17 }, { word: 'പതിനേഴ്', num: 17 },
+      { word: 'പതിനാറിനാണ്', num: 16 }, { word: 'പതിനാറിന്', num: 16 }, { word: 'പതിനാറാം', num: 16 }, { word: 'പതിനാറ്', num: 16 },
+      { word: 'പതിനഞ്ചിനാണ്', num: 15 }, { word: 'പതിനഞ്ചിന്', num: 15 }, { word: 'പതിനഞ്ചാം', num: 15 }, { word: 'പതിനഞ്ച്', num: 15 },
+      { word: 'പതിനാലിനാണ്', num: 14 }, { word: 'പതിനാലിന്', num: 14 }, { word: 'പതിനാലാം', num: 14 }, { word: 'പതിനാല്', num: 14 },
+      { word: 'പതിമൂന്നിനാണ്', num: 13 }, { word: 'പതിമൂന്നിന്', num: 13 }, { word: 'പതിമൂന്നാം', num: 13 }, { word: 'പതിമൂന്ന്', num: 13 },
+      { word: 'പന്ത്രണ്ടിനാണ്', num: 12 }, { word: 'പന്ത്രണ്ടിന്', num: 12 }, { word: 'പന്ത്രണ്ടാം', num: 12 }, { word: 'പന്ത്രണ്ട്', num: 12 },
+      { word: 'പതിനൊന്നിനാണ്', num: 11 }, { word: 'പതിനൊന്നിന്', num: 11 }, { word: 'പതിനൊന്നാം', num: 11 }, { word: 'പതിനൊന്ന്', num: 11 },
+      { word: 'പത്തിനാണ്', num: 10 }, { word: 'പത്തിന്', num: 10 }, { word: 'പത്താം', num: 10 }, { word: 'പത്ത്', num: 10 },
+      { word: 'ഒമ്പതിന്', num: 9 }, { word: 'ഒൻപതിന്', num: 9 }, { word: 'ഒമ്പതാം', num: 9 }, { word: 'ഒൻപതാം', num: 9 }, { word: 'ഒമ്പത്', num: 9 }, { word: 'ഒൻപത്', num: 9 },
+      { word: 'എട്ടിനാണ്', num: 8 }, { word: 'എട്ടിന്', num: 8 }, { word: 'എട്ടാം', num: 8 }, { word: 'എട്ട്', num: 8 },
+      { word: 'ഏഴിനാണ്', num: 7 }, { word: 'ഏഴിന്', num: 7 }, { word: 'ഏഴാം', num: 7 }, { word: 'ഏഴ്', num: 7 },
+      { word: 'ആറിനാണ്', num: 6 }, { word: 'ആറിന്', num: 6 }, { word: 'ആറാം', num: 6 }, { word: 'ആറ്', num: 6 },
+      { word: 'അഞ്ചിനാണ്', num: 5 }, { word: 'അഞ്ചിന്', num: 5 }, { word: 'അഞ്ചാം', num: 5 }, { word: 'അഞ്ച്', num: 5 },
+      { word: 'നാലിനാണ്', num: 4 }, { word: 'നാലിന്', num: 4 }, { word: 'നാലാം', num: 4 }, { word: 'നാല്', num: 4 },
+      { word: 'മൂന്നിനാണ്', num: 3 }, { word: 'മൂന്നിന്', num: 3 }, { word: 'മൂന്നാം', num: 3 }, { word: 'മൂന്ന്', num: 3 },
+      { word: 'രണ്ടിനാണ്', num: 2 }, { word: 'രണ്ടിന്', num: 2 }, { word: 'രണ്ടാം', num: 2 }, { word: 'രണ്ട്', num: 2 },
+      { word: 'ഒന്നിനാണ്', num: 1 }, { word: 'ഒന്നിന്', num: 1 }, { word: 'ഒന്നാം', num: 1 }, { word: 'ഒന്ന്', num: 1 }
+    ];
+
+    function parseMalayalamDateFromText(text) {
+      if (!text) return "";
+      const currentYear = new Date().getFullYear();
+      for (const item of ML_MONTHS) {
+        if (text.includes(item.ml)) {
+          // 1. Check numeric day after month: e.g. "സെപ്റ്റംബർ 18", "സെപ്റ്റംബർ 18ന്", "സെപ്റ്റംബർ 18-ന്", "സെപ്റ്റംബർ 18-ാം തീയതി"
+          const mAfter = text.match(new RegExp(item.ml + '\\s*(\\d{1,2})'));
+          if (mAfter) return `${mAfter[1]} ${item.en} ${currentYear}`;
+
+          // 2. Check numeric day before month: e.g. "18 സെപ്റ്റംബർ", "18-ന് സെപ്റ്റംബർ"
+          const mBefore = text.match(new RegExp('(\\d{1,2})\\s*(?:[\\u0D00-\\u0D7F\\-]*)\\s*' + item.ml));
+          if (mBefore) return `${mBefore[1]} ${item.en} ${currentYear}`;
+
+          // 3. Malayalam spoken word day (e.g. പതിനെട്ടിനാണ് -> 18)
+          for (const nw of ML_NUM_WORDS) {
+            if (text.includes(nw.word)) {
+              return `${nw.num} ${item.en} ${currentYear}`;
+            }
+          }
+        }
+      }
+
+      // Check standard English month in text
+      const mEn1 = text.match(/(\d{1,2})\s+(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember))(?:\s+(\d{4}))?/i);
+      if (mEn1) return `${mEn1[1]} ${mEn1[2].slice(0, 3)} ${mEn1[3] || currentYear}`;
+
+      const mEn2 = text.match(/(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember))\s+(\d{1,2})(?:,?\s+(\d{4}))?/i);
+      if (mEn2) return `${mEn2[2]} ${mEn2[1].slice(0, 3)} ${mEn2[3] || currentYear}`;
+
+      return "";
+    }
+
+    function standardizeReleaseDate(rawDate, rawText, existingDate) {
+      const currentYear = new Date().getFullYear();
+      let candidate = (rawDate || '').trim();
+
+      // If candidate is a placeholder, discard
+      if (/^(none|n\/a|not mentioned|unknown|null|undefined|''|"")$/i.test(candidate)) {
+        candidate = '';
+      }
+
+      // If candidate contains Malayalam script (e.g. 'സെപ്റ്റംബർ' or 'സെപ്റ്റംബർ പതിനെട്ടിന്')
+      if (/[\u0D00-\u0D7F]/.test(candidate)) {
+        const parsed = parseMalayalamDateFromText(candidate + ' ' + (rawText || ''));
+        if (parsed) return parsed;
+        const parsedText = parseMalayalamDateFromText(rawText || '');
+        if (parsedText) return parsedText;
+        if (existingDate && !/[\u0D00-\u0D7F]/.test(existingDate)) return existingDate;
+        return '';
+      }
+
+      // If candidate is a lone English month name (e.g. 'September') without day digits
+      if (/^(January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/i.test(candidate)) {
+        const parsedText = parseMalayalamDateFromText(rawText || '');
+        if (parsedText) return parsedText;
+        if (existingDate && !/[\u0D00-\u0D7F]/.test(existingDate)) return existingDate;
+        return candidate;
+      }
+
+      // If candidate is a valid English date format with day
+      if (candidate) {
+        const m1 = candidate.match(/^(\d{1,2})\s+([A-Za-z]+)(?:\s+(\d{4}))?$/);
+        if (m1) {
+          const mon = m1[2].slice(0, 3);
+          const yr = m1[3] || currentYear;
+          return `${m1[1]} ${mon.charAt(0).toUpperCase() + mon.slice(1).toLowerCase()} ${yr}`;
+        }
+        const m2 = candidate.match(/^([A-Za-z]+)\s+(\d{1,2})(?:,?\s+(\d{4}))?$/);
+        if (m2) {
+          const mon = m2[1].slice(0, 3);
+          const yr = m2[3] || currentYear;
+          return `${m2[2]} ${mon.charAt(0).toUpperCase() + mon.slice(1).toLowerCase()} ${yr}`;
+        }
+        return candidate;
+      }
+
+      // If candidate is empty, parse from text
+      const parsedFromText = parseMalayalamDateFromText(rawText || '');
+      if (parsedFromText) return parsedFromText;
+
+      // Fall back to existing date in table
+      return existingDate || '';
+    }
+
     // Load persisted store from browser localStorage or default
     let store;
     try {
@@ -1803,6 +1939,19 @@
       store = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultStore));
     } catch (e) {
       store = JSON.parse(JSON.stringify(defaultStore));
+    }
+
+    // Auto-clean any Malayalam script or raw month names in saved store release dates
+    if (store) {
+      ['Release Updates', 'OTT Updates'].forEach(tab => {
+        if (Array.isArray(store[tab])) {
+          store[tab].forEach(r => {
+            if (r.releaseDate && (/[\u0D00-\u0D7F]/.test(r.releaseDate) || /^(January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/i.test(r.releaseDate.trim()))) {
+              r.releaseDate = standardizeReleaseDate(r.releaseDate, r.text, "");
+            }
+          });
+        }
+      });
     }
 
     function saveLocalStore() {
@@ -2747,60 +2896,16 @@
       } else if (activeTab === 'Release Updates') {
         systemPrompt = "You are an expert Malayalam movie news editor. For each topic text below, extract metadata and clean the text:\n" +
           "1. 'movie_name': Official movie title in English alphabet. RULES: If the title is an English word (e.g. 'Picnic', 'Magic Mushrooms', 'Law & Order'), use standard English dictionary spelling, NOT broken phonetics like 'Piknik'. For Malayalam titles, use standard official Mollywood romanization (e.g. 'Bethlehem Kudumba Unit', 'Thudakkam', 'Dhoomakethu'). ABSOLUTELY NO MALAYALAM SCRIPT.\n" +
-          "2. 'release_date': The theatrical release date EXPLICITLY mentioned in the text (e.g., 'October 2', 'September 25'). If no date is mentioned in the text, return '' (an empty string). DO NOT guess or search outside the text.\n" +
+          "2. 'release_date': The theatrical release date EXPLICITLY mentioned in the text formatted in English (e.g. '18 Sep 2026', 'October 2', 'September 25'). RULES: Date MUST be in English alphabet and numbers (e.g. '18 Sep 2026'). ABSOLUTELY NO MALAYALAM SCRIPT. If written in Malayalam words (e.g. 'സെപ്റ്റംബർ പതിനെട്ടിന്' -> '18 Sep 2026', 'ഒക്ടോബർ രണ്ടിന്' -> '2 Oct 2026'), convert it to standard English date format. Never return just a month name alone. If no date is mentioned in the text, return '' (an empty string). DO NOT guess or search outside the text.\n" +
           "3. 'cleaned_text': The original Malayalam news text cleaned so that dots/periods (.) are ONLY used at the actual end of complete sentences. Remove all periods/dots within names, initials, acronyms, and abbreviations (e.g. 'എ.ഡി' to 'എഡി', 'കെ.ജി.എഫ്' to 'കെജിഎഫ്'). Preserve real sentence-ending full stops. Do not translate the words.\n" +
           "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order, with exactly one object for each given topic. Example: {\"items\": [{\"movie_name\": \"Picnic\", \"release_date\": \"October 2\", \"cleaned_text\": \"...\"}]}. No extra text outside JSON.";
       } else { // OTT Updates
         systemPrompt = "You are an expert Malayalam movie news editor. For each topic text below, extract metadata and clean the text:\n" +
           "1. 'movie_name': Official movie title in English alphabet. RULES: If the title is an English word (e.g. 'Picnic', 'Magic Mushrooms'), use standard English dictionary spelling, NOT broken phonetics like 'Piknik'. For Malayalam titles, use standard official Mollywood romanization (e.g. 'Bethlehem Kudumba Unit', 'Varavu'). ABSOLUTELY NO MALAYALAM SCRIPT.\n" +
-          "2. 'release_date': The streaming / OTT release date EXPLICITLY mentioned in the text (e.g., 'September 28', 'Available Now'). If no date is mentioned in the text, return '' (an empty string). DO NOT guess or search outside the text.\n" +
+          "2. 'release_date': The streaming / OTT release date EXPLICITLY mentioned in the text formatted in English (e.g. '18 Sep 2026', 'September 28', 'Available Now'). RULES: Date MUST be in English alphabet and numbers (e.g. '18 Sep 2026'). ABSOLUTELY NO MALAYALAM SCRIPT. If written in Malayalam words (e.g. 'സെപ്റ്റംബർ പതിനെട്ടിന്' -> '18 Sep 2026', 'ഒക്ടോബർ രണ്ടിന്' -> '2 Oct 2026'), convert it to standard English date format. Never return just a month name alone. If no date is mentioned in the text, return '' (an empty string). DO NOT guess or search outside the text.\n" +
           "3. 'ott_platform': The streaming platform name (e.g., 'Netflix', 'Disney+ Hotstar', 'Amazon Prime Video', 'SonyLIV', 'Zee5', 'ManoramaMAX', 'Simply South'). If not mentioned, write ''.\n" +
           "4. 'cleaned_text': The original Malayalam news text cleaned so that dots/periods (.) are ONLY used at the actual end of complete sentences. Remove all periods/dots within names, initials, acronyms, and abbreviations (e.g. 'എ.ഡി' to 'എഡി', 'കെ.ജി.എഫ്' to 'കെജിഎഫ്'). Preserve real sentence-ending full stops. Do not translate the words.\n" +
           "Return ONLY a JSON object containing an 'items' key with an array of objects in exact order, with exactly one object for each given topic. Example: {\"items\": [{\"movie_name\": \"Picnic\", \"release_date\": \"September 28\", \"ott_platform\": \"Netflix\", \"cleaned_text\": \"...\"}]}. No extra text outside JSON.";
-      }
-
-      function parseMalayalamDateFromText(text) {
-        if (!text) return "";
-        const monthMap = {
-          'സെപ്റ്റംബർ': 'September', 'സെപ്തംബർ': 'September',
-          'ഓഗസ്റ്റ്': 'August', 'ആഗസ്റ്റ്': 'August',
-          'ഒക്ടോബർ': 'October', 'നവംബർ': 'November', 'ഡിസംബർ': 'December',
-          'ജനുവരി': 'January', 'ഫെബ്രുവരി': 'February', 'മാർച്ച്': 'March',
-          'ഏപ്രിൽ': 'April', 'മേയ്': 'May', 'മെയ്': 'May',
-          'ജൂൺ': 'June', 'ജൂലൈ': 'July'
-        };
-        const numberWordMap = {
-          'ഒന്ന്': '1', 'ഒന്നിന്': '1', 'രണ്ട്': '2', 'രണ്ടിന്': '2',
-          'മൂന്ന്': '3', 'മൂന്നിന്': '3', 'നാല്': '4', 'നാലിന്': '4',
-          'അഞ്ച്': '5', 'അഞ്ചിന്': '5', 'ആറ്': '6', 'ആറിന്': '6',
-          'ഏഴ്': '7', 'ഏഴിന്': '7', 'എട്ട്': '8', 'എട്ടിന്': '8',
-          'ഒൻപത്': '9', 'ഒമ്പത്': '9', 'ഒൻപതിന്': '9', 'ഒമ്പതിന്': '9',
-          'പത്ത്': '10', 'പത്തിന്': '10', 'പതിനൊന്ന്': '11', 'പതിനൊന്നിന്': '11',
-          'പന്ത്രണ്ട്': '12', 'പന്ത്രണ്ടിന്': '12', 'പതിമൂന്ന്': '13', 'പതിമൂന്നിന്': '13',
-          'പതിനാല്': '14', 'പതിനാലിന്': '14', 'പതിനഞ്ച്': '15', 'പതിനഞ്ചിന്': '15',
-          'പതിനാറ്': '16', 'പതിനാറിന്': '16', 'പതിനേഴ്': '17', 'പതിനേഴിന്': '17',
-          'പതിനെട്ട്': '18', 'പതിനെട്ടിന്': '18', 'പത്തൊൻപത്': '19', 'പത്തൊമ്പത്': '19',
-          'ഇരുപത്': '20', 'ഇരുപതിന്': '20', 'ഇരുപത്തൊന്ന്': '21', 'ഇരുപത്തൊന്നിന്': '21',
-          'ഇരുപത്തിരണ്ട്': '22', 'ഇരുപത്തിരണ്ടിന്': '22', 'ഇരുപത്തിമൂന്ന്': '23', 'ഇരുപത്തിമൂന്നിന്': '23',
-          'ഇരുപത്തിനാല്': '24', 'ഇരുപത്തിനാലിന്': '24', 'ഇരുപത്തിയഞ്ച്': '25', 'ഇരുപത്തിയഞ്ചിന്': '25',
-          'ഇരുപത്തിയാറ്': '26', 'ഇരുപത്തിയാറിന്': '26', 'ഇരുപത്തിഏഴ്': '27', 'ഇരുപത്തിഏഴിന്': '27',
-          'ഇരുപത്തിഎട്ട്': '28', 'ഇരുപത്തിഎട്ടിന്': '28', 'ഇരുപത്തൊൻപത്': '29', 'ഇരുപത്തൊമ്പത്': '29',
-          'മുപ്പത്': '30', 'മുപ്പതിന്': '30', 'മുപ്പത്തൊന്ന്': '31', 'മുപ്പത്തൊന്നിന്': '31'
-        };
-        for (const [mlMonth, enMonth] of Object.entries(monthMap)) {
-          if (text.includes(mlMonth)) {
-            const mAfter = text.match(new RegExp(`${mlMonth}\\s*(\\d{1,2})(?:[\\u0D00-\\u0D7F\\-]*)`));
-            if (mAfter) return `${enMonth} ${mAfter[1]}`;
-
-            const mBefore = text.match(new RegExp(`(\\d{1,2})\\s*(?:[\\u0D00-\\u0D7F\\-]*)\\s*${mlMonth}`));
-            if (mBefore) return `${enMonth} ${mBefore[1]}`;
-
-            for (const [wMl, dNum] of Object.entries(numberWordMap)) {
-              if (text.includes(wMl)) return `${enMonth} ${dNum}`;
-            }
-          }
-        }
-        return "";
       }
 
       function parseMalayalamPlatformFromText(text) {
@@ -2920,10 +3025,10 @@
               r.headline = fixCommonCinemaEnglishSpellings(sanitizeField(item.headline || item.movie_name || r.headline || ""));
             } else if (activeTab === 'Release Updates') {
               r.headline = fixCommonCinemaEnglishSpellings(sanitizeField(item.movie_name || item.headline || r.headline || ""));
-              r.releaseDate = sanitizeField(item.release_date) || parseMalayalamDateFromText(r.text) || r.releaseDate || "";
+              r.releaseDate = standardizeReleaseDate(item.release_date, r.text, r.releaseDate);
             } else { // OTT Updates
               r.headline = fixCommonCinemaEnglishSpellings(sanitizeField(item.movie_name || item.headline || r.headline || ""));
-              r.releaseDate = sanitizeField(item.release_date) || parseMalayalamDateFromText(r.text) || r.releaseDate || "";
+              r.releaseDate = standardizeReleaseDate(item.release_date, r.text, r.releaseDate);
               r.ottPlatform = sanitizeField(item.ott_platform) || parseMalayalamPlatformFromText(r.text) || r.ottPlatform || "";
             }
 
@@ -4486,7 +4591,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       if (typeof parseMalayalamDateFromText === 'function') {
         const mlDateStr = parseMalayalamDateFromText(text);
         if (mlDateStr) {
-          const d = new Date(`${mlDateStr}, ${currentYear}`);
+          const d = new Date(mlDateStr.includes(String(currentYear)) ? mlDateStr : `${mlDateStr}, ${currentYear}`);
           if (!isNaN(d.getTime())) return d;
         }
       }
