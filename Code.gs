@@ -181,7 +181,7 @@ function doPost(e) {
       if (data.drive_thumbnail_url) {
         saveThumbnailConfigSheet(data.drive_thumbnail_url);
       }
-      return triggerGitHubActionHandler(data.privacy_status, data.drive_thumbnail_url, data.token);
+      return triggerGitHubActionHandler(data.privacy_status, data.drive_thumbnail_url, data.token, data.sections);
     }
 
     // 2. Handle Google Sheet Table Sync Request
@@ -326,7 +326,7 @@ function savePastedData(category, rawText) {
   return { status: "success", rows_added: lines.length };
 }
 
-function triggerGitHubAction(privacyStatus, driveUrl, userToken) {
+function triggerGitHubAction(privacyStatus, driveUrl, userToken, sections) {
   var storedToken = PropertiesService.getScriptProperties().getProperty("GITHUB_TOKEN");
   var token = (userToken && userToken.trim()) ? userToken.trim() : storedToken;
 
@@ -336,7 +336,8 @@ function triggerGitHubAction(privacyStatus, driveUrl, userToken) {
     "ref": "main",
     "inputs": {
       "privacy_status": privacyStatus || "unlisted",
-      "drive_thumbnail_url": driveUrl || ""
+      "drive_thumbnail_url": driveUrl || "",
+      "sections": sections || "all"
     }
   };
 
@@ -361,8 +362,8 @@ function triggerGitHubAction(privacyStatus, driveUrl, userToken) {
   }
 }
 
-function triggerGitHubActionHandler(privacyStatus, driveUrl, userToken) {
-  var res = triggerGitHubAction(privacyStatus, driveUrl, userToken);
+function triggerGitHubActionHandler(privacyStatus, driveUrl, userToken, sections) {
+  var res = triggerGitHubAction(privacyStatus, driveUrl, userToken, sections);
   return ContentService.createTextOutput(JSON.stringify(res))
     .setMimeType(ContentService.MimeType.JSON);
 }

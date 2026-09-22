@@ -11,6 +11,10 @@ on:
         description: 'YouTube Privacy Status (unlisted, private, public)'
         required: true
         default: 'unlisted'
+      sections:
+        description: 'Worksheet sections to include (movie_updates, release_updates, ott_updates or "all")'
+        required: false
+        default: 'all'
   repository_dispatch:
     types: [trigger_youtube_upload]
 
@@ -45,8 +49,10 @@ jobs:
           echo "$YOUTUBE_TOKEN_DATA" > outputs/youtube_token.json
 
       - name: 🎙️ 1. Synthesize Malayalam Voice Audio from Google Sheets
+        env:
+          SECTIONS_ARG: ${{ github.event.inputs.sections || github.event.client_payload.sections || 'all' }}
         run: |
-          python generate_from_google_sheet.py edge_female
+          python generate_from_google_sheet.py edge_female --sections "$SECTIONS_ARG"
 
       - name: 🎞️ 2. Render 1080p Full HD MP4 Presentation Video
         run: |
@@ -56,21 +62,26 @@ jobs:
         env:
           DRIVE_THUMB_URL: ${{ github.event.inputs.drive_thumbnail_url || github.event.client_payload.drive_thumbnail_url }}
           PRIVACY_STATUS: ${{ github.event.inputs.privacy_status || github.event.client_payload.privacy_status || 'unlisted' }}
+          SECTIONS_ARG: ${{ github.event.inputs.sections || github.event.client_payload.sections || 'all' }}
         run: |
           python -c "
           from youtube_uploader import YouTubeUploader
           from metadata_generator import generate_english_title, generate_youtube_description, generate_youtube_tags, download_thumbnail_from_drive
           from google_sheet_manager import GoogleSheetManager
           from pathlib import Path
+          import os
 
           mgr = GoogleSheetManager()
           data = mgr.fetch_all_tabs(force_refresh=True)
 
-          title = generate_english_title()
-          desc = generate_youtube_description(data)
+          sections_input = os.environ.get('SECTIONS_ARG', 'all')
+          active_sections = None if sections_input in ['all', '', '*'] else [s.strip() for s in sections_input.split(',')]
+
+          title = generate_english_title(sections=active_sections)
+          desc = generate_youtube_description(data, sections=active_sections)
           tags = generate_youtube_tags()
 
-          drive_url = '$DRIVE_THUMB_URL'
+          drive_url = os.environ.get('DRIVE_THUMB_URL', '')
           thumb_path = download_thumbnail_from_drive(drive_url, sheet_data=data)
 
           uploader = YouTubeUploader()
@@ -79,7 +90,7 @@ jobs:
               title=title,
               description=desc,
               tags=tags,
-              privacy_status='$PRIVACY_STATUS',
+              privacy_status=os.environ.get('PRIVACY_STATUS', 'unlisted'),
               thumbnail_path=thumb_path
           )
           print('YOUTUBE UPLOAD SUCCESSFUL:', res)

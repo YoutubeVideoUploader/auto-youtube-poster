@@ -161,11 +161,41 @@ def download_thumbnail_from_drive(
         return None
 
 
-def generate_english_title(month_year: Optional[str] = None) -> str:
-    """Generates clean, professional English SEO YouTube video title."""
+def generate_english_title(month_year: Optional[str] = None, sections: Optional[List[str]] = None) -> str:
+    """Generates clean, professional English SEO YouTube video title matching active sections."""
     if not month_year:
         now = datetime.datetime.now()
         month_year = now.strftime("%B %Y")  # e.g. September 2026
+
+    if not sections:
+        # Check if metadata json contains selected_sections
+        meta_candidates = list(OUTPUT_DIR.glob("GoogleSheet_Malayalam_Movie_News_*_v4.0.json"))
+        if meta_candidates:
+            try:
+                with open(meta_candidates[0], 'r', encoding='utf-8') as f:
+                    m = json.load(f)
+                    sections = m.get("selected_sections")
+            except Exception:
+                pass
+
+    if sections:
+        s_norm = [str(s).lower() for s in sections]
+        has_movie = any("movie" in s for s in s_norm)
+        has_release = any("release" in s or "theater" in s for s in s_norm)
+        has_ott = any("ott" in s for s in s_norm)
+
+        if has_movie and not has_release and not has_ott:
+            return f"Latest Malayalam Movie Updates & Cinema News | {month_year}"
+        elif has_release and not has_movie and not has_ott:
+            return f"Upcoming Malayalam Theater Releases & Box Office News | {month_year}"
+        elif has_ott and not has_movie and not has_release:
+            return f"Latest Malayalam OTT Releases & Streaming Updates | {month_year}"
+        elif has_movie and has_release and not has_ott:
+            return f"Malayalam Movie News & Theater Release Updates | {month_year}"
+        elif has_movie and has_ott and not has_release:
+            return f"Malayalam Movie News & OTT Release Updates | {month_year}"
+        elif has_release and has_ott and not has_movie:
+            return f"Malayalam Theater Releases & OTT Streaming Updates | {month_year}"
 
     return f"Malayalam Movie News & OTT Release Updates | {month_year}"
 
@@ -180,7 +210,8 @@ def format_seconds_to_timestamp(seconds: float) -> str:
 
 def generate_youtube_description(
     sheet_data: Dict[str, List[Dict[str, Any]]],
-    chunk_timestamps: Optional[List[Tuple[str, float]]] = None
+    chunk_timestamps: Optional[List[Tuple[str, float]]] = None,
+    sections: Optional[List[str]] = None
 ) -> str:
     """
     Generates YouTube video description complete with:
@@ -188,6 +219,16 @@ def generate_youtube_description(
     - Topic Headline Bullet Points
     - Channel Disclaimer & Hashtags
     """
+    if not sections:
+        meta_candidates = list(OUTPUT_DIR.glob("GoogleSheet_Malayalam_Movie_News_*_v4.0.json"))
+        if meta_candidates:
+            try:
+                with open(meta_candidates[0], 'r', encoding='utf-8') as f:
+                    m = json.load(f)
+                    sections = m.get("selected_sections")
+            except Exception:
+                pass
+
     desc_lines = []
     
     desc_lines.append("Latest Malayalam Movie News, Upcoming Theater Release Dates, and OTT Streaming Updates!")
@@ -197,12 +238,24 @@ def generate_youtube_description(
     desc_lines.append("⏱️ VIDEO CHAPTERS:")
     desc_lines.append("0:00 🎬 Introduction")
 
-    # Default chapter estimates if exact timestamps aren't passed
+    # Dynamic chapter estimates if exact timestamps aren't passed
     if not chunk_timestamps:
-        desc_lines.append("0:04 🎭 Movie Updates")
-        desc_lines.append("1:43 📅 Theater Release Updates")
-        desc_lines.append("3:28 🍿 OTT Streaming Updates")
-        desc_lines.append("4:50 🎬 Conclusion & Outro")
+        s_norm = [str(s).lower() for s in (sections or [])]
+        has_movie = not sections or any("movie" in s for s in s_norm)
+        has_release = not sections or any("release" in s or "theater" in s for s in s_norm)
+        has_ott = not sections or any("ott" in s for s in s_norm)
+
+        est_time = 4
+        if has_movie:
+            desc_lines.append(f"{format_seconds_to_timestamp(est_time)} 🎭 Movie Updates")
+            est_time += 99
+        if has_release:
+            desc_lines.append(f"{format_seconds_to_timestamp(est_time)} 📅 Theater Release Updates")
+            est_time += 105
+        if has_ott:
+            desc_lines.append(f"{format_seconds_to_timestamp(est_time)} 🍿 OTT Streaming Updates")
+            est_time += 82
+        desc_lines.append(f"{format_seconds_to_timestamp(est_time)} 🎬 Conclusion & Outro")
     else:
         current_time = 0.0
         for name, dur in chunk_timestamps:
@@ -221,6 +274,12 @@ def generate_youtube_description(
             continue
         if "thumb" in str(section_name).lower() or "config" in str(section_name).lower():
             continue
+
+        # If sections filter is active, skip sheets not in active selection
+        if sections:
+            s_name_low = str(section_name).lower().replace(" ", "_")
+            if not any(s.lower() in s_name_low or s_name_low in s.lower() for s in sections):
+                continue
 
         desc_lines.append(f"\n🔹 {section_name.upper()}:")
         

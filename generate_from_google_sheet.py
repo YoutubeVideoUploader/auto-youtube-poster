@@ -15,7 +15,7 @@ import requests
 import urllib3
 import pandas as pd
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 from PIL import Image
 
 # Disable SSL verification warnings
@@ -151,7 +151,43 @@ def download_single_target(target_str: str, save_path: str) -> bool:
     return False
 
 
-def fetch_all_sheets_data(sheet_url: str) -> Tuple[Dict[str, List[Dict[str, Any]]], int, int, List[str]]:
+def get_filtered_sheet_order(sections_arg: str = "all") -> List[Dict[str, Any]]:
+    """Filters SHEET_ORDER based on comma-separated section slugs or keywords."""
+    if not sections_arg or str(sections_arg).strip().lower() in ["all", "*", ""]:
+        return SHEET_ORDER
+
+    raw_keys = [k.strip().lower().replace("-", "_").replace(" ", "_") for k in str(sections_arg).split(",") if k.strip()]
+    filtered = []
+    for s_cfg in SHEET_ORDER:
+        slug = s_cfg["slug"].lower()
+        name_slug = s_cfg["name"].lower().replace(" ", "_")
+
+        matched = False
+        for req in raw_keys:
+            if req == slug or req == name_slug:
+                matched = True
+                break
+            if req in ["movie", "movies", "movie_news"] and "movie" in slug:
+                matched = True
+                break
+            if req in ["release", "releases", "theater", "theatre", "theater_releases", "theatre_releases"] and "release" in slug:
+                matched = True
+                break
+            if req in ["ott", "otts", "ott_releases", "streaming"] and "ott" in slug:
+                matched = True
+                break
+
+        if matched:
+            filtered.append(s_cfg)
+
+    if not filtered:
+        print(f"[!] Warning: No sections matched filter '{sections_arg}'. Defaulting to all sections.")
+        return SHEET_ORDER
+
+    return filtered
+
+
+def fetch_all_sheets_data(sheet_url: str = DEFAULT_SHEET_URL, active_sheet_order: Optional[List[Dict[str, Any]]] = None) -> Tuple[Dict[str, List[Dict[str, Any]]], int, int, List[str]]:
     """
     Downloads multi-tab Google Spreadsheet (.xlsx) and parses topics for SHEET_ORDER sections.
     Strictly preserves sheet order and comma-separated image URLs per topic.
@@ -161,12 +197,13 @@ def fetch_all_sheets_data(sheet_url: str) -> Tuple[Dict[str, List[Dict[str, Any]
     print("=" * 60)
     print("\nLoading Google Spreadsheet...")
 
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
+    if active_sheet_order is None:
+        active_sheet_order = SHEET_ORDER
 
-    # 1. Download full Excel workbook (.xlsx)
     xlsx_url = convert_sheet_url_to_xlsx_url(sheet_url)
-
+    headers = HTTP_HEADERS.copy()
     resp = None
+
     for attempt in range(1, 4):
         try:
             resp = requests.get(xlsx_url, headers=headers, verify=False, timeout=25)
@@ -199,7 +236,7 @@ def fetch_all_sheets_data(sheet_url: str) -> Tuple[Dict[str, List[Dict[str, Any]
     total_images_failed = 0
     warning_logs = []
 
-    for s_cfg in SHEET_ORDER:
+    for s_cfg in active_sheet_order:
         sec_name = s_cfg["name"]
         sec_slug = s_cfg["slug"]
         if sec_name.lower() in available_sheets:
@@ -355,8 +392,11 @@ def get_ordinal_prefix(idx: int) -> str:
     return ordinals.get(idx, f"{idx}-ാമതായി...")
 
 
-def build_presenter_markup_script(parsed_sections: Dict[str, List[Dict[str, Any]]]) -> str:
+def build_presenter_markup_script(parsed_sections: Dict[str, List[Dict[str, Any]]], active_sheet_order: Optional[List[Dict[str, Any]]] = None) -> str:
     """Wraps multi-sheet sections into Presenter XML Markup script with global intro/outro and section intros."""
+    if active_sheet_order is None:
+        active_sheet_order = SHEET_ORDER
+
     markup_parts = []
 
     # 1. Global Intro (Occurs ONCE at beginning)
@@ -364,15 +404,37 @@ def build_presenter_markup_script(parsed_sections: Dict[str, List[Dict[str, Any]
     markup_parts.append(GLOBAL_INTRO)
     markup_parts.append("</intro>\n")
 
+    # Find non-empty sections
+    active_non_empty = [s for s in active_sheet_order if parsed_sections.get(s["name"], [])]
+
     # 2. Sequential Sections
-    for s_cfg in SHEET_ORDER:
+    for idx, s_cfg in enumerate(active_non_empty):
         sec_name = s_cfg["name"]
-        sec_intro = s_cfg["intro"]
+        sec_slug = s_cfg.get("slug", "")
         topics = parsed_sections.get(sec_name, [])
 
         if not topics:
-            # Skip empty section & intro per requirement #9
             continue
+
+        # Choose natural intro phrasing depending on whether this is the first section or a follow-up
+        if idx == 0:
+            if sec_slug == "release_updates":
+                sec_intro = "പുതിയ മലയാള തിയേറ്റർ റിലീസ് വിശേഷങ്ങളിലേക്ക് കടക്കാം."
+            elif sec_slug == "ott_updates":
+                sec_intro = "പുതിയ ഒടിടി റിലീസുകളുടെയും സ്ട്രീമിംഗ് വിശേഷങ്ങളിലേക്കും കടക്കാം."
+            elif sec_slug == "movie_updates":
+                sec_intro = s_cfg.get("intro", "ആദ്യം, പുതിയ മലയാള സിനിമാ അപ്ഡേറ്റുകളിലേക്ക് കടക്കാം.")
+            else:
+                sec_intro = s_cfg.get("intro", "")
+        else:
+            if sec_slug == "release_updates":
+                sec_intro = "ഇനി അടുത്തതായി, റിലീസിന് ഒരുങ്ങുന്ന സിനിമകളുടെ അപ്ഡേറ്റുകളിലേക്ക്."
+            elif sec_slug == "ott_updates":
+                sec_intro = "ഇനി അടുത്തതായി, ഒടിടി റിലീസുകളുടെയും സ്ട്രീമിംഗ് അപ്ഡേറ്റുകളുടെയും വിശേഷങ്ങളിലേക്ക്."
+            elif sec_slug == "movie_updates":
+                sec_intro = "ഇനി അടുത്തതായി, പുതിയ മലയാള സിനിമാ അപ്ഡേറ്റുകളിലേക്ക്."
+            else:
+                sec_intro = s_cfg.get("intro", "")
 
         markup_parts.append("<section_intro>")
         markup_parts.append(sec_intro)
@@ -402,9 +464,12 @@ def build_presenter_markup_script(parsed_sections: Dict[str, List[Dict[str, Any]
     return "\n".join(markup_parts)
 
 
-def generate_audio_from_sheet(sheet_url: str = DEFAULT_SHEET_URL, model_key: str = "edge_female", is_test_mode: bool = False):
+def generate_audio_from_sheet(sheet_url: str = DEFAULT_SHEET_URL, model_key: str = "edge_female", is_test_mode: bool = False, sections_arg: str = "all"):
     """Main workflow function to fetch multi-sheet topics, download images, and generate audio."""
-    parsed_sections, img_downloaded, img_failed, warning_logs = fetch_all_sheets_data(sheet_url)
+    active_sheet_order = get_filtered_sheet_order(sections_arg)
+    print(f"[SECTIONS] Active rendering sections: {[s['name'] for s in active_sheet_order]}")
+
+    parsed_sections, img_downloaded, img_failed, warning_logs = fetch_all_sheets_data(sheet_url, active_sheet_order=active_sheet_order)
 
     active_test_mode = is_test_mode or TEST_MODE or ("--test" in sys.argv or "-t" in sys.argv)
     if active_test_mode:
@@ -415,14 +480,14 @@ def generate_audio_from_sheet(sheet_url: str = DEFAULT_SHEET_URL, model_key: str
 
     # Combine all topic items in order for metadata JSON
     all_flat_topics = []
-    for s_cfg in SHEET_ORDER:
+    for s_cfg in active_sheet_order:
         all_flat_topics.extend(parsed_sections.get(s_cfg["name"], []))
 
     if not all_flat_topics:
-        print("[!] No topics found across all worksheets.")
+        print("[!] No topics found across all active worksheets.")
         return None
 
-    markup_script = build_presenter_markup_script(parsed_sections)
+    markup_script = build_presenter_markup_script(parsed_sections, active_sheet_order=active_sheet_order)
 
     print("\n--------------------------------------------------")
     print("INTRO & SCRIPT GENERATED")
@@ -452,6 +517,8 @@ def generate_audio_from_sheet(sheet_url: str = DEFAULT_SHEET_URL, model_key: str
                 meta_data = json.load(f)
             meta_data["topic_items"] = all_flat_topics
             meta_data["parsed_sections"] = {k: len(v) for k, v in parsed_sections.items()}
+            meta_data["selected_sections"] = [s["slug"] for s in active_sheet_order]
+            meta_data["active_sections"] = [s["name"] for s in active_sheet_order]
             with open(res["metadata_path"], 'w', encoding='utf-8') as f:
                 json.dump(meta_data, f, ensure_ascii=False, indent=2, default=str)
         except Exception as e:
@@ -465,7 +532,7 @@ def generate_audio_from_sheet(sheet_url: str = DEFAULT_SHEET_URL, model_key: str
     total_completed = 0
     total_failed = 0
 
-    for s_cfg in SHEET_ORDER:
+    for s_cfg in active_sheet_order:
         s_name = s_cfg["name"]
         t_list = parsed_sections.get(s_name, [])
         t_count = len(t_list)
@@ -500,13 +567,24 @@ if __name__ == "__main__":
     url_arg = DEFAULT_SHEET_URL
     model_arg = "edge_female"
     is_test = False
+    sections_arg = os.environ.get("SECTIONS", "all")
 
-    for arg in sys.argv[1:]:
+    args = sys.argv[1:]
+    i = 0
+    while i < len(args):
+        arg = args[i]
         if arg.startswith("http://") or arg.startswith("https://"):
             url_arg = arg
         elif arg in ["--test", "-t"]:
             is_test = True
+        elif arg in ["--sections", "-s", "--section"]:
+            if i + 1 < len(args):
+                sections_arg = args[i + 1]
+                i += 1
+        elif arg.startswith("--sections="):
+            sections_arg = arg.split("=", 1)[1]
         elif not arg.startswith("-"):
             model_arg = arg
+        i += 1
 
-    generate_audio_from_sheet(sheet_url=url_arg, model_key=model_arg, is_test_mode=is_test)
+    generate_audio_from_sheet(sheet_url=url_arg, model_key=model_arg, is_test_mode=is_test, sections_arg=sections_arg)

@@ -1078,6 +1078,55 @@
           </div>
         </div>
 
+        <!-- Video Sections Selector -->
+        <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid #334155; border-radius: 8px; padding: 14px 16px; margin-bottom: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <label style="font-size: 13.5px; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 8px;">
+              🎯 Video Content Sections: <span id="selected-sections-badge" style="background: #2563eb; color: #fff; font-size: 11px; padding: 2px 9px; border-radius: 9999px; font-weight: 600;">3 of 3 Selected</span>
+            </label>
+            <div style="font-size: 12px; color: #94a3b8;" id="sections-topic-count">All 3 categories included</div>
+          </div>
+
+          <!-- Checkboxes Grid -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 12px;">
+            <label style="display: flex; align-items: center; gap: 10px; background: rgba(59, 130, 246, 0.12); border: 1.5px solid #3b82f6; padding: 10px 14px; border-radius: 8px; cursor: pointer; user-select: none; transition: all 0.2s;" id="label-section-movie">
+              <input type="checkbox" id="chk-section-movie" value="movie_updates" checked onchange="updateSelectedSectionsUI()" style="width: 18px; height: 18px; accent-color: #3b82f6; cursor: pointer;">
+              <div>
+                <div style="font-size: 13.5px; font-weight: 700; color: #fff;">🎬 Movie Updates</div>
+                <div style="font-size: 11px; color: #94a3b8;">Cinema news & announcements</div>
+              </div>
+            </label>
+
+            <label style="display: flex; align-items: center; gap: 10px; background: rgba(245, 158, 11, 0.12); border: 1.5px solid #f59e0b; padding: 10px 14px; border-radius: 8px; cursor: pointer; user-select: none; transition: all 0.2s;" id="label-section-release">
+              <input type="checkbox" id="chk-section-release" value="release_updates" checked onchange="updateSelectedSectionsUI()" style="width: 18px; height: 18px; accent-color: #f59e0b; cursor: pointer;">
+              <div>
+                <div style="font-size: 13.5px; font-weight: 700; color: #fff;">🍿 Theater Releases</div>
+                <div style="font-size: 11px; color: #94a3b8;">Theatrical dates & trailers</div>
+              </div>
+            </label>
+
+            <label style="display: flex; align-items: center; gap: 10px; background: rgba(16, 185, 129, 0.12); border: 1.5px solid #10b981; padding: 10px 14px; border-radius: 8px; cursor: pointer; user-select: none; transition: all 0.2s;" id="label-section-ott">
+              <input type="checkbox" id="chk-section-ott" value="ott_updates" checked onchange="updateSelectedSectionsUI()" style="width: 18px; height: 18px; accent-color: #10b981; cursor: pointer;">
+              <div>
+                <div style="font-size: 13.5px; font-weight: 700; color: #fff;">📺 OTT Updates</div>
+                <div style="font-size: 11px; color: #94a3b8;">Streaming platform premieres</div>
+              </div>
+            </label>
+          </div>
+
+          <!-- Quick Presets -->
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+            <span style="font-size: 11.5px; color: #64748b; font-weight: 600; margin-right: 4px;">⚡ Quick Presets:</span>
+            <button type="button" class="btn btn-secondary" onclick="applySectionPreset(['movie_updates','release_updates','ott_updates'])" style="font-size: 11px; padding: 4px 10px; border-radius: 6px;">All 3</button>
+            <button type="button" class="btn btn-secondary" onclick="applySectionPreset(['movie_updates'])" style="font-size: 11px; padding: 4px 10px; border-radius: 6px;">🎬 Movie Only</button>
+            <button type="button" class="btn btn-secondary" onclick="applySectionPreset(['release_updates'])" style="font-size: 11px; padding: 4px 10px; border-radius: 6px;">🍿 Theater Only</button>
+            <button type="button" class="btn btn-secondary" onclick="applySectionPreset(['ott_updates'])" style="font-size: 11px; padding: 4px 10px; border-radius: 6px;">📺 OTT Only</button>
+            <button type="button" class="btn btn-secondary" onclick="applySectionPreset(['movie_updates','release_updates'])" style="font-size: 11px; padding: 4px 10px; border-radius: 6px;">🎬+🍿 Movie & Theater</button>
+            <button type="button" class="btn btn-secondary" onclick="applySectionPreset(['movie_updates','ott_updates'])" style="font-size: 11px; padding: 4px 10px; border-radius: 6px;">🎬+📺 Movie & OTT</button>
+            <button type="button" class="btn btn-secondary" onclick="applySectionPreset(['release_updates','ott_updates'])" style="font-size: 11px; padding: 4px 10px; border-radius: 6px;">🍿+📺 Theater & OTT</button>
+          </div>
+        </div>
+
         <div style="display: flex; gap: 12px; flex-wrap: wrap;">
           <button class="btn" style="background: #c41e3a; width: 100%; font-size: 16px;" onclick="triggerCloudYouTubeUpload()">🔴 Trigger 24/7 Cloud Video Render & YouTube Upload</button>
         </div>
@@ -3104,11 +3153,119 @@
       });
     }
 
+    function getSelectedVideoSections() {
+      const sections = [];
+      const chkMovie = document.getElementById('chk-section-movie');
+      const chkRelease = document.getElementById('chk-section-release');
+      const chkOtt = document.getElementById('chk-section-ott');
+
+      if (chkMovie && chkMovie.checked) sections.push('movie_updates');
+      if (chkRelease && chkRelease.checked) sections.push('release_updates');
+      if (chkOtt && chkOtt.checked) sections.push('ott_updates');
+
+      return sections;
+    }
+
+    function updateSelectedSectionsUI() {
+      const sections = getSelectedVideoSections();
+      const badge = document.getElementById('selected-sections-badge');
+      const topicCountElem = document.getElementById('sections-topic-count');
+
+      const configs = [
+        { id: 'chk-section-movie', labelId: 'label-section-movie', color: '#3b82f6', activeBg: 'rgba(59, 130, 246, 0.15)' },
+        { id: 'chk-section-release', labelId: 'label-section-release', color: '#f59e0b', activeBg: 'rgba(245, 158, 11, 0.15)' },
+        { id: 'chk-section-ott', labelId: 'label-section-ott', color: '#10b981', activeBg: 'rgba(16, 185, 129, 0.15)' }
+      ];
+
+      configs.forEach(c => {
+        const chk = document.getElementById(c.id);
+        const lbl = document.getElementById(c.labelId);
+        if (chk && lbl) {
+          if (chk.checked) {
+            lbl.style.border = `1.5px solid ${c.color}`;
+            lbl.style.background = c.activeBg;
+          } else {
+            lbl.style.border = '1px solid #334155';
+            lbl.style.background = '#0b0f19';
+          }
+        }
+      });
+
+      if (badge) {
+        badge.innerText = `${sections.length} of 3 Selected`;
+        if (sections.length === 3) {
+          badge.style.background = '#2563eb';
+        } else if (sections.length > 0) {
+          badge.style.background = '#059669';
+        } else {
+          badge.style.background = '#dc2626';
+          badge.innerText = '0 Selected (None)';
+        }
+      }
+
+      if (topicCountElem) {
+        if (sections.length === 3) {
+          topicCountElem.innerText = 'All 3 categories included';
+          topicCountElem.style.color = '#94a3b8';
+        } else if (sections.length === 0) {
+          topicCountElem.innerText = '⚠️ Please select at least 1 section';
+          topicCountElem.style.color = '#ef4444';
+        } else {
+          const names = [];
+          if (sections.includes('movie_updates')) names.push('🎬 Movie');
+          if (sections.includes('release_updates')) names.push('🍿 Theater');
+          if (sections.includes('ott_updates')) names.push('📺 OTT');
+          topicCountElem.innerText = `Active: ${names.join(' + ')}`;
+          topicCountElem.style.color = '#38bdf8';
+        }
+      }
+
+      try {
+        localStorage.setItem('user_video_sections', JSON.stringify(sections));
+      } catch (e) {}
+    }
+
+    function applySectionPreset(presetArray) {
+      const chkMovie = document.getElementById('chk-section-movie');
+      const chkRelease = document.getElementById('chk-section-release');
+      const chkOtt = document.getElementById('chk-section-ott');
+
+      if (chkMovie) chkMovie.checked = presetArray.includes('movie_updates');
+      if (chkRelease) chkRelease.checked = presetArray.includes('release_updates');
+      if (chkOtt) chkOtt.checked = presetArray.includes('ott_updates');
+
+      updateSelectedSectionsUI();
+    }
+
+    function restoreSavedVideoSections() {
+      try {
+        const saved = localStorage.getItem('user_video_sections');
+        if (saved) {
+          const arr = JSON.parse(saved);
+          if (Array.isArray(arr) && arr.length > 0) {
+            applySectionPreset(arr);
+            return;
+          }
+        }
+      } catch (e) {}
+      updateSelectedSectionsUI();
+    }
+
     function triggerCloudYouTubeUpload() {
+      const selectedSections = getSelectedVideoSections();
+      const statusBox = document.getElementById('cloud-upload-status');
+
+      if (!selectedSections || selectedSections.length === 0) {
+        statusBox.style.display = 'block';
+        statusBox.className = 'status-toast toast-error';
+        statusBox.innerText = '⚠️ Please select at least one section to include in the video (Movie Updates, Theater Releases, or OTT Updates).';
+        return;
+      }
+
+      const sectionsParam = selectedSections.join(",");
       const selectedUrls = selectedPosterUrls.length > 0 ? selectedPosterUrls.join(",") : "";
       const privacy = document.getElementById('privacy-select') ? document.getElementById('privacy-select').value : "unlisted";
       const patToken = document.getElementById('github-pat-token') ? document.getElementById('github-pat-token').value.trim() : "";
-      const statusBox = document.getElementById('cloud-upload-status');
 
       if (patToken) {
         localStorage.setItem('user_gh_pat', patToken);
@@ -3116,7 +3273,7 @@
 
       statusBox.style.display = 'block';
       statusBox.className = 'status-toast';
-      statusBox.innerText = '⚡ Syncing Google Sheet & Triggering Cloud Video Render via Apps Script Server...';
+      statusBox.innerText = `⚡ Syncing Google Sheet & Triggering Cloud Video Render (${selectedSections.length} section(s): ${sectionsParam}) via Apps Script Server...`;
 
       // 1. Sync active table data to Google Sheets
       saveAndSync();
@@ -3126,6 +3283,7 @@
         action: "trigger_github",
         privacy_status: privacy,
         drive_thumbnail_url: selectedUrls,
+        sections: sectionsParam,
         token: patToken
       };
 
@@ -3138,20 +3296,24 @@
       .then(data => {
         if (data.status === "success" || data.code === 200 || data.code === 204) {
           statusBox.className = 'status-toast toast-success';
-          statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render & YouTube Upload Triggered Successfully!</b><br>The cloud runner is generating audio, rendering 1080p video, and posting to YouTube (${privacy.toUpperCase()}).<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
+          statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render & YouTube Upload Triggered Successfully!</b><br>Active Sections: <b>${sectionsParam}</b>.<br>The cloud runner is generating audio, rendering 1080p video, and posting to YouTube (${privacy.toUpperCase()}).<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
         } else {
-          dispatchClientSideGitHub(privacy, selectedUrls, patToken, statusBox);
+          dispatchClientSideGitHub(privacy, selectedUrls, patToken, statusBox, sectionsParam);
         }
       })
       .catch(err => {
-        dispatchClientSideGitHub(privacy, selectedUrls, patToken, statusBox);
+        dispatchClientSideGitHub(privacy, selectedUrls, patToken, statusBox, sectionsParam);
       });
     }
 
-    function dispatchClientSideGitHub(privacy, driveUrl, patToken, statusBox) {
+    function dispatchClientSideGitHub(privacy, driveUrl, patToken, statusBox, sectionsParam) {
+      if (!sectionsParam) {
+        sectionsParam = getSelectedVideoSections().join(",") || "all";
+      }
+
       if (!patToken) {
         statusBox.className = 'status-toast toast-success';
-        statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render Trigger Sent!</b><br>The cloud runner is processing your request on GitHub Actions.<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
+        statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render Trigger Sent!</b><br>Active Sections: <b>${sectionsParam}</b>.<br>The cloud runner is processing your request on GitHub Actions.<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
         return;
       }
 
@@ -3168,17 +3330,18 @@
           ref: 'main',
           inputs: {
             privacy_status: privacy,
-            drive_thumbnail_url: driveUrl
+            drive_thumbnail_url: driveUrl,
+            sections: sectionsParam
           }
         })
       })
       .then(res => {
         statusBox.className = 'status-toast toast-success';
-        statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render & YouTube Upload Triggered Successfully!</b><br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
+        statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render & YouTube Upload Triggered Successfully!</b><br>Active Sections: <b>${sectionsParam}</b>.<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
       })
       .catch(err => {
         statusBox.className = 'status-toast toast-success';
-        statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render Triggered!</b><br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
+        statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render Triggered!</b><br>Active Sections: <b>${sectionsParam}</b>.<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
       });
     }
 
@@ -4966,6 +5129,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
 
     // Auto load on page start
     renderTableRows();
+    restoreSavedVideoSections();
   </script>
 </body>
 </html>
