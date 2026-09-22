@@ -3262,7 +3262,9 @@
         return;
       }
 
-      const sectionsParam = selectedSections.join(",");
+      const isAll = (selectedSections.length === 3);
+      const sectionsParam = isAll ? "all" : selectedSections.join(",");
+      const displaySections = isAll ? "All 3 Sections (Movie + Theater + OTT)" : selectedSections.join(", ");
       const selectedUrls = selectedPosterUrls.length > 0 ? selectedPosterUrls.join(",") : "";
       const privacy = document.getElementById('privacy-select') ? document.getElementById('privacy-select').value : "unlisted";
       const patToken = document.getElementById('github-pat-token') ? document.getElementById('github-pat-token').value.trim() : "";
@@ -3273,7 +3275,7 @@
 
       statusBox.style.display = 'block';
       statusBox.className = 'status-toast';
-      statusBox.innerText = `⚡ Syncing Google Sheet & Triggering Cloud Video Render (${selectedSections.length} section(s): ${sectionsParam}) via Apps Script Server...`;
+      statusBox.innerText = `⚡ Syncing Google Sheet & Triggering Cloud Video Render (${displaySections}) via Apps Script Server...`;
 
       // 1. Sync active table data to Google Sheets
       saveAndSync();
@@ -3300,7 +3302,7 @@
       .then(data => {
         if (data.status === "success" || data.code === 200 || data.code === 204) {
           statusBox.className = 'status-toast toast-success';
-          statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render & YouTube Upload Triggered Successfully!</b><br>Active Sections: <b>${sectionsParam}</b>.<br>The cloud runner is generating audio, rendering 1080p video, and posting to YouTube (${privacy.toUpperCase()}).<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
+          statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render & YouTube Upload Triggered Successfully!</b><br>Active Sections: <b>${displaySections}</b>.<br>The cloud runner is generating audio, rendering 1080p video, and posting to YouTube (${privacy.toUpperCase()}).<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
         } else {
           dispatchClientSideGitHub(privacy, selectedUrls, patToken, statusBox, sectionsParam);
         }
@@ -3312,12 +3314,15 @@
 
     function dispatchClientSideGitHub(privacy, driveUrl, patToken, statusBox, sectionsParam) {
       if (!sectionsParam) {
-        sectionsParam = getSelectedVideoSections().join(",") || "all";
+        const sel = getSelectedVideoSections();
+        sectionsParam = (sel.length === 3) ? "all" : (sel.join(",") || "all");
       }
+      const isAll = (sectionsParam === "all" || sectionsParam.split(',').length === 3);
+      const displaySections = isAll ? "All 3 Sections (Movie + Theater + OTT)" : sectionsParam;
 
       if (!patToken) {
         statusBox.className = 'status-toast toast-success';
-        statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render Trigger Sent!</b><br>Active Sections: <b>${sectionsParam}</b>.<br>The cloud runner is processing your request on GitHub Actions.<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
+        statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render Trigger Sent!</b><br>Active Sections: <b>${displaySections}</b>.<br>The cloud runner is processing your request on GitHub Actions.<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
         return;
       }
 
@@ -3344,11 +3349,11 @@
       })
       .then(res => {
         statusBox.className = 'status-toast toast-success';
-        statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render & YouTube Upload Triggered Successfully!</b><br>Active Sections: <b>${sectionsParam}</b>.<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
+        statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render & YouTube Upload Triggered Successfully!</b><br>Active Sections: <b>${displaySections}</b>.<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
       })
       .catch(err => {
         statusBox.className = 'status-toast toast-success';
-        statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render Triggered!</b><br>Active Sections: <b>${sectionsParam}</b>.<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
+        statusBox.innerHTML = `🎉 <b>24/7 Cloud Video Render Triggered!</b><br>Active Sections: <b>${displaySections}</b>.<br><a href="https://github.com/YoutubeVideoUploader/auto-youtube-poster/actions" target="_blank" style="color:#60a5fa; font-size:14px; font-weight:bold; text-decoration:underline;">Click Here to View Live GitHub Actions Status</a>`;
       });
     }
 

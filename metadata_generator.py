@@ -197,8 +197,10 @@ def generate_english_title(month_year: Optional[str] = None, sections: Optional[
             return f"Malayalam Movie News & OTT Release Updates | {month_year}"
         elif has_release and has_ott and not has_movie:
             return f"Malayalam Theater Releases & OTT Streaming Updates | {month_year}"
+        elif has_movie and has_release and has_ott:
+            return f"Malayalam Movie News, Theater Releases & OTT Updates | {month_year}"
 
-    return f"Malayalam Movie News & OTT Release Updates | {month_year}"
+    return f"Malayalam Movie News, Theater Releases & OTT Updates | {month_year}"
 
 
 def format_seconds_to_timestamp(seconds: float) -> str:

@@ -153,10 +153,13 @@ def download_single_target(target_str: str, save_path: str) -> bool:
 
 def get_filtered_sheet_order(sections_arg: str = "all") -> List[Dict[str, Any]]:
     """Filters SHEET_ORDER based on comma-separated section slugs or keywords."""
-    if not sections_arg or str(sections_arg).strip().lower() in ["all", "*", ""]:
+    if not sections_arg or str(sections_arg).strip().lower() in ["all", "*", "", "all_sections", "all_3"]:
         return SHEET_ORDER
 
-    raw_keys = [k.strip().lower().replace("-", "_").replace(" ", "_") for k in str(sections_arg).split(",") if k.strip()]
+    raw_keys = [k.strip().lower().replace("-", "_").replace(" ", "_") for k in re.split(r'[,+\s]+', str(sections_arg)) if k.strip()]
+    if any(k in ["all", "*", "all_sections", "all_3"] for k in raw_keys):
+        return SHEET_ORDER
+
     filtered = []
     for s_cfg in SHEET_ORDER:
         slug = s_cfg["slug"].lower()
@@ -180,8 +183,7 @@ def get_filtered_sheet_order(sections_arg: str = "all") -> List[Dict[str, Any]]:
         if matched:
             filtered.append(s_cfg)
 
-    if not filtered:
-        print(f"[!] Warning: No sections matched filter '{sections_arg}'. Defaulting to all sections.")
+    if not filtered or len(filtered) == 3:
         return SHEET_ORDER
 
     return filtered
@@ -230,27 +232,6 @@ def fetch_all_sheets_data(sheet_url: str = DEFAULT_SHEET_URL, active_sheet_order
             sheets_dict["Movie Updates"] = pd.read_csv(io.StringIO(r_csv.text))
 
     available_sheets = {str(k).strip().lower(): k for k in sheets_dict.keys()}
-
-    # Auto-detect sections tag from sheet if active_sheet_order is default/all
-    if active_sheet_order == SHEET_ORDER:
-        for tab_key, df_tab in sheets_dict.items():
-            if hasattr(df_tab, 'columns'):
-                found_sec = False
-                for col in df_tab.columns:
-                    for val in df_tab[col]:
-                        val_str = str(val)
-                        if '__SECTIONS__:' in val_str:
-                            m = re.search(r'__SECTIONS__:([a-zA-Z0-9_,]+)', val_str)
-                            if m:
-                                detected = m.group(1).strip()
-                                print(f"[SECTIONS] Auto-detected section filter from Google Sheet '{tab_key}': {detected}")
-                                active_sheet_order = get_filtered_sheet_order(detected)
-                                found_sec = True
-                                break
-                    if found_sec:
-                        break
-                if found_sec:
-                    break
 
     parsed_sections = {}
     total_images_downloaded = 0
@@ -388,7 +369,7 @@ def fetch_all_sheets_data(sheet_url: str = DEFAULT_SHEET_URL, active_sheet_order
         parsed_sections[sec_name] = topics_data
         print(f"✓ {sec_name} loaded: {len(topics_data)} topics")
 
-    return parsed_sections, total_images_downloaded, total_images_failed, warning_logs, active_sheet_order
+    return parsed_sections, total_images_downloaded, total_images_failed, warning_logs
 
 
 def get_ordinal_prefix(idx: int) -> str:
@@ -490,7 +471,7 @@ def generate_audio_from_sheet(sheet_url: str = DEFAULT_SHEET_URL, model_key: str
     active_sheet_order = get_filtered_sheet_order(sections_arg)
     print(f"[SECTIONS] Active rendering sections: {[s['name'] for s in active_sheet_order]}")
 
-    parsed_sections, img_downloaded, img_failed, warning_logs, active_sheet_order = fetch_all_sheets_data(sheet_url, active_sheet_order=active_sheet_order)
+    parsed_sections, img_downloaded, img_failed, warning_logs = fetch_all_sheets_data(sheet_url, active_sheet_order=active_sheet_order)
 
     active_test_mode = is_test_mode or TEST_MODE or ("--test" in sys.argv or "-t" in sys.argv)
     if active_test_mode:

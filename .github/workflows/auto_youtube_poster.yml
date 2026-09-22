@@ -59,12 +59,12 @@ jobs:
 
           sections = os.environ.get('RAW_SECTIONS', '').strip()
 
-          if not sections or sections.lower() in ('all', ''):
+          if not sections:
               priv = os.environ.get('RAW_PRIVACY', '')
               if '#sections=' in priv:
                   sections = priv.split('#sections=')[1].strip()
 
-          if not sections or sections.lower() in ('all', ''):
+          if not sections:
               drive = os.environ.get('RAW_DRIVE_URL', '')
               m = re.search(r'__SECTIONS__:([a-zA-Z0-9_,]+)', drive)
               if m:
@@ -103,17 +103,19 @@ jobs:
               sections_input = resolved_file.read_text(encoding='utf-8').strip()
           else:
               sections_input = os.environ.get('RAW_SECTIONS', '').strip()
-              if not sections_input or sections_input.lower() in ('all', ''):
+              if not sections_input:
                   priv = os.environ.get('RAW_PRIVACY', '')
                   if '#sections=' in priv:
                       sections_input = priv.split('#sections=')[1].strip()
-              if not sections_input or sections_input.lower() in ('all', ''):
+              if not sections_input:
                   drive = os.environ.get('RAW_DRIVE_URL', '')
                   m = re.search(r'__SECTIONS__:([a-zA-Z0-9_,]+)', drive)
                   if m:
                       sections_input = m.group(1).strip()
 
-          active_sections = None if not sections_input or sections_input in ['all', '', '*'] else [s.strip() for s in sections_input.split(',')]
+          active_sections = None if not sections_input or sections_input in ['all', '', '*', 'all_sections', 'all_3'] else [s.strip() for s in re.split(r'[,+\s]+', sections_input) if s.strip()]
+          if active_sections and len(active_sections) == 3:
+              active_sections = None
           print('Active sections for YouTube metadata:', active_sections)
 
           raw_priv = os.environ.get('RAW_PRIVACY', 'unlisted')
