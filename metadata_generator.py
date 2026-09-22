@@ -55,21 +55,33 @@ def download_thumbnail_from_drive(
 
     # 1. If drive_url is a Google Drive shareable link, download directly
     if "drive.google.com" in drive_url or "/file/d/" in drive_url:
-        direct_url = convert_drive_link_to_direct_download(drive_url)
-        save_path = THUMBNAIL_DIR / save_filename
+        match1 = re.search(r'/file/d/([a-zA-Z0-9_-]+)', drive_url)
+        match2 = re.search(r'id=([a-zA-Z0-9_-]+)', drive_url)
+        file_id = match1.group(1) if match1 else (match2.group(1) if match2 else "")
 
+        save_path = THUMBNAIL_DIR / save_filename
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         }
-        try:
-            r = requests.get(direct_url, headers=headers, verify=False, timeout=25)
-            if r.status_code == 200 and len(r.content) > 1000:
-                with open(save_path, 'wb') as f:
-                    f.write(r.content)
-                print(f"[OK] Thumbnail downloaded from Google Drive: {save_path}")
-                return str(save_path)
-        except Exception as e:
-            print(f"[!] Error downloading thumbnail from Drive: {e}")
+
+        urls_to_try = []
+        if file_id:
+            urls_to_try.append(f"https://drive.google.com/thumbnail?id={file_id}&sz=w1920")
+            urls_to_try.append(f"https://lh3.googleusercontent.com/d/{file_id}")
+            urls_to_try.append(f"https://drive.google.com/uc?export=download&id={file_id}")
+        else:
+            urls_to_try.append(drive_url)
+
+        for u in urls_to_try:
+            try:
+                r = requests.get(u, headers=headers, verify=False, timeout=25)
+                if r.status_code == 200 and len(r.content) > 1000 and not r.content.startswith(b'<!DOCTYPE') and not r.content.startswith(b'<html'):
+                    with open(save_path, 'wb') as f:
+                        f.write(r.content)
+                    print(f"[OK] Thumbnail downloaded from Google Drive: {save_path}")
+                    return str(save_path)
+            except Exception as e:
+                print(f"[!] Warning trying Google Drive endpoint: {e}")
 
     # 2. If drive_url contains comma/newline separated image URLs (from Thumbnail Studio)
     image_urls = []
