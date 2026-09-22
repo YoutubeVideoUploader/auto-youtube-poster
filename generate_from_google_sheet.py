@@ -153,10 +153,21 @@ def download_single_target(target_str: str, save_path: str) -> bool:
 
 def get_filtered_sheet_order(sections_arg: str = "all") -> List[Dict[str, Any]]:
     """Filters SHEET_ORDER based on comma-separated section slugs or keywords."""
-    if not sections_arg or str(sections_arg).strip().lower() in ["all", "*", "", "all_sections", "all_3"]:
+    if not sections_arg:
         return SHEET_ORDER
 
-    raw_keys = [k.strip().lower().replace("-", "_").replace(" ", "_") for k in re.split(r'[,+\s]+', str(sections_arg)) if k.strip()]
+    sections_str = str(sections_arg).strip()
+    if "#sections=" in sections_str:
+        sections_str = sections_str.split("#sections=")[1].strip()
+    if "__SECTIONS__:" in sections_str:
+        m = re.search(r'__SECTIONS__:([a-zA-Z0-9_,]+)', sections_str)
+        if m:
+            sections_str = m.group(1).strip()
+
+    if sections_str.lower() in ["all", "*", "", "all_sections", "all_3"]:
+        return SHEET_ORDER
+
+    raw_keys = [k.strip().lower().replace("-", "_").replace(" ", "_") for k in re.split(r'[,+\s]+', sections_str) if k.strip()]
     if any(k in ["all", "*", "all_sections", "all_3"] for k in raw_keys):
         return SHEET_ORDER
 

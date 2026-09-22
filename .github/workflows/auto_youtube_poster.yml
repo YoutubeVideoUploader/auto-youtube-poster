@@ -14,7 +14,7 @@ on:
       sections:
         description: 'Worksheet sections to include (movie_updates, release_updates, ott_updates or "all")'
         required: false
-        default: 'all'
+        default: ''
   repository_dispatch:
     types: [trigger_youtube_upload]
 
@@ -57,18 +57,19 @@ jobs:
           python -c "
           import os, re
 
-          sections = os.environ.get('RAW_SECTIONS', '').strip()
+          raw_priv = os.environ.get('RAW_PRIVACY', '').strip()
+          raw_drive = os.environ.get('RAW_DRIVE_URL', '').strip()
+          raw_sections = os.environ.get('RAW_SECTIONS', '').strip()
 
-          if not sections:
-              priv = os.environ.get('RAW_PRIVACY', '')
-              if '#sections=' in priv:
-                  sections = priv.split('#sections=')[1].strip()
-
-          if not sections:
-              drive = os.environ.get('RAW_DRIVE_URL', '')
-              m = re.search(r'__SECTIONS__:([a-zA-Z0-9_,]+)', drive)
+          sections = ''
+          if '#sections=' in raw_priv:
+              sections = raw_priv.split('#sections=')[1].strip()
+          elif '__SECTIONS__:' in raw_drive:
+              m = re.search(r'__SECTIONS__:([a-zA-Z0-9_,]+)', raw_drive)
               if m:
                   sections = m.group(1).strip()
+          elif raw_sections:
+              sections = raw_sections
 
           if not sections:
               sections = 'all'
@@ -102,16 +103,19 @@ jobs:
           if resolved_file.exists():
               sections_input = resolved_file.read_text(encoding='utf-8').strip()
           else:
-              sections_input = os.environ.get('RAW_SECTIONS', '').strip()
-              if not sections_input:
-                  priv = os.environ.get('RAW_PRIVACY', '')
-                  if '#sections=' in priv:
-                      sections_input = priv.split('#sections=')[1].strip()
-              if not sections_input:
-                  drive = os.environ.get('RAW_DRIVE_URL', '')
-                  m = re.search(r'__SECTIONS__:([a-zA-Z0-9_,]+)', drive)
+              raw_priv = os.environ.get('RAW_PRIVACY', '').strip()
+              raw_drive = os.environ.get('RAW_DRIVE_URL', '').strip()
+              raw_sections = os.environ.get('RAW_SECTIONS', '').strip()
+
+              sections_input = ''
+              if '#sections=' in raw_priv:
+                  sections_input = raw_priv.split('#sections=')[1].strip()
+              elif '__SECTIONS__:' in raw_drive:
+                  m = re.search(r'__SECTIONS__:([a-zA-Z0-9_,]+)', raw_drive)
                   if m:
                       sections_input = m.group(1).strip()
+              elif raw_sections:
+                  sections_input = raw_sections
 
           active_sections = None if not sections_input or sections_input in ['all', '', '*', 'all_sections', 'all_3'] else [s.strip() for s in re.split(r'[,+\s]+', sections_input) if s.strip()]
           if active_sections and len(active_sections) == 3:
