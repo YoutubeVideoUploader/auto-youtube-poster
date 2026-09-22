@@ -50,8 +50,35 @@ jobs:
 
       - name: 🎙️ 1. Synthesize Malayalam Voice Audio from Google Sheets
         env:
-          SECTIONS_ARG: ${{ github.event.inputs.sections || github.event.client_payload.sections || 'all' }}
+          RAW_SECTIONS: ${{ github.event.inputs.sections || github.event.client_payload.sections || '' }}
+          RAW_PRIVACY: ${{ github.event.inputs.privacy_status || github.event.client_payload.privacy_status || '' }}
+          RAW_DRIVE_URL: ${{ github.event.inputs.drive_thumbnail_url || github.event.client_payload.drive_thumbnail_url || '' }}
         run: |
+          python -c "
+          import os, re
+
+          sections = os.environ.get('RAW_SECTIONS', '').strip()
+
+          if not sections or sections.lower() in ('all', ''):
+              priv = os.environ.get('RAW_PRIVACY', '')
+              if '#sections=' in priv:
+                  sections = priv.split('#sections=')[1].strip()
+
+          if not sections or sections.lower() in ('all', ''):
+              drive = os.environ.get('RAW_DRIVE_URL', '')
+              m = re.search(r'__SECTIONS__:([a-zA-Z0-9_,]+)', drive)
+              if m:
+                  sections = m.group(1).strip()
+
+          if not sections:
+              sections = 'all'
+
+          print(f'RESOLVED SECTIONS: {sections}')
+          with open('resolved_sections.txt', 'w', encoding='utf-8') as f:
+              f.write(sections)
+          "
+          SECTIONS_ARG=$(cat resolved_sections.txt)
+          echo "Executing generation with sections: $SECTIONS_ARG"
           python generate_from_google_sheet.py edge_female --sections "$SECTIONS_ARG"
 
       - name: 🎞️ 2. Render 1080p Full HD MP4 Presentation Video
@@ -60,29 +87,51 @@ jobs:
 
       - name: 🚀 3. Upload Video to YouTube
         env:
-          DRIVE_THUMB_URL: ${{ github.event.inputs.drive_thumbnail_url || github.event.client_payload.drive_thumbnail_url }}
-          PRIVACY_STATUS: ${{ github.event.inputs.privacy_status || github.event.client_payload.privacy_status || 'unlisted' }}
-          SECTIONS_ARG: ${{ github.event.inputs.sections || github.event.client_payload.sections || 'all' }}
+          RAW_DRIVE_URL: ${{ github.event.inputs.drive_thumbnail_url || github.event.client_payload.drive_thumbnail_url || '' }}
+          RAW_PRIVACY: ${{ github.event.inputs.privacy_status || github.event.client_payload.privacy_status || 'unlisted' }}
+          RAW_SECTIONS: ${{ github.event.inputs.sections || github.event.client_payload.sections || '' }}
         run: |
           python -c "
           from youtube_uploader import YouTubeUploader
           from metadata_generator import generate_english_title, generate_youtube_description, generate_youtube_tags, download_thumbnail_from_drive
           from google_sheet_manager import GoogleSheetManager
           from pathlib import Path
-          import os
+          import os, re
+
+          resolved_file = Path('resolved_sections.txt')
+          if resolved_file.exists():
+              sections_input = resolved_file.read_text(encoding='utf-8').strip()
+          else:
+              sections_input = os.environ.get('RAW_SECTIONS', '').strip()
+              if not sections_input or sections_input.lower() in ('all', ''):
+                  priv = os.environ.get('RAW_PRIVACY', '')
+                  if '#sections=' in priv:
+                      sections_input = priv.split('#sections=')[1].strip()
+              if not sections_input or sections_input.lower() in ('all', ''):
+                  drive = os.environ.get('RAW_DRIVE_URL', '')
+                  m = re.search(r'__SECTIONS__:([a-zA-Z0-9_,]+)', drive)
+                  if m:
+                      sections_input = m.group(1).strip()
+
+          active_sections = None if not sections_input or sections_input in ['all', '', '*'] else [s.strip() for s in sections_input.split(',')]
+          print('Active sections for YouTube metadata:', active_sections)
+
+          raw_priv = os.environ.get('RAW_PRIVACY', 'unlisted')
+          clean_privacy = raw_priv.split('#')[0].strip() if '#' in raw_priv else raw_priv.strip()
+          if clean_privacy not in ['unlisted', 'private', 'public']:
+              clean_privacy = 'unlisted'
+
+          raw_drive = os.environ.get('RAW_DRIVE_URL', '').strip()
+          clean_drive = re.sub(r'\|*__SECTIONS__:[a-zA-Z0-9_,]+', '', raw_drive).strip().strip('|')
 
           mgr = GoogleSheetManager()
           data = mgr.fetch_all_tabs(force_refresh=True)
-
-          sections_input = os.environ.get('SECTIONS_ARG', 'all')
-          active_sections = None if sections_input in ['all', '', '*'] else [s.strip() for s in sections_input.split(',')]
 
           title = generate_english_title(sections=active_sections)
           desc = generate_youtube_description(data, sections=active_sections)
           tags = generate_youtube_tags()
 
-          drive_url = os.environ.get('DRIVE_THUMB_URL', '')
-          thumb_path = download_thumbnail_from_drive(drive_url, sheet_data=data)
+          thumb_path = download_thumbnail_from_drive(clean_drive, sheet_data=data)
 
           uploader = YouTubeUploader()
           res = uploader.upload_video(
@@ -90,7 +139,7 @@ jobs:
               title=title,
               description=desc,
               tags=tags,
-              privacy_status=os.environ.get('PRIVACY_STATUS', 'unlisted'),
+              privacy_status=clean_privacy,
               thumbnail_path=thumb_path
           )
           print('YOUTUBE UPLOAD SUCCESSFUL:', res)

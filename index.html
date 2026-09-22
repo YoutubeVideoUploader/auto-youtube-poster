@@ -3278,11 +3278,15 @@
       // 1. Sync active table data to Google Sheets
       saveAndSync();
 
+      // Encode sections into privacy_status and drive_thumbnail_url so EVEN UN-REDEPLOYED Apps Script forwards it!
+      const encodedPrivacy = `${privacy}#sections=${sectionsParam}`;
+      const encodedDriveUrl = (selectedUrls ? selectedUrls + "||" : "") + `__SECTIONS__:${sectionsParam}`;
+
       // 2. Route trigger request through Google Apps Script Server Proxy
       const payload = {
         action: "trigger_github",
-        privacy_status: privacy,
-        drive_thumbnail_url: selectedUrls,
+        privacy_status: encodedPrivacy,
+        drive_thumbnail_url: encodedDriveUrl,
         sections: sectionsParam,
         token: patToken
       };
@@ -3317,6 +3321,9 @@
         return;
       }
 
+      const encodedPrivacy = `${privacy}#sections=${sectionsParam}`;
+      const encodedDriveUrl = (driveUrl ? driveUrl + "||" : "") + `__SECTIONS__:${sectionsParam}`;
+
       const headers = {
         'Accept': 'application/vnd.github.v3+json',
         'Content-Type': 'application/json',
@@ -3329,8 +3336,8 @@
         body: JSON.stringify({
           ref: 'main',
           inputs: {
-            privacy_status: privacy,
-            drive_thumbnail_url: driveUrl,
+            privacy_status: encodedPrivacy,
+            drive_thumbnail_url: encodedDriveUrl,
             sections: sectionsParam
           }
         })

@@ -23,7 +23,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Force UTF-8 stdout encoding on Windows
 if hasattr(sys.stdout, 'reconfigure'):
-    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stdout.reconfigure(encoding='utf-8', line_buffering=True)
 
 # Add project root to sys.path
 BASE_DIR = Path(__file__).resolve().parent
@@ -231,6 +231,27 @@ def fetch_all_sheets_data(sheet_url: str = DEFAULT_SHEET_URL, active_sheet_order
 
     available_sheets = {str(k).strip().lower(): k for k in sheets_dict.keys()}
 
+    # Auto-detect sections tag from sheet if active_sheet_order is default/all
+    if active_sheet_order == SHEET_ORDER:
+        for tab_key, df_tab in sheets_dict.items():
+            if hasattr(df_tab, 'columns'):
+                found_sec = False
+                for col in df_tab.columns:
+                    for val in df_tab[col]:
+                        val_str = str(val)
+                        if '__SECTIONS__:' in val_str:
+                            m = re.search(r'__SECTIONS__:([a-zA-Z0-9_,]+)', val_str)
+                            if m:
+                                detected = m.group(1).strip()
+                                print(f"[SECTIONS] Auto-detected section filter from Google Sheet '{tab_key}': {detected}")
+                                active_sheet_order = get_filtered_sheet_order(detected)
+                                found_sec = True
+                                break
+                    if found_sec:
+                        break
+                if found_sec:
+                    break
+
     parsed_sections = {}
     total_images_downloaded = 0
     total_images_failed = 0
@@ -367,7 +388,7 @@ def fetch_all_sheets_data(sheet_url: str = DEFAULT_SHEET_URL, active_sheet_order
         parsed_sections[sec_name] = topics_data
         print(f"✓ {sec_name} loaded: {len(topics_data)} topics")
 
-    return parsed_sections, total_images_downloaded, total_images_failed, warning_logs
+    return parsed_sections, total_images_downloaded, total_images_failed, warning_logs, active_sheet_order
 
 
 def get_ordinal_prefix(idx: int) -> str:
@@ -469,7 +490,7 @@ def generate_audio_from_sheet(sheet_url: str = DEFAULT_SHEET_URL, model_key: str
     active_sheet_order = get_filtered_sheet_order(sections_arg)
     print(f"[SECTIONS] Active rendering sections: {[s['name'] for s in active_sheet_order]}")
 
-    parsed_sections, img_downloaded, img_failed, warning_logs = fetch_all_sheets_data(sheet_url, active_sheet_order=active_sheet_order)
+    parsed_sections, img_downloaded, img_failed, warning_logs, active_sheet_order = fetch_all_sheets_data(sheet_url, active_sheet_order=active_sheet_order)
 
     active_test_mode = is_test_mode or TEST_MODE or ("--test" in sys.argv or "-t" in sys.argv)
     if active_test_mode:

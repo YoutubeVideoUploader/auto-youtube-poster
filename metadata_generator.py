@@ -51,6 +51,7 @@ def download_thumbnail_from_drive(
     collage thumbnail if given image URLs or sheet topic data.
     """
     drive_url = (drive_url or "").strip()
+    drive_url = re.sub(r'\|*__SECTIONS__:[a-zA-Z0-9_,]+', '', drive_url).strip().strip('|')
 
     # 1. If drive_url is a Google Drive shareable link, download directly
     if "drive.google.com" in drive_url or "/file/d/" in drive_url:
