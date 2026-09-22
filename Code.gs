@@ -259,10 +259,12 @@ function saveThumbnailConfigSheet(urlsString) {
     }
     sheet.clearContents();
     sheet.appendRow(["Selected Image URLs"]);
-    var urls = urlsString.split(/[\r\n,]+/);
+    // Strip __SECTIONS__ tags if present
+    var cleanUrls = urlsString.replace(/\|*__SECTIONS__:[a-zA-Z0-9_,]+/g, '').trim();
+    var urls = cleanUrls.split(/[\r\n,]+/);
     for (var i = 0; i < urls.length; i++) {
       var u = urls[i].trim();
-      if (u) {
+      if (u && u.toLowerCase().indexOf("http") === 0) {
         sheet.appendRow([u]);
       }
     }

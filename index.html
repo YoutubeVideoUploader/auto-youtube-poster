@@ -2042,8 +2042,30 @@
           }
         });
         saveLocalStore();
-        renderTableRows();
-        selectedPosterUrls = [];
+        // Restore user's selected thumbnail posters from Google Sheet 'Thumbnail Config' tab if present
+        let restoredFromSheet = false;
+        if (data['Thumbnail Config'] && Array.isArray(data['Thumbnail Config'])) {
+          let sheetThumbUrls = [];
+          data['Thumbnail Config'].forEach(r => {
+            let u = String(r['Selected Image URLs'] || r['Image URLs'] || r['URL'] || '').replace(/\|*__SECTIONS__:[a-zA-Z0-9_,]+/g, '').trim();
+            if (u.toLowerCase().startsWith('http') && !sheetThumbUrls.includes(u)) {
+              sheetThumbUrls.push(u);
+            }
+          });
+          if (sheetThumbUrls.length > 0) {
+            selectedPosterUrls = sheetThumbUrls;
+            try { localStorage.setItem('selected_thumbnail_urls', JSON.stringify(selectedPosterUrls)); } catch(e) {}
+            restoredFromSheet = true;
+          }
+        }
+        if (!restoredFromSheet) {
+          try {
+            const savedLocalThumb = localStorage.getItem('selected_thumbnail_urls');
+            if (savedLocalThumb) {
+              selectedPosterUrls = JSON.parse(savedLocalThumb);
+            }
+          } catch(e) {}
+        }
         if (activeSection === 'output') renderOutputPreviews();
         if (activeSection === 'thumbnail') renderThumbnailStudio();
 
@@ -2218,13 +2240,10 @@
         return;
       }
 
-      // Purge stale URLs from previous days that are not in current active topics
-      const validUrlSet = new Set(allPosters.map(p => p.url));
-      selectedPosterUrls = selectedPosterUrls.filter(u => validUrlSet.has(u));
-
-      // Default selection to first 4 images of current active topics if none selected yet
+      // Default selection to first 4 images of active topics only if user has not chosen any
       if (selectedPosterUrls.length === 0) {
         selectedPosterUrls = allPosters.slice(0, 4).map(p => p.url);
+        try { localStorage.setItem('selected_thumbnail_urls', JSON.stringify(selectedPosterUrls)); } catch(e) {}
       }
 
       allPosters.forEach((p, idx) => {
@@ -2250,6 +2269,7 @@
 
     function resetThumbnailPostersToActive() {
       selectedPosterUrls = [];
+      try { localStorage.removeItem('selected_thumbnail_urls'); } catch(e) {}
       renderThumbnailStudio();
       const statusBox = document.getElementById('sync-status');
       if (statusBox) {
@@ -2271,6 +2291,7 @@
       } else {
         selectedPosterUrls = selectedPosterUrls.filter(u => u !== url);
       }
+      try { localStorage.setItem('selected_thumbnail_urls', JSON.stringify(selectedPosterUrls)); } catch(e) {}
       updateThumbnailSummary();
     }
 
@@ -2293,8 +2314,10 @@
           });
         });
         selectedPosterUrls = urls;
+        try { localStorage.setItem('selected_thumbnail_urls', JSON.stringify(selectedPosterUrls)); } catch(e) {}
       } else {
         selectedPosterUrls = [];
+        try { localStorage.removeItem('selected_thumbnail_urls'); } catch(e) {}
       }
       renderThumbnailStudio();
     }
@@ -3331,15 +3354,11 @@
       const customDriveElem = document.getElementById('custom-drive-thumbnail-input');
       const customDriveUrl = customDriveElem ? customDriveElem.value.trim() : "";
 
-      // Ensure only verified URLs from current topics are passed, discarding stale selections from previous days
-      const currentActiveUrls = new Set();
-      const activeSecs = getSelectedVideoSections();
-      if (activeSecs.includes('movie_updates')) (store['Movie Updates']||[]).forEach(r => (r.imgUrl||'').split(/[\r\n,]+/).forEach(u => u.trim().startsWith('http') && currentActiveUrls.add(u.trim())));
-      if (activeSecs.includes('release_updates')) (store['Release Updates']||[]).forEach(r => (r.imgUrl||'').split(/[\r\n,]+/).forEach(u => u.trim().startsWith('http') && currentActiveUrls.add(u.trim())));
-      if (activeSecs.includes('ott_updates')) (store['OTT Updates']||[]).forEach(r => (r.imgUrl||'').split(/[\r\n,]+/).forEach(u => u.trim().startsWith('http') && currentActiveUrls.add(u.trim())));
-
-      const verifiedSelectedUrls = selectedPosterUrls.filter(u => currentActiveUrls.has(u));
-      const selectedUrls = customDriveUrl || (verifiedSelectedUrls.length > 0 ? verifiedSelectedUrls.join(",") : "");
+      // Use custom Drive thumbnail URL if provided, otherwise pass user's selected poster URLs directly
+      let selectedUrls = customDriveUrl;
+      if (!selectedUrls && Array.isArray(selectedPosterUrls) && selectedPosterUrls.length > 0) {
+        selectedUrls = selectedPosterUrls.filter(u => u && typeof u === 'string' && u.trim().startsWith('http')).join(",");
+      }
 
       const privacy = document.getElementById('privacy-select') ? document.getElementById('privacy-select').value : "unlisted";
       const patToken = document.getElementById('github-pat-token') ? document.getElementById('github-pat-token').value.trim() : "";

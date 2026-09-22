@@ -206,23 +206,49 @@ def download_thumbnail_from_drive(
                                 if u_clean.startswith("http") and u_clean not in sheet_topic_posters:
                                     sheet_topic_posters.append(u_clean)
 
-    # 3. Handle image URLs passed in drive_url (from Thumbnail Studio or parameters)
+    # 3. Priority A: Explicit image URLs passed in drive_url (from Thumbnail Studio or parameters)
     image_urls = []
     if drive_url and "http" in drive_url:
-        candidates = [u.strip() for u in re.split(r'[\r\n,]+', drive_url) if u.strip().startswith("http")]
-        # Validate candidate URLs: do they match current active topics?
-        valid_pool = set(current_topic_posters + sheet_topic_posters)
-        # If pool exists, only accept candidates that belong to current topics
-        if valid_pool:
-            matching = [u for u in candidates if u in valid_pool or any(Path(p).name in u for p in current_topic_posters if not p.startswith("http"))]
-            if matching:
-                image_urls = matching
-            else:
-                print(f"[THUMBNAIL] Notice: Passed thumbnail URLs do not match current active topics for this video. Discarding stale previous-day selection.")
-        else:
-            image_urls = candidates
+        candidates = [re.sub(r'\|*__SECTIONS__:[a-zA-Z0-9_,]+', '', u).strip() for u in re.split(r'[\r\n,]+', drive_url)]
+        candidates = [u for u in candidates if u.startswith("http")]
+        if candidates:
+            print(f"[THUMBNAIL] Using {len(candidates)} explicit image URL(s) passed from user selection.")
+            image_urls = candidates[:6]
 
-    # 4. If no explicit valid URLs, use current active topic posters
+    # 4. Priority B: Check Google Sheet 'Thumbnail Config' tab (from sheet_data or sheet_cache.json)
+    if not image_urls:
+        thumb_config_urls = []
+        if sheet_data and isinstance(sheet_data, dict) and "Thumbnail Config" in sheet_data:
+            raw_tc = sheet_data["Thumbnail Config"]
+            tc_rows = raw_tc.to_dict(orient="records") if hasattr(raw_tc, 'to_dict') else (raw_tc if isinstance(raw_tc, list) else [])
+            for r in tc_rows:
+                if isinstance(r, dict):
+                    raw_u = r.get("Selected Image URLs", "") or r.get("Image URLs", "") or r.get("URL", "")
+                    clean_u = re.sub(r'\|*__SECTIONS__:[a-zA-Z0-9_,]+', '', str(raw_u)).strip()
+                    if clean_u.startswith("http") and clean_u not in thumb_config_urls:
+                        thumb_config_urls.append(clean_u)
+
+        if not thumb_config_urls:
+            cache_file = OUTPUT_DIR / "sheet_cache.json"
+            if cache_file.exists():
+                try:
+                    with open(cache_file, 'r', encoding='utf-8') as f:
+                        sc = json.load(f)
+                        if "Thumbnail Config" in sc and isinstance(sc["Thumbnail Config"], list):
+                            for r in sc["Thumbnail Config"]:
+                                if isinstance(r, dict):
+                                    raw_u = r.get("Selected Image URLs", "") or r.get("Image URLs", "") or r.get("URL", "")
+                                    clean_u = re.sub(r'\|*__SECTIONS__:[a-zA-Z0-9_,]+', '', str(raw_u)).strip()
+                                    if clean_u.startswith("http") and clean_u not in thumb_config_urls:
+                                        thumb_config_urls.append(clean_u)
+                except Exception:
+                    pass
+
+        if thumb_config_urls:
+            print(f"[THUMBNAIL] Using {len(thumb_config_urls)} user-selected poster(s) from 'Thumbnail Config' sheet tab.")
+            image_urls = thumb_config_urls[:6]
+
+    # 5. Priority C: Fallback to current active topic posters
     if not image_urls:
         if current_topic_posters:
             print(f"[THUMBNAIL] Using {len(current_topic_posters)} poster(s) from current active video topics.")

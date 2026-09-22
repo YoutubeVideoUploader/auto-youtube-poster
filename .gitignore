@@ -5,6 +5,7 @@ outputs/*.wav
 outputs/*.jpg
 outputs/*.png
 outputs/youtube_token.json
+outputs/sheet_cache.json
 client_secret.json
 __pycache__/
 *.pyc
