@@ -67,13 +67,30 @@ def download_image(url_or_path: str, timeout: int = 15) -> Optional[Image.Image]
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         }
-        try:
-            resp = requests.get(url, headers=headers, timeout=timeout, verify=False)
-            if resp.status_code == 200 and len(resp.content) > 500:
-                img = Image.open(io.BytesIO(resp.content)).convert("RGB")
-                return img
-        except Exception as e:
-            print(f"[!] Warning: Could not download image {url[:40]}... : {e}")
+
+        # Handle Google Drive shareable links
+        urls_to_try = [url]
+        if "drive.google.com" in url or "/file/d/" in url:
+            import re
+            match1 = re.search(r'/file/d/([a-zA-Z0-9_-]+)', url)
+            match2 = re.search(r'id=([a-zA-Z0-9_-]+)', url)
+            file_id = match1.group(1) if match1 else (match2.group(1) if match2 else "")
+            if file_id:
+                urls_to_try = [
+                    f"https://drive.google.com/thumbnail?id={file_id}&sz=w1920",
+                    f"https://lh3.googleusercontent.com/d/{file_id}",
+                    f"https://drive.google.com/uc?export=download&id={file_id}"
+                ]
+
+        for u in urls_to_try:
+            try:
+                resp = requests.get(u, headers=headers, timeout=timeout, verify=False)
+                if resp.status_code == 200 and len(resp.content) > 500 and not resp.content.startswith(b'<!DOCTYPE') and not resp.content.startswith(b'<html'):
+                    img = Image.open(io.BytesIO(resp.content)).convert("RGB")
+                    return img
+            except Exception as e:
+                pass
+        print(f"[!] Warning: Could not download image {url[:50]}...")
     return None
 
 
@@ -110,7 +127,8 @@ def crop_center(img: Image.Image, target_width: int, target_height: int) -> Imag
 def create_collage_thumbnail(
     image_urls: List[str],
     title_text: str = "LATEST MALAYALAM MOVIE UPDATES",
-    output_filename: str = "generated_thumbnail.jpg"
+    output_filename: str = "generated_thumbnail.jpg",
+    badge_text: str = "MOVIE NEWS • EXCLUSIVE UPDATE"
 ) -> Optional[str]:
     """
     Downloads images from image_urls and creates a professional 1280x720 collage thumbnail.
@@ -231,9 +249,9 @@ def create_collage_thumbnail(
     canvas = Image.alpha_composite(canvas.convert("RGBA"), overlay).convert("RGB")
     draw = ImageDraw.Draw(canvas)
 
-    # 3. Top Broadcast Badge: "MOVIE NEWS • EXCLUSIVE UPDATE"
+    # 3. Top Broadcast Badge
     badge_font = get_font(26)
-    badge_text = "MOVIE NEWS • EXCLUSIVE UPDATE"
+    badge_text = (badge_text or "MOVIE NEWS • EXCLUSIVE UPDATE").strip()
     badge_bbox = badge_font.getbbox(badge_text)
     badge_w = badge_bbox[2] - badge_bbox[0]
     badge_h = badge_bbox[3] - badge_bbox[1]

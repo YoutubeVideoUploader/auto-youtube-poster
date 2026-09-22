@@ -159,17 +159,34 @@ class YouTubeUploader:
         # Set custom thumbnail if provided
         thumbnail_uploaded = False
         if thumbnail_path and Path(thumbnail_path).exists() and video_id:
-            try:
-                print(f"[THUMBNAIL] Uploading Custom Thumbnail: {thumbnail_path}...")
-                thumb_media = MediaFileUpload(thumbnail_path, mimetype="image/jpeg")
-                youtube.thumbnails().set(
-                    videoId=video_id,
-                    media_body=thumb_media
-                ).execute()
-                thumbnail_uploaded = True
-                print("[✓] Custom Thumbnail Applied Successfully!")
-            except Exception as e:
-                print(f"[!] Warning uploading thumbnail to YouTube: {e}")
+            import time
+            print(f"[THUMBNAIL] Uploading Custom Thumbnail: {thumbnail_path}...")
+            thumb_media = MediaFileUpload(str(thumbnail_path), mimetype="image/jpeg")
+
+            max_thumb_attempts = 5
+            for attempt in range(1, max_thumb_attempts + 1):
+                try:
+                    initial_delay = 3 if attempt == 1 else (attempt * 3)
+                    print(f"[THUMBNAIL] Waiting {initial_delay}s for YouTube video registration before setting thumbnail (attempt {attempt}/{max_thumb_attempts})...")
+                    time.sleep(initial_delay)
+                    youtube.thumbnails().set(
+                        videoId=video_id,
+                        media_body=thumb_media
+                    ).execute()
+                    thumbnail_uploaded = True
+                    print(f"[✓] Custom Thumbnail Applied Successfully on attempt {attempt}!")
+                    break
+                except Exception as e:
+                    err_str = str(e)
+                    print(f"[!] Warning: Thumbnail upload attempt {attempt}/{max_thumb_attempts} failed: {err_str}")
+                    if "uploadRateLimitExceeded" in err_str or "429" in err_str:
+                        if attempt < max_thumb_attempts:
+                            rate_sleep = attempt * 15
+                            print(f"[THUMBNAIL] ⏳ YouTube Thumbnail Rate Limit (429 / uploadRateLimitExceeded) hit. Backing off {rate_sleep}s before retry...")
+                            time.sleep(rate_sleep)
+                    elif "403" in err_str and "uploadRateLimitExceeded" not in err_str:
+                        if attempt == max_thumb_attempts:
+                            print("[!] Notice: If YouTube returned 403 Forbidden, please ensure your YouTube channel has 'Intermediate Features' (phone verification) enabled in YouTube Studio Settings > Channel > Feature Eligibility.")
 
         return {
             "status": "success",

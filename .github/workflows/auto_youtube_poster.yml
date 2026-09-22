@@ -137,7 +137,7 @@ jobs:
           desc = generate_youtube_description(data, sections=active_sections)
           tags = generate_youtube_tags()
 
-          thumb_path = download_thumbnail_from_drive(clean_drive, sheet_data=data)
+          thumb_path = download_thumbnail_from_drive(clean_drive, sheet_data=data, sections=active_sections)
 
           uploader = YouTubeUploader()
           res = uploader.upload_video(

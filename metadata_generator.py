@@ -44,14 +44,89 @@ def convert_drive_link_to_direct_download(drive_url: str) -> str:
 def download_thumbnail_from_drive(
     drive_url: str = "",
     save_filename: str = "custom_thumbnail.jpg",
-    sheet_data: Optional[Dict[str, List[Dict[str, Any]]]] = None
+    sheet_data: Optional[Dict[str, List[Dict[str, Any]]]] = None,
+    sections: Optional[List[str]] = None
 ) -> Optional[str]:
     """
     Downloads thumbnail image from Google Drive link, or generates an automated 1280x720 
-    collage thumbnail if given image URLs or sheet topic data.
+    collage thumbnail matching active sections (Movie, Theater, OTT, or combinations).
     """
-    drive_url = (drive_url or "").strip()
-    drive_url = re.sub(r'\|*__SECTIONS__:[a-zA-Z0-9_,]+', '', drive_url).strip().strip('|')
+    raw_input = (drive_url or "").strip()
+
+    # Auto-extract embedded sections tag if present in drive_url (e.g. from web dashboard)
+    if not sections and "__SECTIONS__:" in raw_input:
+        m = re.search(r'__SECTIONS__:([a-zA-Z0-9_,]+)', raw_input)
+        if m:
+            s_val = m.group(1).strip()
+            if s_val and s_val not in ['all', '*', 'all_sections', 'all_3']:
+                sections = [s.strip() for s in re.split(r'[,+\s]+', s_val) if s.strip()]
+
+    # Clean drive_url
+    drive_url = re.sub(r'\|*__SECTIONS__:[a-zA-Z0-9_,]+', '', raw_input).strip().strip('|')
+
+    # Auto-detect sections from saved output metadata JSON if not provided
+    if not sections:
+        meta_candidates = sorted(OUTPUT_DIR.glob("GoogleSheet_Malayalam_Movie_News_*_v4.0.json"), reverse=True)
+        if not meta_candidates:
+            meta_candidates = sorted(OUTPUT_DIR.glob("GoogleSheet_Malayalam_Movie_News_*.json"), reverse=True)
+        if meta_candidates:
+            try:
+                with open(meta_candidates[0], 'r', encoding='utf-8') as f:
+                    m = json.load(f)
+                    saved_secs = m.get("selected_sections")
+                    if saved_secs:
+                        sections = saved_secs
+            except Exception:
+                pass
+
+    # Resolve active section categories
+    has_movie = True
+    has_release = True
+    has_ott = True
+    if sections:
+        s_norm = [str(s).lower().strip() for s in sections]
+        is_all = any(x in s_norm for x in ['all', 'all_sections', 'all_3', '*']) or len(s_norm) == 3
+        if not is_all:
+            has_movie = any('movie' in s for s in s_norm)
+            has_release = any('release' in s or 'theater' in s for s in s_norm)
+            has_ott = any('ott' in s for s in s_norm)
+
+    # Dynamic bottom title and top broadcast badge based on active sections
+    if has_movie and not has_release and not has_ott:
+        thumb_title = "LATEST MALAYALAM MOVIE UPDATES"
+        badge_text = "MOVIE NEWS • EXCLUSIVE UPDATE"
+        target_tabs = ["Movie Updates"]
+        target_folders = ["movie_updates"]
+    elif has_release and not has_movie and not has_ott:
+        thumb_title = "UPCOMING THEATER RELEASES"
+        badge_text = "THEATER RELEASES • EXCLUSIVE UPDATE"
+        target_tabs = ["Release Updates"]
+        target_folders = ["release_updates"]
+    elif has_ott and not has_movie and not has_release:
+        thumb_title = "LATEST OTT STREAMING RELEASES"
+        badge_text = "OTT RELEASES • STREAMING UPDATE"
+        target_tabs = ["OTT Updates"]
+        target_folders = ["ott_updates"]
+    elif has_movie and has_release and not has_ott:
+        thumb_title = "MALAYALAM MOVIE & THEATER RELEASES"
+        badge_text = "CINEMA UPDATES • EXCLUSIVE NEWS"
+        target_tabs = ["Movie Updates", "Release Updates"]
+        target_folders = ["movie_updates", "release_updates"]
+    elif has_movie and has_ott and not has_release:
+        thumb_title = "MALAYALAM MOVIE & OTT RELEASES"
+        badge_text = "CINEMA & OTT • EXCLUSIVE NEWS"
+        target_tabs = ["Movie Updates", "OTT Updates"]
+        target_folders = ["movie_updates", "ott_updates"]
+    elif has_release and has_ott and not has_movie:
+        thumb_title = "THEATER & OTT STREAMING RELEASES"
+        badge_text = "NEW RELEASES • THEATER & OTT"
+        target_tabs = ["Release Updates", "OTT Updates"]
+        target_folders = ["release_updates", "ott_updates"]
+    else:
+        thumb_title = "MALAYALAM MOVIES, THEATER & OTT"
+        badge_text = "MOVIE NEWS • EXCLUSIVE UPDATE"
+        target_tabs = ["Movie Updates", "Release Updates", "OTT Updates"]
+        target_folders = ["movie_updates", "release_updates", "ott_updates"]
 
     # 1. If drive_url is a Google Drive shareable link, download directly
     if "drive.google.com" in drive_url or "/file/d/" in drive_url:
@@ -83,48 +158,42 @@ def download_thumbnail_from_drive(
             except Exception as e:
                 print(f"[!] Warning trying Google Drive endpoint: {e}")
 
-    # 2. If drive_url contains comma/newline separated image URLs (from Thumbnail Studio)
-    image_urls = []
-    if drive_url and "http" in drive_url:
-        for u in re.split(r'[\r\n,]+', drive_url):
-            u_clean = u.strip()
-            if u_clean.startswith("http"):
-                image_urls.append(u_clean)
+    # 2. Extract current active topic posters from latest generated metadata JSON
+    current_topic_posters = []
+    meta_candidates = sorted(OUTPUT_DIR.glob("GoogleSheet_Malayalam_Movie_News_*_v4.0.json"), reverse=True)
+    if not meta_candidates:
+        meta_candidates = sorted(OUTPUT_DIR.glob("GoogleSheet_Malayalam_Movie_News_*.json"), reverse=True)
 
-    # 3. Check for selected image URLs in 'Thumbnail Config' tab in sheet_data or sheet_cache.json
-    if not image_urls:
-        if not sheet_data:
-            cache_file = OUTPUT_DIR / "sheet_cache.json"
-            if cache_file.exists():
-                try:
-                    with open(cache_file, 'r', encoding='utf-8') as f:
-                        sheet_data = json.load(f)
-                except Exception as e:
-                    print(f"[!] Warning reading sheet_cache.json for thumbnail: {e}")
+    if meta_candidates:
+        try:
+            with open(meta_candidates[0], 'r', encoding='utf-8') as f:
+                meta = json.load(f)
+                items = meta.get("topic_items", [])
+                for it in items:
+                    sec_slug = it.get("section_slug", "")
+                    if not target_folders or sec_slug in target_folders or not sections:
+                        poster = it.get("movie_poster_path")
+                        if poster and Path(poster).exists() and str(poster) not in current_topic_posters:
+                            current_topic_posters.append(str(poster))
+                        for u in it.get("image_urls", []):
+                            if u and u.startswith("http") and u not in current_topic_posters:
+                                current_topic_posters.append(u)
+        except Exception as e:
+            print(f"[!] Warning reading active topic items for thumbnail: {e}")
 
-        if sheet_data and isinstance(sheet_data, dict):
-            # Check for 'Thumbnail Config' tab (case insensitive search)
-            thumb_key = None
-            for k in sheet_data.keys():
-                if "thumb" in str(k).lower() or "config" in str(k).lower():
-                    thumb_key = k
-                    break
+    # Build set of all valid URLs from current sheet_data target_tabs
+    sheet_topic_posters = []
+    if not sheet_data:
+        cache_file = OUTPUT_DIR / "sheet_cache.json"
+        if cache_file.exists():
+            try:
+                with open(cache_file, 'r', encoding='utf-8') as f:
+                    sheet_data = json.load(f)
+            except Exception:
+                pass
 
-            if thumb_key and thumb_key in sheet_data:
-                raw_val = sheet_data[thumb_key]
-                rows = raw_val.to_dict(orient="records") if hasattr(raw_val, 'to_dict') else (raw_val if isinstance(raw_val, list) else [])
-                for row in rows:
-                    if isinstance(row, dict):
-                        for col_val in row.values():
-                            if col_val and str(col_val).lower() != 'nan':
-                                for u in re.split(r'[\r\n,]+', str(col_val)):
-                                    u_clean = u.strip()
-                                    if u_clean.startswith("http") and u_clean not in image_urls:
-                                        image_urls.append(u_clean)
-
-    # 4. If no Thumbnail Config tab, pick top 4 poster images from active topic sheets as default
-    if not image_urls and sheet_data and isinstance(sheet_data, dict):
-        for tab_name in ["Movie Updates", "Release Updates", "OTT Updates"]:
+    if sheet_data and isinstance(sheet_data, dict):
+        for tab_name in target_tabs:
             if tab_name in sheet_data:
                 raw_val = sheet_data[tab_name]
                 rows = raw_val.to_dict(orient="records") if hasattr(raw_val, 'to_dict') else (raw_val if isinstance(raw_val, list) else [])
@@ -134,41 +203,69 @@ def download_thumbnail_from_drive(
                         if raw_img and str(raw_img).lower() != 'nan':
                             for u in re.split(r'[\r\n,]+', str(raw_img)):
                                 u_clean = u.strip()
-                                if u_clean.startswith("http") and u_clean not in image_urls:
-                                    image_urls.append(u_clean)
-                                    if len(image_urls) >= 4:
-                                        break
-                    if len(image_urls) >= 4:
-                        break
+                                if u_clean.startswith("http") and u_clean not in sheet_topic_posters:
+                                    sheet_topic_posters.append(u_clean)
 
-    # 5. Fallback: Scan local downloaded topic_images directory if still empty
+    # 3. Handle image URLs passed in drive_url (from Thumbnail Studio or parameters)
+    image_urls = []
+    if drive_url and "http" in drive_url:
+        candidates = [u.strip() for u in re.split(r'[\r\n,]+', drive_url) if u.strip().startswith("http")]
+        # Validate candidate URLs: do they match current active topics?
+        valid_pool = set(current_topic_posters + sheet_topic_posters)
+        # If pool exists, only accept candidates that belong to current topics
+        if valid_pool:
+            matching = [u for u in candidates if u in valid_pool or any(Path(p).name in u for p in current_topic_posters if not p.startswith("http"))]
+            if matching:
+                image_urls = matching
+            else:
+                print(f"[THUMBNAIL] Notice: Passed thumbnail URLs do not match current active topics for this video. Discarding stale previous-day selection.")
+        else:
+            image_urls = candidates
+
+    # 4. If no explicit valid URLs, use current active topic posters
+    if not image_urls:
+        if current_topic_posters:
+            print(f"[THUMBNAIL] Using {len(current_topic_posters)} poster(s) from current active video topics.")
+            image_urls = current_topic_posters[:6]
+        elif sheet_topic_posters:
+            print(f"[THUMBNAIL] Using {len(sheet_topic_posters)} poster(s) from current sheet target tabs: {target_tabs}.")
+            image_urls = sheet_topic_posters[:6]
+
+    # 5. Fallback: Scan local downloaded topic_images directory restricted to target_folders
     if not image_urls:
         topic_img_dir = OUTPUT_DIR / "topic_images"
         if topic_img_dir.exists():
-            for img_file in sorted(topic_img_dir.glob("**/*.[jJ][pP][gG]")):
-                image_urls.append(str(img_file))
+            for folder_slug in target_folders:
+                sec_dir = topic_img_dir / folder_slug
+                if sec_dir.exists():
+                    for img_file in sorted(sec_dir.glob("**/*.[jJ][pP][gG]")):
+                        if str(img_file) not in image_urls:
+                            image_urls.append(str(img_file))
+                            if len(image_urls) >= 4:
+                                break
+                    for img_file in sorted(sec_dir.glob("**/*.[pP][nN][gG]")):
+                        if str(img_file) not in image_urls:
+                            image_urls.append(str(img_file))
+                            if len(image_urls) >= 4:
+                                break
                 if len(image_urls) >= 4:
                     break
-            for img_file in sorted(topic_img_dir.glob("**/*.[pP][nN][gG]")):
-                if str(img_file) not in image_urls:
-                    image_urls.append(str(img_file))
-                    if len(image_urls) >= 4:
-                        break
 
-    # 5. Generate Automated 1280x720 YouTube Thumbnail Collage
+    # 6. Generate Automated 1280x720 YouTube Thumbnail Collage
     if image_urls:
         try:
             from thumbnail_generator import create_collage_thumbnail
             print(f"[THUMBNAIL] Generating Automated YouTube Thumbnail Collage from {len(image_urls)} image(s)...")
-            return create_collage_thumbnail(image_urls, "LATEST MALAYALAM MOVIE UPDATES", save_filename)
+            print(f"    [TITLE] '{thumb_title}' | [BADGE] '{badge_text}'")
+            return create_collage_thumbnail(image_urls, thumb_title, save_filename, badge_text=badge_text)
         except Exception as e:
             print(f"[!] Warning generating thumbnail collage: {e}")
 
-    # Final Fallback: Generate template collage with fallback branding
+    # Final Fallback: Generate template collage with dynamic branding
     try:
         from thumbnail_generator import create_collage_thumbnail
         print("[THUMBNAIL] Generating fallback YouTube Thumbnail Collage...")
-        return create_collage_thumbnail([], "LATEST MALAYALAM MOVIE UPDATES", save_filename)
+        return create_collage_thumbnail([], thumb_title, save_filename, badge_text=badge_text)
     except Exception as e:
         print(f"[!] Error generating fallback thumbnail collage: {e}")
         return None

@@ -1040,7 +1040,8 @@
 
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
         <h4 style="color: #fff;">Available Poster Images from All Topics:</h4>
-        <div style="display: flex; gap: 8px;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px; background: #1e3a8a; color: #fff;" onclick="resetThumbnailPostersToActive()">🔄 Auto-Select Current Topics</button>
           <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="selectAllPosters(true)">✓ Select All</button>
           <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px; background: #282838;" onclick="selectAllPosters(false)">✗ Unselect All</button>
         </div>
@@ -1075,6 +1076,10 @@
               <option value="private">Private</option>
               <option value="public">Public</option>
             </select>
+          </div>
+          <div style="width: 100%;">
+            <label style="font-size: 13px; font-weight: 600; color: #aaa;">📁 Custom Google Drive Thumbnail Link (Optional - leave blank to auto-generate collage):</label>
+            <input type="text" id="custom-drive-thumbnail-input" placeholder="https://drive.google.com/file/d/... or direct image link" style="width: 100%; padding: 10px; background: #0d0d16; border: 1px solid #33334d; color: #fff; border-radius: 5px; margin-top: 4px; font-size: 13px;">
           </div>
         </div>
 
@@ -2038,7 +2043,9 @@
         });
         saveLocalStore();
         renderTableRows();
+        selectedPosterUrls = [];
         if (activeSection === 'output') renderOutputPreviews();
+        if (activeSection === 'thumbnail') renderThumbnailStudio();
 
         // Auto populate Groq API Key from Config sheet if present
         if (data.config && data.config.groq_api_key) {
@@ -2180,8 +2187,15 @@
       if (!grid) return;
       grid.innerHTML = '';
 
+      const activeSecs = getSelectedVideoSections();
+      const targetTabs = [];
+      if (activeSecs.includes('movie_updates')) targetTabs.push('Movie Updates');
+      if (activeSecs.includes('release_updates')) targetTabs.push('Release Updates');
+      if (activeSecs.includes('ott_updates')) targetTabs.push('OTT Updates');
+      if (targetTabs.length === 0) targetTabs.push('Movie Updates', 'Release Updates', 'OTT Updates');
+
       let allPosters = [];
-      ['Movie Updates', 'Release Updates', 'OTT Updates'].forEach(tab => {
+      targetTabs.forEach(tab => {
         let rows = store[tab] || [];
         rows.forEach(r => {
           let urls = (r.imgUrl || "").split(/[\r\n,]+/).map(u => u.trim()).filter(u => u.toLowerCase().startsWith('http'));
@@ -2189,6 +2203,7 @@
             allPosters.push({
               tab: tab,
               topicNum: r.topicNum,
+              headline: r.headline || '',
               text: r.text,
               url: u
             });
@@ -2197,12 +2212,17 @@
       });
 
       if (allPosters.length === 0) {
-        grid.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1;">No poster images found in any topics. Add image URLs in Input section.</p>';
+        grid.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1;">No poster images found in active section topics. Add image URLs in Input section.</p>';
+        selectedPosterUrls = [];
         updateThumbnailSummary();
         return;
       }
 
-      // Default selection to first 4 images if none selected yet
+      // Purge stale URLs from previous days that are not in current active topics
+      const validUrlSet = new Set(allPosters.map(p => p.url));
+      selectedPosterUrls = selectedPosterUrls.filter(u => validUrlSet.has(u));
+
+      // Default selection to first 4 images of current active topics if none selected yet
       if (selectedPosterUrls.length === 0) {
         selectedPosterUrls = allPosters.slice(0, 4).map(p => p.url);
       }
@@ -2220,12 +2240,24 @@
             <input type="checkbox" id="poster-chk-${idx}" ${isChecked ? 'checked' : ''} onchange="togglePosterSelection('${escapeJs(p.url)}', this.checked)" style="position: absolute; top: 10px; right: 10px; width: 24px; height: 24px; accent-color: #ff2a4b; cursor: pointer;">
           </div>
           <div class="badge" style="font-size: 11px;">${p.tab} • Topic #${p.topicNum}</div>
-          <div class="preview-text" style="font-size: 12px; height: 36px; overflow: hidden; margin-top: 6px;">${escapeHtml((p.text || "").substring(0, 65))}...</div>
+          <div class="preview-text" style="font-size: 12px; height: 36px; overflow: hidden; margin-top: 6px;"><b>${escapeHtml(p.headline || '')}</b> - ${escapeHtml((p.text || "").substring(0, 55))}...</div>
         `;
         grid.appendChild(card);
       });
 
       updateThumbnailSummary();
+    }
+
+    function resetThumbnailPostersToActive() {
+      selectedPosterUrls = [];
+      renderThumbnailStudio();
+      const statusBox = document.getElementById('sync-status');
+      if (statusBox) {
+        statusBox.style.display = 'block';
+        statusBox.className = 'status-toast toast-success';
+        statusBox.innerText = '✓ Thumbnail posters refreshed to current active topics!';
+        setTimeout(() => { statusBox.style.display = 'none'; }, 3000);
+      }
     }
 
     function escapeJs(str) {
@@ -2245,7 +2277,14 @@
     function selectAllPosters(selectState) {
       if (selectState) {
         let urls = [];
-        ['Movie Updates', 'Release Updates', 'OTT Updates'].forEach(tab => {
+        const activeSecs = getSelectedVideoSections();
+        const targetTabs = [];
+        if (activeSecs.includes('movie_updates')) targetTabs.push('Movie Updates');
+        if (activeSecs.includes('release_updates')) targetTabs.push('Release Updates');
+        if (activeSecs.includes('ott_updates')) targetTabs.push('OTT Updates');
+        if (targetTabs.length === 0) targetTabs.push('Movie Updates', 'Release Updates', 'OTT Updates');
+
+        targetTabs.forEach(tab => {
           (store[tab] || []).forEach(r => {
             (r.imgUrl || "").split(/[\r\n,]+/).forEach(u => {
               let clean = u.trim();
@@ -3223,6 +3262,29 @@
       try {
         localStorage.setItem('user_video_sections', JSON.stringify(sections));
       } catch (e) {}
+
+      // Dynamically adapt thumbnail studio title banner based on active sections
+      const thumbTitleElem = document.getElementById('thumb-title-input');
+      if (thumbTitleElem && !thumbTitleElem.getAttribute('data-user-edited')) {
+        const hasMovie = sections.includes('movie_updates');
+        const hasRelease = sections.includes('release_updates');
+        const hasOtt = sections.includes('ott_updates');
+        if (hasMovie && !hasRelease && !hasOtt) {
+          thumbTitleElem.value = "LATEST MALAYALAM MOVIE UPDATES";
+        } else if (hasRelease && !hasMovie && !hasOtt) {
+          thumbTitleElem.value = "UPCOMING THEATER RELEASES";
+        } else if (hasOtt && !hasMovie && !hasRelease) {
+          thumbTitleElem.value = "LATEST OTT STREAMING RELEASES";
+        } else if (hasMovie && hasRelease && !hasOtt) {
+          thumbTitleElem.value = "MALAYALAM MOVIE & THEATER RELEASES";
+        } else if (hasMovie && hasOtt && !hasRelease) {
+          thumbTitleElem.value = "MALAYALAM MOVIE & OTT RELEASES";
+        } else if (hasRelease && hasOtt && !hasMovie) {
+          thumbTitleElem.value = "THEATER & OTT STREAMING RELEASES";
+        } else {
+          thumbTitleElem.value = "MALAYALAM MOVIES, THEATER & OTT";
+        }
+      }
     }
 
     function applySectionPreset(presetArray) {
@@ -3265,7 +3327,20 @@
       const isAll = (selectedSections.length === 3);
       const sectionsParam = isAll ? "all" : selectedSections.join(",");
       const displaySections = isAll ? "All 3 Sections (Movie + Theater + OTT)" : selectedSections.join(", ");
-      const selectedUrls = selectedPosterUrls.length > 0 ? selectedPosterUrls.join(",") : "";
+
+      const customDriveElem = document.getElementById('custom-drive-thumbnail-input');
+      const customDriveUrl = customDriveElem ? customDriveElem.value.trim() : "";
+
+      // Ensure only verified URLs from current topics are passed, discarding stale selections from previous days
+      const currentActiveUrls = new Set();
+      const activeSecs = getSelectedVideoSections();
+      if (activeSecs.includes('movie_updates')) (store['Movie Updates']||[]).forEach(r => (r.imgUrl||'').split(/[\r\n,]+/).forEach(u => u.trim().startsWith('http') && currentActiveUrls.add(u.trim())));
+      if (activeSecs.includes('release_updates')) (store['Release Updates']||[]).forEach(r => (r.imgUrl||'').split(/[\r\n,]+/).forEach(u => u.trim().startsWith('http') && currentActiveUrls.add(u.trim())));
+      if (activeSecs.includes('ott_updates')) (store['OTT Updates']||[]).forEach(r => (r.imgUrl||'').split(/[\r\n,]+/).forEach(u => u.trim().startsWith('http') && currentActiveUrls.add(u.trim())));
+
+      const verifiedSelectedUrls = selectedPosterUrls.filter(u => currentActiveUrls.has(u));
+      const selectedUrls = customDriveUrl || (verifiedSelectedUrls.length > 0 ? verifiedSelectedUrls.join(",") : "");
+
       const privacy = document.getElementById('privacy-select') ? document.getElementById('privacy-select').value : "unlisted";
       const patToken = document.getElementById('github-pat-token') ? document.getElementById('github-pat-token').value.trim() : "";
 
