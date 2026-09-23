@@ -321,21 +321,21 @@ def generate_english_title(month_year: Optional[str] = None, sections: Optional[
         has_ott = any("ott" in s for s in s_norm)
 
         if has_movie and not has_release and not has_ott:
-            return f"Latest Malayalam Movie Updates & Cinema News | {month_year}"
+            return f"Latest Movie News & Cinema News | {month_year}"
         elif has_release and not has_movie and not has_ott:
-            return f"Upcoming Malayalam Theater Releases & Box Office News | {month_year}"
+            return f"Upcoming Theater Releases & Box Office News | {month_year}"
         elif has_ott and not has_movie and not has_release:
-            return f"Latest Malayalam OTT Releases & Streaming Updates | {month_year}"
+            return f"Latest OTT Releases & Streaming Updates | {month_year}"
         elif has_movie and has_release and not has_ott:
-            return f"Malayalam Movie News & Theater Release Updates | {month_year}"
+            return f"Movie News & Theater Release Updates | {month_year}"
         elif has_movie and has_ott and not has_release:
-            return f"Malayalam Movie News & OTT Release Updates | {month_year}"
+            return f"Movie News & OTT Release Updates | {month_year}"
         elif has_release and has_ott and not has_movie:
-            return f"Malayalam Theater Releases & OTT Streaming Updates | {month_year}"
+            return f"Theater Releases & OTT Streaming Updates | {month_year}"
         elif has_movie and has_release and has_ott:
-            return f"Malayalam Movie News, Theater Releases & OTT Updates | {month_year}"
+            return f"Latest Movie News, Theater Releases & OTT Updates | {month_year}"
 
-    return f"Malayalam Movie News, Theater Releases & OTT Updates | {month_year}"
+    return f"Latest Movie News, Theater Releases & OTT Updates | {month_year}"
 
 
 def format_seconds_to_timestamp(seconds: float) -> str:
