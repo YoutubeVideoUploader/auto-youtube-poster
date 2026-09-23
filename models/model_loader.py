@@ -27,6 +27,12 @@ class ModelLoader:
                 engine = EdgeTTSEngine(voice_name="ml-IN-SobhanaNeural", model_id="edge_female")
             elif model_key in ["edge_male", "midhun"]:
                 engine = EdgeTTSEngine(voice_name="ml-IN-MidhunNeural", model_id="edge_male")
+            elif model_key in ["gemini_voice", "gemini", "gemini_kore"]:
+                from models.gemini_tts_engine import GeminiTTSEngine
+                engine = GeminiTTSEngine(voice_name="Kore", model_id="gemini_voice")
+            elif model_key in ["gemini_puck", "gemini_male"]:
+                from models.gemini_tts_engine import GeminiTTSEngine
+                engine = GeminiTTSEngine(voice_name="Puck", model_id="gemini_puck")
             elif model_key == "mms_malayalam":
                 from models.mms_engine import MMSTTSEngine
                 engine = MMSTTSEngine()

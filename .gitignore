@@ -4,8 +4,12 @@ outputs/*.mp3
 outputs/*.wav
 outputs/*.jpg
 outputs/*.png
+outputs/*.json
+outputs/gemini_voice_cache/
+outputs/temp_slides/
 outputs/youtube_token.json
 outputs/sheet_cache.json
+assets/*backup*
 client_secret.json
 __pycache__/
 *.pyc

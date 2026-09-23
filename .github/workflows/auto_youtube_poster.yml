@@ -39,7 +39,7 @@ jobs:
       - name: 📦 Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pandas requests pillow edge-tts soundfile scipy openpyxl google-api-python-client google-auth-oauthlib google-auth-httplib2 xlsxwriter
+          pip install numpy pandas requests pillow edge-tts soundfile scipy openpyxl google-api-python-client google-auth-oauthlib google-auth-httplib2 xlsxwriter
 
       - name: 🔑 Restore YouTube OAuth Token
         env:
@@ -50,6 +50,7 @@ jobs:
 
       - name: 🎙️ 1. Synthesize Malayalam Voice Audio from Google Sheets
         env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           RAW_SECTIONS: ${{ github.event.inputs.sections || github.event.client_payload.sections || '' }}
           RAW_PRIVACY: ${{ github.event.inputs.privacy_status || github.event.client_payload.privacy_status || '' }}
           RAW_DRIVE_URL: ${{ github.event.inputs.drive_thumbnail_url || github.event.client_payload.drive_thumbnail_url || '' }}
@@ -80,7 +81,7 @@ jobs:
           "
           SECTIONS_ARG=$(cat resolved_sections.txt)
           echo "Executing generation with sections: $SECTIONS_ARG"
-          python generate_from_google_sheet.py edge_female --sections "$SECTIONS_ARG"
+          python generate_from_google_sheet.py gemini_voice --sections "$SECTIONS_ARG"
 
       - name: 🎞️ 2. Render 1080p Full HD MP4 Presentation Video
         run: |
