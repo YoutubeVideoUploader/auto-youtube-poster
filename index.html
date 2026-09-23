@@ -2064,6 +2064,20 @@
             }
           } catch(e) {}
         }
+        // Prune any outdated thumbnail URLs that no longer exist in current active topic rows
+        let allActiveSheetImages = new Set();
+        ['Movie Updates', 'Release Updates', 'OTT Updates'].forEach(t => {
+          (store[t] || []).forEach(row => {
+            (row.imgUrl || "").split(/[\r\n,]+/).forEach(u => {
+              let cu = u.trim();
+              if (cu.toLowerCase().startsWith('http')) allActiveSheetImages.add(cu);
+            });
+          });
+        });
+        if (allActiveSheetImages.size > 0 && Array.isArray(selectedPosterUrls)) {
+          selectedPosterUrls = selectedPosterUrls.filter(u => allActiveSheetImages.has(u));
+          try { localStorage.setItem('selected_thumbnail_urls', JSON.stringify(selectedPosterUrls)); } catch(e) {}
+        }
         if (activeSection === 'output') renderOutputPreviews();
         if (activeSection === 'thumbnail') renderThumbnailStudio();
 
@@ -2202,7 +2216,13 @@
       if (sec === 'news') initNewsSection();
     }
 
-    function renderThumbnailStudio() {
+    let allPostersCache = [];
+    let thumbnailManuallyEdited = false;
+    try {
+      thumbnailManuallyEdited = (localStorage.getItem('thumbnail_manually_edited') === 'true');
+    } catch(e) {}
+
+    function renderThumbnailStudio(forceAutoSelect = false) {
       const grid = document.getElementById('thumbnail-posters-grid');
       if (!grid) return;
       grid.innerHTML = '';
@@ -2231,6 +2251,8 @@
         });
       });
 
+      allPostersCache = allPosters;
+
       if (allPosters.length === 0) {
         grid.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1;">No poster images found in active section topics. Add image URLs in Input section.</p>';
         selectedPosterUrls = [];
@@ -2238,11 +2260,16 @@
         return;
       }
 
-      // Default selection to first 4 images of active topics only if user has not chosen any
-      if (selectedPosterUrls.length === 0) {
+      // CRITICAL PRUNING: Only keep URLs that currently exist in active posters (prevents ghost/old images)
+      const currentValidUrls = new Set(allPosters.map(p => p.url));
+      selectedPosterUrls = (selectedPosterUrls || []).filter(u => currentValidUrls.has(u));
+
+      // Default selection to first 4 images ONLY if user hasn't manually configured or on explicit reset
+      if (forceAutoSelect || (!thumbnailManuallyEdited && selectedPosterUrls.length === 0)) {
         selectedPosterUrls = allPosters.slice(0, 4).map(p => p.url);
-        try { localStorage.setItem('selected_thumbnail_urls', JSON.stringify(selectedPosterUrls)); } catch(e) {}
       }
+
+      try { localStorage.setItem('selected_thumbnail_urls', JSON.stringify(selectedPosterUrls)); } catch(e) {}
 
       allPosters.forEach((p, idx) => {
         let card = document.createElement('div');
@@ -2254,7 +2281,7 @@
         card.innerHTML = `
           <div style="position: relative;">
             <img class="preview-poster" src="${p.url}" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/220x160/161625/a0a0b5?text=Poster'" style="height: 240px; border-radius: 6px;" alt="Poster">
-            <input type="checkbox" id="poster-chk-${idx}" ${isChecked ? 'checked' : ''} onchange="togglePosterSelection('${escapeJs(p.url)}', this.checked)" style="position: absolute; top: 10px; right: 10px; width: 24px; height: 24px; accent-color: #ff2a4b; cursor: pointer;">
+            <input type="checkbox" id="poster-chk-${idx}" ${isChecked ? 'checked' : ''} onchange="togglePosterSelectionByIndex(${idx}, this.checked)" style="position: absolute; top: 10px; right: 10px; width: 24px; height: 24px; accent-color: #ff2a4b; cursor: pointer;">
           </div>
           <div class="badge" style="font-size: 11px;">${p.tab} • Topic #${p.topicNum}</div>
           <div class="preview-text" style="font-size: 12px; height: 36px; overflow: hidden; margin-top: 6px;"><b>${escapeHtml(p.headline || '')}</b> - ${escapeHtml((p.text || "").substring(0, 55))}...</div>
@@ -2265,35 +2292,47 @@
       updateThumbnailSummary();
     }
 
+    function togglePosterSelectionByIndex(idx, isChecked) {
+      if (!allPostersCache[idx]) return;
+      const url = allPostersCache[idx].url;
+      togglePosterSelection(url, isChecked);
+    }
+
     function resetThumbnailPostersToActive() {
+      thumbnailManuallyEdited = false;
+      try { localStorage.removeItem('thumbnail_manually_edited'); } catch(e) {}
       selectedPosterUrls = [];
       try { localStorage.removeItem('selected_thumbnail_urls'); } catch(e) {}
-      renderThumbnailStudio();
+      renderThumbnailStudio(true);
       const statusBox = document.getElementById('sync-status');
       if (statusBox) {
         statusBox.style.display = 'block';
         statusBox.className = 'status-toast toast-success';
-        statusBox.innerText = '✓ Thumbnail posters refreshed to current active topics!';
+        statusBox.innerText = '✓ Thumbnail posters refreshed to top active topics!';
         setTimeout(() => { statusBox.style.display = 'none'; }, 3000);
       }
     }
 
-    function escapeJs(str) {
-      if (str === null || str === undefined) return "";
-      return String(str).replace(/'/g, "\\'").replace(/"/g, '\\"');
-    }
-
     function togglePosterSelection(url, isChecked) {
+      thumbnailManuallyEdited = true;
+      try { localStorage.setItem('thumbnail_manually_edited', 'true'); } catch(e) {}
       if (isChecked) {
         if (!selectedPosterUrls.includes(url)) selectedPosterUrls.push(url);
       } else {
         selectedPosterUrls = selectedPosterUrls.filter(u => u !== url);
+      }
+      // Prune to only current valid posters
+      if (allPostersCache && allPostersCache.length > 0) {
+        const currentValidUrls = new Set(allPostersCache.map(p => p.url));
+        selectedPosterUrls = selectedPosterUrls.filter(u => currentValidUrls.has(u));
       }
       try { localStorage.setItem('selected_thumbnail_urls', JSON.stringify(selectedPosterUrls)); } catch(e) {}
       updateThumbnailSummary();
     }
 
     function selectAllPosters(selectState) {
+      thumbnailManuallyEdited = true;
+      try { localStorage.setItem('thumbnail_manually_edited', 'true'); } catch(e) {}
       if (selectState) {
         let urls = [];
         const activeSecs = getSelectedVideoSections();
@@ -2315,7 +2354,7 @@
         try { localStorage.setItem('selected_thumbnail_urls', JSON.stringify(selectedPosterUrls)); } catch(e) {}
       } else {
         selectedPosterUrls = [];
-        try { localStorage.removeItem('selected_thumbnail_urls'); } catch(e) {}
+        try { localStorage.setItem('selected_thumbnail_urls', JSON.stringify([])); } catch(e) {}
       }
       renderThumbnailStudio();
     }
@@ -2323,6 +2362,10 @@
     function updateThumbnailSummary() {
       const badge = document.getElementById('selected-posters-badge');
       const cloudSummary = document.getElementById('cloud-thumb-summary');
+      if (allPostersCache && allPostersCache.length > 0) {
+        const currentValidUrls = new Set(allPostersCache.map(p => p.url));
+        selectedPosterUrls = selectedPosterUrls.filter(u => currentValidUrls.has(u));
+      }
       const count = selectedPosterUrls.length;
 
       if (badge) badge.innerText = `📸 ${count} Posters Selected`;
