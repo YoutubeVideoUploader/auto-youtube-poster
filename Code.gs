@@ -176,6 +176,39 @@ function doPost(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
 
+    // 0c. Handle Video Upload & Metadata Logging to Google Sheets
+    if (data.action === "log_video_metadata" || data.action === "log_upload") {
+      var ss = SpreadsheetApp.getActiveSpreadsheet();
+      var uploadSheet = ss.getSheetByName("Video Uploads");
+      if (!uploadSheet) {
+        uploadSheet = ss.insertSheet("Video Uploads");
+        uploadSheet.appendRow([
+          "Upload Time (IST)",
+          "Video Title",
+          "YouTube Video URL",
+          "Privacy Status",
+          "Specific Topic Chapters",
+          "Description",
+          "Tags"
+        ]);
+        uploadSheet.setFrozenRows(1);
+      }
+      
+      var nowIST = Utilities.formatDate(new Date(), "Asia/Kolkata", "yyyy-MM-dd HH:mm:ss");
+      uploadSheet.appendRow([
+        nowIST,
+        data.title || "",
+        data.video_url || "",
+        data.privacy_status || "",
+        data.chapters || "",
+        data.description || "",
+        data.tags || ""
+      ]);
+
+      return ContentService.createTextOutput(JSON.stringify({"status": "success", "sheet": "Video Uploads"}))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     // 1. Handle GitHub Action Trigger Request from Web App / Website
     if (data.action === "trigger_github") {
       if (data.drive_thumbnail_url) {

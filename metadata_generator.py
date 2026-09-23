@@ -346,118 +346,292 @@ def format_seconds_to_timestamp(seconds: float) -> str:
     return f"{mins}:{rem_secs:02d}"
 
 
-def generate_youtube_description(
-    sheet_data: Dict[str, List[Dict[str, Any]]],
-    chunk_timestamps: Optional[List[Tuple[str, float]]] = None,
-    sections: Optional[List[str]] = None
-) -> str:
-    """
-    Generates YouTube video description complete with:
-    - Timestamped Video Chapters
-    - Topic Headline Bullet Points
-    - Channel Disclaimer & Hashtags
-    """
-    if not sections:
-        meta_candidates = list(OUTPUT_DIR.glob("GoogleSheet_Malayalam_Movie_News_*_v4.0.json"))
-        if meta_candidates:
+_AI_METADATA_CACHE: Optional[Dict[str, Any]] = None
+
+
+def get_specific_video_chapters(sections: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+    """Loads specific topic-level chapters with exact timestamps from video_chapters.json or latest metadata JSON."""
+    chapters_file = OUTPUT_DIR / "video_chapters.json"
+    if chapters_file.exists():
+        try:
+            with open(chapters_file, "r", encoding="utf-8") as f:
+                ch = json.load(f)
+                if isinstance(ch, list) and len(ch) >= 2:
+                    return ch
+        except Exception:
+            pass
+
+    # Extract from latest metadata JSON
+    meta_candidates = sorted(OUTPUT_DIR.glob("GoogleSheet_Malayalam_Movie_News_*_v4.0.json"), reverse=True)
+    if not meta_candidates:
+        meta_candidates = sorted(OUTPUT_DIR.glob("GoogleSheet_Malayalam_Movie_News_*.json"), reverse=True)
+
+    if meta_candidates:
+        try:
+            with open(meta_candidates[0], "r", encoding="utf-8") as f:
+                d = json.load(f)
+                if "specific_chapters" in d and isinstance(d["specific_chapters"], list) and len(d["specific_chapters"]) >= 2:
+                    return d["specific_chapters"]
+
+                script_meta = d.get("script_metadata", [])
+                topic_items = d.get("topic_items", [])
+                if script_meta and topic_items:
+                    chapters = [{"timestamp": "0:00", "title": "Introduction", "type": "intro"}]
+                    cur_time = 0.0
+                    t_idx = 0
+                    for seg in script_meta:
+                        stype = seg.get("type", "")
+                        dur = float(seg.get("duration", 0.0))
+                        if stype == "headline":
+                            item = topic_items[t_idx] if t_idx < len(topic_items) else {}
+                            t_idx += 1
+                            mins = int(cur_time) // 60
+                            secs = int(cur_time) % 60
+                            hl = str(item.get("topic_headline", f"Topic {t_idx}")).strip()
+                            chapters.append({
+                                "timestamp": f"{mins}:{secs:02d}",
+                                "title": hl,
+                                "section": item.get("section", ""),
+                                "type": "topic"
+                            })
+                        elif stype == "outro":
+                            mins = int(cur_time) // 60
+                            secs = int(cur_time) % 60
+                            chapters.append({"timestamp": f"{mins}:{secs:02d}", "title": "Conclusion & Outro", "type": "outro"})
+                        cur_time += dur
+
+                    if not any(c.get("type") == "outro" for c in chapters):
+                        mins = int(cur_time) // 60
+                        secs = int(cur_time) % 60
+                        chapters.append({"timestamp": f"{mins}:{secs:02d}", "title": "Conclusion & Outro", "type": "outro"})
+                    return chapters
+        except Exception as e:
+            print(f"[!] Warning reading metadata chapters: {e}")
+
+    # Fallback chapters
+    return [
+        {"timestamp": "0:00", "title": "Introduction", "type": "intro"},
+        {"timestamp": "0:08", "title": "Movie Updates & News", "type": "topic"},
+        {"timestamp": "1:30", "title": "Upcoming Theater Releases", "type": "topic"},
+        {"timestamp": "2:45", "title": "Latest OTT Streaming Arrivals", "type": "topic"},
+        {"timestamp": "4:30", "title": "Conclusion & Outro", "type": "outro"}
+    ]
+
+
+def extract_active_topics_flat(sheet_data: Any, sections: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+    """Flattens sheet_data topics into a clean list of topic dictionaries with cache fallback."""
+    flat = []
+    if isinstance(sheet_data, dict):
+        for sec_name, topics in sheet_data.items():
+            if not topics or "thumb" in str(sec_name).lower() or "config" in str(sec_name).lower():
+                continue
+            if sections:
+                s_name_low = str(sec_name).lower().replace(" ", "_")
+                if not any(s.lower() in s_name_low or s_name_low in s.lower() for s in sections):
+                    continue
+
+            rows = topics.to_dict(orient="records") if hasattr(topics, "to_dict") else (topics if isinstance(topics, list) else [])
+            for r in rows:
+                if isinstance(r, dict):
+                    hl = str(r.get("Topic Headline") or r.get("Movie Name") or r.get("headline") or "").strip()
+                    txt = str(r.get("Malayalam News Text") or r.get("text") or "").strip()
+                    rdate = str(r.get("Release Date") or "").strip()
+                    plat = str(r.get("OTT Platform") or "").strip()
+                    if hl or txt:
+                        flat.append({
+                            "section": sec_name,
+                            "topic_headline": hl if hl and hl.lower() != "nan" else txt[:50],
+                            "topic_text": txt if txt.lower() != "nan" else "",
+                            "release_date": rdate if rdate.lower() != "nan" else "",
+                            "ott_platform": plat if plat.lower() != "nan" else ""
+                        })
+
+    if not flat:
+        cache_p = OUTPUT_DIR / "sheet_cache.json"
+        if cache_p.exists():
             try:
-                with open(meta_candidates[0], 'r', encoding='utf-8') as f:
-                    m = json.load(f)
-                    sections = m.get("selected_sections")
+                with open(cache_p, "r", encoding="utf-8") as f:
+                    sc = json.load(f)
+                    flat = extract_active_topics_flat(sc, sections=sections)
             except Exception:
                 pass
 
-    desc_lines = []
-    
-    desc_lines.append("Latest Malayalam Movie News, Upcoming Theater Release Dates, and OTT Streaming Updates!")
-    desc_lines.append("")
+    if not flat:
+        meta_candidates = sorted(OUTPUT_DIR.glob("GoogleSheet_Malayalam_Movie_News_*_v4.0.json"), reverse=True)
+        if meta_candidates:
+            try:
+                with open(meta_candidates[0], "r", encoding="utf-8") as f:
+                    m = json.load(f)
+                    flat = m.get("topic_items", [])
+            except Exception:
+                pass
 
-    # 1. Video Chapters
-    desc_lines.append("⏱️ VIDEO CHAPTERS:")
-    desc_lines.append("0:00 🎬 Introduction")
-
-    # Dynamic chapter estimates if exact timestamps aren't passed
-    if not chunk_timestamps:
-        s_norm = [str(s).lower() for s in (sections or [])]
-        has_movie = not sections or any("movie" in s for s in s_norm)
-        has_release = not sections or any("release" in s or "theater" in s for s in s_norm)
-        has_ott = not sections or any("ott" in s for s in s_norm)
-
-        est_time = 4
-        if has_movie:
-            desc_lines.append(f"{format_seconds_to_timestamp(est_time)} 🎭 Movie Updates")
-            est_time += 99
-        if has_release:
-            desc_lines.append(f"{format_seconds_to_timestamp(est_time)} 📅 Theater Release Updates")
-            est_time += 105
-        if has_ott:
-            desc_lines.append(f"{format_seconds_to_timestamp(est_time)} 🍿 OTT Streaming Updates")
-            est_time += 82
-        desc_lines.append(f"{format_seconds_to_timestamp(est_time)} 🎬 Conclusion & Outro")
-    else:
-        current_time = 0.0
-        for name, dur in chunk_timestamps:
-            ts_str = format_seconds_to_timestamp(current_time)
-            desc_lines.append(f"{ts_str} {name}")
-            current_time += dur
-
-    desc_lines.append("")
-    desc_lines.append("=" * 50)
-    desc_lines.append("📌 TODAY'S MAIN MOVIE HEADLINES:")
-    desc_lines.append("=" * 50)
-
-    # 2. Topic Headlines List
-    for section_name, topics in sheet_data.items():
-        if topics is None or len(topics) == 0:
-            continue
-        if "thumb" in str(section_name).lower() or "config" in str(section_name).lower():
-            continue
-
-        # If sections filter is active, skip sheets not in active selection
-        if sections:
-            s_name_low = str(section_name).lower().replace(" ", "_")
-            if not any(s.lower() in s_name_low or s_name_low in s.lower() for s in sections):
-                continue
-
-        desc_lines.append(f"\n🔹 {section_name.upper()}:")
-        
-        # Handle both DataFrame and list of dicts
-        rows_iter = topics.iterrows() if hasattr(topics, 'iterrows') else enumerate(topics, start=1)
-        for idx, item in enumerate(topics if not hasattr(topics, 'iterrows') else topics.to_dict(orient="records"), start=1):
-            # Prefer Column D (Topic Headline) over Column B (Malayalam News Text)
-            headline = str(item.get("Topic Headline", item.get("headline", item.get("Headline", "")))).strip()
-            if not headline or headline.lower() == "nan":
-                # Fallback to Column B if Column D is empty
-                headline = str(item.get("Malayalam News Text", item.get("text", ""))).strip()
-
-            if not headline or headline.lower() == "nan":
-                continue
-
-            desc_lines.append(f"  {idx}. {headline}")
-
-    desc_lines.append("")
-    desc_lines.append("=" * 50)
-    desc_lines.append("🔔 Subscribe for daily Malayalam Movie News, Reviews & OTT Updates!")
-    desc_lines.append("")
-    desc_lines.append("#MalayalamMovieNews #Mollywood #OTTRelease #MalayalamCinema #MovieUpdates #KeralaBoxOffice")
-
-    return "\n".join(desc_lines)
+    return flat
 
 
-def generate_youtube_tags() -> List[str]:
-    """Returns optimized SEO keywords list for YouTube Video upload."""
-    return [
-        "Malayalam Movie News",
-        "Mollywood Updates",
-        "Malayalam Movie Release Dates",
-        "OTT Release Malayalam",
-        "Malayalam Cinema News",
-        "Kerala Box Office",
-        "Netflix Malayalam",
-        "Prime Video Malayalam",
-        "Hotstar Malayalam",
-        "Malayalam Movie Trailers",
-        "Mammootty New Movie",
-        "Mohanlal New Movie",
-        "Malayalam Movie Updates 2026"
+def generate_ai_metadata(
+    sheet_data: Optional[Dict[str, Any]] = None,
+    sections: Optional[List[str]] = None,
+    gemini_key: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Uses Google Gemini API (gemini-flash-latest / gemini-pro-latest) to generate:
+    - 100% English YouTube description with engaging hook, specific topic chapters, and highlights.
+    - 25-35 high-ranking English SEO tags.
+    """
+    global _AI_METADATA_CACHE
+    if _AI_METADATA_CACHE is not None:
+        return _AI_METADATA_CACHE
+
+    chapters = get_specific_video_chapters(sections=sections)
+    topics_list = extract_active_topics_flat(sheet_data, sections=sections)
+
+    # Format chapters block
+    chapter_lines = []
+    for c in chapters:
+        chapter_lines.append(f"{c['timestamp']} - {c['title']}")
+    chapters_block = "\n".join(chapter_lines)
+
+    # Format topic summaries for prompt
+    topic_summaries = []
+    for i, t in enumerate(topics_list, 1):
+        sec = t.get("section", "")
+        hl = t.get("topic_headline", "")
+        plat = t.get("ott_platform", "")
+        rdate = t.get("release_date", "")
+        extra = f" (Platform: {plat})" if plat else (f" (Release Date: {rdate})" if rdate else "")
+        topic_summaries.append(f"{i}. [{sec}] {hl}{extra}")
+
+    topics_prompt_text = "\n".join(topic_summaries) if topic_summaries else "Latest cinema releases, trailers, and OTT updates."
+
+    # 1. Resolve Gemini Key
+    from models.gemini_tts_engine import GeminiTTSEngine
+    keys = GeminiTTSEngine()._resolve_api_keys(gemini_key)
+    active_key = keys[0] if keys else None
+
+    if active_key:
+        prompt = f"""You are an elite YouTube SEO strategist for a cinema entertainment channel.
+Create video metadata based on these cinema news topics:
+{topics_prompt_text}
+
+Specific Video Chapters:
+{chapters_block}
+
+CRITICAL RULES:
+1. Output strictly in 100% English. DO NOT output any Malayalam script or letters anywhere.
+2. Return a valid JSON object with exactly two keys:
+   "description": A comprehensive, beautifully formatted English description containing:
+      - Catchy 2-3 sentence opening overview of today's cinema news
+      - "⏱️ VIDEO CHAPTERS:" block with the exact timestamps and concise English titles provided above
+      - "📌 TODAY'S CINEMA HIGHLIGHTS:" bullet points summarizing each topic in English
+      - Call to action (Like, Share, Subscribe)
+      - Top trending hashtags (e.g. #MovieNews #CinemaUpdates #OTTRelease #NewMovies #BoxOffice)
+   "tags": An array of 25 to 35 high-ranking English SEO keywords, including movie titles, actor/director names, streaming platforms, and cinema search terms.
+"""
+        # Try candidate models with fallback
+        for model_name in ["gemini-flash-latest", "gemini-pro-latest"]:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={active_key}"
+            headers = {"Content-Type": "application/json"}
+            payload = {
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {
+                    "temperature": 0.3,
+                    "responseMimeType": "application/json"
+                }
+            }
+            try:
+                res = requests.post(url, json=payload, headers=headers, timeout=20)
+                if res.status_code == 200:
+                    body = res.json()
+                    text_resp = body["candidates"][0]["content"]["parts"][0]["text"]
+                    data = json.loads(text_resp)
+                    if "description" in data and "tags" in data and isinstance(data["tags"], list):
+                        print(f"[Gemini AI] ({model_name}) Successfully generated dynamic English description & {len(data['tags'])} tags!")
+                        _AI_METADATA_CACHE = {
+                            "description": data["description"],
+                            "tags": [str(t).strip() for t in data["tags"] if str(t).strip()],
+                            "chapters": chapters_block
+                        }
+                        return _AI_METADATA_CACHE
+                else:
+                    print(f"[!] Gemini AI ({model_name}) returned {res.status_code}: {res.text[:100]}")
+            except Exception as e:
+                print(f"[!] Warning calling Gemini AI ({model_name}): {e}")
+
+    # Fallback: Clean Deterministic English Metadata
+    print("[*] Using deterministic English metadata generator (fallback)")
+    desc_parts = [
+        "Welcome to today's cinema news roundup! Catch all the latest movie announcements, upcoming theatrical release dates, and brand new OTT streaming updates right here.",
+        "",
+        "⏱️ VIDEO CHAPTERS:",
+        chapters_block,
+        "",
+        "=" * 50,
+        "📌 TODAY'S CINEMA HIGHLIGHTS:",
+        "=" * 50
     ]
+    for i, t in enumerate(topics_list, 1):
+        hl = t.get("topic_headline", f"Topic {i}")
+        sec = t.get("section", "")
+        desc_parts.append(f"• [{sec}] {hl}")
+
+    desc_parts.extend([
+        "",
+        "=" * 50,
+        "🔔 Subscribe to our channel for daily movie news, trailers, and streaming updates!",
+        "",
+        "#MovieNews #CinemaUpdates #OTTRelease #BoxOffice #NewMovies #TrailerAlert"
+    ])
+
+    # Dynamic fallback tags
+    tags = ["Movie News", "Cinema Updates", "Movie Trailer", "OTT Releases", "Box Office News", "New Releases 2026"]
+    for t in topics_list:
+        hl = t.get("topic_headline", "")
+        if hl and len(hl) < 40 and hl not in tags:
+            tags.append(hl)
+        plat = t.get("ott_platform", "")
+        if plat and plat not in tags:
+            tags.append(plat)
+
+    _AI_METADATA_CACHE = {
+        "description": "\n".join(desc_parts),
+        "tags": tags[:30],
+        "chapters": chapters_block
+    }
+    return _AI_METADATA_CACHE
+
+
+def generate_youtube_description(
+    sheet_data: Optional[Dict[str, Any]] = None,
+    chunk_timestamps: Optional[List[Tuple[str, float]]] = None,
+    sections: Optional[List[str]] = None
+) -> str:
+    """Generates dynamic English YouTube video description powered by Gemini AI with specific topic chapters."""
+    ai_meta = generate_ai_metadata(sheet_data=sheet_data, sections=sections)
+    return ai_meta.get("description", "")
+
+
+def generate_youtube_tags(
+    sheet_data: Optional[Dict[str, Any]] = None,
+    sections: Optional[List[str]] = None
+) -> List[str]:
+    """Returns dynamic, high-ranking English SEO keywords list generated by Gemini AI."""
+    ai_meta = generate_ai_metadata(sheet_data=sheet_data, sections=sections)
+    return ai_meta.get("tags", [
+        "Movie News",
+        "Cinema Updates",
+        "Box Office News",
+        "OTT Release",
+        "New Movie Trailers",
+        "Latest Movie Releases 2026"
+    ])
+
+
+def generate_youtube_chapters(
+    sheet_data: Optional[Dict[str, Any]] = None,
+    sections: Optional[List[str]] = None
+) -> str:
+    """Returns formatted English topic-level chapters block generated by Gemini AI / topic timestamps."""
+    ai_meta = generate_ai_metadata(sheet_data=sheet_data, sections=sections)
+    return ai_meta.get("chapters", "")
+

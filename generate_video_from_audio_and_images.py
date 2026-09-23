@@ -1055,8 +1055,11 @@ def generate_video(
     ott_str = f"{ott_start_time:.1f}s" if ott_start_time is not None else "N/A"
     print(f"[*] Section Timing Targets -> Theater Updates: {rel_str} | OTT Updates: {ott_str}")
 
-    # 1. Build visual entries for each segment (video or slide image)
+    # 1. Build visual entries and topic-level chapter timestamps
     visual_entries = []
+    specific_chapters = [
+        {"timestamp": "0:00", "time_sec": 0.0, "title": "Introduction", "type": "intro"}
+    ]
     current_topic_index = 0
 
     for i, seg in enumerate(script_meta):
@@ -1067,6 +1070,33 @@ def generate_video(
         if seg_type == "headline":
             current_topic_index += 1
             topic_idx = current_topic_index
+            item_data = topic_items[topic_idx - 1] if topic_idx <= len(topic_items) else {}
+
+            ts_mins = int(seg_t) // 60
+            ts_secs = int(seg_t) % 60
+            ts_str = f"{ts_mins}:{ts_secs:02d}"
+
+            hl = str(item_data.get("topic_headline", "")).strip()
+            if not hl or hl.lower() == "nan":
+                hl = f"Topic {topic_idx}"
+
+            specific_chapters.append({
+                "timestamp": ts_str,
+                "time_sec": round(seg_t, 2),
+                "title": hl,
+                "section": item_data.get("section", ""),
+                "type": "topic"
+            })
+        elif seg_type == "outro":
+            ts_mins = int(seg_t) // 60
+            ts_secs = int(seg_t) % 60
+            specific_chapters.append({
+                "timestamp": f"{ts_mins}:{ts_secs:02d}",
+                "time_sec": round(seg_t, 2),
+                "title": "Conclusion & Outro",
+                "type": "outro"
+            })
+            topic_idx = max(current_topic_index, 1)
         else:
             topic_idx = max(current_topic_index, 1)
 
@@ -1408,6 +1438,22 @@ def generate_video(
         print("[+] Cleaned up temporary slide cache files.")
     except Exception as e:
         print(f"[!] Cleanup warning: {e}")
+
+    # Save specific topic-level chapters for YouTube description
+    try:
+        chapters_path = OUTPUT_DIR / "video_chapters.json"
+        with open(chapters_path, "w", encoding="utf-8") as f:
+            json.dump(specific_chapters, f, indent=2, ensure_ascii=False)
+        print(f"    ⏱️ Specific Chapters : Saved {len(specific_chapters)} topic chapters to {chapters_path.name}")
+
+        if metadata_json_path and Path(metadata_json_path).exists():
+            with open(metadata_json_path, "r", encoding="utf-8") as f:
+                mj = json.load(f)
+            mj["specific_chapters"] = specific_chapters
+            with open(metadata_json_path, "w", encoding="utf-8") as f:
+                json.dump(mj, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"[!] Warning saving video chapters: {e}")
 
     # Automatically generate 1280x720 YouTube Thumbnail Collage
     thumb_path = None

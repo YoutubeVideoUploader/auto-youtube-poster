@@ -431,3 +431,63 @@ class GoogleSheetManager:
             print(f"[!] Warning reading Gemini key from Config sheet: {e}")
 
         return os.getenv("GEMINI_API_KEY", "")
+
+    def log_upload_to_google_sheet(
+        self,
+        title: str,
+        video_url: str,
+        privacy_status: str,
+        chapters: str,
+        description: str,
+        tags: Any
+    ) -> bool:
+        """Logs video upload details, YouTube URL, chapters, and metadata to Google Sheets 'Video Uploads' tab and local history."""
+        tags_str = ", ".join(tags) if isinstance(tags, list) else str(tags)
+        payload = {
+            "action": "log_video_metadata",
+            "title": title,
+            "video_url": video_url,
+            "privacy_status": privacy_status,
+            "chapters": chapters,
+            "description": description,
+            "tags": tags_str
+        }
+
+        # 1. Append locally to outputs/upload_history.json
+        try:
+            history_file = OUTPUT_DIR / "upload_history.json"
+            history = []
+            if history_file.exists():
+                with open(history_file, "r", encoding="utf-8") as f:
+                    history = json.load(f)
+            history.append({
+                "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                **payload
+            })
+            with open(history_file, "w", encoding="utf-8") as f:
+                json.dump(history, f, indent=2, ensure_ascii=False)
+            print(f"[✓] Saved upload record to local {history_file.name}")
+        except Exception as e:
+            print(f"[!] Warning writing local upload history: {e}")
+
+        # 2. Sync to Google Sheet Web App
+        if not self.web_app_url:
+            return False
+
+        try:
+            r = requests.post(
+                self.web_app_url,
+                data=json.dumps(payload),
+                headers={"Content-Type": "text/plain;charset=utf-8"},
+                timeout=15,
+                verify=False
+            )
+            if r.status_code == 200:
+                print(f"[✓] Successfully logged video upload metadata to Google Sheets 'Video Uploads' tab!")
+                return True
+            else:
+                print(f"[!] Note: Google Sheet Web App returned {r.status_code} on log_video_metadata")
+        except Exception as e:
+            print(f"[!] Warning logging upload to Google Sheet Web App: {e}")
+
+        return False

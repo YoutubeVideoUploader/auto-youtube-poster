@@ -89,7 +89,9 @@ class YouTubeUploader:
         tags: Optional[List[str]] = None,
         category_id: str = "24",  # 24 = Entertainment
         privacy_status: str = "unlisted",  # private, unlisted, public
-        thumbnail_path: Optional[str] = None
+        thumbnail_path: Optional[str] = None,
+        chapters: Optional[str] = None,
+        sheet_mgr: Optional[Any] = None
     ) -> Dict[str, Any]:
         """
         Uploads an MP4 video file to YouTube via resumable chunked upload.
@@ -187,6 +189,43 @@ class YouTubeUploader:
                     elif "403" in err_str and "uploadRateLimitExceeded" not in err_str:
                         if attempt == max_thumb_attempts:
                             print("[!] Notice: If YouTube returned 403 Forbidden, please ensure your YouTube channel has 'Intermediate Features' (phone verification) enabled in YouTube Studio Settings > Channel > Feature Eligibility.")
+
+        # Log to Google Sheets ('Video Uploads' tab) and local outputs/upload_history.json
+        try:
+            import re
+            from google_sheet_manager import GoogleSheetManager
+            from metadata_generator import generate_youtube_chapters
+
+            actual_chapters = (chapters or "").strip()
+            if not actual_chapters:
+                try:
+                    actual_chapters = generate_youtube_chapters()
+                except Exception:
+                    actual_chapters = ""
+            if not actual_chapters and "CHAPTERS:" in description:
+                try:
+                    c_part = description.split("CHAPTERS:")[1]
+                    if "=" * 10 in c_part:
+                        c_part = c_part.split("=" * 10)[0]
+                    actual_chapters = c_part.strip()
+                except Exception:
+                    pass
+            elif not actual_chapters and "0:00" in description:
+                c_lines = [l.strip() for l in description.splitlines() if re.match(r'^\d{1,2}:\d{2}', l.strip())]
+                if c_lines:
+                    actual_chapters = "\n".join(c_lines)
+
+            target_mgr = sheet_mgr or GoogleSheetManager()
+            target_mgr.log_upload_to_google_sheet(
+                title=title,
+                video_url=video_url,
+                privacy_status=privacy_status,
+                chapters=actual_chapters,
+                description=description,
+                tags=tags or []
+            )
+        except Exception as log_err:
+            print(f"[!] Warning: Failed to log upload to Google Sheet: {log_err}")
 
         return {
             "status": "success",

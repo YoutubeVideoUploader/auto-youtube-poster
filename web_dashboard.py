@@ -575,7 +575,7 @@ elif st.session_state.current_section == "📺 Output & Video Slide Preview":
         with st.expander("🔴 **2. Upload Video to YouTube (Auto Metadata & HD Collage Thumbnail)**", expanded=True):
             st.write("Upload rendered MP4 video directly to YouTube with English SEO title, timestamp chapters, hashtags, and auto-generated 1280x720 poster collage thumbnail.")
 
-            from metadata_generator import generate_english_title, generate_youtube_description, generate_youtube_tags, download_thumbnail_from_drive
+            from metadata_generator import generate_english_title, generate_youtube_description, generate_youtube_tags, generate_youtube_chapters, download_thumbnail_from_drive
             from youtube_uploader import YouTubeUploader
 
             privacy_choice = st.selectbox("🔒 YouTube Privacy Status", options=["unlisted", "private", "public"], index=0)
@@ -583,10 +583,14 @@ elif st.session_state.current_section == "📺 Output & Video Slide Preview":
             # Auto Preview Metadata
             english_title = generate_english_title()
             desc_preview = generate_youtube_description(st.session_state.edited_dfs)
+            tags_preview = generate_youtube_tags(st.session_state.edited_dfs)
+            chapters_preview = generate_youtube_chapters(st.session_state.edited_dfs)
 
             st.markdown(f"**Generated English Title**: `{english_title}`")
-            with st.expander("📝 View Generated Description & Chapters"):
+            with st.expander("📝 View Generated Description & Topic Chapters"):
                 st.code(desc_preview)
+            with st.expander("🏷️ View Generated SEO Tags"):
+                st.write(", ".join([f"`{t}`" for t in tags_preview]))
 
             if st.button("🔴 Upload Video to YouTube Now", type="primary", use_container_width=True):
                 video_file = OUTPUT_DIR / "Malayalam_Movie_News_Presenter_1080p.mp4"
@@ -606,9 +610,10 @@ elif st.session_state.current_section == "📺 Output & Video Slide Preview":
                                 video_path=str(video_file),
                                 title=english_title,
                                 description=desc_preview,
-                                tags=generate_youtube_tags(),
+                                tags=tags_preview,
                                 privacy_status=privacy_choice,
-                                thumbnail_path=thumb_path
+                                thumbnail_path=thumb_path,
+                                chapters=chapters_preview
                             )
 
                             if result.get("status") == "success":
@@ -618,6 +623,7 @@ elif st.session_state.current_section == "📺 Output & Video Slide Preview":
                                 st.markdown(f"- **Privacy Status**: `{result['privacy_status']}`")
                                 if result.get("thumbnail_uploaded"):
                                     st.markdown(" - **Thumbnail Status**: Custom Thumbnail Uploaded ✓")
+                                st.info("📋 Upload details logged to Google Sheets 'Video Uploads' tab & outputs/upload_history.json")
                         except Exception as e:
                             st.error(f"YouTube Upload Error: {e}")
 

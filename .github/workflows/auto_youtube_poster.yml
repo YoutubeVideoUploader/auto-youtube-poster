@@ -95,7 +95,7 @@ jobs:
         run: |
           python -c "
           from youtube_uploader import YouTubeUploader
-          from metadata_generator import generate_english_title, generate_youtube_description, generate_youtube_tags, download_thumbnail_from_drive
+          from metadata_generator import generate_english_title, generate_youtube_description, generate_youtube_tags, generate_youtube_chapters, download_thumbnail_from_drive
           from google_sheet_manager import GoogleSheetManager
           from pathlib import Path
           import os, re
@@ -136,7 +136,8 @@ jobs:
 
           title = generate_english_title(sections=active_sections)
           desc = generate_youtube_description(data, sections=active_sections)
-          tags = generate_youtube_tags()
+          tags = generate_youtube_tags(sheet_data=data, sections=active_sections)
+          chapters = generate_youtube_chapters(sheet_data=data, sections=active_sections)
 
           thumb_path = download_thumbnail_from_drive(clean_drive, sheet_data=data, sections=active_sections)
 
@@ -147,7 +148,9 @@ jobs:
               description=desc,
               tags=tags,
               privacy_status=clean_privacy,
-              thumbnail_path=thumb_path
+              thumbnail_path=thumb_path,
+              chapters=chapters,
+              sheet_mgr=mgr
           )
           print('YOUTUBE UPLOAD SUCCESSFUL:', res)
           "
