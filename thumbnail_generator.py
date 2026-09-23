@@ -1,14 +1,17 @@
 """
-Automated YouTube Thumbnail Collage Generator Module
-Creates broadcast-quality 1280x720 YouTube thumbnail collages from movie poster image URLs,
-complete with dark gradient overlays, gold/red badges, and high-contrast title typography.
+Automated YouTube Thumbnail Generator Module
+Creates broadcast-quality 1280x720 YouTube thumbnail with:
+- Gemini AI Creative Director: AI-generated main_hook, sub_text, badge, color_theme, layout_style
+- Next-Gen Broadcast Engine: 3D Impact typography, glowing neon diagonal separators, cinematic vignette
+- Backward-compatible create_collage_thumbnail() for legacy callers
 """
 
 import os
 import io
+import re
 import requests
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -17,8 +20,12 @@ THUMBNAIL_DIR = OUTPUT_DIR / "youtube_thumbnails"
 THUMBNAIL_DIR.mkdir(parents=True, exist_ok=True)
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# FONT UTILITIES
+# ─────────────────────────────────────────────────────────────────────────────
+
 def get_font(size: int) -> ImageFont.ImageFont:
-    """Tries loading DejaVuSans-Bold or FreeSansBold or fallback default font."""
+    """Tries loading DejaVuSans-Bold or FreeSansBold or fallback default font (legacy helper)."""
     font_candidates = [
         "DejaVuSans-Bold.ttf",
         "FreeSansBold.ttf",
@@ -36,9 +43,50 @@ def get_font(size: int) -> ImageFont.ImageFont:
     return ImageFont.load_default()
 
 
+def get_best_font(size: int, font_type: str = "impact") -> ImageFont.ImageFont:
+    """Returns Impact for main hook or Arial Bold for sub-text/badge. Fallback chain for Linux/Windows."""
+    impact_candidates = [
+        "C:\\Windows\\Fonts\\impact.ttf",
+        "impact.ttf",
+        "/usr/share/fonts/truetype/msttcorefonts/Impact.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+        "C:\\Windows\\Fonts\\arialbd.ttf",
+        "DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    ]
+    sans_candidates = [
+        "C:\\Windows\\Fonts\\arialbd.ttf",
+        "C:\\Windows\\Fonts\\segoeui.ttf",
+        "C:\\Windows\\Fonts\\trebucbd.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+        "DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    ]
+    cands = impact_candidates if font_type == "impact" else sans_candidates
+    for c in cands:
+        try:
+            return ImageFont.truetype(c, size)
+        except Exception:
+            continue
+    return ImageFont.load_default()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# IMAGE UTILITIES
+# ─────────────────────────────────────────────────────────────────────────────
+
+def clean_text_no_emoji(text: str) -> str:
+    """Removes emoji characters and stray unicode glyphs to prevent hollow boxes in text rendering."""
+    if not text:
+        return ""
+    text = re.sub(r'[\U00010000-\U0010ffff]', '', str(text))
+    text = re.sub(r'[\u2600-\u27bf]', '', text)
+    text = text.replace('"', '').replace("'", '').replace("`", "")
+    return re.sub(r'\s+', ' ', text).strip()
+
+
 def upgrade_image_url_quality(url: str) -> str:
-    """Upgrades web image URLs (e.g. CinemaExpress/Assettype CDN parameters) from low-res (w=480/300) to Full HD 1280p/1920p resolution."""
-    import re
+    """Upgrades web image URLs from low-res (w=480/300) to Full HD 1280p resolution."""
     if not url or not isinstance(url, str):
         return url
     if "w=480" in url or "w=300" in url or "w=600" in url or "w=350" in url:
@@ -71,7 +119,6 @@ def download_image(url_or_path: str, timeout: int = 15) -> Optional[Image.Image]
         # Handle Google Drive shareable links
         urls_to_try = [url]
         if "drive.google.com" in url or "/file/d/" in url:
-            import re
             match1 = re.search(r'/file/d/([a-zA-Z0-9_-]+)', url)
             match2 = re.search(r'id=([a-zA-Z0-9_-]+)', url)
             file_id = match1.group(1) if match1 else (match2.group(1) if match2 else "")
@@ -88,28 +135,36 @@ def download_image(url_or_path: str, timeout: int = 15) -> Optional[Image.Image]
                 if resp.status_code == 200 and len(resp.content) > 500 and not resp.content.startswith(b'<!DOCTYPE') and not resp.content.startswith(b'<html'):
                     img = Image.open(io.BytesIO(resp.content)).convert("RGB")
                     return img
-            except Exception as e:
+            except Exception:
                 pass
-        print(f"[!] Warning: Could not download image {url[:50]}...")
+        print(f"[!] Warning: Could not download image {url_or_path[:60]}...")
     return None
 
 
+def enhance_poster(img: Image.Image) -> Image.Image:
+    """Enhances contrast, saturation, and sharpness for cinematic punch."""
+    try:
+        c = ImageEnhance.Contrast(img).enhance(1.22)
+        s = ImageEnhance.Color(c).enhance(1.25)
+        sh = ImageEnhance.Sharpness(s).enhance(1.35)
+        return sh
+    except Exception:
+        return img
+
+
 def crop_center(img: Image.Image, target_width: int, target_height: int) -> Image.Image:
-    """Crops and resizes an image to fit target width and height maintaining aspect ratio with sharpness enhancement."""
+    """Legacy center crop – maintained for backward compatibility."""
     img_aspect = img.width / img.height
     target_aspect = target_width / target_height
 
     if img_aspect > target_aspect:
-        # Image is wider: fit height first
         new_height = target_height
         new_width = int(new_height * img_aspect)
     else:
-        # Image is taller: fit width first
         new_width = target_width
         new_height = int(new_width / img_aspect)
 
     resized = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
-    
     try:
         sharpener = ImageEnhance.Sharpness(resized)
         resized = sharpener.enhance(1.25)
@@ -120,9 +175,300 @@ def crop_center(img: Image.Image, target_width: int, target_height: int) -> Imag
     top = (new_height - target_height) // 2
     right = left + target_width
     bottom = top + target_height
-
     return resized.crop((left, top, right, bottom))
 
+
+def crop_smart(img: Image.Image, tw: int, th: int, focus_top: bool = True) -> Image.Image:
+    """
+    Crops and resizes image to target dimensions.
+    If focus_top=True (movie posters), crops towards the upper-center to preserve faces.
+    """
+    aspect = img.width / img.height
+    target_aspect = tw / th
+    if aspect > target_aspect:
+        nh = th
+        nw = int(nh * aspect)
+        resized = img.resize((nw, nh), Image.Resampling.LANCZOS)
+        left = (nw - tw) // 2
+        top = 0
+    else:
+        nw = tw
+        nh = int(nw / aspect)
+        resized = img.resize((nw, nh), Image.Resampling.LANCZOS)
+        left = 0
+        if focus_top and nh > th:
+            top = int((nh - th) * 0.15)  # 15% from top keeps faces in frame
+        else:
+            top = (nh - th) // 2
+    return resized.crop((left, top, left + tw, top + th))
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 3D IMPACT TEXT RENDERER
+# ─────────────────────────────────────────────────────────────────────────────
+
+def draw_3d_text(
+    draw: ImageDraw.ImageDraw,
+    pos: tuple,
+    text: str,
+    font,
+    fill_color,
+    stroke_color=(0, 0, 0),
+    stroke_width: int = 7,
+    shadow_offset: tuple = (5, 6)
+):
+    """Renders text with a deep 3D drop shadow + multi-angle thick black outline + vivid fill."""
+    x, y = pos
+    sx, sy = shadow_offset
+
+    # 1. Deep 3D Drop Shadow
+    for dx in range(-stroke_width, stroke_width + 1):
+        for dy in range(-stroke_width, stroke_width + 1):
+            if dx * dx + dy * dy <= stroke_width * stroke_width:
+                draw.text((x + sx + dx, y + sy + dy), text, font=font, fill=(5, 5, 10, 240))
+
+    # 2. Multi-angle black outline stroke
+    for dx in range(-stroke_width, stroke_width + 1):
+        for dy in range(-stroke_width, stroke_width + 1):
+            if dx * dx + dy * dy <= stroke_width * stroke_width:
+                draw.text((x + dx, y + dy), text, font=font, fill=stroke_color)
+
+    # 3. Main vivid text fill
+    draw.text((x, y), text, font=font, fill=fill_color)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# NEXT-GEN BROADCAST THUMBNAIL ENGINE
+# ─────────────────────────────────────────────────────────────────────────────
+
+def create_nextgen_thumbnail(
+    image_urls: List[str],
+    brief: Dict[str, Any],
+    output_filename: str = "custom_thumbnail.jpg"
+) -> Optional[str]:
+    """
+    Creates a broadcast-quality 1280x720 YouTube thumbnail using:
+    - Gemini AI brief (main_hook, sub_text, badge, color_theme, layout_style)
+    - 3D Impact typography with neon glow diagonal dividers and cinematic vignette
+    Returns absolute path to the generated JPEG thumbnail.
+    """
+    W, H = 1280, 720
+    canvas = Image.new("RGBA", (W, H), (8, 10, 18, 255))
+
+    # ── Resolve theme colors from Gemini brief ──────────────────────────────
+    theme_name = str(brief.get("color_theme", "crimson")).lower()
+    if "gold" in theme_name:
+        accent_color = (255, 215, 0)
+        accent_glow = (255, 235, 100)
+        badge_bg = (217, 119, 6)
+        text_accent = (255, 230, 0)
+    elif "cyan" in theme_name:
+        accent_color = (0, 242, 254)
+        accent_glow = (79, 172, 254)
+        badge_bg = (2, 132, 199)
+        text_accent = (0, 242, 254)
+    else:  # crimson (default)
+        accent_color = (255, 42, 75)
+        accent_glow = (255, 90, 120)
+        badge_bg = (225, 29, 72)
+        text_accent = (255, 225, 0)  # High-contrast yellow on crimson
+
+    # ── Download & enhance poster images ───────────────────────────────────
+    loaded = []
+    for url_or_path in image_urls:
+        img = download_image(url_or_path)
+        if img:
+            loaded.append(enhance_poster(img))
+        if len(loaded) >= 4:
+            break
+
+    if not loaded:
+        loaded = [Image.new("RGB", (W, H), (20, 24, 38))]
+
+    layout = str(brief.get("layout_style", "diagonal_clash")).lower()
+    num = len(loaded)
+
+    # ── LAYOUT 1: Diagonal Clash (default for 2 images) ────────────────────
+    if (layout == "diagonal_clash" or num == 2) and num >= 2:
+        img_left = crop_smart(loaded[0], W, H, focus_top=True)
+        img_right = crop_smart(loaded[1], W, H, focus_top=True)
+
+        canvas.paste(img_left, (0, 0))
+
+        split_top = W // 2 + 65
+        split_bottom = W // 2 - 65
+
+        mask = Image.new("L", (W, H), 0)
+        draw_mask = ImageDraw.Draw(mask)
+        draw_mask.polygon([(split_top, 0), (W, 0), (W, H), (split_bottom, H)], fill=255)
+        canvas.paste(img_right, (0, 0), mask)
+
+        # Glowing neon diagonal divider (3 layers: outer glow, core, white center line)
+        glow_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        draw_g = ImageDraw.Draw(glow_layer)
+        draw_g.line([(split_top, 0), (split_bottom, H)], fill=(*accent_glow, 70), width=22)
+        draw_g.line([(split_top, 0), (split_bottom, H)], fill=(*accent_color, 160), width=10)
+        draw_g.line([(split_top, 0), (split_bottom, H)], fill=(255, 255, 255, 240), width=3)
+        canvas = Image.alpha_composite(canvas, glow_layer)
+
+    # ── LAYOUT 2: Hero Focus (1 big left, 2 stacked right) ─────────────────
+    elif (layout == "hero_focus" or num == 3) and num >= 3:
+        hero_w = int(W * 0.58)
+        right_w = W - hero_w
+        half_h = H // 2
+
+        img_hero = crop_smart(loaded[0], hero_w, H, focus_top=True)
+        img_r1 = crop_smart(loaded[1], right_w, half_h, focus_top=True)
+        img_r2 = crop_smart(loaded[2], right_w, H - half_h, focus_top=True)
+
+        canvas.paste(img_hero, (0, 0))
+        canvas.paste(img_r1, (hero_w, 0))
+        canvas.paste(img_r2, (hero_w, half_h))
+
+        lines_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        draw_l = ImageDraw.Draw(lines_layer)
+        draw_l.line([(hero_w, 0), (hero_w, H)], fill=(*accent_color, 220), width=6)
+        draw_l.line([(hero_w, half_h), (W, half_h)], fill=(*accent_color, 180), width=5)
+        canvas = Image.alpha_composite(canvas, lines_layer)
+
+    # ── LAYOUT 3: Cinematic Duo (side-by-side equal split) ──────────────────
+    elif layout == "cinematic_duo" and num >= 2:
+        half_w = W // 2
+        img_l = crop_smart(loaded[0], half_w, H, focus_top=True)
+        img_r = crop_smart(loaded[1], W - half_w, H, focus_top=True)
+        canvas.paste(img_l, (0, 0))
+        canvas.paste(img_r, (half_w, 0))
+
+        glow_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        draw_g = ImageDraw.Draw(glow_layer)
+        draw_g.line([(half_w, 0), (half_w, H)], fill=(*accent_glow, 90), width=18)
+        draw_g.line([(half_w, 0), (half_w, H)], fill=(*accent_color, 200), width=8)
+        draw_g.line([(half_w, 0), (half_w, H)], fill=(255, 255, 255, 230), width=2)
+        canvas = Image.alpha_composite(canvas, glow_layer)
+
+    # ── LAYOUT 4: Single Hero Full Bleed ───────────────────────────────────
+    elif num == 1:
+        canvas.paste(crop_smart(loaded[0], W, H, focus_top=True), (0, 0))
+
+    # ── LAYOUT 5: 4-image 2×2 Grid ─────────────────────────────────────────
+    else:
+        half_w = W // 2
+        half_h = H // 2
+        canvas.paste(crop_smart(loaded[0], half_w, half_h, focus_top=True), (0, 0))
+        canvas.paste(crop_smart(loaded[1], half_w, half_h, focus_top=True), (half_w, 0))
+        canvas.paste(crop_smart(loaded[2], half_w, half_h, focus_top=True), (0, half_h))
+        canvas.paste(crop_smart(loaded[3 if num > 3 else 0], half_w, half_h, focus_top=True), (half_w, half_h))
+
+        lines_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        draw_l = ImageDraw.Draw(lines_layer)
+        draw_l.line([(half_w, 0), (half_w, H)], fill=(*accent_color, 200), width=5)
+        draw_l.line([(0, half_h), (W, half_h)], fill=(*accent_color, 200), width=5)
+        canvas = Image.alpha_composite(canvas, lines_layer)
+
+    # ── CINEMATIC VIGNETTE OVERLAY ──────────────────────────────────────────
+    vignette = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    draw_v = ImageDraw.Draw(vignette)
+
+    # Deep bottom gradient (330px)
+    grad_h = 330
+    start_y = H - grad_h
+    for y in range(grad_h):
+        prog = (y / grad_h) ** 1.35
+        alpha = int(248 * prog)
+        draw_v.line([(0, start_y + y), (W, start_y + y)], fill=(6, 8, 14, alpha))
+
+    # Top banner vignette (120px)
+    for y in range(120):
+        alpha = int(175 * (1.0 - (y / 120)))
+        draw_v.line([(0, y), (W, y)], fill=(6, 8, 14, alpha))
+
+    canvas = Image.alpha_composite(canvas, vignette)
+    draw = ImageDraw.Draw(canvas)
+
+    # ── BROADCAST BADGE (Top-Left) ───────────────────────────────────────────
+    badge_raw = brief.get("badge", "BREAKING NEWS")
+    badge_text = clean_text_no_emoji(badge_raw).upper()
+    badge_font = get_best_font(26, font_type="sans")
+    bbox = badge_font.getbbox(badge_text)
+    bw = bbox[2] - bbox[0]
+    bh = bbox[3] - bbox[1]
+    bx, by = 40, 32
+    bpad_x, bpad_y = 18, 9
+
+    # Badge shadow
+    draw.rounded_rectangle(
+        [bx + 4, by + 4, bx + bw + bpad_x * 2 + 14 + 4, by + bh + bpad_y * 2 + 4],
+        radius=8, fill=(0, 0, 0, 180)
+    )
+    # Badge background
+    draw.rounded_rectangle(
+        [bx, by, bx + bw + bpad_x * 2 + 14, by + bh + bpad_y * 2],
+        radius=8, fill=badge_bg, outline=(255, 255, 255, 220), width=2
+    )
+    # Live indicator dot
+    dot_cy = by + (bh + bpad_y * 2) // 2
+    draw.ellipse([bx + 12, dot_cy - 5, bx + 22, dot_cy + 5], fill=(255, 255, 255))
+    draw.text((bx + bpad_x + 12, by + bpad_y - 2), badge_text, font=badge_font, fill=(255, 255, 255))
+
+    # ── TOP-RIGHT WATERMARK BADGE ────────────────────────────────────────────
+    wm_text = "CINEMA DESK • 4K ULTRA HD"
+    wm_font = get_best_font(20, font_type="sans")
+    w_bbox = wm_font.getbbox(wm_text)
+    ww = w_bbox[2] - w_bbox[0]
+    wx = W - ww - 45
+    draw.rounded_rectangle(
+        [wx - 14, by + 2, W - 35, by + bh + bpad_y * 2 - 2],
+        radius=6, fill=(10, 14, 24, 210), outline=(*accent_color, 160), width=1
+    )
+    draw.text((wx, by + bpad_y - 2), wm_text, font=wm_font, fill=(210, 225, 245))
+
+    # ── 3D HIGH-CTR TYPOGRAPHY (Bottom Card) ────────────────────────────────
+    main_hook = clean_text_no_emoji(brief.get("main_hook", "BREAKING CINEMA NEWS!")).upper()
+    sub_text = clean_text_no_emoji(brief.get("sub_text", "LATEST MALAYALAM MOVIE UPDATES")).upper()
+
+    # Auto-scale font by text length
+    hook_size = 76 if len(main_hook) <= 18 else (64 if len(main_hook) <= 24 else 52)
+    hook_font = get_best_font(hook_size, font_type="impact")
+
+    sub_size = 34 if len(sub_text) <= 28 else (28 if len(sub_text) <= 38 else 24)
+    sub_font = get_best_font(sub_size, font_type="sans")
+
+    text_x = 45
+    h_bbox = hook_font.getbbox(main_hook)
+    hook_h = h_bbox[3] - h_bbox[1]
+    hook_w = min(h_bbox[2] - h_bbox[0], W - 90)
+
+    # Vertical layout: sub_text at bottom, accent bar above it, main_hook above that
+    text_y_sub = H - 58
+    bar_y = text_y_sub - 26
+    text_y_hook = bar_y - hook_h - 18
+
+    # 1. Colored accent underline bar
+    draw.rounded_rectangle([text_x, bar_y, text_x + hook_w, bar_y + 7], radius=3, fill=accent_color)
+
+    # 2. Main Hook – Giant Impact 3D text (Electric Yellow)
+    draw_3d_text(
+        draw, (text_x, text_y_hook), main_hook, hook_font,
+        fill_color=text_accent, stroke_color=(0, 0, 0), stroke_width=8, shadow_offset=(5, 6)
+    )
+
+    # 3. Sub Text – Clean white with 4px stroke
+    draw_3d_text(
+        draw, (text_x, text_y_sub), sub_text, sub_font,
+        fill_color=(255, 255, 255), stroke_color=(0, 0, 0), stroke_width=5, shadow_offset=(3, 4)
+    )
+
+    # ── SAVE FINAL 1280x720 JPEG ─────────────────────────────────────────────
+    save_path = THUMBNAIL_DIR / output_filename
+    final_img = canvas.convert("RGB")
+    final_img.save(save_path, "JPEG", quality=95)
+    print(f"[OK] Next-Gen YouTube Thumbnail saved: {save_path}")
+    return str(save_path)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# LEGACY COLLAGE THUMBNAIL (Backward Compatible)
+# ─────────────────────────────────────────────────────────────────────────────
 
 def create_collage_thumbnail(
     image_urls: List[str],
@@ -131,162 +477,41 @@ def create_collage_thumbnail(
     badge_text: str = "MOVIE NEWS • EXCLUSIVE UPDATE"
 ) -> Optional[str]:
     """
-    Downloads images from image_urls and creates a professional 1280x720 collage thumbnail.
+    Legacy: Downloads images from image_urls and creates a professional 1280x720 collage thumbnail.
+    Now delegates to create_nextgen_thumbnail() with a deterministic brief derived from title/badge.
     Returns absolute path to the generated thumbnail image file.
     """
-    canvas_w, canvas_h = 1280, 720
-    canvas = Image.new("RGB", (canvas_w, canvas_h), (18, 18, 28))
-
-    # Download all valid images
-    images = []
-    for u in image_urls:
-        img = download_image(u)
-        if img:
-            images.append(img)
-        if len(images) >= 6:
-            break
-
-    # Fallback placeholder if no images downloaded successfully
-    if not images:
-        placeholder = Image.new("RGB", (canvas_w, canvas_h), (25, 25, 45))
-        draw_p = ImageDraw.Draw(placeholder)
-        draw_p.rectangle([40, 40, canvas_w-40, canvas_h-40], outline=(255, 42, 75), width=4)
-        images = [placeholder]
-
-    num_imgs = len(images)
-
-    # 1. Composite Grid/Split Layout based on image count
-    if num_imgs == 1:
-        # 1 Full-screen hero image
-        cropped = crop_center(images[0], canvas_w, canvas_h)
-        canvas.paste(cropped, (0, 0))
-
-    elif num_imgs == 2:
-        # 50-50 Vertical Split
-        w_half = canvas_w // 2
-        img1 = crop_center(images[0], w_half, canvas_h)
-        img2 = crop_center(images[1], canvas_w - w_half, canvas_h)
-        canvas.paste(img1, (0, 0))
-        canvas.paste(img2, (w_half, 0))
-
-        # Vertical Divider Line with Glow
-        draw_line = ImageDraw.Draw(canvas)
-        draw_line.line([(w_half, 0), (w_half, canvas_h)], fill=(255, 42, 75), width=6)
-
-    elif num_imgs == 3:
-        # 1 Featured Hero Left (50%), 2 Stacked Right (50%)
-        w_hero = canvas_w // 2
-        w_right = canvas_w - w_hero
-        h_right = canvas_h // 2
-
-        img_hero = crop_center(images[0], w_hero, canvas_h)
-        img_r1 = crop_center(images[1], w_right, h_right)
-        img_r2 = crop_center(images[2], w_right, canvas_h - h_right)
-
-        canvas.paste(img_hero, (0, 0))
-        canvas.paste(img_r1, (w_hero, 0))
-        canvas.paste(img_r2, (w_hero, h_right))
-
-        # Dividers
-        draw_line = ImageDraw.Draw(canvas)
-        draw_line.line([(w_hero, 0), (w_hero, canvas_h)], fill=(255, 42, 75), width=5)
-        draw_line.line([(w_hero, h_right), (canvas_w, h_right)], fill=(255, 42, 75), width=4)
-
-    elif num_imgs == 4:
-        # 2x2 Grid
-        w_half = canvas_w // 2
-        h_half = canvas_h // 2
-
-        img1 = crop_center(images[0], w_half, h_half)
-        img2 = crop_center(images[1], canvas_w - w_half, h_half)
-        img3 = crop_center(images[2], w_half, h_half)
-        img4 = crop_center(images[3], canvas_w - w_half, canvas_h - h_half)
-
-        canvas.paste(img1, (0, 0))
-        canvas.paste(img2, (w_half, 0))
-        canvas.paste(img3, (0, h_half))
-        canvas.paste(img4, (w_half, h_half))
-
-        # Dividers
-        draw_line = ImageDraw.Draw(canvas)
-        draw_line.line([(w_half, 0), (w_half, canvas_h)], fill=(255, 42, 75), width=5)
-        draw_line.line([(0, h_half), (canvas_w, h_half)], fill=(255, 42, 75), width=5)
-
+    # Build a simple brief from the legacy title and badge parameters
+    title_up = (title_text or "").upper()
+    if "OTT" in title_up and "THEATER" in title_up:
+        theme = "cyan"
+        layout = "hero_focus"
+    elif "OTT" in title_up:
+        theme = "cyan"
+        layout = "diagonal_clash"
+    elif "THEATER" in title_up or "RELEASE" in title_up:
+        theme = "gold"
+        layout = "diagonal_clash"
     else:
-        # 5 or 6 Images: 3x2 Grid
-        col_w = canvas_w // 3
-        row_h = canvas_h // 2
+        theme = "crimson"
+        layout = "diagonal_clash"
 
-        for idx in range(min(num_imgs, 6)):
-            r = idx // 3
-            c = idx % 3
-            cw = col_w if c < 2 else canvas_w - (col_w * 2)
-            ch = row_h if r == 0 else canvas_h - row_h
-            cropped = crop_center(images[idx], cw, ch)
-            canvas.paste(cropped, (c * col_w, r * row_h))
+    # Truncate title to fit hook
+    hook = title_text.upper().replace("LATEST ", "").replace("MALAYALAM ", "")[:28]
 
-        draw_line = ImageDraw.Draw(canvas)
-        draw_line.line([(col_w, 0), (col_w, canvas_h)], fill=(255, 42, 75), width=4)
-        draw_line.line([(col_w * 2, 0), (col_w * 2, canvas_h)], fill=(255, 42, 75), width=4)
-        draw_line.line([(0, row_h), (canvas_w, row_h)], fill=(255, 42, 75), width=4)
+    brief = {
+        "main_hook": hook,
+        "sub_text": badge_text.replace(" • ", " | ")[:40],
+        "badge": badge_text.split("•")[0].strip()[:30],
+        "color_theme": theme,
+        "layout_style": layout
+    }
+    return create_nextgen_thumbnail(image_urls, brief, output_filename)
 
-    # 2. Add Dark Gradient Vignette Overlay at bottom & top for typography contrast
-    overlay = Image.new("RGBA", (canvas_w, canvas_h), (0, 0, 0, 0))
-    draw_ov = ImageDraw.Draw(overlay)
 
-    # Bottom Gradient (height 300px)
-    gradient_h = 300
-    start_y = canvas_h - gradient_h
-    for y in range(gradient_h):
-        alpha = int(245 * (y / gradient_h) ** 1.3)
-        draw_ov.line([(0, start_y + y), (canvas_w, start_y + y)], fill=(10, 10, 18, alpha))
-
-    # Top Banner Gradient (height 100px)
-    for y in range(100):
-        alpha = int(180 * (1.0 - (y / 100)))
-        draw_ov.line([(0, y), (canvas_w, y)], fill=(10, 10, 18, alpha))
-
-    canvas = Image.alpha_composite(canvas.convert("RGBA"), overlay).convert("RGB")
-    draw = ImageDraw.Draw(canvas)
-
-    # 3. Top Broadcast Badge
-    badge_font = get_font(26)
-    badge_text = (badge_text or "MOVIE NEWS • EXCLUSIVE UPDATE").strip()
-    badge_bbox = badge_font.getbbox(badge_text)
-    badge_w = badge_bbox[2] - badge_bbox[0]
-    badge_h = badge_bbox[3] - badge_bbox[1]
-
-    badge_pad_x, badge_pad_y = 16, 8
-    badge_rect = [30, 25, 30 + badge_w + (badge_pad_x * 2), 25 + badge_h + (badge_pad_y * 2)]
-    draw.rounded_rectangle(badge_rect, radius=6, fill=(255, 42, 75))
-    draw.text((30 + badge_pad_x, 25 + badge_pad_y - 2), badge_text, font=badge_font, fill=(255, 255, 255))
-
-    # 4. Main Bottom Title Text Card: "LATEST MALAYALAM MOVIE UPDATES"
-    title_font = get_font(48)
-    display_title = (title_text or "LATEST MALAYALAM MOVIE UPDATES").upper()
-
-    tb_margin_x = 30
-    tb_bottom_y = canvas_h - 35
-    tb_top_y = canvas_h - 130
-
-    draw.rounded_rectangle([tb_margin_x, tb_top_y, canvas_w - tb_margin_x, tb_bottom_y], radius=10, fill=(26, 26, 46), outline=(255, 42, 75), width=3)
-
-    # Drop shadow & Text
-    tx_x = tb_margin_x + 25
-    tx_y = tb_top_y + 20
-
-    for offset_x, offset_y in [(-2, -2), (2, -2), (-2, 2), (2, 2), (0, 3), (3, 0)]:
-        draw.text((tx_x + offset_x, tx_y + offset_y), display_title, font=title_font, fill=(0, 0, 0))
-
-    draw.text((tx_x, tx_y), display_title, font=title_font, fill=(255, 220, 0))
-
-    # Save final high-res 1280x720 thumbnail JPEG
-    save_path = THUMBNAIL_DIR / output_filename
-    canvas.save(save_path, "JPEG", quality=95)
-    print(f"[OK] Automated YouTube Thumbnail Collage generated: {save_path}")
-
-    return str(save_path)
-
+# ─────────────────────────────────────────────────────────────────────────────
+# SELF-TEST
+# ─────────────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     sample_urls = [
@@ -294,5 +519,12 @@ if __name__ == "__main__":
         "https://cf-images.assettype.com/cinemaexpress%2F2026-09-12%2Fe40s25kb%2FVinayan.jpg?auto=format%2Ccompress&fit=max&w=480",
         "https://cf-images.assettype.com/cinemaexpress%2F2026-09-11%2Fv8gzh8n0%2FAmala-Paul.jpg?auto=format%2Ccompress&fit=max&w=480"
     ]
-    res_path = create_collage_thumbnail(sample_urls, "LATEST MALAYALAM MOVIE UPDATES")
+    brief = {
+        "main_hook": "MAMMOOTTY MASS BLAST!",
+        "sub_text": "VINAYAN • AMALA PAUL",
+        "badge": "OFFICIAL TRAILER",
+        "color_theme": "crimson",
+        "layout_style": "hero_focus"
+    }
+    res_path = create_nextgen_thumbnail(sample_urls, brief, "test_nextgen_thumbnail.jpg")
     print("Test result path:", res_path)

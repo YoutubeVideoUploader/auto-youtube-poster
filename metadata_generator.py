@@ -277,23 +277,25 @@ def download_thumbnail_from_drive(
                 if len(image_urls) >= 4:
                     break
 
-    # 6. Generate Automated 1280x720 YouTube Thumbnail Collage
+    # 6. Generate Next-Gen AI-powered 1280x720 YouTube Thumbnail
     if image_urls:
         try:
-            from thumbnail_generator import create_collage_thumbnail
-            print(f"[THUMBNAIL] Generating Automated YouTube Thumbnail Collage from {len(image_urls)} image(s)...")
-            print(f"    [TITLE] '{thumb_title}' | [BADGE] '{badge_text}'")
-            return create_collage_thumbnail(image_urls, thumb_title, save_filename, badge_text=badge_text)
+            from thumbnail_generator import create_nextgen_thumbnail
+            print(f"[THUMBNAIL] Generating AI-powered Next-Gen YouTube Thumbnail from {len(image_urls)} image(s)...")
+            brief = generate_ai_thumbnail_brief(sheet_data=sheet_data, sections=sections)
+            print(f"    [AI BRIEF] main_hook='{brief.get('main_hook')}' | badge='{brief.get('badge')}' | theme='{brief.get('color_theme')}'")
+            return create_nextgen_thumbnail(image_urls, brief, save_filename)
         except Exception as e:
-            print(f"[!] Warning generating thumbnail collage: {e}")
+            print(f"[!] Warning generating next-gen thumbnail: {e}")
 
-    # Final Fallback: Generate template collage with dynamic branding
+    # Final Fallback: Generate template thumbnail with dynamic branding
     try:
-        from thumbnail_generator import create_collage_thumbnail
-        print("[THUMBNAIL] Generating fallback YouTube Thumbnail Collage...")
-        return create_collage_thumbnail([], thumb_title, save_filename, badge_text=badge_text)
+        from thumbnail_generator import create_nextgen_thumbnail
+        print("[THUMBNAIL] Generating fallback Next-Gen YouTube Thumbnail (no images)...")
+        brief = generate_ai_thumbnail_brief(sheet_data=sheet_data, sections=sections)
+        return create_nextgen_thumbnail([], brief, save_filename)
     except Exception as e:
-        print(f"[!] Error generating fallback thumbnail collage: {e}")
+        print(f"[!] Error generating fallback next-gen thumbnail: {e}")
         return None
 
 
@@ -347,6 +349,7 @@ def format_seconds_to_timestamp(seconds: float) -> str:
 
 
 _AI_METADATA_CACHE: Optional[Dict[str, Any]] = None
+_AI_THUMBNAIL_BRIEF_CACHE: Optional[Dict[str, Any]] = None
 
 
 def normalize_youtube_chapters(raw_chapters: List[Dict[str, Any]], total_duration: float = 0.0) -> List[Dict[str, Any]]:
@@ -562,6 +565,130 @@ def sanitize_youtube_tags(raw_tags: List[Any], max_total_chars: int = 400) -> Li
         clean_list = ["Movie News", "Cinema Updates", "Mollywood", "Film Trailers", "OTT Releases"]
 
     return clean_list
+
+
+def generate_ai_thumbnail_brief(
+    sheet_data: Optional[Dict[str, Any]] = None,
+    sections: Optional[List[str]] = None,
+    gemini_key: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Uses Gemini API as Creative Art Director to analyze active video topics and generate
+    a broadcast-quality thumbnail creative brief:
+      - main_hook:    2-4 word punchy power phrase (e.g. "FAHADH MASS BLAST!")
+      - sub_text:     supporting star/movie callout (e.g. "BIJU MENON • SHRUTI HAASAN")
+      - badge:        high-urgency ribbon badge (e.g. "OFFICIAL TRAILER", "BREAKING")
+      - color_theme:  mood color ("crimson", "gold", or "cyan")
+      - layout_style: composition ("diagonal_clash", "hero_focus", or "cinematic_duo")
+
+    Falls back to deterministic extraction if Gemini is unavailable.
+    """
+    global _AI_THUMBNAIL_BRIEF_CACHE
+    if _AI_THUMBNAIL_BRIEF_CACHE is not None:
+        return _AI_THUMBNAIL_BRIEF_CACHE
+
+    # ── Extract active topics ──────────────────────────────────────────────
+    topics_list = extract_active_topics_flat(sheet_data, sections=sections)
+
+    # Build topic summary for prompt
+    topic_summaries = []
+    for i, t in enumerate(topics_list[:15], 1):
+        sec = t.get("section", "")
+        hl = t.get("topic_headline", "")
+        plat = t.get("ott_platform", "")
+        rdate = t.get("release_date", "")
+        extra = f" (Platform: {plat})" if plat else (f" (Release: {rdate})" if rdate else "")
+        if hl:
+            topic_summaries.append(f"{i}. [{sec}] {hl}{extra}")
+
+    topics_text = "\n".join(topic_summaries) if topic_summaries else "Latest Malayalam cinema news and OTT updates."
+
+    # Determine active section types for fallback
+    has_ott = any("ott" in str(t.get("section", "")).lower() for t in topics_list)
+    has_release = any("release" in str(t.get("section", "")).lower() or "theater" in str(t.get("section", "")).lower() for t in topics_list)
+
+    # ── Try Gemini API ─────────────────────────────────────────────────────
+    try:
+        from models.gemini_tts_engine import GeminiTTSEngine
+        keys = GeminiTTSEngine()._resolve_api_keys(gemini_key)
+        active_key = keys[0] if keys else None
+    except Exception:
+        active_key = gemini_key or os.environ.get("GEMINI_API_KEY", "")
+
+    if active_key:
+        prompt = f"""You are a viral YouTube thumbnail creative director for a Malayalam cinema entertainment channel.
+Analyze these cinema news topics:
+{topics_text}
+
+Create a viral 1280x720 YouTube thumbnail creative brief. Return ONLY a valid JSON with exactly these 5 keys:
+{{
+  "main_hook": "2-4 WORD PUNCHY POWER PHRASE IN ENGLISH CAPS (e.g. FAHADH MASS BLAST! or BREAKING TRAILER DROP!)",
+  "sub_text": "ACTOR NAMES or MOVIE NAMES separated by bullet dots • (max 40 chars, e.g. BIJU MENON • SHRUTI HAASAN)",
+  "badge": "ONE URGENT BADGE LABEL (e.g. OFFICIAL TRAILER, BREAKING, EXCLUSIVE, OTT DROP, FIRST LOOK)",
+  "color_theme": "crimson OR gold OR cyan (crimson=action/drama, gold=awards/major release, cyan=OTT/streaming)",
+  "layout_style": "diagonal_clash OR hero_focus OR cinematic_duo"
+}}
+RULES:
+- main_hook must be max 24 chars, ALL CAPS English only, punchy and emotion-driven
+- sub_text max 45 chars, English only
+- badge max 25 chars
+- color_theme: choose cyan if mostly OTT topics, gold if major theatrical release, else crimson
+- layout_style: diagonal_clash for 2 stars clash, hero_focus for 1 main star + 2 secondary, cinematic_duo for side-by-side
+"""
+        for model_name in ["gemini-flash-latest", "gemini-2.0-flash", "gemini-pro-latest"]:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={active_key}"
+            payload = {
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {"temperature": 0.4, "responseMimeType": "application/json"}
+            }
+            try:
+                res = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=20)
+                if res.status_code == 200:
+                    body = res.json()
+                    text_resp = body["candidates"][0]["content"]["parts"][0]["text"]
+                    data = json.loads(text_resp)
+                    required_keys = {"main_hook", "sub_text", "badge", "color_theme", "layout_style"}
+                    if required_keys.issubset(data.keys()):
+                        print(f"[Gemini AI] ({model_name}) Generated thumbnail brief: {data}")
+                        _AI_THUMBNAIL_BRIEF_CACHE = data
+                        return _AI_THUMBNAIL_BRIEF_CACHE
+                else:
+                    print(f"[!] Gemini thumbnail brief ({model_name}) returned {res.status_code}: {res.text[:80]}")
+            except Exception as e:
+                print(f"[!] Warning calling Gemini for thumbnail brief ({model_name}): {e}")
+
+    # ── Deterministic Fallback ─────────────────────────────────────────────
+    print("[*] Using deterministic thumbnail brief fallback")
+    # Pick biggest star from first topic headline
+    top_headline = topics_list[0].get("topic_headline", "CINEMA") if topics_list else "CINEMA"
+    second_headline = topics_list[1].get("topic_headline", "") if len(topics_list) > 1 else ""
+
+    # Shorten to star name (first 2 words)
+    def shorten(s: str, words: int = 2) -> str:
+        parts = str(s).strip().split()[:words]
+        return " ".join(parts).upper()
+
+    hook_star = shorten(top_headline, 2)
+    sub_star = shorten(second_headline, 2) if second_headline else ""
+
+    main_hook = f"{hook_star} EXCLUSIVE!"[:24]
+    sub_text = f"{hook_star} • {sub_star}"[:45] if sub_star else hook_star[:45]
+
+    if has_ott:
+        badge, theme, layout = "OTT DROP", "cyan", "diagonal_clash"
+    elif has_release:
+        badge, theme, layout = "IN THEATERS", "gold", "diagonal_clash"
+    else:
+        badge, theme, layout = "BREAKING NEWS", "crimson", "hero_focus"
+
+    _AI_THUMBNAIL_BRIEF_CACHE = {
+        "main_hook": main_hook,
+        "sub_text": sub_text,
+        "badge": badge,
+        "color_theme": theme,
+        "layout_style": layout
+    }
+    return _AI_THUMBNAIL_BRIEF_CACHE
 
 
 def generate_ai_metadata(
