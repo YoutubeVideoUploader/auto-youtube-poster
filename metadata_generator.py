@@ -349,15 +349,71 @@ def format_seconds_to_timestamp(seconds: float) -> str:
 _AI_METADATA_CACHE: Optional[Dict[str, Any]] = None
 
 
+def normalize_youtube_chapters(raw_chapters: List[Dict[str, Any]], total_duration: float = 0.0) -> List[Dict[str, Any]]:
+    """
+    Enforces YouTube's strict chapter requirements:
+    1. First timestamp must be 00:00.
+    2. Minimum chapter length must be at least 10 seconds.
+    3. Minimum 3 chapters.
+    4. Two-digit minute formatting (00:00).
+    5. Omit trailing outro if under 10 seconds before video end.
+    """
+    if not raw_chapters:
+        return []
+
+    clean = []
+    last_sec = -10.0
+
+    for i, c in enumerate(raw_chapters):
+        t_sec = float(c.get("time_sec", 0.0))
+        if t_sec == 0.0 and "timestamp" in c:
+            # parse seconds from timestamp string like '0:08' or '00:10'
+            try:
+                parts = str(c["timestamp"]).split(":")
+                t_sec = float(parts[0]) * 60 + float(parts[1])
+            except Exception:
+                t_sec = 0.0
+
+        title = str(c.get("title", "")).strip()
+        ctype = c.get("type", "topic")
+        if not title:
+            continue
+
+        if i == 0 or ctype == "intro":
+            clean.append({"timestamp": "00:00", "time_sec": 0.0, "title": title or "Introduction", "type": "intro"})
+            last_sec = 0.0
+            continue
+
+        # Force at least 10 seconds gap between chapters
+        target_sec = max(last_sec + 10.0, t_sec)
+
+        # Skip outro if it is under 10 seconds from total duration
+        if ctype == "outro" and total_duration > 0 and (total_duration - target_sec) < 10.0:
+            continue
+
+        mins = int(target_sec) // 60
+        secs = int(target_sec) % 60
+        clean.append({
+            "timestamp": f"{mins:02d}:{secs:02d}",
+            "time_sec": round(target_sec, 2),
+            "title": title,
+            "section": c.get("section", ""),
+            "type": ctype
+        })
+        last_sec = target_sec
+
+    return clean
+
+
 def get_specific_video_chapters(sections: Optional[List[str]] = None) -> List[Dict[str, Any]]:
-    """Loads specific topic-level chapters with exact timestamps from video_chapters.json or latest metadata JSON."""
+    """Loads specific topic-level chapters with exact timestamps, strictly enforcing YouTube's 10-second rule and 00:00 format."""
     chapters_file = OUTPUT_DIR / "video_chapters.json"
     if chapters_file.exists():
         try:
             with open(chapters_file, "r", encoding="utf-8") as f:
                 ch = json.load(f)
                 if isinstance(ch, list) and len(ch) >= 2:
-                    return ch
+                    return normalize_youtube_chapters(ch)
         except Exception:
             pass
 
@@ -370,13 +426,14 @@ def get_specific_video_chapters(sections: Optional[List[str]] = None) -> List[Di
         try:
             with open(meta_candidates[0], "r", encoding="utf-8") as f:
                 d = json.load(f)
+                tot_dur = float(d.get("total_duration", 0.0))
                 if "specific_chapters" in d and isinstance(d["specific_chapters"], list) and len(d["specific_chapters"]) >= 2:
-                    return d["specific_chapters"]
+                    return normalize_youtube_chapters(d["specific_chapters"], total_duration=tot_dur)
 
                 script_meta = d.get("script_metadata", [])
                 topic_items = d.get("topic_items", [])
                 if script_meta and topic_items:
-                    chapters = [{"timestamp": "0:00", "title": "Introduction", "type": "intro"}]
+                    raw_ch = [{"timestamp": "00:00", "time_sec": 0.0, "title": "Introduction", "type": "intro"}]
                     cur_time = 0.0
                     t_idx = 0
                     for seg in script_meta:
@@ -385,36 +442,28 @@ def get_specific_video_chapters(sections: Optional[List[str]] = None) -> List[Di
                         if stype == "headline":
                             item = topic_items[t_idx] if t_idx < len(topic_items) else {}
                             t_idx += 1
-                            mins = int(cur_time) // 60
-                            secs = int(cur_time) % 60
                             hl = str(item.get("topic_headline", f"Topic {t_idx}")).strip()
-                            chapters.append({
-                                "timestamp": f"{mins}:{secs:02d}",
+                            raw_ch.append({
+                                "time_sec": cur_time,
                                 "title": hl,
                                 "section": item.get("section", ""),
                                 "type": "topic"
                             })
                         elif stype == "outro":
-                            mins = int(cur_time) // 60
-                            secs = int(cur_time) % 60
-                            chapters.append({"timestamp": f"{mins}:{secs:02d}", "title": "Conclusion & Outro", "type": "outro"})
+                            raw_ch.append({"time_sec": cur_time, "title": "Conclusion & Outro", "type": "outro"})
                         cur_time += dur
 
-                    if not any(c.get("type") == "outro" for c in chapters):
-                        mins = int(cur_time) // 60
-                        secs = int(cur_time) % 60
-                        chapters.append({"timestamp": f"{mins}:{secs:02d}", "title": "Conclusion & Outro", "type": "outro"})
-                    return chapters
+                    return normalize_youtube_chapters(raw_ch, total_duration=cur_time)
         except Exception as e:
             print(f"[!] Warning reading metadata chapters: {e}")
 
-    # Fallback chapters
+    # Fallback chapters (strictly >= 10s gap)
     return [
-        {"timestamp": "0:00", "title": "Introduction", "type": "intro"},
-        {"timestamp": "0:08", "title": "Movie Updates & News", "type": "topic"},
-        {"timestamp": "1:30", "title": "Upcoming Theater Releases", "type": "topic"},
-        {"timestamp": "2:45", "title": "Latest OTT Streaming Arrivals", "type": "topic"},
-        {"timestamp": "4:30", "title": "Conclusion & Outro", "type": "outro"}
+        {"timestamp": "00:00", "title": "Introduction", "type": "intro"},
+        {"timestamp": "00:10", "title": "Movie Updates & News", "type": "topic"},
+        {"timestamp": "01:30", "title": "Upcoming Theater Releases", "type": "topic"},
+        {"timestamp": "02:45", "title": "Latest OTT Streaming Arrivals", "type": "topic"},
+        {"timestamp": "04:30", "title": "Conclusion & Outro", "type": "outro"}
     ]
 
 
@@ -532,8 +581,8 @@ def generate_ai_metadata(
     chapters = get_specific_video_chapters(sections=sections)
     topics_list = extract_active_topics_flat(sheet_data, sections=sections)
 
-    # Format chapters block
-    chapter_lines = []
+    # Format chapters block (clean YouTube standard format)
+    chapter_lines = ["Chapters:"]
     for c in chapters:
         chapter_lines.append(f"{c['timestamp']} - {c['title']}")
     chapters_block = "\n".join(chapter_lines)
@@ -568,7 +617,7 @@ CRITICAL RULES:
 2. Return a valid JSON object with exactly two keys:
    "description": A comprehensive, beautifully formatted English description containing:
       - Catchy 2-3 sentence opening overview of today's cinema news
-      - "⏱️ VIDEO CHAPTERS:" block with the exact timestamps and concise English titles provided above
+      - Include the exact "Chapters:" block provided above (preserve the exact 00:00 timestamps and titles)
       - "📌 TODAY'S CINEMA HIGHLIGHTS:" bullet points summarizing each topic in English
       - Call to action (Like, Share, Subscribe)
       - Top trending hashtags (e.g. #MovieNews #CinemaUpdates #OTTRelease #NewMovies #BoxOffice)
@@ -610,7 +659,6 @@ CRITICAL RULES:
     desc_parts = [
         "Welcome to today's cinema news roundup! Catch all the latest movie announcements, upcoming theatrical release dates, and brand new OTT streaming updates right here.",
         "",
-        "⏱️ VIDEO CHAPTERS:",
         chapters_block,
         "",
         "=" * 50,

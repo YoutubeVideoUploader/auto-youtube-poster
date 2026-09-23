@@ -1055,12 +1055,13 @@ def generate_video(
     ott_str = f"{ott_start_time:.1f}s" if ott_start_time is not None else "N/A"
     print(f"[*] Section Timing Targets -> Theater Updates: {rel_str} | OTT Updates: {ott_str}")
 
-    # 1. Build visual entries and topic-level chapter timestamps
+    # 1. Build visual entries and topic-level chapter timestamps (strictly enforcing YouTube 10s minimum rule)
     visual_entries = []
     specific_chapters = [
-        {"timestamp": "0:00", "time_sec": 0.0, "title": "Introduction", "type": "intro"}
+        {"timestamp": "00:00", "time_sec": 0.0, "title": "Introduction", "type": "intro"}
     ]
     current_topic_index = 0
+    last_chapter_sec = 0.0
 
     for i, seg in enumerate(script_meta):
         seg_type = seg.get("type", "headline")
@@ -1072,9 +1073,11 @@ def generate_video(
             topic_idx = current_topic_index
             item_data = topic_items[topic_idx - 1] if topic_idx <= len(topic_items) else {}
 
-            ts_mins = int(seg_t) // 60
-            ts_secs = int(seg_t) % 60
-            ts_str = f"{ts_mins}:{ts_secs:02d}"
+            # YouTube requires every chapter to be at least 10 seconds long
+            chap_sec = max(last_chapter_sec + 10.0, seg_t)
+            ts_mins = int(chap_sec) // 60
+            ts_secs = int(chap_sec) % 60
+            ts_str = f"{ts_mins:02d}:{ts_secs:02d}"
 
             hl = str(item_data.get("topic_headline", "")).strip()
             if not hl or hl.lower() == "nan":
@@ -1082,20 +1085,24 @@ def generate_video(
 
             specific_chapters.append({
                 "timestamp": ts_str,
-                "time_sec": round(seg_t, 2),
+                "time_sec": round(chap_sec, 2),
                 "title": hl,
                 "section": item_data.get("section", ""),
                 "type": "topic"
             })
+            last_chapter_sec = chap_sec
         elif seg_type == "outro":
-            ts_mins = int(seg_t) // 60
-            ts_secs = int(seg_t) % 60
-            specific_chapters.append({
-                "timestamp": f"{ts_mins}:{ts_secs:02d}",
-                "time_sec": round(seg_t, 2),
-                "title": "Conclusion & Outro",
-                "type": "outro"
-            })
+            # Only add outro chapter if at least 10 seconds remain before video ends
+            if (total_duration - seg_t) >= 10.0 and (seg_t - last_chapter_sec) >= 10.0:
+                ts_mins = int(seg_t) // 60
+                ts_secs = int(seg_t) % 60
+                specific_chapters.append({
+                    "timestamp": f"{ts_mins:02d}:{ts_secs:02d}",
+                    "time_sec": round(seg_t, 2),
+                    "title": "Conclusion & Outro",
+                    "type": "outro"
+                })
+                last_chapter_sec = seg_t
             topic_idx = max(current_topic_index, 1)
         else:
             topic_idx = max(current_topic_index, 1)
