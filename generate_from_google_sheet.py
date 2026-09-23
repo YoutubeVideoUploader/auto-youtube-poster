@@ -432,11 +432,11 @@ def build_presenter_markup_script(parsed_sections: Dict[str, List[Dict[str, Any]
         # Choose natural intro phrasing depending on whether this is the first section or a follow-up
         if idx == 0:
             if sec_slug == "release_updates":
-                sec_intro = "പുതിയ മലയാള തിയേറ്റർ റിലീസ് വിശേഷങ്ങളിലേക്ക് കടക്കാം."
+                sec_intro = "പുതിയ തിയേറ്റർ റിലീസ് വിശേഷങ്ങളിലേക്ക് കടക്കാം."
             elif sec_slug == "ott_updates":
                 sec_intro = "പുതിയ ഒടിടി റിലീസുകളുടെയും സ്ട്രീമിംഗ് വിശേഷങ്ങളിലേക്കും കടക്കാം."
             elif sec_slug == "movie_updates":
-                sec_intro = s_cfg.get("intro", "ആദ്യം, പുതിയ മലയാള സിനിമാ അപ്ഡേറ്റുകളിലേക്ക് കടക്കാം.")
+                sec_intro = s_cfg.get("intro", "ആദ്യം, പുതിയ സിനിമാ അപ്ഡേറ്റുകളിലേക്ക് കടക്കാം.")
             else:
                 sec_intro = s_cfg.get("intro", "")
         else:
@@ -445,7 +445,7 @@ def build_presenter_markup_script(parsed_sections: Dict[str, List[Dict[str, Any]
             elif sec_slug == "ott_updates":
                 sec_intro = "ഇനി അടുത്തതായി, ഒടിടി റിലീസുകളുടെയും സ്ട്രീമിംഗ് അപ്ഡേറ്റുകളുടെയും വിശേഷങ്ങളിലേക്ക്."
             elif sec_slug == "movie_updates":
-                sec_intro = "ഇനി അടുത്തതായി, പുതിയ മലയാള സിനിമാ അപ്ഡേറ്റുകളിലേക്ക്."
+                sec_intro = "ഇനി അടുത്തതായി, പുതിയ സിനിമാ അപ്ഡേറ്റുകളിലേക്ക്."
             else:
                 sec_intro = s_cfg.get("intro", "")
 
