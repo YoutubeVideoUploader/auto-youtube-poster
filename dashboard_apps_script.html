@@ -59,10 +59,12 @@
         Trigger automated 1080p video generation & YouTube upload directly on GitHub Actions 24/7 cloud runners.
       </p>
 
-      <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
         <div style="flex: 2; min-width: 250px;">
-          <label for="cloud-thumb">📁 Custom Google Drive Thumbnail URL (Optional):</label>
-          <input type="text" id="cloud-thumb" placeholder="https://drive.google.com/file/d/.../view" style="width: 100%; background: #0f0f18; color: #fff; border: 1px solid #33334d; border-radius: 6px; padding: 10px; font-size: 14px;">
+          <label>📸 YouTube Thumbnail Collage:</label>
+          <div style="width: 100%; background: #0f0f18; color: #4eff8c; border: 1px solid #33334d; border-radius: 6px; padding: 10px; font-size: 13px; font-weight: bold;">
+            ✨ Automatic HD Collage (From selected movie posters)
+          </div>
+          <input type="hidden" id="cloud-thumb" value="">
         </div>
 
         <div style="flex: 1; min-width: 180px;">

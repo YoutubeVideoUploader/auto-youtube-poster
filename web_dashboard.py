@@ -572,13 +572,12 @@ elif st.session_state.current_section == "📺 Output & Video Slide Preview":
                         st.error(f"Error executing video render pipeline: {e}")
 
         # YouTube Auto Uploader Section
-        with st.expander("🔴 **2. Upload Video to YouTube (Auto Metadata & Google Drive Thumbnail)**", expanded=True):
-            st.write("Upload rendered MP4 video directly to YouTube with English SEO title, timestamp chapters, hashtags, and custom Google Drive thumbnail.")
+        with st.expander("🔴 **2. Upload Video to YouTube (Auto Metadata & HD Collage Thumbnail)**", expanded=True):
+            st.write("Upload rendered MP4 video directly to YouTube with English SEO title, timestamp chapters, hashtags, and auto-generated 1280x720 poster collage thumbnail.")
 
             from metadata_generator import generate_english_title, generate_youtube_description, generate_youtube_tags, download_thumbnail_from_drive
             from youtube_uploader import YouTubeUploader
 
-            drive_url = st.text_input("📁 Google Drive Thumbnail Link (Optional)", value="", help="Paste shareable link to custom thumbnail image on Google Drive")
             privacy_choice = st.selectbox("🔒 YouTube Privacy Status", options=["unlisted", "private", "public"], index=0)
 
             # Auto Preview Metadata
@@ -596,12 +595,10 @@ elif st.session_state.current_section == "📺 Output & Video Slide Preview":
                 else:
                     with st.spinner("Uploading video to YouTube... Please complete Google login if prompted."):
                         try:
-                            # 1. Download thumbnail from Drive if provided
-                            thumb_path = None
-                            if drive_url.strip():
-                                thumb_path = download_thumbnail_from_drive(drive_url)
-                                if thumb_path:
-                                    st.success("✓ Downloaded thumbnail from Google Drive!")
+                            # 1. Use auto-generated collage thumbnail from selected posters
+                            thumb_path = download_thumbnail_from_drive()
+                            if thumb_path:
+                                st.success(f"✓ Using HD Collage Thumbnail: {thumb_path}")
 
                             # 2. Upload to YouTube
                             uploader = YouTubeUploader()
@@ -632,12 +629,8 @@ elif st.session_state.current_section == "📺 Output & Video Slide Preview":
 
             col_cloud1, col_cloud2 = st.columns([2, 1])
             with col_cloud1:
-                cloud_drive_url = st.text_input(
-                    "📁 Custom Google Drive Thumbnail URL (Optional)",
-                    value="",
-                    help="Paste shareable link to thumbnail image stored on Google Drive",
-                    key="cloud_thumb_input"
-                )
+                st.info("📸 **Thumbnail**: Auto-generates 1280x720 split collage from selected movie posters.")
+                cloud_drive_url = ""
             with col_cloud2:
                 cloud_privacy_choice = st.selectbox(
                     "🔒 YouTube Privacy Status",
