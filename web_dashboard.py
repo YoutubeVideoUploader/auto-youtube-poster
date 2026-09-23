@@ -137,7 +137,7 @@ st.markdown('<div class="main-header">🎬 Malayalam Movie News Studio</div>', u
 st.markdown('<div class="sub-header">Google Sheets Editor & Live 1080p Video Slide Previewer</div>', unsafe_allow_html=True)
 
 # Main Section Navigation Buttons
-col_nav1, col_nav2 = st.columns(2)
+col_nav1, col_nav2, col_nav3 = st.columns(3)
 with col_nav1:
     if st.button("📥 Input & Data Editor", use_container_width=True, type="primary" if st.session_state.current_section == "📥 Input & Data Editor" else "secondary"):
         st.session_state.current_section = "📥 Input & Data Editor"
@@ -146,6 +146,11 @@ with col_nav1:
 with col_nav2:
     if st.button("📺 Output & Video Slide Preview", use_container_width=True, type="primary" if st.session_state.current_section == "📺 Output & Video Slide Preview" else "secondary"):
         st.session_state.current_section = "📺 Output & Video Slide Preview"
+        st.rerun()
+
+with col_nav3:
+    if st.button("🖼️ Thumbnail Studio", use_container_width=True, type="primary" if st.session_state.current_section == "🖼️ Thumbnail Studio" else "secondary"):
+        st.session_state.current_section = "🖼️ Thumbnail Studio"
         st.rerun()
 
 st.markdown("---")
@@ -720,3 +725,226 @@ elif st.session_state.current_section == "📺 Output & Video Slide Preview":
 
                 st.markdown("---")
 
+
+# ==============================================================================
+# SECTION 3: 🖼️ THUMBNAIL STUDIO
+# ==============================================================================
+elif st.session_state.current_section == "🖼️ Thumbnail Studio":
+    st.header("🖼️ Thumbnail Studio")
+    st.caption("Select poster images, generate AI text with Gemini, edit and preview your 1280×720 YouTube thumbnail.")
+
+    # ── Session state init ──────────────────────────────────────────────────
+    if "thumb_image_urls" not in st.session_state:
+        st.session_state.thumb_image_urls = ["", "", "", ""]
+    if "thumb_brief" not in st.session_state:
+        st.session_state.thumb_brief = {
+            "main_hook": "",
+            "sub_text": "",
+            "badge": "OFFICIAL TRAILER",
+            "color_theme": "crimson",
+            "layout_style": "diagonal_clash"
+        }
+    if "thumb_preview_path" not in st.session_state:
+        st.session_state.thumb_preview_path = None
+
+    st.markdown("---")
+
+    # ── STEP 1: Image Selection ─────────────────────────────────────────────
+    st.subheader("📸 Step 1 — Select Poster Images")
+    st.caption("Paste up to 4 image URLs (from your Google Sheet Image URLs column) or pick from topic images below.")
+
+    img_cols = st.columns(4)
+    for i, col in enumerate(img_cols):
+        with col:
+            url = st.text_input(
+                f"Image {i+1} URL",
+                value=st.session_state.thumb_image_urls[i],
+                key=f"thumb_img_url_{i}",
+                placeholder="https://... or leave blank"
+            )
+            st.session_state.thumb_image_urls[i] = url
+            # Show small preview
+            if url and url.strip().startswith("http"):
+                try:
+                    st.image(url.strip(), use_container_width=True, caption=f"Image {i+1}")
+                except Exception:
+                    st.warning("Could not preview")
+            elif url and url.strip() and Path(url.strip()).exists():
+                try:
+                    st.image(url.strip(), use_container_width=True, caption=f"Image {i+1}")
+                except Exception:
+                    pass
+
+    # Quick-fill from sheet topic images
+    with st.expander("⚡ Quick-fill from current topic images (auto-detected)", expanded=False):
+        topic_img_dir = OUTPUT_DIR / "topic_images"
+        if topic_img_dir.exists():
+            found_imgs = []
+            for sec_folder in ["movie_updates", "release_updates", "ott_updates"]:
+                sec_dir = topic_img_dir / sec_folder
+                if sec_dir.exists():
+                    for img_file in sorted(sec_dir.glob("**/image_01.jpg")):
+                        found_imgs.append(str(img_file))
+                        if len(found_imgs) >= 8:
+                            break
+                if len(found_imgs) >= 8:
+                    break
+
+            if found_imgs:
+                st.write(f"Found **{len(found_imgs)}** topic images. Select up to 4:")
+                sel_cols = st.columns(min(len(found_imgs), 4))
+                for fi, fpath in enumerate(found_imgs[:8]):
+                    col_idx = fi % 4
+                    with sel_cols[col_idx] if col_idx < len(sel_cols) else sel_cols[0]:
+                        try:
+                            st.image(fpath, use_container_width=True)
+                        except Exception:
+                            pass
+                        if st.button(f"Use as Slot {(fi % 4)+1}", key=f"pick_img_{fi}"):
+                            st.session_state.thumb_image_urls[fi % 4] = fpath
+                            st.rerun()
+            else:
+                st.info("No topic images found. Render the video first to download poster images.")
+
+    st.markdown("---")
+
+    # ── STEP 2: Gemini AI Text Generator ───────────────────────────────────
+    st.subheader("✨ Step 2 — Generate Thumbnail Text with Gemini AI")
+
+    gemini_key_thumb = st.text_input(
+        "Gemini API Key (optional — uses saved key if blank)",
+        value=st.session_state.get("gemini_api_key_thumb", os.getenv("GEMINI_API_KEY", "")),
+        type="password",
+        key="gemini_key_thumb_input",
+        help="Your Google Gemini API key. Leave blank to use the GEMINI_API_KEY environment variable."
+    )
+    st.session_state["gemini_api_key_thumb"] = gemini_key_thumb
+
+    if st.button("✨ Generate Text with Gemini AI", type="primary", use_container_width=True, key="btn_gemini_generate_thumb"):
+        with st.spinner("🤖 Gemini AI is analyzing your topics and selected images..."):
+            try:
+                # Reset cache so fresh generation happens
+                import metadata_generator as _mg
+                _mg._AI_THUMBNAIL_BRIEF_CACHE = None
+
+                from metadata_generator import generate_ai_thumbnail_brief, extract_active_topics_flat
+                sheet_data = st.session_state.edited_dfs
+                brief = generate_ai_thumbnail_brief(
+                    sheet_data=sheet_data,
+                    sections=None,
+                    gemini_key=gemini_key_thumb or None
+                )
+                st.session_state.thumb_brief = brief
+                st.success("✅ Gemini AI generated thumbnail text! Edit the fields below if needed.")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Gemini generation error: {e}")
+
+    st.markdown("---")
+
+    # ── STEP 3: Editable Text Fields ───────────────────────────────────────
+    st.subheader("✏️ Step 3 — Edit Thumbnail Text")
+
+    col_text1, col_text2 = st.columns(2)
+    with col_text1:
+        main_hook = st.text_input(
+            "🔥 Main Hook (big bold text — max 24 chars)",
+            value=st.session_state.thumb_brief.get("main_hook", ""),
+            key="thumb_main_hook",
+            max_chars=28,
+            help="The big punchy headline shown in Impact font. e.g. FAHADH MASS BLAST!"
+        )
+        st.session_state.thumb_brief["main_hook"] = main_hook
+
+        sub_text = st.text_input(
+            "👥 Sub Text (star names / movie — max 45 chars)",
+            value=st.session_state.thumb_brief.get("sub_text", ""),
+            key="thumb_sub_text",
+            max_chars=45,
+            help="Supporting text below the hook. e.g. FAHADH FAASIL • BIJU MENON"
+        )
+        st.session_state.thumb_brief["sub_text"] = sub_text
+
+    with col_text2:
+        badge = st.text_input(
+            "🔴 Badge Label (top-left pill — max 25 chars)",
+            value=st.session_state.thumb_brief.get("badge", "OFFICIAL TRAILER"),
+            key="thumb_badge",
+            max_chars=25,
+            help="Urgency badge text. e.g. OFFICIAL TRAILER, BREAKING, OTT DROP, FIRST LOOK"
+        )
+        st.session_state.thumb_brief["badge"] = badge
+
+        color_theme = st.selectbox(
+            "🎨 Color Theme",
+            options=["crimson", "gold", "cyan"],
+            index=["crimson", "gold", "cyan"].index(
+                st.session_state.thumb_brief.get("color_theme", "crimson")
+                if st.session_state.thumb_brief.get("color_theme", "crimson") in ["crimson", "gold", "cyan"]
+                else "crimson"
+            ),
+            key="thumb_color_theme",
+            help="crimson = red (drama/action) | gold = yellow (big release) | cyan = blue (OTT)"
+        )
+        st.session_state.thumb_brief["color_theme"] = color_theme
+
+        layout_style = st.selectbox(
+            "📐 Layout Style",
+            options=["diagonal_clash", "hero_focus", "cinematic_duo"],
+            index=["diagonal_clash", "hero_focus", "cinematic_duo"].index(
+                st.session_state.thumb_brief.get("layout_style", "diagonal_clash")
+                if st.session_state.thumb_brief.get("layout_style", "diagonal_clash") in ["diagonal_clash", "hero_focus", "cinematic_duo"]
+                else "diagonal_clash"
+            ),
+            key="thumb_layout_style",
+            help="diagonal_clash = angled split | hero_focus = 1 big + 2 small | cinematic_duo = equal split"
+        )
+        st.session_state.thumb_brief["layout_style"] = layout_style
+
+    st.markdown("---")
+
+    # ── STEP 4: Generate & Preview ──────────────────────────────────────────
+    st.subheader("🎨 Step 4 — Generate & Preview Thumbnail")
+
+    if st.button("🎬 Generate Thumbnail Now", type="primary", use_container_width=True, key="btn_gen_thumbnail"):
+        active_urls = [u.strip() for u in st.session_state.thumb_image_urls if u and u.strip()]
+        if not active_urls:
+            st.warning("Please add at least one image URL or pick from topic images above!")
+        elif not st.session_state.thumb_brief.get("main_hook", "").strip():
+            st.warning("Main Hook text is empty. Either type it manually or click 'Generate Text with Gemini AI' first!")
+        else:
+            with st.spinner("Downloading images and compositing thumbnail..."):
+                try:
+                    from thumbnail_generator import create_nextgen_thumbnail
+                    brief = dict(st.session_state.thumb_brief)
+                    out_path = create_nextgen_thumbnail(
+                        active_urls,
+                        brief,
+                        output_filename="custom_thumbnail.jpg"
+                    )
+                    st.session_state.thumb_preview_path = out_path
+                    st.success(f"✅ Thumbnail generated: {out_path}")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Thumbnail generation error: {e}")
+
+    # Show Preview
+    if st.session_state.thumb_preview_path and Path(st.session_state.thumb_preview_path).exists():
+        st.markdown("### 👁️ Preview")
+        st.image(st.session_state.thumb_preview_path, use_container_width=True, caption="1280×720 YouTube Thumbnail")
+
+        col_dl1, col_dl2 = st.columns(2)
+        with col_dl1:
+            with open(st.session_state.thumb_preview_path, "rb") as f:
+                st.download_button(
+                    label="⬇️ Download Thumbnail JPEG",
+                    data=f.read(),
+                    file_name="youtube_thumbnail.jpg",
+                    mime="image/jpeg",
+                    use_container_width=True
+                )
+        with col_dl2:
+            st.info(f"📁 Also saved at:\n`{st.session_state.thumb_preview_path}`")
+
+        st.markdown("---")
+        st.caption("💡 Tip: This thumbnail will be automatically used when uploading your video to YouTube from the Output section.")
