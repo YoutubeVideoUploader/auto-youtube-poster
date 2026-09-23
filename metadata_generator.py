@@ -423,8 +423,17 @@ def extract_active_topics_flat(sheet_data: Any, sections: Optional[List[str]] = 
     flat = []
     if isinstance(sheet_data, dict):
         for sec_name, topics in sheet_data.items():
-            if not topics or "thumb" in str(sec_name).lower() or "config" in str(sec_name).lower():
+            if topics is None:
                 continue
+            if hasattr(topics, "empty") and topics.empty:
+                continue
+            if isinstance(topics, (list, tuple)) and len(topics) == 0:
+                continue
+
+            sec_lower = str(sec_name).lower()
+            if any(k in sec_lower for k in ["thumb", "config", "upload", "key", "setting"]):
+                continue
+
             if sections:
                 s_name_low = str(sec_name).lower().replace(" ", "_")
                 if not any(s.lower() in s_name_low or s_name_low in s.lower() for s in sections):
