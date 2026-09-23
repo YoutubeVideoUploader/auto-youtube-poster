@@ -663,10 +663,13 @@ RULES:
     top_headline = topics_list[0].get("topic_headline", "CINEMA") if topics_list else "CINEMA"
     second_headline = topics_list[1].get("topic_headline", "") if len(topics_list) > 1 else ""
 
-    # Shorten to star name (first 2 words)
+    # Shorten to star/movie name: extract first N clean alpha-only words
     def shorten(s: str, words: int = 2) -> str:
-        parts = str(s).strip().split()[:words]
-        return " ".join(parts).upper()
+        # Strip possessives ('s, 's) and special chars
+        cleaned = re.sub(r"['\u2019\u2018`]s?\b", "", str(s))
+        cleaned = re.sub(r"[^A-Za-z0-9\s\-]", " ", cleaned)
+        parts = [p for p in cleaned.strip().split() if len(p) > 1][:words]
+        return " ".join(parts).upper() if parts else "CINEMA"
 
     hook_star = shorten(top_headline, 2)
     sub_star = shorten(second_headline, 2) if second_headline else ""
