@@ -105,11 +105,18 @@ class YouTubeUploader:
 
         youtube = self.get_authenticated_service()
 
+        # Sanitize and strictly cap tags to prevent YouTube API 400 invalidTags
+        try:
+            from metadata_generator import sanitize_youtube_tags
+            safe_tags = sanitize_youtube_tags(tags or ["Malayalam Movie News", "Mollywood"])
+        except Exception:
+            safe_tags = [str(t)[:40].strip() for t in (tags or ["Malayalam Movie News", "Mollywood"]) if str(t).strip()][:15]
+
         body = {
             "snippet": {
                 "title": title[:100],  # YouTube title limit 100 chars
                 "description": description[:5000],  # Description limit 5000 chars
-                "tags": tags or ["Malayalam Movie News", "Mollywood"],
+                "tags": safe_tags,
                 "categoryId": category_id
             },
             "status": {

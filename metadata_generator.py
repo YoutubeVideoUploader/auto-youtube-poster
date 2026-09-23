@@ -478,6 +478,43 @@ def extract_active_topics_flat(sheet_data: Any, sections: Optional[List[str]] = 
     return flat
 
 
+def sanitize_youtube_tags(raw_tags: List[Any], max_total_chars: int = 400) -> List[str]:
+    """
+    Sanitizes tags for YouTube Data API v3 snippet.tags:
+    - Strips invalid characters (<, >, #, commas, quotes, control characters).
+    - Ensures each tag is 2-40 characters.
+    - Dedupes case-insensitively.
+    - Caps total combined length to strictly under max_total_chars (default 400, YouTube limit 500).
+    """
+    clean_list = []
+    seen = set()
+    current_len = 0
+
+    for t in raw_tags:
+        if not t:
+            continue
+        cleaned = re.sub(r'[#<>"\',`]', '', str(t)).strip()
+        cleaned = re.sub(r'\s+', ' ', cleaned)
+        if len(cleaned) < 2 or len(cleaned) > 40:
+            continue
+        cleaned_lower = cleaned.lower()
+        if cleaned_lower in seen:
+            continue
+
+        tag_cost = len(cleaned) + (1 if clean_list else 0)
+        if current_len + tag_cost > max_total_chars:
+            break
+
+        seen.add(cleaned_lower)
+        clean_list.append(cleaned)
+        current_len += tag_cost
+
+    if not clean_list:
+        clean_list = ["Movie News", "Cinema Updates", "Mollywood", "Film Trailers", "OTT Releases"]
+
+    return clean_list
+
+
 def generate_ai_metadata(
     sheet_data: Optional[Dict[str, Any]] = None,
     sections: Optional[List[str]] = None,
@@ -486,7 +523,7 @@ def generate_ai_metadata(
     """
     Uses Google Gemini API (gemini-flash-latest / gemini-pro-latest) to generate:
     - 100% English YouTube description with engaging hook, specific topic chapters, and highlights.
-    - 25-35 high-ranking English SEO tags.
+    - 12-18 high-ranking English SEO tags (strictly under 400 chars).
     """
     global _AI_METADATA_CACHE
     if _AI_METADATA_CACHE is not None:
@@ -535,7 +572,7 @@ CRITICAL RULES:
       - "📌 TODAY'S CINEMA HIGHLIGHTS:" bullet points summarizing each topic in English
       - Call to action (Like, Share, Subscribe)
       - Top trending hashtags (e.g. #MovieNews #CinemaUpdates #OTTRelease #NewMovies #BoxOffice)
-   "tags": An array of 25 to 35 high-ranking English SEO keywords, including movie titles, actor/director names, streaming platforms, and cinema search terms.
+   "tags": An array of 12 to 18 concise English SEO keywords (each 1-3 words, NO hashtags #, NO commas, NO quotes, e.g. "Movie News", "Basil Joseph", "OTT Release"). Total combined length MUST be strictly under 400 characters.
 """
         # Try candidate models with fallback
         for model_name in ["gemini-flash-latest", "gemini-pro-latest"]:
@@ -555,10 +592,11 @@ CRITICAL RULES:
                     text_resp = body["candidates"][0]["content"]["parts"][0]["text"]
                     data = json.loads(text_resp)
                     if "description" in data and "tags" in data and isinstance(data["tags"], list):
-                        print(f"[Gemini AI] ({model_name}) Successfully generated dynamic English description & {len(data['tags'])} tags!")
+                        safe_tags = sanitize_youtube_tags(data["tags"])
+                        print(f"[Gemini AI] ({model_name}) Successfully generated dynamic English description & {len(safe_tags)} tags!")
                         _AI_METADATA_CACHE = {
                             "description": data["description"],
-                            "tags": [str(t).strip() for t in data["tags"] if str(t).strip()],
+                            "tags": safe_tags,
                             "chapters": chapters_block
                         }
                         return _AI_METADATA_CACHE
@@ -593,18 +631,19 @@ CRITICAL RULES:
     ])
 
     # Dynamic fallback tags
-    tags = ["Movie News", "Cinema Updates", "Movie Trailer", "OTT Releases", "Box Office News", "New Releases 2026"]
+    raw_fallback_tags = ["Movie News", "Cinema Updates", "Movie Trailer", "OTT Releases", "Box Office News", "New Releases 2026"]
     for t in topics_list:
         hl = t.get("topic_headline", "")
-        if hl and len(hl) < 40 and hl not in tags:
-            tags.append(hl)
+        if hl and len(hl) < 40 and hl not in raw_fallback_tags:
+            raw_fallback_tags.append(hl)
         plat = t.get("ott_platform", "")
-        if plat and plat not in tags:
-            tags.append(plat)
+        if plat and plat not in raw_fallback_tags:
+            raw_fallback_tags.append(plat)
 
+    safe_fallback_tags = sanitize_youtube_tags(raw_fallback_tags)
     _AI_METADATA_CACHE = {
         "description": "\n".join(desc_parts),
-        "tags": tags[:30],
+        "tags": safe_fallback_tags,
         "chapters": chapters_block
     }
     return _AI_METADATA_CACHE
@@ -624,16 +663,16 @@ def generate_youtube_tags(
     sheet_data: Optional[Dict[str, Any]] = None,
     sections: Optional[List[str]] = None
 ) -> List[str]:
-    """Returns dynamic, high-ranking English SEO keywords list generated by Gemini AI."""
+    """Returns dynamic, high-ranking English SEO keywords list generated by Gemini AI (sanitized for YouTube API)."""
     ai_meta = generate_ai_metadata(sheet_data=sheet_data, sections=sections)
-    return ai_meta.get("tags", [
+    return sanitize_youtube_tags(ai_meta.get("tags", [
         "Movie News",
         "Cinema Updates",
         "Box Office News",
         "OTT Release",
         "New Movie Trailers",
         "Latest Movie Releases 2026"
-    ])
+    ]))
 
 
 def generate_youtube_chapters(
