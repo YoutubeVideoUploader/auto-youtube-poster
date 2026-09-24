@@ -3332,6 +3332,11 @@ RULES:
       return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
+    function escapeJs(str) {
+      if (str === null || str === undefined) return "";
+      return String(str).replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, "\\n").replace(/\r/g, "\\r");
+    }
+
     function updateRow(idx, field, val) {
       store[activeTab][idx][field] = val;
       saveLocalStore();
@@ -4678,6 +4683,14 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       const current = rows[idx];
       let rawMovieName = extractTopicMovieName(current);
 
+      // 1. Immediately update Header & News Text so they show instantly!
+      const progressBadge = document.getElementById('wizard-progress-badge');
+      if (progressBadge) progressBadge.innerText = `Step ${idx + 1} of ${rows.length}`;
+      const topicTitle = document.getElementById('wizard-topic-title');
+      if (topicTitle) topicTitle.innerText = `Topic #${current.topicNum}: "${rawMovieName || 'Topic #' + current.topicNum}"`;
+      const newsText = document.getElementById('wizard-news-text');
+      if (newsText) newsText.innerText = current.text || "(No news text)";
+
       // Pre-fill existing Image URLs if present
       if (current.imgUrl && typeof current.imgUrl === 'string') {
         posterWizardState.selectedUrls = current.imgUrl
@@ -4689,11 +4702,6 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       }
       updateWizardSelectionUI();
 
-      // Update Header & Progress Badges
-      document.getElementById('wizard-progress-badge').innerText = `Step ${idx + 1} of ${rows.length}`;
-      document.getElementById('wizard-topic-title').innerText = `Topic #${current.topicNum}: "${rawMovieName || 'Topic #' + current.topicNum}"`;
-      document.getElementById('wizard-news-text').innerText = current.text || "(No news text)";
-
       const customUrlBox = document.getElementById('wizard-custom-url-input');
       if (customUrlBox) {
         customUrlBox.value = posterWizardState.selectedUrls.join(', ');
@@ -4702,28 +4710,38 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       const statusBox = document.getElementById('wizard-search-status');
       if (statusBox) statusBox.innerText = '🤖 Preparing search query...';
 
-      const keyInput = document.getElementById('groq-api-key-input');
-      const apiKey = keyInput && keyInput.value.trim() ? keyInput.value.trim() : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
+      try {
+        const keyInput = document.getElementById('groq-api-key-input');
+        const apiKey = keyInput && keyInput.value.trim() ? keyInput.value.trim() : (localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY);
 
-      // Call Groq Smart Search Analyzer
-      const smartDetails = await fetchSmartSearchDetailsWithGroq(current.text, rawMovieName, apiKey);
-      const englishMovieName = (smartDetails.movie_name || "").replace(/[\u0D00-\u0D7F]/g, '').trim() || transliterateMalayalamToEnglish(rawMovieName);
+        // Call Groq Smart Search Analyzer
+        const smartDetails = await fetchSmartSearchDetailsWithGroq(current.text, rawMovieName, apiKey);
+        const englishMovieName = (smartDetails.movie_name || "").replace(/[\u0D00-\u0D7F]/g, '').trim() || transliterateMalayalamToEnglish(rawMovieName);
 
-      if (englishMovieName && !/[\u0D00-\u0D7F]/.test(englishMovieName)) {
-        if (!current.headline || /[\u0D00-\u0D7F]/.test(current.headline)) {
-          current.headline = englishMovieName;
-          saveLocalStore();
-          renderTableRows();
+        if (englishMovieName && !/[\u0D00-\u0D7F]/.test(englishMovieName)) {
+          if (!current.headline || /[\u0D00-\u0D7F]/.test(current.headline)) {
+            current.headline = englishMovieName;
+            saveLocalStore();
+            renderTableRows();
+          }
         }
+
+        // Format search input box with the smart targeted query
+        const searchBox = document.getElementById('wizard-search-input');
+        const searchQuery = smartDetails.smart_search_query || (englishMovieName ? `${englishMovieName} Movie poster` : (rawMovieName ? `${rawMovieName} Movie poster` : `Malayalam movie poster`));
+        if (searchBox) searchBox.value = searchQuery;
+        posterWizardState.currentTopicName = englishMovieName || rawMovieName;
+
+        if (statusBox) statusBox.innerText = '⚡ Auto-searching movie posters...';
+        triggerWizardPosterSearch();
+      } catch (err) {
+        console.warn("Smart search query error:", err);
+        const searchBox = document.getElementById('wizard-search-input');
+        if (searchBox && !searchBox.value) {
+          searchBox.value = rawMovieName ? `${rawMovieName} Malayalam movie poster` : "Malayalam movie poster";
+        }
+        triggerWizardPosterSearch();
       }
-
-      // Format search input box with the smart targeted query
-      const searchBox = document.getElementById('wizard-search-input');
-      const searchQuery = smartDetails.smart_search_query || (englishMovieName ? `${englishMovieName} Movie poster` : `Malayalam movie poster`);
-      searchBox.value = searchQuery;
-      posterWizardState.currentTopicName = englishMovieName || rawMovieName;
-
-      if (statusBox) statusBox.innerText = 'Ready. Click 🔍 Search to find posters.';
     }
 
     function triggerWizardPosterSearch() {
@@ -5009,8 +5027,14 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       }
     }
 
+    function removeWizardPosterByIndex(i) {
+      if (posterWizardState.selectedUrls && posterWizardState.selectedUrls[i]) {
+        toggleWizardPoster(posterWizardState.selectedUrls[i]);
+      }
+    }
+
     function updateWizardSelectionUI() {
-      const selected = posterWizardState.selectedUrls;
+      const selected = posterWizardState.selectedUrls || [];
 
       // 1. Update all cards in grid
       const cards = document.querySelectorAll('#wizard-poster-grid .wizard-poster-card');
@@ -5033,8 +5057,8 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           tray.innerHTML = selected.map((u, i) => `
             <div style="position: relative; flex-shrink: 0; width: 52px; height: 68px; border-radius: 6px; overflow: hidden; border: 1.5px solid #38bdf8; background: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.5);">
               <span style="position: absolute; top: 2px; left: 2px; background: rgba(2, 6, 23, 0.85); color: #38bdf8; font-size: 9px; font-weight: 800; padding: 1px 4px; border-radius: 3px; z-index: 2;">#${i + 1}</span>
-              <button onclick="event.stopPropagation(); toggleWizardPoster('${escapeJs(u)}')" title="Remove poster" style="position: absolute; top: 2px; right: 2px; background: rgba(239, 68, 68, 0.85); color: #fff; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2;">✕</button>
-              <img src="${u}" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/52x68/161625/a0a0b5?text=Poster'" style="width: 100%; height: 100%; object-fit: cover; display: block;" alt="Thumb">
+              <button onclick="event.stopPropagation(); removeWizardPosterByIndex(${i})" title="Remove poster" style="position: absolute; top: 2px; right: 2px; background: rgba(239, 68, 68, 0.85); color: #fff; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2;">✕</button>
+              <img src="${escapeHtml(u)}" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/52x68/161625/a0a0b5?text=Poster'" style="width: 100%; height: 100%; object-fit: cover; display: block;" alt="Thumb">
             </div>
           `).join('');
         }
