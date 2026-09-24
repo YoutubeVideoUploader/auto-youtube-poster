@@ -316,6 +316,10 @@ function saveThumbnailConfigSheet(urlsString, mainHook, subText, badge, colorThe
       "Slot 3 Badge",
       "Slot 4 Text",
       "Slot 4 Badge",
+      "Slot 1 Position",
+      "Slot 2 Position",
+      "Slot 3 Position",
+      "Slot 4 Position",
       "Center Badge",
       "Color Theme",
       "Badge Label",
@@ -338,12 +342,16 @@ function saveThumbnailConfigSheet(urlsString, mainHook, subText, badge, colorThe
 
     var s1_t = (slotsData && slotsData.slot1_text) ? slotsData.slot1_text : dec("__THUMB_S1_TEXT__");
     var s1_b = (slotsData && slotsData.slot1_badge) ? slotsData.slot1_badge : dec("__THUMB_S1_BADGE__");
+    var s1_p = (slotsData && slotsData.slot1_pos) ? slotsData.slot1_pos : dec("__THUMB_S1_POS__");
     var s2_t = (slotsData && slotsData.slot2_text) ? slotsData.slot2_text : dec("__THUMB_S2_TEXT__");
     var s2_b = (slotsData && slotsData.slot2_badge) ? slotsData.slot2_badge : dec("__THUMB_S2_BADGE__");
+    var s2_p = (slotsData && slotsData.slot2_pos) ? slotsData.slot2_pos : dec("__THUMB_S2_POS__");
     var s3_t = (slotsData && slotsData.slot3_text) ? slotsData.slot3_text : dec("__THUMB_S3_TEXT__");
     var s3_b = (slotsData && slotsData.slot3_badge) ? slotsData.slot3_badge : dec("__THUMB_S3_BADGE__");
+    var s3_p = (slotsData && slotsData.slot3_pos) ? slotsData.slot3_pos : dec("__THUMB_S3_POS__");
     var s4_t = (slotsData && slotsData.slot4_text) ? slotsData.slot4_text : dec("__THUMB_S4_TEXT__");
     var s4_b = (slotsData && slotsData.slot4_badge) ? slotsData.slot4_badge : dec("__THUMB_S4_BADGE__");
+    var s4_p = (slotsData && slotsData.slot4_pos) ? slotsData.slot4_pos : dec("__THUMB_S4_POS__");
     var center = (slotsData && slotsData.center_badge) ? slotsData.center_badge : dec("__THUMB_CENTER__");
 
     var mHook = mainHook || s1_t || dec("__THUMB_HOOK__");
@@ -378,6 +386,10 @@ function saveThumbnailConfigSheet(urlsString, mainHook, subText, badge, colorThe
       s3_b || "EXCLUSIVE",
       s4_t || "",
       s4_b || "MASS UPDATE",
+      s1_p || "0,0,1.15",
+      s2_p || "0,0,1.15",
+      s3_p || "0,0,1.15",
+      s4_p || "0,0,1.15",
       center || "TOP 4",
       mTheme || "crimson",
       mBadge || "BREAKING NEWS",

@@ -1080,7 +1080,38 @@
             <label style="font-size: 12px; font-weight: 700; color: #fde047; display: block; margin-bottom: 4px;">Malayalam Headline:</label>
             <input type="text" id="thumb-slot1-text" value="രാധക്കെതിരെ അംബിക കോടതിയിലേക്ക്!" placeholder="മലയാളം തലക്കെട്ട്..." oninput="updateLiveThumbnailPreview()" style="width: 100%; padding: 8px 12px; background: #070a12; border: 1px solid #334155; color: #fff; border-radius: 6px; font-size: 13.5px; font-weight: 700; margin-bottom: 8px;">
             <label style="font-size: 11px; font-weight: 600; color: #94a3b8; display: block; margin-bottom: 3px;">Topic Tag Badge:</label>
-            <input type="text" id="thumb-slot1-badge" value="LEGAL WAR" placeholder="e.g. LEGAL WAR" maxlength="20" oninput="updateLiveThumbnailPreview()" style="width: 100%; padding: 6px 10px; background: #070a12; border: 1px solid #334155; color: #fca5a5; border-radius: 6px; font-size: 12px; font-weight: 700;">
+            <input type="text" id="thumb-slot1-badge" value="LEGAL WAR" placeholder="e.g. LEGAL WAR" maxlength="20" oninput="updateLiveThumbnailPreview()" style="width: 100%; padding: 6px 10px; background: #070a12; border: 1px solid #334155; color: #fca5a5; border-radius: 6px; font-size: 12px; font-weight: 700; margin-bottom: 10px;">
+
+            <!-- Framing Controls Slot 1 -->
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px dashed rgba(239, 68, 68, 0.4); border-radius: 8px; padding: 8px 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 11px; font-weight: 700; color: #fca5a5;">🖼️ Image Framing / Pan:</span>
+                <button type="button" onclick="resetSlotPosition(1)" style="background: rgba(255,255,255,0.08); border: 1px solid #475569; color: #cbd5e1; font-size: 10px; padding: 2px 7px; border-radius: 4px; cursor: pointer;">↺ Reset</button>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; margin-bottom: 2px;">
+                    <span>↕️ Pan Y:</span>
+                    <span id="slot1-y-label" style="color: #38bdf8; font-weight: 700;">0%</span>
+                  </div>
+                  <input type="range" id="slot1-pos-y" min="-45" max="45" value="0" step="1" oninput="onSlotSliderInput(1)" style="width: 100%; accent-color: #38bdf8; cursor: pointer;" title="Drag image up or down">
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; margin-bottom: 2px;">
+                    <span>↔️ Pan X:</span>
+                    <span id="slot1-x-label" style="color: #38bdf8; font-weight: 700;">0%</span>
+                  </div>
+                  <input type="range" id="slot1-pos-x" min="-45" max="45" value="0" step="1" oninput="onSlotSliderInput(1)" style="width: 100%; accent-color: #38bdf8; cursor: pointer;" title="Drag image left or right">
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; margin-bottom: 2px;">
+                    <span>🔍 Zoom:</span>
+                    <span id="slot1-zoom-label" style="color: #38bdf8; font-weight: 700;">1.15x</span>
+                  </div>
+                  <input type="range" id="slot1-zoom" min="1.0" max="1.8" value="1.15" step="0.05" oninput="onSlotSliderInput(1)" style="width: 100%; accent-color: #38bdf8; cursor: pointer;" title="Zoom image">
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Slot 2 (Top-Right) -->
@@ -1095,7 +1126,38 @@
             <label style="font-size: 12px; font-weight: 700; color: #ffffff; display: block; margin-bottom: 4px;">Malayalam Headline:</label>
             <input type="text" id="thumb-slot2-text" value="13 വർഷത്തെ ദാമ്പത്യം അവസാനിച്ചു!" placeholder="മലയാളം തലക്കെട്ട്..." oninput="updateLiveThumbnailPreview()" style="width: 100%; padding: 8px 12px; background: #070a12; border: 1px solid #334155; color: #fff; border-radius: 6px; font-size: 13.5px; font-weight: 700; margin-bottom: 8px;">
             <label style="font-size: 11px; font-weight: 600; color: #94a3b8; display: block; margin-bottom: 3px;">Topic Tag Badge:</label>
-            <input type="text" id="thumb-slot2-badge" value="SHOCKING SPLIT" placeholder="e.g. SHOCKING SPLIT" maxlength="20" oninput="updateLiveThumbnailPreview()" style="width: 100%; padding: 6px 10px; background: #070a12; border: 1px solid #334155; color: #fef08a; border-radius: 6px; font-size: 12px; font-weight: 700;">
+            <input type="text" id="thumb-slot2-badge" value="SHOCKING SPLIT" placeholder="e.g. SHOCKING SPLIT" maxlength="20" oninput="updateLiveThumbnailPreview()" style="width: 100%; padding: 6px 10px; background: #070a12; border: 1px solid #334155; color: #fef08a; border-radius: 6px; font-size: 12px; font-weight: 700; margin-bottom: 10px;">
+
+            <!-- Framing Controls Slot 2 -->
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px dashed rgba(234, 179, 8, 0.4); border-radius: 8px; padding: 8px 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 11px; font-weight: 700; color: #fef08a;">🖼️ Image Framing / Pan:</span>
+                <button type="button" onclick="resetSlotPosition(2)" style="background: rgba(255,255,255,0.08); border: 1px solid #475569; color: #cbd5e1; font-size: 10px; padding: 2px 7px; border-radius: 4px; cursor: pointer;">↺ Reset</button>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; margin-bottom: 2px;">
+                    <span>↕️ Pan Y:</span>
+                    <span id="slot2-y-label" style="color: #38bdf8; font-weight: 700;">0%</span>
+                  </div>
+                  <input type="range" id="slot2-pos-y" min="-45" max="45" value="0" step="1" oninput="onSlotSliderInput(2)" style="width: 100%; accent-color: #38bdf8; cursor: pointer;" title="Drag image up or down">
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; margin-bottom: 2px;">
+                    <span>↔️ Pan X:</span>
+                    <span id="slot2-x-label" style="color: #38bdf8; font-weight: 700;">0%</span>
+                  </div>
+                  <input type="range" id="slot2-pos-x" min="-45" max="45" value="0" step="1" oninput="onSlotSliderInput(2)" style="width: 100%; accent-color: #38bdf8; cursor: pointer;" title="Drag image left or right">
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; margin-bottom: 2px;">
+                    <span>🔍 Zoom:</span>
+                    <span id="slot2-zoom-label" style="color: #38bdf8; font-weight: 700;">1.15x</span>
+                  </div>
+                  <input type="range" id="slot2-zoom" min="1.0" max="1.8" value="1.15" step="0.05" oninput="onSlotSliderInput(2)" style="width: 100%; accent-color: #38bdf8; cursor: pointer;" title="Zoom image">
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Slot 3 (Bottom-Left) -->
@@ -1110,7 +1172,38 @@
             <label style="font-size: 12px; font-weight: 700; color: #ffffff; display: block; margin-bottom: 4px;">Malayalam Headline:</label>
             <input type="text" id="thumb-slot3-text" value="രജനിക്ക് വേണ്ടി ധനുഷിന്റെ വൻ ത്യാഗം!" placeholder="മലയാളം തലക്കെട്ട്..." oninput="updateLiveThumbnailPreview()" style="width: 100%; padding: 8px 12px; background: #070a12; border: 1px solid #334155; color: #fff; border-radius: 6px; font-size: 13.5px; font-weight: 700; margin-bottom: 8px;">
             <label style="font-size: 11px; font-weight: 600; color: #94a3b8; display: block; margin-bottom: 3px;">Topic Tag Badge:</label>
-            <input type="text" id="thumb-slot3-badge" value="JAILER 2 EFFECT" placeholder="e.g. JAILER 2 EFFECT" maxlength="20" oninput="updateLiveThumbnailPreview()" style="width: 100%; padding: 6px 10px; background: #070a12; border: 1px solid #334155; color: #a5f3fc; border-radius: 6px; font-size: 12px; font-weight: 700;">
+            <input type="text" id="thumb-slot3-badge" value="JAILER 2 EFFECT" placeholder="e.g. JAILER 2 EFFECT" maxlength="20" oninput="updateLiveThumbnailPreview()" style="width: 100%; padding: 6px 10px; background: #070a12; border: 1px solid #334155; color: #a5f3fc; border-radius: 6px; font-size: 12px; font-weight: 700; margin-bottom: 10px;">
+
+            <!-- Framing Controls Slot 3 -->
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px dashed rgba(6, 182, 212, 0.4); border-radius: 8px; padding: 8px 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 11px; font-weight: 700; color: #a5f3fc;">🖼️ Image Framing / Pan:</span>
+                <button type="button" onclick="resetSlotPosition(3)" style="background: rgba(255,255,255,0.08); border: 1px solid #475569; color: #cbd5e1; font-size: 10px; padding: 2px 7px; border-radius: 4px; cursor: pointer;">↺ Reset</button>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; margin-bottom: 2px;">
+                    <span>↕️ Pan Y:</span>
+                    <span id="slot3-y-label" style="color: #38bdf8; font-weight: 700;">0%</span>
+                  </div>
+                  <input type="range" id="slot3-pos-y" min="-45" max="45" value="0" step="1" oninput="onSlotSliderInput(3)" style="width: 100%; accent-color: #38bdf8; cursor: pointer;" title="Drag image up or down">
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; margin-bottom: 2px;">
+                    <span>↔️ Pan X:</span>
+                    <span id="slot3-x-label" style="color: #38bdf8; font-weight: 700;">0%</span>
+                  </div>
+                  <input type="range" id="slot3-pos-x" min="-45" max="45" value="0" step="1" oninput="onSlotSliderInput(3)" style="width: 100%; accent-color: #38bdf8; cursor: pointer;" title="Drag image left or right">
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; margin-bottom: 2px;">
+                    <span>🔍 Zoom:</span>
+                    <span id="slot3-zoom-label" style="color: #38bdf8; font-weight: 700;">1.15x</span>
+                  </div>
+                  <input type="range" id="slot3-zoom" min="1.0" max="1.8" value="1.15" step="0.05" oninput="onSlotSliderInput(3)" style="width: 100%; accent-color: #38bdf8; cursor: pointer;" title="Zoom image">
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Slot 4 (Bottom-Right) -->
@@ -1125,7 +1218,38 @@
             <label style="font-size: 12px; font-weight: 700; color: #fde047; display: block; margin-bottom: 4px;">Malayalam Headline:</label>
             <input type="text" id="thumb-slot4-text" value="ടൊവിനോ ചിത്രത്തിന് ശേഷം വമ്പൻ പ്രഖ്യാപനം!" placeholder="മലയാളം തലക്കെട്ട്..." oninput="updateLiveThumbnailPreview()" style="width: 100%; padding: 8px 12px; background: #070a12; border: 1px solid #334155; color: #fff; border-radius: 6px; font-size: 13.5px; font-weight: 700; margin-bottom: 8px;">
             <label style="font-size: 11px; font-weight: 600; color: #94a3b8; display: block; margin-bottom: 3px;">Topic Tag Badge:</label>
-            <input type="text" id="thumb-slot4-badge" value="MASS UPDATE" placeholder="e.g. MASS UPDATE" maxlength="20" oninput="updateLiveThumbnailPreview()" style="width: 100%; padding: 6px 10px; background: #070a12; border: 1px solid #334155; color: #e9d5ff; border-radius: 6px; font-size: 12px; font-weight: 700;">
+            <input type="text" id="thumb-slot4-badge" value="MASS UPDATE" placeholder="e.g. MASS UPDATE" maxlength="20" oninput="updateLiveThumbnailPreview()" style="width: 100%; padding: 6px 10px; background: #070a12; border: 1px solid #334155; color: #e9d5ff; border-radius: 6px; font-size: 12px; font-weight: 700; margin-bottom: 10px;">
+
+            <!-- Framing Controls Slot 4 -->
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px dashed rgba(168, 85, 247, 0.4); border-radius: 8px; padding: 8px 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 11px; font-weight: 700; color: #e9d5ff;">🖼️ Image Framing / Pan:</span>
+                <button type="button" onclick="resetSlotPosition(4)" style="background: rgba(255,255,255,0.08); border: 1px solid #475569; color: #cbd5e1; font-size: 10px; padding: 2px 7px; border-radius: 4px; cursor: pointer;">↺ Reset</button>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; margin-bottom: 2px;">
+                    <span>↕️ Pan Y:</span>
+                    <span id="slot4-y-label" style="color: #38bdf8; font-weight: 700;">0%</span>
+                  </div>
+                  <input type="range" id="slot4-pos-y" min="-45" max="45" value="0" step="1" oninput="onSlotSliderInput(4)" style="width: 100%; accent-color: #38bdf8; cursor: pointer;" title="Drag image up or down">
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; margin-bottom: 2px;">
+                    <span>↔️ Pan X:</span>
+                    <span id="slot4-x-label" style="color: #38bdf8; font-weight: 700;">0%</span>
+                  </div>
+                  <input type="range" id="slot4-pos-x" min="-45" max="45" value="0" step="1" oninput="onSlotSliderInput(4)" style="width: 100%; accent-color: #38bdf8; cursor: pointer;" title="Drag image left or right">
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; margin-bottom: 2px;">
+                    <span>🔍 Zoom:</span>
+                    <span id="slot4-zoom-label" style="color: #38bdf8; font-weight: 700;">1.15x</span>
+                  </div>
+                  <input type="range" id="slot4-zoom" min="1.0" max="1.8" value="1.15" step="0.05" oninput="onSlotSliderInput(4)" style="width: 100%; accent-color: #38bdf8; cursor: pointer;" title="Zoom image">
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1165,10 +1289,15 @@
 
       <!-- STEP 4: LIVE 4-PANEL THUMBNAIL SIMULATION CARD -->
       <div style="margin-bottom: 25px;">
-        <h4 style="color: #fff; font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-          👁️ <span>Step 4: Live 1280x720 Thumbnail Preview Simulation (4 Panels)</span>
-          <span style="font-size: 11px; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 2px 8px; border-radius: 4px;">Updates in Real-Time</span>
-        </h4>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+          <h4 style="color: #fff; font-size: 15px; margin: 0; display: flex; align-items: center; gap: 8px;">
+            👁️ <span>Step 4: Live 1280x720 Thumbnail Preview Simulation (4 Panels)</span>
+            <span style="font-size: 11px; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 2px 8px; border-radius: 4px;">Updates in Real-Time</span>
+          </h4>
+          <span style="font-size: 11.5px; color: #fde047; background: rgba(253, 224, 71, 0.12); border: 1px solid rgba(253, 224, 71, 0.35); padding: 4px 12px; border-radius: 9999px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+            ✋ Drag any image with your mouse to adjust vertical/horizontal framing!
+          </span>
+        </div>
 
         <div id="live-thumb-canvas" style="position: relative; width: 100%; max-width: 860px; aspect-ratio: 16/9; margin: 0 auto; background: #0a0e18; border: 2px solid #334155; border-radius: 12px; overflow: hidden; box-shadow: 0 12px 32px rgba(0,0,0,0.7); font-family: -apple-system, BlinkMacSystemFont, 'Nirmala UI', 'Segoe UI', Roboto, sans-serif;">
           <!-- 2x2 Grid Container -->
@@ -2585,6 +2714,181 @@
       updateLiveThumbnailPreview();
     }
 
+    // ── Interactive 4-Panel Thumbnail Framing & Drag System ──────────────────────
+    window.thumbSlotPositions = window.thumbSlotPositions || [
+      { x: 0, y: 0, zoom: 1.15 },
+      { x: 0, y: 0, zoom: 1.15 },
+      { x: 0, y: 0, zoom: 1.15 },
+      { x: 0, y: 0, zoom: 1.15 }
+    ];
+
+    let activeThumbDrag = null;
+
+    function handleThumbCellMouseDown(e, slotIdx) {
+      if (e.button !== 0) return; // Only main left click
+      e.preventDefault();
+      const cell = e.currentTarget;
+      const rect = cell.getBoundingClientRect();
+      const pos = window.thumbSlotPositions[slotIdx] || { x: 0, y: 0, zoom: 1.15 };
+
+      activeThumbDrag = {
+        slotIdx: slotIdx,
+        startX: e.clientX,
+        startY: e.clientY,
+        initX: pos.x,
+        initY: pos.y,
+        cellW: rect.width || 320,
+        cellH: rect.height || 180,
+        cellElem: cell
+      };
+
+      cell.style.cursor = 'grabbing';
+      document.body.style.userSelect = 'none';
+
+      window.addEventListener('mousemove', onThumbDragMove);
+      window.addEventListener('mouseup', onThumbDragEnd);
+    }
+
+    function onThumbDragMove(e) {
+      if (!activeThumbDrag) return;
+      const d = activeThumbDrag;
+      const deltaX = ((e.clientX - d.startX) / d.cellW) * 75;
+      const deltaY = ((e.clientY - d.startY) / d.cellH) * 75;
+
+      const newX = Math.round(Math.max(-45, Math.min(45, d.initX + deltaX)));
+      const newY = Math.round(Math.max(-45, Math.min(45, d.initY + deltaY)));
+
+      window.thumbSlotPositions[d.slotIdx].x = newX;
+      window.thumbSlotPositions[d.slotIdx].y = newY;
+
+      const img = document.getElementById(`thumb-preview-img-${d.slotIdx}`);
+      if (img) {
+        const zoom = window.thumbSlotPositions[d.slotIdx].zoom || 1.15;
+        img.style.transform = `translate(${newX}%, ${newY}%) scale(${zoom})`;
+      }
+
+      syncSlotSlidersUI(d.slotIdx);
+    }
+
+    function onThumbDragEnd(e) {
+      if (!activeThumbDrag) return;
+      if (activeThumbDrag.cellElem) {
+        activeThumbDrag.cellElem.style.cursor = 'grab';
+      }
+      document.body.style.userSelect = '';
+      window.removeEventListener('mousemove', onThumbDragMove);
+      window.removeEventListener('mouseup', onThumbDragEnd);
+      activeThumbDrag = null;
+      saveThumbnailSettingsLocally();
+    }
+
+    function handleThumbCellTouchStart(e, slotIdx) {
+      if (!e.touches || e.touches.length !== 1) return;
+      const touch = e.touches[0];
+      const cell = e.currentTarget;
+      const rect = cell.getBoundingClientRect();
+      const pos = window.thumbSlotPositions[slotIdx] || { x: 0, y: 0, zoom: 1.15 };
+
+      activeThumbDrag = {
+        slotIdx: slotIdx,
+        startX: touch.clientX,
+        startY: touch.clientY,
+        initX: pos.x,
+        initY: pos.y,
+        cellW: rect.width || 320,
+        cellH: rect.height || 180,
+        cellElem: cell
+      };
+
+      window.addEventListener('touchmove', onThumbTouchMove, { passive: false });
+      window.addEventListener('touchend', onThumbTouchEnd);
+    }
+
+    function onThumbTouchMove(e) {
+      if (!activeThumbDrag || !e.touches || e.touches.length !== 1) return;
+      e.preventDefault();
+      const touch = e.touches[0];
+      const d = activeThumbDrag;
+      const deltaX = ((touch.clientX - d.startX) / d.cellW) * 75;
+      const deltaY = ((touch.clientY - d.startY) / d.cellH) * 75;
+
+      const newX = Math.round(Math.max(-45, Math.min(45, d.initX + deltaX)));
+      const newY = Math.round(Math.max(-45, Math.min(45, d.initY + deltaY)));
+
+      window.thumbSlotPositions[d.slotIdx].x = newX;
+      window.thumbSlotPositions[d.slotIdx].y = newY;
+
+      const img = document.getElementById(`thumb-preview-img-${d.slotIdx}`);
+      if (img) {
+        const zoom = window.thumbSlotPositions[d.slotIdx].zoom || 1.15;
+        img.style.transform = `translate(${newX}%, ${newY}%) scale(${zoom})`;
+      }
+
+      syncSlotSlidersUI(d.slotIdx);
+    }
+
+    function onThumbTouchEnd() {
+      window.removeEventListener('touchmove', onThumbTouchMove);
+      window.removeEventListener('touchend', onThumbTouchEnd);
+      activeThumbDrag = null;
+      saveThumbnailSettingsLocally();
+    }
+
+    function onSlotSliderInput(slotNum) {
+      const idx = slotNum - 1;
+      const yVal = parseFloat(document.getElementById(`slot${slotNum}-pos-y`)?.value || 0);
+      const xVal = parseFloat(document.getElementById(`slot${slotNum}-pos-x`)?.value || 0);
+      const zoomVal = parseFloat(document.getElementById(`slot${slotNum}-zoom`)?.value || 1.15);
+
+      if (!window.thumbSlotPositions[idx]) window.thumbSlotPositions[idx] = { x: 0, y: 0, zoom: 1.15 };
+      window.thumbSlotPositions[idx].x = xVal;
+      window.thumbSlotPositions[idx].y = yVal;
+      window.thumbSlotPositions[idx].zoom = zoomVal;
+
+      const yLbl = document.getElementById(`slot${slotNum}-y-label`);
+      if (yLbl) yLbl.innerText = `${yVal > 0 ? '+' : ''}${yVal}%`;
+      const xLbl = document.getElementById(`slot${slotNum}-x-label`);
+      if (xLbl) xLbl.innerText = `${xVal > 0 ? '+' : ''}${xVal}%`;
+      const zLbl = document.getElementById(`slot${slotNum}-zoom-label`);
+      if (zLbl) zLbl.innerText = `${zoomVal.toFixed(2)}x`;
+
+      const img = document.getElementById(`thumb-preview-img-${idx}`);
+      if (img) {
+        img.style.transform = `translate(${xVal}%, ${yVal}%) scale(${zoomVal})`;
+      }
+      saveThumbnailSettingsLocally();
+    }
+
+    function resetSlotPosition(slotNum) {
+      const idx = slotNum - 1;
+      window.thumbSlotPositions[idx] = { x: 0, y: 0, zoom: 1.15 };
+      syncSlotSlidersUI(idx);
+      const img = document.getElementById(`thumb-preview-img-${idx}`);
+      if (img) {
+        img.style.transform = `translate(0%, 0%) scale(1.15)`;
+      }
+      saveThumbnailSettingsLocally();
+    }
+
+    function syncSlotSlidersUI(idx) {
+      const slotNum = idx + 1;
+      const pos = (window.thumbSlotPositions && window.thumbSlotPositions[idx]) ? window.thumbSlotPositions[idx] : { x: 0, y: 0, zoom: 1.15 };
+
+      const yInput = document.getElementById(`slot${slotNum}-pos-y`);
+      if (yInput) yInput.value = pos.y;
+      const xInput = document.getElementById(`slot${slotNum}-pos-x`);
+      if (xInput) xInput.value = pos.x;
+      const zInput = document.getElementById(`slot${slotNum}-zoom`);
+      if (zInput) zInput.value = pos.zoom;
+
+      const yLbl = document.getElementById(`slot${slotNum}-y-label`);
+      if (yLbl) yLbl.innerText = `${pos.y > 0 ? '+' : ''}${pos.y}%`;
+      const xLbl = document.getElementById(`slot${slotNum}-x-label`);
+      if (xLbl) xLbl.innerText = `${pos.x > 0 ? '+' : ''}${pos.x}%`;
+      const zLbl = document.getElementById(`slot${slotNum}-zoom-label`);
+      if (zLbl) zLbl.innerText = `${Number(pos.zoom).toFixed(2)}x`;
+    }
+
     function updateLiveThumbnailPreview() {
       const s1Text = document.getElementById('thumb-slot1-text')?.value || "രാധക്കെതിരെ അംബിക കോടതിയിലേക്ക്!";
       const s1Badge = document.getElementById('thumb-slot1-badge')?.value || "LEGAL WAR";
@@ -2676,9 +2980,10 @@
         for (let idx = 0; idx < 4; idx++) {
           const s = slots[idx];
           const u = imgs[idx];
+          const pos = (window.thumbSlotPositions && window.thumbSlotPositions[idx]) ? window.thumbSlotPositions[idx] : { x: 0, y: 0, zoom: 1.15 };
           html += `
-            <div style="position: relative; overflow: hidden; width: 100%; height: 100%;">
-              <img src="${u}" style="width: 100%; height: 100%; object-fit: cover; object-position: top; filter: contrast(1.15) saturate(1.2);" onerror="this.src='https://via.placeholder.com/640x360/0f1420/64748b?text=Slot+${idx+1}'" alt="Slot ${idx+1}">
+            <div class="thumb-quad-cell" data-slot="${idx}" onmousedown="handleThumbCellMouseDown(event, ${idx})" ontouchstart="handleThumbCellTouchStart(event, ${idx})" style="position: relative; overflow: hidden; width: 100%; height: 100%; cursor: grab; user-select: none; background: #0b0f19;">
+              <img id="thumb-preview-img-${idx}" src="${u}" style="width: 100%; height: 100%; object-fit: cover; transform-origin: center center; transform: translate(${pos.x}%, ${pos.y}%) scale(${pos.zoom}); filter: contrast(1.15) saturate(1.2); pointer-events: none;" onerror="this.src='https://via.placeholder.com/640x360/0f1420/64748b?text=Slot+${idx+1}'" alt="Slot ${idx+1}">
               <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(6,8,14,0.4) 0%, transparent 35%, rgba(6,8,14,0.92) 100%); pointer-events: none;"></div>
               <div style="position: absolute; top: clamp(8px, 1.2vw, 14px); left: clamp(8px, 1.2vw, 14px); padding: 3px 8px; border-radius: 4px; font-size: clamp(9px, 1.1vw, 12px); font-weight: 800; background: rgba(15, 20, 32, 0.85); border: 1.5px solid ${s.bdr}; color: ${s.tagColor}; box-shadow: 0 4px 10px rgba(0,0,0,0.6); letter-spacing: 0.5px; pointer-events: none;">${escapeHtml(s.badge)}</div>
               <div style="position: absolute; bottom: clamp(10px, 1.8vw, 18px); left: 8px; right: 8px; text-align: center; font-size: clamp(12px, 1.8vw, 22px); font-weight: 900; line-height: 1.25; color: ${s.hlColor}; text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, -3px 0 0 #000, 3px 0 0 #000, 0 -3px 0 #000, 0 3px 0 #000, 3px 3px 8px rgba(0,0,0,0.95); pointer-events: none;">${escapeHtml(s.text)}</div>
@@ -2686,6 +2991,11 @@
           `;
         }
         bgContainer.innerHTML = html;
+
+        // Sync slider UI values
+        for (let i = 0; i < 4; i++) {
+          syncSlotSlidersUI(i);
+        }
       }
     }
 
@@ -2855,6 +3165,7 @@ RULES:
         localStorage.setItem('thumb_center_badge', center);
         localStorage.setItem('thumb_main_badge', mainBadge);
         localStorage.setItem('thumb_color_theme', theme);
+        localStorage.setItem('thumb_slot_positions', JSON.stringify(window.thumbSlotPositions || []));
 
         // Sync legacy keys
         localStorage.setItem('thumb_main_hook', s1Text);
@@ -2877,6 +3188,16 @@ RULES:
         const center = localStorage.getItem('thumb_center_badge');
         const mainBadge = localStorage.getItem('thumb_main_badge');
         const theme = localStorage.getItem('thumb_color_theme');
+        const savedPos = localStorage.getItem('thumb_slot_positions');
+
+        if (savedPos) {
+          try {
+            const parsedPos = JSON.parse(savedPos);
+            if (Array.isArray(parsedPos) && parsedPos.length === 4) {
+              window.thumbSlotPositions = parsedPos;
+            }
+          } catch(e) {}
+        }
 
         if (s1Text && document.getElementById('thumb-slot1-text')) document.getElementById('thumb-slot1-text').value = s1Text;
         if (s1Badge && document.getElementById('thumb-slot1-badge')) document.getElementById('thumb-slot1-badge').value = s1Badge;
@@ -3756,6 +4077,11 @@ RULES:
       const mainBadge = document.getElementById('thumb-main-badge')?.value || localStorage.getItem('thumb_main_badge') || "BREAKING NEWS";
       const thumbTheme = document.getElementById('thumb-color-theme')?.value || localStorage.getItem('thumb_color_theme') || "crimson";
 
+      const p1 = (window.thumbSlotPositions && window.thumbSlotPositions[0]) ? window.thumbSlotPositions[0] : { x: 0, y: 0, zoom: 1.15 };
+      const p2 = (window.thumbSlotPositions && window.thumbSlotPositions[1]) ? window.thumbSlotPositions[1] : { x: 0, y: 0, zoom: 1.15 };
+      const p3 = (window.thumbSlotPositions && window.thumbSlotPositions[2]) ? window.thumbSlotPositions[2] : { x: 0, y: 0, zoom: 1.15 };
+      const p4 = (window.thumbSlotPositions && window.thumbSlotPositions[3]) ? window.thumbSlotPositions[3] : { x: 0, y: 0, zoom: 1.15 };
+
       let payload = {
         tab_name: activeTab,
         rows: store[activeTab].map(r => ({
@@ -3770,12 +4096,16 @@ RULES:
         thumbnail_slots: {
           slot1_text: s1Text,
           slot1_badge: s1Badge,
+          slot1_pos: `${p1.x},${p1.y},${p1.zoom}`,
           slot2_text: s2Text,
           slot2_badge: s2Badge,
+          slot2_pos: `${p2.x},${p2.y},${p2.zoom}`,
           slot3_text: s3Text,
           slot3_badge: s3Badge,
+          slot3_pos: `${p3.x},${p3.y},${p3.zoom}`,
           slot4_text: s4Text,
           slot4_badge: s4Badge,
+          slot4_pos: `${p4.x},${p4.y},${p4.zoom}`,
           center_badge: centerBadge,
           main_badge: mainBadge,
           color_theme: thumbTheme
@@ -3987,15 +4317,24 @@ RULES:
       const mainBadge = document.getElementById('thumb-main-badge')?.value || localStorage.getItem('thumb_main_badge') || "BREAKING NEWS";
       const thumbTheme = document.getElementById('thumb-color-theme')?.value || localStorage.getItem('thumb_color_theme') || "crimson";
 
+      const p1 = (window.thumbSlotPositions && window.thumbSlotPositions[0]) ? window.thumbSlotPositions[0] : { x: 0, y: 0, zoom: 1.15 };
+      const p2 = (window.thumbSlotPositions && window.thumbSlotPositions[1]) ? window.thumbSlotPositions[1] : { x: 0, y: 0, zoom: 1.15 };
+      const p3 = (window.thumbSlotPositions && window.thumbSlotPositions[2]) ? window.thumbSlotPositions[2] : { x: 0, y: 0, zoom: 1.15 };
+      const p4 = (window.thumbSlotPositions && window.thumbSlotPositions[3]) ? window.thumbSlotPositions[3] : { x: 0, y: 0, zoom: 1.15 };
+
       let thumbMetaTags = "";
       if (s1Text) thumbMetaTags += `|__THUMB_S1_TEXT__:${encodeURIComponent(s1Text)}`;
       if (s1Badge) thumbMetaTags += `|__THUMB_S1_BADGE__:${encodeURIComponent(s1Badge)}`;
+      thumbMetaTags += `|__THUMB_S1_POS__:${p1.x},${p1.y},${p1.zoom}`;
       if (s2Text) thumbMetaTags += `|__THUMB_S2_TEXT__:${encodeURIComponent(s2Text)}`;
       if (s2Badge) thumbMetaTags += `|__THUMB_S2_BADGE__:${encodeURIComponent(s2Badge)}`;
+      thumbMetaTags += `|__THUMB_S2_POS__:${p2.x},${p2.y},${p2.zoom}`;
       if (s3Text) thumbMetaTags += `|__THUMB_S3_TEXT__:${encodeURIComponent(s3Text)}`;
       if (s3Badge) thumbMetaTags += `|__THUMB_S3_BADGE__:${encodeURIComponent(s3Badge)}`;
+      thumbMetaTags += `|__THUMB_S3_POS__:${p3.x},${p3.y},${p3.zoom}`;
       if (s4Text) thumbMetaTags += `|__THUMB_S4_TEXT__:${encodeURIComponent(s4Text)}`;
       if (s4Badge) thumbMetaTags += `|__THUMB_S4_BADGE__:${encodeURIComponent(s4Badge)}`;
+      thumbMetaTags += `|__THUMB_S4_POS__:${p4.x},${p4.y},${p4.zoom}`;
       if (centerBadge) thumbMetaTags += `|__THUMB_CENTER__:${encodeURIComponent(centerBadge)}`;
       if (mainBadge) thumbMetaTags += `|__THUMB_BADGE__:${encodeURIComponent(mainBadge)}`;
       if (thumbTheme) thumbMetaTags += `|__THUMB_THEME__:${thumbTheme}`;
@@ -4015,12 +4354,16 @@ RULES:
         thumbnail_slots: {
           slot1_text: s1Text,
           slot1_badge: s1Badge,
+          slot1_pos: `${p1.x},${p1.y},${p1.zoom}`,
           slot2_text: s2Text,
           slot2_badge: s2Badge,
+          slot2_pos: `${p2.x},${p2.y},${p2.zoom}`,
           slot3_text: s3Text,
           slot3_badge: s3Badge,
+          slot3_pos: `${p3.x},${p3.y},${p3.zoom}`,
           slot4_text: s4Text,
           slot4_badge: s4Badge,
+          slot4_pos: `${p4.x},${p4.y},${p4.zoom}`,
           center_badge: centerBadge,
           main_badge: mainBadge,
           color_theme: thumbTheme

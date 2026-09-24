@@ -231,12 +231,28 @@ def download_thumbnail_from_drive(
 
         m_s1_t = _dec(r'__THUMB_S1_TEXT__:([^|]+)')
         m_s1_b = _dec(r'__THUMB_S1_BADGE__:([^|]+)')
+        m_s1_p = _dec(r'__THUMB_S1_POS__:([^|]+)')
         m_s2_t = _dec(r'__THUMB_S2_TEXT__:([^|]+)')
         m_s2_b = _dec(r'__THUMB_S2_BADGE__:([^|]+)')
+        m_s2_p = _dec(r'__THUMB_S2_POS__:([^|]+)')
         m_s3_t = _dec(r'__THUMB_S3_TEXT__:([^|]+)')
         m_s3_b = _dec(r'__THUMB_S3_BADGE__:([^|]+)')
+        m_s3_p = _dec(r'__THUMB_S3_POS__:([^|]+)')
         m_s4_t = _dec(r'__THUMB_S4_TEXT__:([^|]+)')
         m_s4_b = _dec(r'__THUMB_S4_BADGE__:([^|]+)')
+        m_s4_p = _dec(r'__THUMB_S4_POS__:([^|]+)')
+
+        def _unpack_pos(raw_str):
+            try:
+                parts = [float(x.strip()) for x in raw_str.split(",")]
+                return parts[0], parts[1], (parts[2] if len(parts) > 2 else 1.15)
+            except Exception:
+                return 0.0, 0.0, 1.15
+
+        s1_x, s1_y, s1_z = _unpack_pos(m_s1_p)
+        s2_x, s2_y, s2_z = _unpack_pos(m_s2_p)
+        s3_x, s3_y, s3_z = _unpack_pos(m_s3_p)
+        s4_x, s4_y, s4_z = _unpack_pos(m_s4_p)
 
         if m_s1_t or m_hook:
             custom_brief = {
@@ -248,12 +264,16 @@ def download_thumbnail_from_drive(
                 "layout_style": m_layout.strip().lower() if m_layout else "quad",
                 "slot1_text": m_s1_t or m_hook,
                 "slot1_badge": m_s1_b or "BREAKING NEWS",
+                "slot1_x": s1_x, "slot1_y": s1_y, "slot1_zoom": s1_z,
                 "slot2_text": m_s2_t,
                 "slot2_badge": m_s2_b or "SHOCKING SPLIT",
+                "slot2_x": s2_x, "slot2_y": s2_y, "slot2_zoom": s2_z,
                 "slot3_text": m_s3_t,
                 "slot3_badge": m_s3_b or "EXCLUSIVE",
+                "slot3_x": s3_x, "slot3_y": s3_y, "slot3_zoom": s3_z,
                 "slot4_text": m_s4_t,
                 "slot4_badge": m_s4_b or "MASS UPDATE",
+                "slot4_x": s4_x, "slot4_y": s4_y, "slot4_zoom": s4_z,
             }
             print(f"[THUMBNAIL] Unpacked user-customized quad brief from workflow payload: {custom_brief}")
 
@@ -261,7 +281,7 @@ def download_thumbnail_from_drive(
     if drive_url and "http" in drive_url:
         # Strip all tags before extracting URLs
         clean_drive_str = re.sub(r'\|*__SECTIONS__:[a-zA-Z0-9_,]+', '', drive_url)
-        clean_drive_str = re.sub(r'\|*__THUMB_[A-Z]+__:[^|]+', '', clean_drive_str)
+        clean_drive_str = re.sub(r'\|*__THUMB_[A-Z0-9_]+__:[^|]+', '', clean_drive_str)
         candidates = [u.strip() for u in re.split(r'[\r\n,]+', clean_drive_str)]
         candidates = [u for u in candidates if u.startswith("http")]
         if candidates:
@@ -667,6 +687,22 @@ def generate_ai_thumbnail_brief(
                 s4_t = str(r.get("Slot 4 Text") or r.get("slot4_text") or "").strip()
                 s4_b = str(r.get("Slot 4 Badge") or r.get("slot4_badge") or "").strip()
                 center = str(r.get("Center Badge") or r.get("center_badge") or "").strip()
+                s1_p = str(r.get("Slot 1 Position") or r.get("slot1_pos") or "").strip()
+                s2_p = str(r.get("Slot 2 Position") or r.get("slot2_pos") or "").strip()
+                s3_p = str(r.get("Slot 3 Position") or r.get("slot3_pos") or "").strip()
+                s4_p = str(r.get("Slot 4 Position") or r.get("slot4_pos") or "").strip()
+
+                def _parse_pos_tuple(raw_str):
+                    try:
+                        p = [float(x.strip()) for x in raw_str.split(",")]
+                        return p[0], p[1], (p[2] if len(p) > 2 else 1.15)
+                    except Exception:
+                        return 0.0, 0.0, 1.15
+
+                s1_x, s1_y, s1_z = _parse_pos_tuple(s1_p)
+                s2_x, s2_y, s2_z = _parse_pos_tuple(s2_p)
+                s3_x, s3_y, s3_z = _parse_pos_tuple(s3_p)
+                s4_x, s4_y, s4_z = _parse_pos_tuple(s4_p)
 
                 if s1_t or hook:
                     print(f"[THUMBNAIL] Using user-customized brief from Google Sheet: s1='{s1_t}', hook='{hook}'")
@@ -679,12 +715,16 @@ def generate_ai_thumbnail_brief(
                         "layout_style": layout.lower() or "quad",
                         "slot1_text": s1_t or hook,
                         "slot1_badge": s1_b or "BREAKING NEWS",
+                        "slot1_x": s1_x, "slot1_y": s1_y, "slot1_zoom": s1_z,
                         "slot2_text": s2_t,
                         "slot2_badge": s2_b or "SHOCKING SPLIT",
+                        "slot2_x": s2_x, "slot2_y": s2_y, "slot2_zoom": s2_z,
                         "slot3_text": s3_t,
                         "slot3_badge": s3_b or "EXCLUSIVE",
+                        "slot3_x": s3_x, "slot3_y": s3_y, "slot3_zoom": s3_z,
                         "slot4_text": s4_t,
-                        "slot4_badge": s4_b or "MASS UPDATE"
+                        "slot4_badge": s4_b or "MASS UPDATE",
+                        "slot4_x": s4_x, "slot4_y": s4_y, "slot4_zoom": s4_z,
                     }
                     return _AI_THUMBNAIL_BRIEF_CACHE
 

@@ -277,7 +277,8 @@ def create_quad_malayalam_thumbnail(
     Renders 4-panel split YouTube thumbnail with native Malayalam topic headlines,
     matching the exact broadcast graphics approved by user.
     """
-    save_path = THUMBNAIL_DIR / output_filename
+    save_path = THUMBNAIL_DIR / Path(output_filename).name
+    save_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Resolve theme colors
     theme = str(brief.get("color_theme", "crimson")).lower()
@@ -318,6 +319,25 @@ def create_quad_malayalam_thumbnail(
         brief.get("slot3_text") or "തിയേറ്റർ വിശേഷങ്ങൾ",
         brief.get("slot4_text") or "സിനിമാ വാർത്തകൾ"
     ]
+
+    def _parse_slot_pos(i):
+        prefix = f"slot{i}"
+        try:
+            x = float(brief.get(f"{prefix}_x", 0))
+        except (ValueError, TypeError):
+            x = 0.0
+        try:
+            y = float(brief.get(f"{prefix}_y", 0))
+        except (ValueError, TypeError):
+            y = 0.0
+        try:
+            zoom = float(brief.get(f"{prefix}_zoom", 1.15))
+        except (ValueError, TypeError):
+            zoom = 1.15
+        return (x, y, zoom)
+
+    slot_pos = [_parse_slot_pos(i) for i in range(1, 5)]
+
     badge_colors = [
         ("#ef4444", "#fca5a5"),  # Red
         ("#eab308", "#fef08a"),  # Yellow
@@ -367,12 +387,13 @@ def create_quad_malayalam_thumbnail(
     .cell {{
       position: relative;
       overflow: hidden;
+      background: #0b0f19;
     }}
     .cell img {{
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: top;
+      transform-origin: center center;
       filter: contrast(1.15) saturate(1.2);
     }}
     .gradient {{
@@ -490,7 +511,7 @@ def create_quad_malayalam_thumbnail(
 
     <!-- Cell 1 -->
     <div class="cell">
-      <img src="{data_uris[0]}">
+      <img src="{data_uris[0]}" style="transform: translate({slot_pos[0][0]}%, {slot_pos[0][1]}%) scale({slot_pos[0][2]});">
       <div class="gradient"></div>
       <div class="badge" style="border-color: {badge_colors[0][0]}; color: {badge_colors[0][1]};">{slot_badges[0]}</div>
       <div class="headline" style="color: #fde047;">{slot_texts[0]}</div>
@@ -498,7 +519,7 @@ def create_quad_malayalam_thumbnail(
 
     <!-- Cell 2 -->
     <div class="cell">
-      <img src="{data_uris[1]}">
+      <img src="{data_uris[1]}" style="transform: translate({slot_pos[1][0]}%, {slot_pos[1][1]}%) scale({slot_pos[1][2]});">
       <div class="gradient"></div>
       <div class="badge" style="border-color: {badge_colors[1][0]}; color: {badge_colors[1][1]};">{slot_badges[1]}</div>
       <div class="headline" style="color: #ffffff;">{slot_texts[1]}</div>
@@ -506,7 +527,7 @@ def create_quad_malayalam_thumbnail(
 
     <!-- Cell 3 -->
     <div class="cell">
-      <img src="{data_uris[2]}">
+      <img src="{data_uris[2]}" style="transform: translate({slot_pos[2][0]}%, {slot_pos[2][1]}%) scale({slot_pos[2][2]});">
       <div class="gradient"></div>
       <div class="badge" style="border-color: {badge_colors[2][0]}; color: {badge_colors[2][1]};">{slot_badges[2]}</div>
       <div class="headline" style="color: #ffffff;">{slot_texts[2]}</div>
@@ -514,7 +535,7 @@ def create_quad_malayalam_thumbnail(
 
     <!-- Cell 4 -->
     <div class="cell">
-      <img src="{data_uris[3]}">
+      <img src="{data_uris[3]}" style="transform: translate({slot_pos[3][0]}%, {slot_pos[3][1]}%) scale({slot_pos[3][2]});">
       <div class="gradient"></div>
       <div class="badge" style="border-color: {badge_colors[3][0]}; color: {badge_colors[3][1]};">{slot_badges[3]}</div>
       <div class="headline" style="color: #fde047;">{slot_texts[3]}</div>
