@@ -1572,11 +1572,14 @@
     <!-- SECTION 4: LIVE CINEMA NEWS FEED -->
     <div id="section-news" class="card" style="display: none;">
       <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-        <span>📰 Live Cinema News Feed (Times of India)</span>
-        <span id="news-counter-badge" style="font-size: 13px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 12px; border-radius: 9999px; display: none;">Story 1 of 10</span>
+        <span>📰 Live Cinema News Feed & Multi-Industry Sourcing</span>
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <span id="news-dedup-stats-badge" style="font-size: 12px; font-weight: 700; color: #10b981; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 9999px; display: none;">0 Duplicates Filtered</span>
+          <span id="news-counter-badge" style="font-size: 13px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 12px; border-radius: 9999px; display: none;">Story 1 of 10</span>
+        </div>
       </div>
       <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 18px;">
-        Browse the latest breaking cinema headlines from Times of India, swipe through articles, and convert them to natural Malayalam spoken scripts with Google Gemini AI with one tap!
+        Multi-industry cinema news with smart milestone deduplication. Select category and specialized portals, swipe through verified updates, cross-check against your active worksheet, and generate spoken Malayalam news scripts with Google Gemini AI.
       </p>
 
       <!-- Sub-Tabs: All Movie News / Theater Releases / OTT Releases -->
@@ -1594,20 +1597,36 @@
 
       <!-- Control Bar -->
       <div class="dashboard-panel" style="border: 1px solid rgba(56, 189, 248, 0.3); margin-bottom: 20px;">
-        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-          <div style="flex: 1; min-width: 220px;">
-            <label style="font-size: 13px; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 6px;">🎯 Cinema Industry Feed:</label>
-            <select id="news-industry-select" onchange="fetchLatestCinemaNews()" style="width: 100%; padding: 10px 14px; background: rgba(8, 12, 22, 0.95); border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 14px;">
-              <option value="malayalam" selected>🎬 Malayalam Cinema (Breaking News)</option>
-              <option value="tamil">⭐ Tamil Cinema / Kollywood (Breaking News)</option>
-              <option value="telugu">🏹 Telugu Cinema / Tollywood (Breaking News)</option>
-              <option value="kannada">🦁 Kannada Cinema / Sandalwood (Breaking News)</option>
-              <option value="hindi">🌟 Hindi Cinema / Bollywood (Breaking News)</option>
-              <option value="global">🌍 Global / Hollywood Cinema (Breaking News)</option>
+        <div style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 200px;">
+            <label style="font-size: 12.5px; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 6px;">🎯 Cinema Industry:</label>
+            <select id="news-industry-select" onchange="onNewsIndustryChange()" style="width: 100%; padding: 10px 14px; background: rgba(8, 12, 22, 0.95); border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 13.5px;">
+              <option value="malayalam" selected>🎬 Malayalam Cinema (Mollywood)</option>
+              <option value="tamil">⭐ Tamil Cinema (Kollywood)</option>
+              <option value="telugu">🏹 Telugu Cinema (Tollywood)</option>
+              <option value="kannada">🦁 Kannada Cinema (Sandalwood)</option>
+              <option value="hindi">🌟 Hindi Cinema (Bollywood)</option>
+              <option value="global">🌍 Global / Hollywood Cinema</option>
             </select>
           </div>
-          <div style="margin-top: 24px;">
-            <button id="btn-fetch-news" class="btn" onclick="fetchLatestCinemaNews()" style="padding: 11px 22px; font-size: 14px; font-weight: 700;">
+
+          <div style="flex: 1.2; min-width: 230px;">
+            <label style="font-size: 12.5px; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 6px;">📰 News Portal / Site:</label>
+            <select id="news-source-select" onchange="fetchLatestCinemaNews()" style="width: 100%; padding: 10px 14px; background: rgba(8, 12, 22, 0.95); border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 13.5px;">
+              <!-- Dynamically populated from matrix -->
+            </select>
+          </div>
+
+          <!-- Deduplication Toggle -->
+          <div style="min-width: 180px;">
+            <label style="font-size: 12.5px; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 6px;">🛡️ Duplicate Filter:</label>
+            <button type="button" id="btn-toggle-dedup" class="btn btn-secondary" onclick="toggleNewsDeduplication()" title="Milestone-aware smart filter: prevents duplicate articles for same milestone while keeping different milestones for the same movie" style="width: 100%; padding: 10px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; border: 1px solid #10b981; color: #10b981; background: rgba(16, 185, 129, 0.12); display: flex; align-items: center; justify-content: center; gap: 6px;">
+              🟢 Filter Duplicates: ON
+            </button>
+          </div>
+
+          <div>
+            <button id="btn-fetch-news" class="btn" onclick="fetchLatestCinemaNews()" style="padding: 11px 22px; font-size: 14px; font-weight: 700; white-space: nowrap;">
               ⚡ Show Latest News
             </button>
           </div>
@@ -1618,18 +1637,20 @@
       <!-- Initial Empty State Prompt -->
       <div id="news-empty-state" style="text-align: center; padding: 40px 20px; background: rgba(15, 23, 42, 0.6); border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 12px; margin-bottom: 20px;">
         <div style="font-size: 42px; margin-bottom: 10px;">📰</div>
-        <h3 style="color: #f1f5f9; font-size: 17px; margin-bottom: 6px;">Ready to Fetch Today's Breaking Movie News</h3>
-        <p style="color: var(--text-muted); font-size: 13px; max-width: 480px; margin: 0 auto;">
-          Click the <b>⚡ Show Latest News</b> button above to connect to Times of India and load the latest cinema headlines into a swipeable card box.
+        <h3 style="color: #f1f5f9; font-size: 17px; margin-bottom: 6px;">Ready to Fetch Verified Movie News & Updates</h3>
+        <p style="color: var(--text-muted); font-size: 13px; max-width: 500px; margin: 0 auto;">
+          Click <b>⚡ Show Latest News</b> to connect to the selected news portals, filter duplicate milestone reports, and load stories into the swipeable card viewer.
         </p>
       </div>
 
       <!-- Main News Carousel Card Box -->
       <div id="news-carousel-wrapper" style="display: none;">
-        <!-- Mobile Swipe Hint -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: #94a3b8; font-size: 12px;">
+        <!-- Mobile Swipe Hint & Badges -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: #94a3b8; font-size: 12px; flex-wrap: wrap; gap: 6px;">
           <span>👈 Swipe left/right on mobile or use arrows 👉</span>
-          <span id="news-source-tag" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 2px 8px; border-radius: 4px; font-weight: 600;">Times of India</span>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <span id="news-source-tag" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 2px 8px; border-radius: 4px; font-weight: 600;">Times of India</span>
+          </div>
         </div>
 
         <!-- The Swipeable Card Container -->
@@ -1648,18 +1669,28 @@
 
             <!-- Text Content -->
             <div style="flex: 1; min-width: 250px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
                 <span id="news-card-date" style="font-size: 12px; color: #38bdf8; font-weight: 600;">Today</span>
+                <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                  <span id="news-sheet-check-badge" style="display: none; background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">⚠️ Already in Sheet (Row #1)</span>
+                  <span id="news-dedup-badge" style="display: none; background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">⚡ 2 Duplicate Reports Merged</span>
+                </div>
               </div>
               <h3 id="news-card-title" style="color: #f8fafc; font-size: 18px; font-weight: 700; line-height: 1.4; margin-bottom: 10px;">
                 Story Title Loading...
               </h3>
-              <p id="news-card-snippet" style="color: #cbd5e1; font-size: 14px; line-height: 1.6; margin-bottom: 14px;">
+              <p id="news-card-snippet" style="color: #cbd5e1; font-size: 14px; line-height: 1.6; margin-bottom: 10px;">
                 Story summary...
               </p>
+              
+              <!-- Other Sources / Multi-site coverage -->
+              <div id="news-card-other-sources" style="display: none; margin-bottom: 12px; font-size: 12px; color: #94a3b8; background: rgba(15, 23, 42, 0.5); padding: 5px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                🌐 Also reported by: <span id="news-other-sources-list" style="color: #38bdf8; font-weight: 600;"></span>
+              </div>
+
               <div>
                 <a id="news-card-link" href="#" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 6px; color: #38bdf8; text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 12px; background: rgba(56, 189, 248, 0.1); border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.25);">
-                  🔗 Read Full Article on Times of India ↗
+                  🔗 Read Full Article ↗
                 </a>
               </div>
 
@@ -5326,18 +5357,366 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
     }
 
     // ==========================================
-    // LIVE CINEMA NEWS FEED (TIMES OF INDIA & GROQ AI)
+    // LIVE CINEMA NEWS FEED & MULTI-INDUSTRY MATRIX
     // ==========================================
+    let rawNewsArticles = [];
     let liveNewsArticles = [];
     let currentNewsIndex = 0;
     let newsSwipeInitialized = false;
     let activeNewsSubTab = 'all'; // 'all' | 'theater' | 'ott'
+    let isNewsDedupEnabled = true;
+    let newsFilteredDuplicatesCount = 0;
+
+    // Cinema Milestones for Smart Deduplication (Differentiates distinct milestones for the same film)
+    const CINEMA_MILESTONES = [
+      { key: 'trailer', terms: ['trailer', 'official trailer', 'ട്രെയിലർ'] },
+      { key: 'teaser', terms: ['teaser', 'official teaser', 'ടീസർ'] },
+      { key: 'first_look', terms: ['first look', 'first-look', 'motion poster', 'title poster', 'new poster', 'second look', 'ഫസ്റ്റ് ലുക്ക്', 'പോസ്റ്റർ'] },
+      { key: 'ott_release', terms: ['ott', 'streaming', 'stream', 'digital premiere', 'netflix', 'prime video', 'amazon prime', 'hotstar', 'disney', 'sonyliv', 'zee5', 'manoramamax', 'aha', 'simply south', 'digital rights', 'ഒടിടി', 'സ്ട്രീമിംഗ്'] },
+      { key: 'theater_release', terms: ['release date', 'theatrical release', 'in theatres', 'in theaters', 'hitting screens', 'screens on', 'worldwide release', 'theatre release', 'theater release', 'തിയേറ്റർ റിലീസ്', 'റിലീസ് തീയതി'] },
+      { key: 'box_office', terms: ['box office', 'collection', 'crore', 'day 1', 'day 2', 'first weekend', '100 cr', '200 cr', 'opening day', 'കളക്ഷൻ', 'ബോക്സ് ഓഫീസ്'] },
+      { key: 'censor', terms: ['censor', 'u/a', 'u certificate', 'censor certificate', 'runtime', 'certified', 'സെൻസർ'] },
+      { key: 'shooting', terms: ['shooting', 'wraps up', 'rolls out', 'sets', 'commences', 'production', 'pack up', 'wrapped', 'filming', 'schedule', 'ചിത്രീകരണം'] },
+      { key: 'cast_crew', terms: ['joins cast', 'signs', 'heroine', 'director', 'music director', 'composer', 'roped in', 'cameo', 'താരനിര', 'നായകൻ', 'നായിക'] },
+      { key: 'song', terms: ['song', 'single', 'promo song', 'lyrical video', 'audio launch', 'jukebox', 'ഗാനം', 'പാട്ട്'] },
+      { key: 'review', terms: ['review', 'rating', 'public response', 'fdfs', 'audience response', 'പ്രേക്ഷക പ്രതികരണം', 'റിവ്യൂ'] }
+    ];
+
+    // Industry and Category Source Matrix
+    const NEWS_SOURCE_MATRIX = {
+      malayalam: {
+        all: [
+          { id: 'all', name: '🌐 All Top Portals (Aggregated)', query: 'Malayalam movie cinema news' },
+          { id: 'manorama', name: '📰 Manorama Online (Movies)', query: 'site:manoramaonline.com/movies Malayalam' },
+          { id: 'mathrubhumi', name: '📰 Mathrubhumi Cinema', query: 'site:mathrubhumi.com/movies Malayalam' },
+          { id: 'cinemaexpress', name: '📰 Cinema Express (Malayalam)', query: 'site:cinemaexpress.com/malayalam' },
+          { id: 'toi', name: '📰 Times of India (Mollywood)', query: 'site:timesofindia.indiatimes.com/entertainment/malayalam/movies/news' },
+          { id: 'southfirst', name: '📰 The South First (Cinema)', query: 'site:thesouthfirst.com Malayalam cinema' }
+        ],
+        theater: [
+          { id: 'toi_theaters', name: '🏛️ Times of India (Theatrical Releases - Scrape)', type: 'scrape', url: 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/malayalam-movies' },
+          { id: 'bookmyshow', name: '🎟️ BookMyShow (In Theatres & Upcoming)', query: 'Malayalam movies in theatres BookMyShow release date' },
+          { id: 'cinemaexpress_th', name: '📰 Cinema Express (Theatrical Releases)', query: 'site:cinemaexpress.com Malayalam movie release date in theatres' },
+          { id: 'filmibeat_th', name: '📰 Filmibeat (Releasing This Week)', query: 'site:filmibeat.com/malayalam/movies Malayalam movies release dates' }
+        ],
+        ott: [
+          { id: 'cinebuds', name: '📺 Cinebuds (Official OTT Calendar - Scrape)', type: 'scrape', url: 'https://cinebuds.com/malayalam-movies-ott-release-dates/' },
+          { id: 'ottplay', name: '🍿 OTTplay (Malayalam Streaming Calendar)', query: 'site:ottplay.com Malayalam OTT release date streaming' },
+          { id: 'toi_ott', name: '📰 Times of India (Malayalam OTT Releases)', query: 'site:timesofindia.indiatimes.com Malayalam OTT release date streaming' },
+          { id: 'filmibeat_ott', name: '📰 Filmibeat (Malayalam OTT Releases)', query: 'site:filmibeat.com Malayalam movie OTT digital premiere release date' }
+        ]
+      },
+      tamil: {
+        all: [
+          { id: 'all', name: '🌐 All Top Portals (Aggregated)', query: 'Tamil movie cinema news Kollywood' },
+          { id: 'behindwoods', name: '📰 Behindwoods (Kollywood)', query: 'site:behindwoods.com Tamil cinema news' },
+          { id: 'cinemaexpress', name: '📰 Cinema Express (Tamil)', query: 'site:cinemaexpress.com/tamil' },
+          { id: 'toi', name: '📰 Times of India (Kollywood)', query: 'site:timesofindia.indiatimes.com/entertainment/tamil/movies/news' },
+          { id: 'indiaglitz', name: '📰 IndiaGlitz (Tamil Cinema)', query: 'site:indiaglitz.com/tamil' },
+          { id: 'galatta', name: '📰 Galatta Media (Tamil)', query: 'site:galatta.com Tamil movie news' }
+        ],
+        theater: [
+          { id: 'toi_theaters', name: '🏛️ Times of India (Theatrical Releases - Scrape)', type: 'scrape', url: 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/tamil-movies' },
+          { id: 'bookmyshow', name: '🎟️ BookMyShow (Tamil In Theatres & Upcoming)', query: 'Tamil movies in theatres BookMyShow release date' },
+          { id: 'cinemaexpress_th', name: '📰 Cinema Express (Tamil Theatrical Releases)', query: 'site:cinemaexpress.com Tamil movie release date in theatres' }
+        ],
+        ott: [
+          { id: 'cinebuds', name: '📺 Cinebuds (Official OTT Calendar - Scrape)', type: 'scrape', url: 'https://cinebuds.com/tamil-movies-digital-release-dates/' },
+          { id: 'ottplay', name: '🍿 OTTplay (Tamil Streaming Calendar)', query: 'site:ottplay.com Tamil OTT release date streaming' },
+          { id: 'toi_ott', name: '📰 Times of India (Tamil OTT Releases)', query: 'site:timesofindia.indiatimes.com Tamil OTT release date streaming' }
+        ]
+      },
+      telugu: {
+        all: [
+          { id: 'all', name: '🌐 All Top Portals (Aggregated)', query: 'Telugu movie cinema news Tollywood' },
+          { id: '123telugu', name: '📰 123telugu (Breaking News)', query: 'site:123telugu.com Telugu cinema news' },
+          { id: 'greatandhra', name: '📰 Greatandhra Cinema', query: 'site:greatandhra.com/movies' },
+          { id: 'gulte', name: '📰 Gulte Movie News', query: 'site:gulte.com Telugu movie news' },
+          { id: 'toi', name: '📰 Times of India (Tollywood)', query: 'site:timesofindia.indiatimes.com/entertainment/telugu/movies/news' }
+        ],
+        theater: [
+          { id: 'toi_theaters', name: '🏛️ Times of India (Theatrical Releases - Scrape)', type: 'scrape', url: 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/telugu-movies' },
+          { id: 'bookmyshow', name: '🎟️ BookMyShow (Telugu In Theatres & Upcoming)', query: 'Telugu movies in theatres BookMyShow release date' },
+          { id: '123telugu_th', name: '📰 123telugu (Theatrical Release Dates)', query: 'site:123telugu.com Telugu movie release dates' }
+        ],
+        ott: [
+          { id: 'cinebuds', name: '📺 Cinebuds (Official OTT Calendar - Scrape)', type: 'scrape', url: 'https://cinebuds.com/telugu-movies-digital-release-dates/' },
+          { id: 'ottplay', name: '🍿 OTTplay (Telugu Streaming Calendar)', query: 'site:ottplay.com Telugu OTT release date streaming' },
+          { id: '123telugu_ott', name: '📰 123telugu (Telugu OTT Updates)', query: 'site:123telugu.com OTT release date streaming aha netflix' }
+        ]
+      },
+      kannada: {
+        all: [
+          { id: 'all', name: '🌐 All Top Portals (Aggregated)', query: 'Kannada movie cinema news Sandalwood' },
+          { id: 'cinemaexpress', name: '📰 Cinema Express (Kannada)', query: 'site:cinemaexpress.com/kannada' },
+          { id: 'filmibeat', name: '📰 Filmibeat Kannada', query: 'site:kannada.filmibeat.com' },
+          { id: 'toi', name: '📰 Times of India (Sandalwood)', query: 'site:timesofindia.indiatimes.com/entertainment/kannada/movies/news' }
+        ],
+        theater: [
+          { id: 'toi_theaters', name: '🏛️ Times of India (Theatrical Releases - Scrape)', type: 'scrape', url: 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/kannada-movies' },
+          { id: 'bookmyshow', name: '🎟️ BookMyShow (Kannada In Theatres & Upcoming)', query: 'Kannada movies in theatres BookMyShow release date' }
+        ],
+        ott: [
+          { id: 'cinebuds', name: '📺 Cinebuds (Official OTT Calendar - Scrape)', type: 'scrape', url: 'https://cinebuds.com/kannada-movies-digital-release-dates/' },
+          { id: 'ottplay', name: '🍿 OTTplay (Kannada Streaming Calendar)', query: 'site:ottplay.com Kannada OTT release date streaming' }
+        ]
+      },
+      hindi: {
+        all: [
+          { id: 'all', name: '🌐 All Top Portals (Aggregated)', query: 'Bollywood Hindi movie cinema news' },
+          { id: 'pinkvilla', name: '📰 Pinkvilla (Bollywood)', query: 'site:pinkvilla.com/entertainment/bollywood' },
+          { id: 'bollywoodhungama', name: '📰 Bollywood Hungama', query: 'site:bollywoodhungama.com Hindi movie news' },
+          { id: 'toi', name: '📰 Times of India (Bollywood)', query: 'site:timesofindia.indiatimes.com/entertainment/hindi/bollywood/news' },
+          { id: 'koimoi', name: '📰 Koimoi (Bollywood & Box Office)', query: 'site:koimoi.com Bollywood news' }
+        ],
+        theater: [
+          { id: 'toi_theaters', name: '🏛️ Times of India (Theatrical Releases - Scrape)', type: 'scrape', url: 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/hindi-movies' },
+          { id: 'bookmyshow', name: '🎟️ BookMyShow (Hindi In Theatres & Upcoming)', query: 'Hindi Bollywood movies in theatres BookMyShow release date' },
+          { id: 'bollywoodhungama_th', name: '📰 Bollywood Hungama (Release Dates)', query: 'site:bollywoodhungama.com movie release dates Bollywood' }
+        ],
+        ott: [
+          { id: 'cinebuds', name: '📺 Cinebuds (Official OTT Calendar - Scrape)', type: 'scrape', url: 'https://cinebuds.com/hindi-movies-digital-release-dates/' },
+          { id: 'ottplay', name: '🍿 OTTplay (Hindi Streaming Calendar)', query: 'site:ottplay.com Hindi Bollywood OTT release date streaming' },
+          { id: 'toi_ott', name: '📰 Times of India (Hindi OTT Releases)', query: 'site:timesofindia.indiatimes.com Hindi movie OTT release date streaming' }
+        ]
+      },
+      global: {
+        all: [
+          { id: 'all', name: '🌐 All Top Portals (Aggregated)', query: 'Hollywood movie cinema entertainment news' },
+          { id: 'variety', name: '📰 Variety (Film News)', query: 'site:variety.com/v/film' },
+          { id: 'deadline', name: '📰 Deadline Hollywood', query: 'site:deadline.com' },
+          { id: 'hollywoodreporter', name: '📰 The Hollywood Reporter', query: 'site:hollywoodreporter.com/movies' },
+          { id: 'collider', name: '📰 Collider (Movies)', query: 'site:collider.com/movie-news' }
+        ],
+        theater: [
+          { id: 'toi_theaters', name: '🏛️ Times of India (English/Hollywood Releases - Scrape)', type: 'scrape', url: 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/english-movies' },
+          { id: 'deadline_th', name: '📰 Deadline (Theatrical Box Office & Releases)', query: 'site:deadline.com box office theatrical release date Hollywood' }
+        ],
+        ott: [
+          { id: 'whatsonnetflix', name: '🍿 What\'s on Netflix (Global Streaming)', query: 'site:whats-on-netflix.com upcoming movie release dates' },
+          { id: 'ottplay_global', name: '🍿 OTTplay (Hollywood Streaming Calendar)', query: 'site:ottplay.com Hollywood English movie OTT streaming release date' },
+          { id: 'deadline_ott', name: '📰 Deadline (Streaming & Digital Releases)', query: 'site:deadline.com streaming release date Netflix Disney Prime Apple' }
+        ]
+      }
+    };
+
+    function cleanEntityCandidate(text) {
+      if (!text) return '';
+      let s = text.trim();
+      const noisePatterns = [
+        /\b(trailer|teaser|first\s*look|title\s*poster|motion\s*poster|poster|second\s*look)\b/gi,
+        /\b(ott|streaming|digital\s*premiere|digital\s*rights|netflix|hotstar|prime\s*video|zee5|sonyliv)\b/gi,
+        /\b(theatrical\s*release|theater\s*release|theatre\s*release|release\s*date|in\s*theatres|in\s*theaters|hitting\s*screens|releasing|released|releases|release)\b/gi,
+        /\b(box\s*office|collection|crore|cr|day\s*\d+|opening\s*day|milestone)\b/gi,
+        /\b(censor|runtime|certified|review|rating|fdfs|response)\b/gi,
+        /\b(shooting|wrapped|filming|pack\s*up|commences|rolls\s*out|shoot)\b/gi,
+        /\b(out\s*now|out|drops|dropped|hits|confirmed|announced|revealed|unveiled|leaked|updates?|news|crosses?|sweeps?|official)\b/gi,
+        /\b\d+\b/g
+      ];
+      for (const p of noisePatterns) {
+        s = s.replace(p, ' ');
+      }
+      return s.replace(/\s+/g, ' ').trim();
+    }
+
+    function extractCinemaEntity(title) {
+      if (!title) return '';
+      let cleaned = title.trim();
+      
+      // Normalize possessives so words like Mohanlal's do not break quote extraction
+      const dePossessed = cleaned.replace(/(?<=[a-zA-Z0-9])['’]s\b/gi, '');
+
+      // 1. Quoted entity like 'L2 Empuraan' or "Barroz" or “Marco” preceded by boundary/whitespace
+      const quoteMatch = dePossessed.match(/(?:^|[\s:–—\-\|\(\[])['"“]([^'"”]{2,45})['"”]/);
+      if (quoteMatch) {
+        const entity = cleanEntityCandidate(quoteMatch[1]);
+        if (entity.length >= 2) return entity;
+      }
+      
+      // 2. Prefix before colon, hyphen, or dash
+      const splitMatch = cleaned.split(/[:\-\|–—]/);
+      if (splitMatch.length > 1) {
+        const candidate = splitMatch[0].trim();
+        const lower = candidate.toLowerCase();
+        const genericWords = ['breaking', 'latest', 'watch', 'update', 'exclusive', 'mollywood', 'kollywood', 'tollywood', 'bollywood', 'hollywood', 'report'];
+        if (!genericWords.includes(lower) && candidate.length >= 2 && candidate.length <= 50) {
+          const entity = cleanEntityCandidate(candidate);
+          if (entity.length >= 2) return entity;
+        }
+      }
+
+      // 3. Fallback: Take first 3-4 significant words
+      const words = cleaned.replace(/[^a-zA-Z0-9\s]/g, '').split(/\s+/).filter(Boolean);
+      const stopWords = new Set(['the', 'a', 'an', 'in', 'on', 'at', 'to', 'for', 'of', 'and', 'is', 'new', 'movie', 'film', 'starring', 'actor', 'actress', 'director', 'first', 'look', 'by', 'makers']);
+      const meaningful = words.filter(w => !stopWords.has(w.toLowerCase()));
+      const rawFallback = meaningful.slice(0, 3).join(' ') || cleaned.slice(0, 30);
+      const cleanedFallback = cleanEntityCandidate(rawFallback);
+      return cleanedFallback.length >= 2 ? cleanedFallback : rawFallback;
+    }
+
+    function detectCinemaMilestone(title, snippet) {
+      const combined = ((title || '') + ' ' + (snippet || '')).toLowerCase();
+      for (const m of CINEMA_MILESTONES) {
+        for (const term of m.terms) {
+          if (combined.includes(term.toLowerCase())) {
+            return m.key;
+          }
+        }
+      }
+      return 'general_cinema_news';
+    }
+
+    function applyMilestoneDeduplication(articles) {
+      if (!isNewsDedupEnabled) {
+        return { unique: articles, duplicateCount: 0 };
+      }
+      const map = new Map();
+      let duplicateCount = 0;
+
+      for (const item of articles) {
+        let entity = item.entity;
+        if (!entity) {
+          entity = extractCinemaEntity(item.title);
+          item.entity = entity;
+        }
+
+        let milestone = item.milestone;
+        if (!milestone) {
+          if (item.category === 'theater') {
+            milestone = 'theater_release';
+          } else if (item.category === 'ott') {
+            milestone = 'ott_release';
+          } else {
+            milestone = detectCinemaMilestone(item.title, item.snippet);
+          }
+          item.milestone = milestone;
+        }
+
+        const normEntity = entity.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const dedupKey = (normEntity.length >= 3)
+          ? `${normEntity}__${milestone}`
+          : (item.title.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 35));
+
+        if (map.has(dedupKey)) {
+          duplicateCount++;
+          const existing = map.get(dedupKey);
+          if (!existing.otherSources) existing.otherSources = [];
+          const srcName = item.source || 'Another Source';
+          if (!existing.otherSources.includes(srcName) && srcName !== existing.source) {
+            existing.otherSources.push(srcName);
+          }
+          if (!existing.imageUrl && item.imageUrl) {
+            existing.imageUrl = item.imageUrl;
+          }
+          existing.duplicateReports = (existing.duplicateReports || 1) + 1;
+        } else {
+          item.dedupKey = dedupKey;
+          item.otherSources = [];
+          item.duplicateReports = 1;
+          map.set(dedupKey, item);
+        }
+      }
+
+      return { unique: Array.from(map.values()), duplicateCount };
+    }
+
+    function toggleNewsDeduplication() {
+      isNewsDedupEnabled = !isNewsDedupEnabled;
+      const btn = document.getElementById('btn-toggle-dedup');
+      if (btn) {
+        if (isNewsDedupEnabled) {
+          btn.innerHTML = '🟢 Filter Duplicates: ON';
+          btn.style.color = '#10b981';
+          btn.style.borderColor = '#10b981';
+          btn.style.background = 'rgba(16, 185, 129, 0.12)';
+        } else {
+          btn.innerHTML = '⚪ Filter Duplicates: OFF';
+          btn.style.color = '#94a3b8';
+          btn.style.borderColor = '#475569';
+          btn.style.background = 'rgba(15, 23, 42, 0.6)';
+        }
+      }
+
+      if (rawNewsArticles && rawNewsArticles.length > 0) {
+        const dedup = applyMilestoneDeduplication(rawNewsArticles);
+        liveNewsArticles = isNewsDedupEnabled ? dedup.unique : rawNewsArticles;
+        newsFilteredDuplicatesCount = isNewsDedupEnabled ? dedup.duplicateCount : 0;
+        currentNewsIndex = 0;
+
+        const statsBadge = document.getElementById('news-dedup-stats-badge');
+        if (statsBadge) {
+          if (isNewsDedupEnabled && newsFilteredDuplicatesCount > 0) {
+            statsBadge.innerText = `${newsFilteredDuplicatesCount} Duplicates Filtered`;
+            statsBadge.style.display = 'inline-block';
+          } else {
+            statsBadge.style.display = 'none';
+          }
+        }
+
+        renderCurrentNewsCard();
+      }
+    }
+
+    function checkNewsItemInSheet(cur) {
+      if (!cur || !store) return null;
+      const curTitleClean = (cur.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const curEntity = (cur.entity || extractCinemaEntity(cur.title) || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+      const tabsToCheck = ['Movie Updates', 'Release Updates', 'OTT Updates'];
+      for (const tab of tabsToCheck) {
+        const rows = store[tab] || [];
+        for (let i = 0; i < rows.length; i++) {
+          const r = rows[i];
+          const rHeadlineClean = (r.headline || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+          if (curEntity.length >= 3 && rHeadlineClean.length >= 3) {
+            if (rHeadlineClean.includes(curEntity) || curEntity.includes(rHeadlineClean)) {
+              return { tab: tab, rowNum: i + 1, headline: r.headline || `Row #${i + 1}` };
+            }
+          }
+          if (curTitleClean.length >= 8 && rHeadlineClean.length >= 6) {
+            if (curTitleClean.includes(rHeadlineClean) || rHeadlineClean.includes(curTitleClean)) {
+              return { tab: tab, rowNum: i + 1, headline: r.headline || `Row #${i + 1}` };
+            }
+          }
+        }
+      }
+      return null;
+    }
+
+    function updateNewsSourceDropdown() {
+      const industrySel = document.getElementById('news-industry-select');
+      const sourceSel = document.getElementById('news-source-select');
+      if (!industrySel || !sourceSel) return;
+
+      const industry = industrySel.value || 'malayalam';
+      const sources = (NEWS_SOURCE_MATRIX[industry] && NEWS_SOURCE_MATRIX[industry][activeNewsSubTab]) || [];
+
+      const prevVal = sourceSel.value;
+      let html = '';
+      for (const src of sources) {
+        html += `<option value="${src.id}">${src.name}</option>`;
+      }
+      sourceSel.innerHTML = html;
+
+      if (sources.some(s => s.id === prevVal)) {
+        sourceSel.value = prevVal;
+      } else if (sources.length > 0) {
+        sourceSel.value = sources[0].id;
+      }
+    }
+
+    function onNewsIndustryChange() {
+      updateNewsSourceDropdown();
+      fetchLatestCinemaNews();
+    }
 
     function initNewsSection() {
       if (!newsSwipeInitialized) {
         initNewsSwipe();
         newsSwipeInitialized = true;
       }
+      updateNewsSourceDropdown();
     }
 
     function switchNewsSubTab(tab) {
@@ -5373,39 +5752,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         addWsBtn.innerText = `➕ Add as New Topic in Worksheet (${subTabWorksheetLabels[tab]})`;
       }
 
-      const industrySel = document.getElementById('news-industry-select');
-      if (industrySel) {
-        const curVal = industrySel.value || 'malayalam';
-        if (tab === 'ott') {
-          industrySel.innerHTML = `
-            <option value="malayalam" ${curVal === 'malayalam' ? 'selected' : ''}>🎬 Malayalam Cinema OTT (Cinebuds)</option>
-            <option value="tamil" ${curVal === 'tamil' ? 'selected' : ''}>⭐ Tamil Cinema OTT (Cinebuds)</option>
-            <option value="telugu" ${curVal === 'telugu' ? 'selected' : ''}>🏹 Telugu Cinema OTT (Cinebuds)</option>
-            <option value="kannada" ${curVal === 'kannada' ? 'selected' : ''}>🦁 Kannada Cinema OTT (Cinebuds)</option>
-            <option value="hindi" ${curVal === 'hindi' ? 'selected' : ''}>🌟 Hindi Cinema OTT (Cinebuds)</option>
-            <option value="global" ${curVal === 'global' ? 'selected' : ''}>🌍 Global / Hollywood OTT</option>
-          `;
-        } else if (tab === 'theater') {
-          industrySel.innerHTML = `
-            <option value="malayalam" ${curVal === 'malayalam' ? 'selected' : ''}>🎬 Malayalam Cinema (TOI Theaters)</option>
-            <option value="tamil" ${curVal === 'tamil' ? 'selected' : ''}>⭐ Tamil Cinema / Kollywood (TOI Theaters)</option>
-            <option value="telugu" ${curVal === 'telugu' ? 'selected' : ''}>🏹 Telugu Cinema / Tollywood (TOI Theaters)</option>
-            <option value="kannada" ${curVal === 'kannada' ? 'selected' : ''}>🦁 Kannada Cinema / Sandalwood (TOI Theaters)</option>
-            <option value="hindi" ${curVal === 'hindi' ? 'selected' : ''}>🌟 Hindi Cinema / Bollywood (TOI Theaters)</option>
-            <option value="global" ${curVal === 'global' ? 'selected' : ''}>🌍 Global / Hollywood Cinema (TOI Theaters)</option>
-          `;
-        } else {
-          industrySel.innerHTML = `
-            <option value="malayalam" ${curVal === 'malayalam' ? 'selected' : ''}>🎬 Malayalam Cinema (Breaking News)</option>
-            <option value="tamil" ${curVal === 'tamil' ? 'selected' : ''}>⭐ Tamil Cinema / Kollywood (Breaking News)</option>
-            <option value="telugu" ${curVal === 'telugu' ? 'selected' : ''}>🏹 Telugu Cinema / Tollywood (Breaking News)</option>
-            <option value="kannada" ${curVal === 'kannada' ? 'selected' : ''}>🦁 Kannada Cinema / Sandalwood (Breaking News)</option>
-            <option value="hindi" ${curVal === 'hindi' ? 'selected' : ''}>🌟 Hindi Cinema / Bollywood (Breaking News)</option>
-            <option value="global" ${curVal === 'global' ? 'selected' : ''}>🌍 Global / Hollywood Cinema (Breaking News)</option>
-          `;
-        }
-      }
-
+      updateNewsSourceDropdown();
       fetchLatestCinemaNews();
     }
 
@@ -5415,8 +5762,14 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       const emptyState = document.getElementById('news-empty-state');
       const carouselWrap = document.getElementById('news-carousel-wrapper');
       const badge = document.getElementById('news-counter-badge');
+      const statsBadge = document.getElementById('news-dedup-stats-badge');
       const industrySel = document.getElementById('news-industry-select');
+      const sourceSel = document.getElementById('news-source-select');
       const industry = industrySel ? industrySel.value : 'malayalam';
+      const selectedSourceId = sourceSel ? sourceSel.value : 'all';
+
+      const sources = (NEWS_SOURCE_MATRIX[industry] && NEWS_SOURCE_MATRIX[industry][activeNewsSubTab]) || [];
+      const currentSource = sources.find(s => s.id === selectedSourceId) || sources[0] || { id: 'all', name: 'All Sources', query: 'movie news' };
 
       const subTabLabels = {
         'all': 'breaking cinema news',
@@ -5432,7 +5785,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       if (status) {
         status.style.display = 'block';
         status.className = 'status-toast';
-        status.innerText = `Connecting to live feed for ${subTabLabels[activeNewsSubTab]}...`;
+        status.innerText = `Connecting to ${currentSource.name} for ${subTabLabels[activeNewsSubTab]}...`;
       }
 
       // Check browser offline status
@@ -5461,86 +5814,13 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       let startIdx = parseInt(localStorage.getItem('active_serper_key_idx') || '0', 10);
       if (isNaN(startIdx) || startIdx < 0 || startIdx >= serperKeys.length) startIdx = 0;
 
-      let searchQuery = '';
-      let fallbackQuery = '';
-
-      if (activeNewsSubTab === 'theater') {
-        if (industry === 'tamil') {
-          searchQuery = 'Tamil movies in theatres';
-          fallbackQuery = 'Tamil movie release date';
-        } else if (industry === 'telugu') {
-          searchQuery = 'Telugu movies in theatres';
-          fallbackQuery = 'Telugu movie release date';
-        } else if (industry === 'kannada') {
-          searchQuery = 'Kannada movies in theatres';
-          fallbackQuery = 'Kannada movie release date';
-        } else if (industry === 'hindi') {
-          searchQuery = 'Bollywood Hindi movies in theatres';
-          fallbackQuery = 'Hindi movie release date';
-        } else if (industry === 'global') {
-          searchQuery = 'Hollywood English movies in theatres box office';
-          fallbackQuery = 'Hollywood movie release date';
-        } else {
-          searchQuery = 'Malayalam movie release date Times of India';
-          fallbackQuery = 'Malayalam movies in theatres';
-        }
-      } else if (activeNewsSubTab === 'ott') {
-        if (industry === 'tamil') {
-          searchQuery = 'Tamil movie OTT release date';
-          fallbackQuery = 'Tamil movies streaming OTT release';
-        } else if (industry === 'telugu') {
-          searchQuery = 'Telugu movie OTT release date aha netflix prime';
-          fallbackQuery = 'Telugu movies streaming OTT release';
-        } else if (industry === 'kannada') {
-          searchQuery = 'Kannada movie OTT release date zee5';
-          fallbackQuery = 'Kannada movies streaming OTT release';
-        } else if (industry === 'hindi') {
-          searchQuery = 'Hindi Bollywood movie OTT release date netflix prime';
-          fallbackQuery = 'Hindi movies streaming OTT release';
-        } else if (industry === 'global') {
-          searchQuery = 'Hollywood movies OTT digital release date Netflix Disney Prime Apple TV';
-          fallbackQuery = 'English movies digital streaming premiere release dates';
-        } else {
-          searchQuery = 'Malayalam movie OTT release date';
-          fallbackQuery = 'Malayalam movies streaming OTT release';
-        }
-      } else {
-        if (industry === 'tamil') {
-          searchQuery = 'Tamil movie news Times of India';
-          fallbackQuery = 'Tamil cinema news latest';
-        } else if (industry === 'telugu') {
-          searchQuery = 'Telugu movie news 123telugu Times of India';
-          fallbackQuery = 'Tollywood cinema news latest';
-        } else if (industry === 'kannada') {
-          searchQuery = 'Kannada movie news Times of India';
-          fallbackQuery = 'Sandalwood cinema news latest';
-        } else if (industry === 'hindi') {
-          searchQuery = 'Bollywood movie news Pinkvilla Bollywood Hungama';
-          fallbackQuery = 'Hindi cinema news latest';
-        } else if (industry === 'global') {
-          searchQuery = 'Hollywood movie news Deadline Variety Hollywood Reporter';
-          fallbackQuery = 'Hollywood cinema entertainment news latest';
-        } else {
-          searchQuery = 'Malayalam movie news Times of India';
-          fallbackQuery = 'Malayalam cinema news latest';
-        }
-      }
-
       try {
         let items = [];
         let keySuccess = false;
 
-        // Dedicated scraper for Times of India Latest Movies page across industries
-        if (activeNewsSubTab === 'theater') {
-          const toiUrls = {
-            'malayalam': 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/malayalam-movies',
-            'tamil': 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/tamil-movies',
-            'telugu': 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/telugu-movies',
-            'kannada': 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/kannada-movies',
-            'hindi': 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/hindi-movies',
-            'global': 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/english-movies'
-          };
-          const toiUrl = toiUrls[industry] || toiUrls['malayalam'];
+        // Dedicated direct scraper if selected source specifies type === 'scrape'
+        if (currentSource.type === 'scrape' && currentSource.url) {
+          const scrapeUrl = currentSource.url;
           const indLabel = industry === 'global' ? 'Hollywood' : (industry.charAt(0).toUpperCase() + industry.slice(1));
 
           for (let attempt = 0; attempt < serperKeys.length; attempt++) {
@@ -5553,9 +5833,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
                   'X-API-KEY': apiKey,
                   'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                  url: toiUrl
-                })
+                body: JSON.stringify({ url: scrapeUrl })
               });
 
               if (scrapeResp.status === 403 || scrapeResp.status === 429) {
@@ -5568,149 +5846,115 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
                 const scrapeData = await scrapeResp.json();
                 const text = scrapeData.text || '';
                 const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-                const movies = [];
-                let currentTitle = null;
-                let currentDetails = [];
 
-                for (const line of lines) {
-                  if (line.startsWith('Latest') || line.includes('Subscribe') || line.includes('Stories that shape') || line.includes('TOI Life') || line.includes('Read More') || line.includes('subscribing') || line.includes('inbox') || line.includes('culture stories') || line.includes('Select a City')) {
-                    continue;
-                  }
-                  const dateMatch = line.match(/(\d{1,2}\s+[A-Za-z]{3}\s+\d{4})/);
-                  if (dateMatch && currentTitle) {
-                    const releaseDate = dateMatch[1];
-                    const dur = line.includes('|') ? line.split('|')[1].trim() : '';
-                    const det = currentDetails.filter(d => !d.startsWith('Critic')).join(' • ');
-                    movies.push({
-                      title: currentTitle,
-                      date: releaseDate,
-                      snippet: `Theatrical Release: ${releaseDate}${dur ? ' (' + dur + ')' : ''}. ${det}`,
-                      link: toiUrl,
-                      source: `Times of India (${indLabel} Theaters)`,
-                      imageUrl: '',
-                      category: 'theater',
-                      malayalamScript: null
-                    });
-                    currentTitle = null;
-                    currentDetails = [];
-                  } else if (!currentTitle) {
-                    currentTitle = line;
-                    currentDetails = [];
-                  } else {
-                    currentDetails.push(line);
-                  }
-                }
+                if (activeNewsSubTab === 'theater') {
+                  const movies = [];
+                  let currentTitle = null;
+                  let currentDetails = [];
 
-                if (movies.length > 0) {
-                  items = movies;
-                  keySuccess = true;
-                  if (currentIdx !== startIdx) {
-                    localStorage.setItem('active_serper_key_idx', String(currentIdx));
-                  }
-                  break;
-                }
-              }
-            } catch (err) {
-              console.warn("Serper TOI scrape error:", err);
-            }
-          }
-        }
-
-        // Dedicated scraper for Cinebuds OTT Release Dates (requested by user)
-        if (activeNewsSubTab === 'ott' && industry !== 'global') {
-          const cinebudsUrls = {
-            'malayalam': 'https://cinebuds.com/malayalam-movies-ott-release-dates/',
-            'tamil': 'https://cinebuds.com/tamil-movies-digital-release-dates/',
-            'telugu': 'https://cinebuds.com/telugu-movies-digital-release-dates/',
-            'kannada': 'https://cinebuds.com/kannada-movies-digital-release-dates/',
-            'hindi': 'https://cinebuds.com/hindi-movies-digital-release-dates/'
-          };
-          const cinebudsUrl = cinebudsUrls[industry] || cinebudsUrls['malayalam'];
-          const indLabel = industry.charAt(0).toUpperCase() + industry.slice(1);
-
-          for (let attempt = 0; attempt < serperKeys.length; attempt++) {
-            const currentIdx = (startIdx + attempt) % serperKeys.length;
-            const apiKey = serperKeys[currentIdx];
-            try {
-              const scrapeResp = await fetch('https://scrape.serper.dev', {
-                method: 'POST',
-                headers: {
-                  'X-API-KEY': apiKey,
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ url: cinebudsUrl })
-              });
-
-              if (scrapeResp.status === 403 || scrapeResp.status === 429) {
-                const nextIdx = (currentIdx + 1) % serperKeys.length;
-                localStorage.setItem('active_serper_key_idx', String(nextIdx));
-                continue;
-              }
-
-              if (scrapeResp.ok) {
-                const scrapeData = await scrapeResp.json();
-                const text = scrapeData.text || '';
-                const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-                const movies = [];
-                const seen = new Set();
-
-                for (const line of lines) {
-                  if (line.includes('Movie Name') || line.includes('OTT Platform') || (line.includes('Movie') && line.includes('Platform'))) {
-                    continue;
-                  }
-                  const parts = line.split(/\s{2,}|\t+/).map(p => p.trim()).filter(Boolean);
-                  if (parts.length >= 3) {
-                    let movie = parts[0];
-                    let platform = parts[1];
-                    let date = parts[2];
-
-                    if (/\d{1,2}\s+[A-Za-z]{3,}\s+\d{4}/.test(platform)) {
-                      const tmp = platform;
-                      platform = date;
-                      date = tmp;
-                    }
-
-                    if (movie.toLowerCase() === 'movie' || movie.toLowerCase() === 'movie name' || movie.includes('Release Dates') || movie.includes('Cinebuds') || movie.length > 50) {
+                  for (const line of lines) {
+                    if (line.startsWith('Latest') || line.includes('Subscribe') || line.includes('Stories that shape') || line.includes('TOI Life') || line.includes('Read More') || line.includes('subscribing') || line.includes('inbox') || line.includes('culture stories') || line.includes('Select a City')) {
                       continue;
                     }
-
-                    const cleanKey = movie.toLowerCase().replace(/[^a-z0-9]/g, '');
-                    if (!cleanKey || seen.has(cleanKey)) continue;
-                    seen.add(cleanKey);
-
-                    movies.push({
-                      title: movie,
-                      platform: platform,
-                      date: date,
-                      snippet: `${movie} OTT digital streaming release on ${platform} (${date}). Official ${indLabel} OTT premiere.`,
-                      link: cinebudsUrl,
-                      source: `Cinebuds (${indLabel} OTT)`,
-                      imageUrl: '',
-                      category: 'ott',
-                      malayalamScript: null
-                    });
-
-                    if (movies.length >= 30) break;
+                    const dateMatch = line.match(/(\d{1,2}\s+[A-Za-z]{3}\s+\d{4})/);
+                    if (dateMatch && currentTitle) {
+                      const releaseDate = dateMatch[1];
+                      const dur = line.includes('|') ? line.split('|')[1].trim() : '';
+                      const det = currentDetails.filter(d => !d.startsWith('Critic')).join(' • ');
+                      movies.push({
+                        title: currentTitle,
+                        date: releaseDate,
+                        snippet: `Theatrical Release: ${releaseDate}${dur ? ' (' + dur + ')' : ''}. ${det}`,
+                        link: scrapeUrl,
+                        source: `Times of India (${indLabel} Theaters)`,
+                        imageUrl: '',
+                        category: 'theater',
+                        malayalamScript: null
+                      });
+                      currentTitle = null;
+                      currentDetails = [];
+                    } else if (!currentTitle) {
+                      currentTitle = line;
+                      currentDetails = [];
+                    } else {
+                      currentDetails.push(line);
+                    }
                   }
-                }
 
-                if (movies.length > 0) {
-                  items = movies;
-                  keySuccess = true;
-                  if (currentIdx !== startIdx) {
-                    localStorage.setItem('active_serper_key_idx', String(currentIdx));
+                  if (movies.length > 0) {
+                    items = movies;
+                    keySuccess = true;
+                    if (currentIdx !== startIdx) {
+                      localStorage.setItem('active_serper_key_idx', String(currentIdx));
+                    }
+                    break;
                   }
-                  break;
+                } else if (activeNewsSubTab === 'ott') {
+                  // Cinebuds OTT parsing
+                  const movies = [];
+                  const seen = new Set();
+
+                  for (const line of lines) {
+                    if (line.includes('Movie Name') || line.includes('OTT Platform') || (line.includes('Movie') && line.includes('Platform'))) {
+                      continue;
+                    }
+                    const parts = line.split(/\s{2,}|\t+/).map(p => p.trim()).filter(Boolean);
+                    if (parts.length >= 3) {
+                      let movie = parts[0];
+                      let platform = parts[1];
+                      let date = parts[2];
+
+                      if (/\d{1,2}\s+[A-Za-z]{3,}\s+\d{4}/.test(platform)) {
+                        const tmp = platform;
+                        platform = date;
+                        date = tmp;
+                      }
+
+                      if (movie.toLowerCase() === 'movie' || movie.toLowerCase() === 'movie name' || movie.includes('Release Dates') || movie.includes('Cinebuds') || movie.length > 50) {
+                        continue;
+                      }
+
+                      const cleanKey = movie.toLowerCase().replace(/[^a-z0-9]/g, '');
+                      if (!cleanKey || seen.has(cleanKey)) continue;
+                      seen.add(cleanKey);
+
+                      movies.push({
+                        title: movie,
+                        platform: platform,
+                        date: date,
+                        snippet: `${movie} OTT digital streaming release on ${platform} (${date}). Official ${indLabel} OTT premiere.`,
+                        link: scrapeUrl,
+                        source: `Cinebuds (${indLabel} OTT)`,
+                        imageUrl: '',
+                        category: 'ott',
+                        malayalamScript: null
+                      });
+
+                      if (movies.length >= 30) break;
+                    }
+                  }
+
+                  if (movies.length > 0) {
+                    items = movies;
+                    keySuccess = true;
+                    if (currentIdx !== startIdx) {
+                      localStorage.setItem('active_serper_key_idx', String(currentIdx));
+                    }
+                    break;
+                  }
                 }
               }
             } catch (err) {
-              console.warn("Serper Cinebuds scrape error:", err);
+              console.warn("Serper direct scrape error:", err);
             }
           }
         }
 
-        // Standard news query fallback if scrape did not run or returned 0
+        // Standard news query fallback if scrape did not run or returned 0 items
         if (items.length === 0) {
+          const searchQuery = currentSource.query || `${industry} cinema news`;
+          const fallbackQuery = `${industry} movie updates`;
+
           for (let attempt = 0; attempt < serperKeys.length; attempt++) {
             const currentIdx = (startIdx + attempt) % serperKeys.length;
             const apiKey = serperKeys[currentIdx];
@@ -5767,7 +6011,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
                     }
                   } catch (fallbackErr) {}
                 }
-                break; // Key worked, exit loop
+                break;
               } else {
                 console.warn(`Serper HTTP status ${resp.status} with key #${currentIdx + 1}`);
               }
@@ -5789,31 +6033,52 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
 
         if (items.length === 0) {
           if (status) {
-            status.innerText = `No ${subTabLabels[activeNewsSubTab]} found right now. Please try again or switch sub-tabs.`;
+            status.innerText = `No ${subTabLabels[activeNewsSubTab]} found for ${currentSource.name}. Please try switching sources.`;
           }
           return;
         }
 
+        // Standardize news item schema
+        let parsedArticles = [];
         if (items.length > 0 && (items[0].category === 'theater' || items[0].category === 'ott')) {
-          liveNewsArticles = items;
+          parsedArticles = items;
         } else {
-          liveNewsArticles = items.map(it => ({
+          parsedArticles = items.map(it => ({
             title: it.title || 'Untitled Movie News',
             snippet: it.snippet || 'No article summary available.',
             link: it.link || '#',
             date: it.date || 'Today',
             imageUrl: it.imageUrl || '',
-            source: it.source || 'Times of India',
+            source: it.source || currentSource.name || 'Cinema Portal',
             category: activeNewsSubTab,
             malayalamScript: null
           }));
         }
 
+        // Save raw articles before deduplication
+        rawNewsArticles = parsedArticles;
+
+        // Apply Milestone-aware Deduplication
+        const dedupResult = applyMilestoneDeduplication(parsedArticles);
+        liveNewsArticles = isNewsDedupEnabled ? dedupResult.unique : parsedArticles;
+        newsFilteredDuplicatesCount = isNewsDedupEnabled ? dedupResult.duplicateCount : 0;
         currentNewsIndex = 0;
 
         if (status) {
-          status.innerText = `✓ Loaded ${liveNewsArticles.length} ${subTabLabels[activeNewsSubTab]}!`;
-          setTimeout(() => { if (status) status.style.display = 'none'; }, 3500);
+          const dedupMsg = (isNewsDedupEnabled && newsFilteredDuplicatesCount > 0)
+            ? ` (${newsFilteredDuplicatesCount} duplicate milestone reports merged)`
+            : '';
+          status.innerText = `✓ Loaded ${liveNewsArticles.length} unique ${subTabLabels[activeNewsSubTab]} from ${currentSource.name}!${dedupMsg}`;
+          setTimeout(() => { if (status) status.style.display = 'none'; }, 4000);
+        }
+
+        if (statsBadge) {
+          if (isNewsDedupEnabled && newsFilteredDuplicatesCount > 0) {
+            statsBadge.innerText = `${newsFilteredDuplicatesCount} Duplicates Filtered`;
+            statsBadge.style.display = 'inline-block';
+          } else {
+            statsBadge.style.display = 'none';
+          }
         }
 
         if (emptyState) emptyState.style.display = 'none';
@@ -5862,6 +6127,40 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       if (dateElem) dateElem.innerText = `📅 ${cur.date || 'Today'}`;
       if (sourceTag) sourceTag.innerText = cur.source || 'Times of India';
 
+      // Sheet Cross-Check
+      const sheetBadge = document.getElementById('news-sheet-check-badge');
+      const sheetMatch = checkNewsItemInSheet(cur);
+      if (sheetBadge) {
+        if (sheetMatch) {
+          sheetBadge.innerText = `⚠️ In Sheet: ${sheetMatch.tab} (Row #${sheetMatch.rowNum})`;
+          sheetBadge.title = `Topic already exists in "${sheetMatch.tab}" as "${sheetMatch.headline}"`;
+          sheetBadge.style.display = 'inline-block';
+        } else {
+          sheetBadge.style.display = 'none';
+        }
+      }
+
+      // Merged duplicate reports badge & other sources
+      const dedupBadge = document.getElementById('news-dedup-badge');
+      const otherSourcesWrap = document.getElementById('news-card-other-sources');
+      const otherSourcesList = document.getElementById('news-other-sources-list');
+      if (dedupBadge) {
+        if (cur.duplicateReports && cur.duplicateReports > 1) {
+          dedupBadge.innerText = `⚡ ${cur.duplicateReports} Duplicate Reports Merged`;
+          dedupBadge.style.display = 'inline-block';
+        } else {
+          dedupBadge.style.display = 'none';
+        }
+      }
+      if (otherSourcesWrap && otherSourcesList) {
+        if (cur.otherSources && cur.otherSources.length > 0) {
+          otherSourcesList.innerText = cur.otherSources.join(', ');
+          otherSourcesWrap.style.display = 'block';
+        } else {
+          otherSourcesWrap.style.display = 'none';
+        }
+      }
+
       // Update Title & Snippet
       const titleElem = document.getElementById('news-card-title');
       const snippetElem = document.getElementById('news-card-snippet');
@@ -5871,6 +6170,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       if (linkElem) {
         linkElem.href = cur.link;
         linkElem.style.display = cur.link && cur.link !== '#' ? 'inline-flex' : 'none';
+        linkElem.innerText = `🔗 Read Full Article on ${cur.source || 'Source'} ↗`;
       }
 
       // Update custom notes input
@@ -6352,13 +6652,23 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       const cur = liveNewsArticles[currentNewsIndex];
       if (!cur) return;
 
-      const mlText = cur.malayalamScript || cur.snippet || cur.title;
-      let targetTab = 'Movie Updates';
-      if (activeNewsSubTab === 'theater') {
-        targetTab = 'Release Updates';
-      } else if (activeNewsSubTab === 'ott') {
-        targetTab = 'OTT Updates';
+      const subTabWorksheetLabels = {
+        'all': 'Movie Updates',
+        'theater': 'Release Updates',
+        'ott': 'OTT Updates'
+      };
+      const targetTab = subTabWorksheetLabels[activeNewsSubTab] || 'Movie Updates';
+
+      // Sheet cross-check confirmation to prevent accidental duplicate entries
+      const sheetMatch = checkNewsItemInSheet(cur);
+      if (sheetMatch) {
+        const confirmAdd = confirm(
+          `⚠️ Notice: This movie/topic appears to already exist in your "${sheetMatch.tab}" sheet at Row #${sheetMatch.rowNum} ("${sheetMatch.headline}").\n\nDo you want to add it as a new separate topic row anyway?`
+        );
+        if (!confirmAdd) return;
       }
+
+      const mlText = cur.malayalamScript || cur.snippet || cur.title;
 
       if (!store[targetTab]) store[targetTab] = [];
       const rows = store[targetTab];
@@ -6403,11 +6713,15 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       }
 
       alert(`✅ Added as Topic #${newTopicNum} to ${targetTab}! You can view it in the 'Input & Data Editor' tab.`);
+      renderCurrentNewsCard(); // Re-render to update the in-sheet indicator badge immediately
     }
 
     // Auto load on page start
     renderTableRows();
     restoreSavedVideoSections();
+    if (typeof updateNewsSourceDropdown === 'function') {
+      updateNewsSourceDropdown();
+    }
   </script>
 </body>
 </html>
