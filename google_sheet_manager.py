@@ -90,11 +90,10 @@ class GoogleSheetManager:
                 with open(CACHE_FILE, "r", encoding="utf-8") as f:
                     cache_json = json.load(f)
                 loaded_cache = {}
-                for cfg in SHEET_CONFIGS:
-                    name = cfg["name"]
-                    if name in cache_json:
-                        loaded_cache[name] = pd.DataFrame(cache_json[name])
-                if len(loaded_cache) == len(SHEET_CONFIGS):
+                for tab_k, tab_rows in cache_json.items():
+                    if isinstance(tab_rows, list):
+                        loaded_cache[tab_k] = pd.DataFrame(tab_rows)
+                if all(cfg["name"] in loaded_cache for cfg in SHEET_CONFIGS):
                     self.data_cache = loaded_cache
                     return self.data_cache
             except Exception as e:

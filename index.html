@@ -4328,22 +4328,22 @@ RULES:
       const p4 = (window.thumbSlotPositions && window.thumbSlotPositions[3]) ? window.thumbSlotPositions[3] : { x: 0, y: 0, zoom: 1.0 };
 
       let thumbMetaTags = "";
-      if (s1Text) thumbMetaTags += `|__THUMB_S1_TEXT__:${encodeURIComponent(s1Text)}`;
-      if (s1Badge) thumbMetaTags += `|__THUMB_S1_BADGE__:${encodeURIComponent(s1Badge)}`;
+      if (s1Text) thumbMetaTags += `|__THUMB_S1_TEXT__:${s1Text.replace(/\|/g, ' ')}`;
+      if (s1Badge) thumbMetaTags += `|__THUMB_S1_BADGE__:${s1Badge.replace(/\|/g, ' ')}`;
       thumbMetaTags += `|__THUMB_S1_POS__:${p1.x},${p1.y},${p1.zoom}`;
-      if (s2Text) thumbMetaTags += `|__THUMB_S2_TEXT__:${encodeURIComponent(s2Text)}`;
-      if (s2Badge) thumbMetaTags += `|__THUMB_S2_BADGE__:${encodeURIComponent(s2Badge)}`;
+      if (s2Text) thumbMetaTags += `|__THUMB_S2_TEXT__:${s2Text.replace(/\|/g, ' ')}`;
+      if (s2Badge) thumbMetaTags += `|__THUMB_S2_BADGE__:${s2Badge.replace(/\|/g, ' ')}`;
       thumbMetaTags += `|__THUMB_S2_POS__:${p2.x},${p2.y},${p2.zoom}`;
-      if (s3Text) thumbMetaTags += `|__THUMB_S3_TEXT__:${encodeURIComponent(s3Text)}`;
-      if (s3Badge) thumbMetaTags += `|__THUMB_S3_BADGE__:${encodeURIComponent(s3Badge)}`;
+      if (s3Text) thumbMetaTags += `|__THUMB_S3_TEXT__:${s3Text.replace(/\|/g, ' ')}`;
+      if (s3Badge) thumbMetaTags += `|__THUMB_S3_BADGE__:${s3Badge.replace(/\|/g, ' ')}`;
       thumbMetaTags += `|__THUMB_S3_POS__:${p3.x},${p3.y},${p3.zoom}`;
-      if (s4Text) thumbMetaTags += `|__THUMB_S4_TEXT__:${encodeURIComponent(s4Text)}`;
-      if (s4Badge) thumbMetaTags += `|__THUMB_S4_BADGE__:${encodeURIComponent(s4Badge)}`;
+      if (s4Text) thumbMetaTags += `|__THUMB_S4_TEXT__:${s4Text.replace(/\|/g, ' ')}`;
+      if (s4Badge) thumbMetaTags += `|__THUMB_S4_BADGE__:${s4Badge.replace(/\|/g, ' ')}`;
       thumbMetaTags += `|__THUMB_S4_POS__:${p4.x},${p4.y},${p4.zoom}`;
-      if (centerBadge) thumbMetaTags += `|__THUMB_CENTER__:${encodeURIComponent(centerBadge)}`;
-      if (mainBadge) thumbMetaTags += `|__THUMB_BADGE__:${encodeURIComponent(mainBadge)}`;
+      if (centerBadge) thumbMetaTags += `|__THUMB_CENTER__:${centerBadge.replace(/\|/g, ' ')}`;
+      if (mainBadge) thumbMetaTags += `|__THUMB_BADGE__:${mainBadge.replace(/\|/g, ' ')}`;
       if (thumbTheme) thumbMetaTags += `|__THUMB_THEME__:${thumbTheme}`;
-      if (s1Text) thumbMetaTags += `|__THUMB_HOOK__:${encodeURIComponent(s1Text)}`;
+      if (s1Text) thumbMetaTags += `|__THUMB_HOOK__:${s1Text.replace(/\|/g, ' ')}`;
       thumbMetaTags += `|__THUMB_LAYOUT__:quad`;
 
       const encodedPrivacy = `${privacy}#sections=${sectionsParam}`;

@@ -666,6 +666,13 @@ def generate_ai_thumbnail_brief(
     if _AI_THUMBNAIL_BRIEF_CACHE is not None:
         return _AI_THUMBNAIL_BRIEF_CACHE
 
+    # ── Extract active topics first so fallback headlines are always available ────
+    topics_list = extract_active_topics_flat(sheet_data, sections=sections)
+    topic_hl_1 = topics_list[0].get("topic_headline", "") if len(topics_list) > 0 else ""
+    topic_hl_2 = topics_list[1].get("topic_headline", "") if len(topics_list) > 1 else ""
+    topic_hl_3 = topics_list[2].get("topic_headline", "") if len(topics_list) > 2 else ""
+    topic_hl_4 = topics_list[3].get("topic_headline", "") if len(topics_list) > 3 else ""
+
     # ── Check Google Sheet 'Thumbnail Config' tab for user custom text ──────
     if sheet_data and isinstance(sheet_data, dict) and "Thumbnail Config" in sheet_data:
         raw_tc = sheet_data["Thumbnail Config"]
@@ -695,9 +702,9 @@ def generate_ai_thumbnail_brief(
                 def _parse_pos_tuple(raw_str):
                     try:
                         p = [float(x.strip()) for x in raw_str.split(",")]
-                        return p[0], p[1], (p[2] if len(p) > 2 else 1.15)
+                        return p[0], p[1], (p[2] if len(p) > 2 else 1.0)
                     except Exception:
-                        return 0.0, 0.0, 1.15
+                        return 0.0, 0.0, 1.0
 
                 s1_x, s1_y, s1_z = _parse_pos_tuple(s1_p)
                 s2_x, s2_y, s2_z = _parse_pos_tuple(s2_p)
@@ -707,30 +714,26 @@ def generate_ai_thumbnail_brief(
                 if s1_t or hook:
                     print(f"[THUMBNAIL] Using user-customized brief from Google Sheet: s1='{s1_t}', hook='{hook}'")
                     _AI_THUMBNAIL_BRIEF_CACHE = {
-                        "main_hook": (s1_t or hook).strip(),
+                        "main_hook": (s1_t or hook or topic_hl_1).strip(),
                         "sub_text": sub.strip() if sub else "CINEMA EXCLUSIVE",
                         "badge": badge.strip() if badge else "BREAKING NEWS",
                         "center_badge": center.strip() if center else "TOP 4",
                         "color_theme": theme.lower() or "crimson",
                         "layout_style": layout.lower() or "quad",
-                        "slot1_text": s1_t or hook,
+                        "slot1_text": s1_t or hook or topic_hl_1,
                         "slot1_badge": s1_b or "BREAKING NEWS",
                         "slot1_x": s1_x, "slot1_y": s1_y, "slot1_zoom": s1_z,
-                        "slot2_text": s2_t,
+                        "slot2_text": s2_t or topic_hl_2,
                         "slot2_badge": s2_b or "SHOCKING SPLIT",
                         "slot2_x": s2_x, "slot2_y": s2_y, "slot2_zoom": s2_z,
-                        "slot3_text": s3_t,
+                        "slot3_text": s3_t or topic_hl_3,
                         "slot3_badge": s3_b or "EXCLUSIVE",
                         "slot3_x": s3_x, "slot3_y": s3_y, "slot3_zoom": s3_z,
-                        "slot4_text": s4_t,
+                        "slot4_text": s4_t or topic_hl_4,
                         "slot4_badge": s4_b or "MASS UPDATE",
                         "slot4_x": s4_x, "slot4_y": s4_y, "slot4_zoom": s4_z,
                     }
                     return _AI_THUMBNAIL_BRIEF_CACHE
-
-
-    # ── Extract active topics ──────────────────────────────────────────────
-    topics_list = extract_active_topics_flat(sheet_data, sections=sections)
 
     # Build topic summary for prompt
     topic_summaries = []
