@@ -331,9 +331,9 @@ def create_quad_malayalam_thumbnail(
         except (ValueError, TypeError):
             y = 0.0
         try:
-            zoom = float(brief.get(f"{prefix}_zoom", 1.15))
+            zoom = float(brief.get(f"{prefix}_zoom", 1.0))
         except (ValueError, TypeError):
-            zoom = 1.15
+            zoom = 1.0
         return (x, y, zoom)
 
     slot_pos = [_parse_slot_pos(i) for i in range(1, 5)]
@@ -392,7 +392,7 @@ def create_quad_malayalam_thumbnail(
     .cell img {{
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
       transform-origin: center center;
       filter: contrast(1.15) saturate(1.2);
     }}

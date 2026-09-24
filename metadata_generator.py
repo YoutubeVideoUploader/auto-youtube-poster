@@ -245,9 +245,9 @@ def download_thumbnail_from_drive(
         def _unpack_pos(raw_str):
             try:
                 parts = [float(x.strip()) for x in raw_str.split(",")]
-                return parts[0], parts[1], (parts[2] if len(parts) > 2 else 1.15)
+                return parts[0], parts[1], (parts[2] if len(parts) > 2 else 1.0)
             except Exception:
-                return 0.0, 0.0, 1.15
+                return 0.0, 0.0, 1.0
 
         s1_x, s1_y, s1_z = _unpack_pos(m_s1_p)
         s2_x, s2_y, s2_z = _unpack_pos(m_s2_p)
