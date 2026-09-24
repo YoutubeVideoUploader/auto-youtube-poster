@@ -117,6 +117,9 @@ class GeminiTTSEngine(BaseTTSEngine):
             return np.zeros(0, dtype=np.float32), self.native_sample_rate
 
         cleaned_text = text.strip()
+        # Direct pronunciation safeguard: avoid known phonetic hallucination in Gemini Malayalam voice
+        cleaned_text = re.sub(r'ലേക്ക്\s+കടക്കാം', 'ലേക്ക് പോകാം', cleaned_text)
+        cleaned_text = re.sub(r'(?<![\u0d00-\u0d7f])കടക്കാം(?![\u0d00-\u0d7f])', 'പോകാം', cleaned_text)
 
         # 1. Check local persistent disk cache (model-specific hash)
         cache_dir = OUTPUT_DIR / "gemini_voice_cache"

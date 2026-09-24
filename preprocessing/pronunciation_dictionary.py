@@ -102,13 +102,15 @@ DEFAULT_PRONUNCIATION_DICT = {
     "Anwar Rasheed": "അൻവർ റഷീദ്",
     "Aphonse Puthren": "അൽഫോൻസ് പുത്രൻ",
 
-    # Specific Malayalam Name Pronunciation Corrections
+    # Specific Malayalam Name & Word Pronunciation Corrections
     "ആന്തണി": "ആന്റണി",
     "Jude Anthany": "ജൂഡ് ആന്റണി",
     "Jude Anthany Joseph": "ജൂഡ് ആന്റണി ജോസഫ്",
     "Jude Antony": "ജൂഡ് ആന്റണി",
     "Jude Antony Joseph": "ജൂഡ് ആന്റണി ജോസഫ്",
-    "സമ്വൃത": "സംവൃത"
+    "സമ്വൃത": "സംവൃത",
+    "ലേക്ക് കടക്കാം": "ലേക്ക് പോകാം",
+    "കടക്കാം": "പോകാം"
 }
 
 

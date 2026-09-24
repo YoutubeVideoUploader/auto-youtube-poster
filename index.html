@@ -5928,10 +5928,14 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       // 7. Clean hyphenated or awkward day numbers
       s = s.replace(/(\d+)\s*[-‑]\s*ാം/g, '$1-ാം');
 
-      // 8. Dot cleaning (dots only at sentence ends)
+      // 8. Fix TTS pronunciation glitches (e.g. 'കടക്കാം' incorrectly voiced as 'കടത്താം')
+      s = s.replace(/ലേക്ക്\s+കടക്കാം/g, 'ലേക്ക് പോകാം');
+      s = s.replace(/(?<=\s|^)കടക്കാം(?=\s|[.,!?]|$)/g, 'പോകാം');
+
+      // 9. Dot cleaning (dots only at sentence ends)
       s = cleanMalayalamDotsAndInitials(s);
 
-      // 9. Clean up multiple spaces
+      // 10. Clean up multiple spaces
       s = s.replace(/\s+/g, ' ').trim();
       return s;
     }
