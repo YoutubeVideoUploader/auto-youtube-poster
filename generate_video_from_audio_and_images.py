@@ -1093,7 +1093,7 @@ def generate_video(
             last_chapter_sec = chap_sec
         elif seg_type == "outro":
             # Only add outro chapter if at least 10 seconds remain before video ends
-            if (total_duration - seg_t) >= 10.0 and (seg_t - last_chapter_sec) >= 10.0:
+            if (total_audio_duration - seg_t) >= 10.0 and (seg_t - last_chapter_sec) >= 10.0:
                 ts_mins = int(seg_t) // 60
                 ts_secs = int(seg_t) % 60
                 specific_chapters.append({
