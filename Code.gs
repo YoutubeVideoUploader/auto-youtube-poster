@@ -211,15 +211,29 @@ function doPost(e) {
 
     // 1. Handle GitHub Action Trigger Request from Web App / Website
     if (data.action === "trigger_github") {
-      if (data.drive_thumbnail_url) {
-        saveThumbnailConfigSheet(data.drive_thumbnail_url);
+      if (data.drive_thumbnail_url || data.thumbnail_main_hook) {
+        saveThumbnailConfigSheet(
+          data.drive_thumbnail_url,
+          data.thumbnail_main_hook,
+          data.thumbnail_sub_text,
+          data.thumbnail_badge,
+          data.thumbnail_color_theme,
+          data.thumbnail_layout_style
+        );
       }
       return triggerGitHubActionHandler(data.privacy_status, data.drive_thumbnail_url, data.token, data.sections);
     }
 
     // 2. Handle Google Sheet Table Sync Request
-    if (data.thumbnail_urls) {
-      saveThumbnailConfigSheet(data.thumbnail_urls);
+    if (data.thumbnail_urls || data.thumbnail_main_hook) {
+      saveThumbnailConfigSheet(
+        data.thumbnail_urls,
+        data.thumbnail_main_hook,
+        data.thumbnail_sub_text,
+        data.thumbnail_badge,
+        data.thumbnail_color_theme,
+        data.thumbnail_layout_style
+      );
     }
 
     var tabName = data.tab_name;
@@ -282,24 +296,60 @@ function doPost(e) {
   }
 }
 
-function saveThumbnailConfigSheet(urlsString) {
+function saveThumbnailConfigSheet(urlsString, mainHook, subText, badge, colorTheme, layoutStyle) {
   try {
-    if (!urlsString || typeof urlsString !== 'string') return;
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName("Thumbnail Config");
     if (!sheet) {
       sheet = ss.insertSheet("Thumbnail Config");
     }
     sheet.clearContents();
-    sheet.appendRow(["Selected Image URLs"]);
-    // Strip __SECTIONS__ tags if present
-    var cleanUrls = urlsString.replace(/\|*__SECTIONS__:[a-zA-Z0-9_,]+/g, '').trim();
-    var urls = cleanUrls.split(/[\r\n,]+/);
-    for (var i = 0; i < urls.length; i++) {
-      var u = urls[i].trim();
-      if (u && u.toLowerCase().indexOf("http") === 0) {
-        sheet.appendRow([u]);
+    sheet.appendRow([
+      "Selected Image URLs",
+      "Main Hook",
+      "Sub Text",
+      "Badge Label",
+      "Color Theme",
+      "Layout Style"
+    ]);
+
+    var rawStr = String(urlsString || "");
+
+    // Extract metadata from string if passed as embedded tags
+    var mHook = mainHook || (rawStr.match(/__THUMB_HOOK__:([^|]+)/) ? rawStr.match(/__THUMB_HOOK__:([^|]+)/)[1] : "");
+    var mSub = subText || (rawStr.match(/__THUMB_SUB__:([^|]+)/) ? rawStr.match(/__THUMB_SUB__:([^|]+)/)[1] : "");
+    var mBadge = badge || (rawStr.match(/__THUMB_BADGE__:([^|]+)/) ? rawStr.match(/__THUMB_BADGE__:([^|]+)/)[1] : "");
+    var mTheme = colorTheme || (rawStr.match(/__THUMB_THEME__:([^|]+)/) ? rawStr.match(/__THUMB_THEME__:([^|]+)/)[1] : "");
+    var mLayout = layoutStyle || (rawStr.match(/__THUMB_LAYOUT__:([^|]+)/) ? rawStr.match(/__THUMB_LAYOUT__:([^|]+)/)[1] : "");
+
+    var cleanUrls = rawStr
+      .replace(/\|*__SECTIONS__:[a-zA-Z0-9_,]+/g, '')
+      .replace(/\|*__THUMB_[A-Z]+__:[^|]+/g, '')
+      .trim();
+
+    var urls = [];
+    if (cleanUrls) {
+      var parts = cleanUrls.split(/[\r\n,]+/);
+      for (var i = 0; i < parts.length; i++) {
+        var u = parts[i].trim();
+        if (u && u.toLowerCase().indexOf("http") === 0 && urls.indexOf(u) === -1) {
+          urls.push(u);
+        }
       }
+    }
+
+    var firstUrl = urls.length > 0 ? urls[0] : "";
+    sheet.appendRow([
+      firstUrl,
+      mHook || "",
+      mSub || "",
+      mBadge || "",
+      mTheme || "",
+      mLayout || ""
+    ]);
+
+    for (var j = 1; j < urls.length; j++) {
+      sheet.appendRow([urls[j]]);
     }
   } catch (err) {
     Logger.log("Error saving thumbnail config sheet: " + err);

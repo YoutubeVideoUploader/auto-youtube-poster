@@ -1020,35 +1020,153 @@
 
     <!-- SECTION 3: THUMBNAIL STUDIO -->
     <div id="section-thumbnail" class="card" style="display: none;">
-      <div class="card-title">🖼️ Auto YouTube Thumbnail Studio (1280x720 Collage)</div>
+      <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <span>🖼️ YouTube Thumbnail Studio (1280x720 Broadcast Quality)</span>
+        <span id="selected-posters-badge" style="font-size: 13px; font-weight: bold; color: #4eff8c; background: rgba(78, 255, 140, 0.15); border: 1px solid rgba(78, 255, 140, 0.3); padding: 4px 12px; border-radius: 9999px;">📸 0 Posters Selected</span>
+      </div>
       <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
-        Select which movie poster images from your news topics to combine into a professional 1280x720 broadcast YouTube thumbnail collage.
+        Select movie poster images from your news topics below, then click the Gemini AI button to automatically generate high-CTR thumbnail headlines, badges, and colors tailored to the selected topics. You can edit any text in the boxes before saving or uploading.
       </p>
 
-      <div class="dashboard-panel" style="border: 1px solid #33334d;">
-        <div class="thumb-header-flex" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
-          <div style="flex: 1; min-width: 280px;">
-            <label style="font-size: 13px; font-weight: 600; color: #ff2a4b;">🏷️ Banner Headline Title Text:</label>
-            <input type="text" id="thumb-title-input" value="LATEST MALAYALAM MOVIE UPDATES" style="width: 100%; padding: 10px; background: #0d0d16; border: 1px solid var(--accent-red); color: #fff; border-radius: 6px; font-weight: bold; margin-top: 6px;">
-          </div>
-          <div class="thumb-status-box" style="background: #0d0d16; padding: 10px 16px; border-radius: 8px; border: 1px solid #2b2b40;">
-            <span style="font-size: 13px; color: #aaa;">Status:</span>
-            <span id="selected-posters-badge" style="font-size: 14px; font-weight: bold; color: #4eff8c; margin-left: 8px;">📸 0 Posters Selected</span>
-          </div>
-        </div>
-      </div>
-
+      <!-- STEP 1: POSTER SELECTION HEADER -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-        <h4 style="color: #fff;">Available Poster Images from All Topics:</h4>
+        <h4 style="color: #fff; font-size: 15px; display: flex; align-items: center; gap: 8px;">
+          📸 <span>Step 1: Select Poster Images (Choose 1 to 4 Posters)</span>
+        </h4>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px; background: #1e3a8a; color: #fff;" onclick="resetThumbnailPostersToActive()">🔄 Auto-Select Current Topics</button>
-          <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="selectAllPosters(true)">✓ Select All</button>
-          <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px; background: #282838;" onclick="selectAllPosters(false)">✗ Unselect All</button>
+          <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px; background: #1e3a8a; color: #fff;" onclick="resetThumbnailPostersToActive()">🔄 Auto-Select Current Topics</button>
+          <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="selectAllPosters(true)">✓ Select All</button>
+          <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px; background: #282838;" onclick="selectAllPosters(false)">✗ Unselect All</button>
         </div>
       </div>
 
-      <div id="thumbnail-posters-grid" class="preview-grid" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));">
+      <!-- POSTERS GRID -->
+      <div id="thumbnail-posters-grid" class="preview-grid" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); margin-bottom: 25px;">
         <!-- Rendered dynamically -->
+      </div>
+
+      <!-- STEP 2 & 3: GEMINI AI GENERATE & EDITABLE TEXT BOXES -->
+      <div class="dashboard-panel" style="border: 1.5px solid #7c3aed; background: rgba(124, 58, 237, 0.06); border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <h4 style="color: #c084fc; font-size: 16px; font-weight: 700; margin-bottom: 4px;">✨ Step 2: Generate Thumbnail Text with Gemini AI</h4>
+            <p style="color: #a78bfa; font-size: 12.5px;">Analyzes the topics of the posters you selected above and generates viral, broadcast-quality headlines.</p>
+          </div>
+          <button type="button" id="btn-gemini-thumb" class="btn" style="background: linear-gradient(135deg, #7c3aed, #2563eb); font-size: 14px; font-weight: 700; padding: 12px 22px; border-radius: 8px; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4); display: flex; align-items: center; gap: 8px; cursor: pointer;" onclick="generateThumbnailTextWithGemini()">
+            <span>✨ Generate Text with Gemini AI (Powered by Gemini API)</span>
+          </button>
+        </div>
+        <div id="gemini-thumb-status" class="status-msg" style="margin-bottom: 15px;"></div>
+
+        <!-- STEP 3: EDITABLE BOXES -->
+        <h4 style="color: #fff; font-size: 15px; margin-top: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          ✏️ <span>Step 3: Edit Thumbnail Text & Style</span>
+          <span style="font-size: 11px; color: #4eff8c; background: rgba(78, 255, 140, 0.12); padding: 2px 8px; border-radius: 4px;">Editable</span>
+        </h4>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 18px;">
+          <!-- Main Hook -->
+          <div>
+            <label style="font-size: 13px; font-weight: 700; color: #fbbf24; display: block; margin-bottom: 6px;">
+              🔥 Main Hook (2-4 Words ALL CAPS - Big Impact 3D Text):
+            </label>
+            <input type="text" id="thumb-main-hook" value="FAHADH MASS BLAST!" placeholder="e.g. FAHADH MASS BLAST!" maxlength="32" oninput="updateLiveThumbnailPreview()" style="width: 100%; padding: 10px 14px; background: #0d0d16; border: 1.5px solid #fbbf24; color: #fff; border-radius: 8px; font-size: 15px; font-weight: 800; letter-spacing: 0.5px;">
+            <span style="font-size: 11px; color: #94a3b8; margin-top: 4px; display: block;">Rendered in Giant Electric Yellow Impact 3D font with black outline & shadow.</span>
+          </div>
+
+          <!-- Sub Text -->
+          <div>
+            <label style="font-size: 13px; font-weight: 700; color: #f8fafc; display: block; margin-bottom: 6px;">
+              👥 Sub Text (Stars / Movie Names):
+            </label>
+            <input type="text" id="thumb-sub-text" value="FAHADH FAASIL • BIJU MENON" placeholder="e.g. FAHADH FAASIL • BIJU MENON" maxlength="50" oninput="updateLiveThumbnailPreview()" style="width: 100%; padding: 10px 14px; background: #0d0d16; border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 14px; font-weight: 600;">
+            <span style="font-size: 11px; color: #94a3b8; margin-top: 4px; display: block;">Supporting star names or movie titles in clean crisp white text.</span>
+          </div>
+
+          <!-- Badge Label -->
+          <div>
+            <label style="font-size: 13px; font-weight: 700; color: #ef4444; display: block; margin-bottom: 6px;">
+              🔴 Badge Label (Top-Left Broadcast Pill):
+            </label>
+            <input type="text" id="thumb-badge-input" value="OFFICIAL TRAILER" placeholder="e.g. OFFICIAL TRAILER, BREAKING, OTT DROP" maxlength="28" oninput="updateLiveThumbnailPreview()" style="width: 100%; padding: 10px 14px; background: #0d0d16; border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 14px; font-weight: 600;">
+            <span style="font-size: 11px; color: #94a3b8; margin-top: 4px; display: block;">Pill badge text with live broadcast dot indicator.</span>
+          </div>
+
+          <!-- Color Theme -->
+          <div>
+            <label style="font-size: 13px; font-weight: 700; color: #38bdf8; display: block; margin-bottom: 6px;">
+              🎨 Color Theme:
+            </label>
+            <select id="thumb-color-theme" onchange="updateLiveThumbnailPreview()" style="width: 100%; padding: 10px 14px; background: #0d0d16; border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 14px; font-weight: 600;">
+              <option value="crimson" selected>🔴 Crimson Red (Action / Drama / Teaser)</option>
+              <option value="gold">🟡 Gold / Yellow (Theatrical / Big Release)</option>
+              <option value="cyan">🔵 Cyan / Neon Blue (OTT / Streaming Premiere)</option>
+            </select>
+            <span style="font-size: 11px; color: #94a3b8; margin-top: 4px; display: block;">Controls the glowing divider and badge color.</span>
+          </div>
+
+          <!-- Layout Style -->
+          <div>
+            <label style="font-size: 13px; font-weight: 700; color: #a855f7; display: block; margin-bottom: 6px;">
+              📐 Layout Style:
+            </label>
+            <select id="thumb-layout-style" onchange="updateLiveThumbnailPreview()" style="width: 100%; padding: 10px 14px; background: #0d0d16; border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 14px; font-weight: 600;">
+              <option value="diagonal_clash" selected>⚡ Diagonal Clash (Dynamic 15° angled cut with neon glow)</option>
+              <option value="hero_focus">🌟 Hero Focus (1 Large Hero Left 58% + 2 Stacked Right)</option>
+              <option value="cinematic_duo">👥 Cinematic Duo (50/50 Side-by-side split)</option>
+            </select>
+            <span style="font-size: 11px; color: #94a3b8; margin-top: 4px; display: block;">Multi-image composition style.</span>
+          </div>
+
+          <!-- Hidden legacy input for backward compat -->
+          <input type="hidden" id="thumb-title-input" value="LATEST MALAYALAM MOVIE UPDATES">
+        </div>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: flex-end;">
+          <button type="button" class="btn" style="background: #10b981; font-weight: 700; padding: 10px 20px; font-size: 14px;" onclick="saveThumbnailSettingsToSheet()">
+            💾 Save Thumbnail Settings to Google Sheets
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 4: LIVE THUMBNAIL SIMULATION CARD -->
+      <div style="margin-bottom: 25px;">
+        <h4 style="color: #fff; font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          👁️ <span>Step 4: Live 1280x720 Thumbnail Preview Simulation</span>
+          <span style="font-size: 11px; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 2px 8px; border-radius: 4px;">Updates in Real-Time</span>
+        </h4>
+
+        <div id="live-thumb-canvas" style="position: relative; width: 100%; max-width: 820px; aspect-ratio: 16/9; margin: 0 auto; background: #0b0f19; border: 2px solid #334155; border-radius: 12px; overflow: hidden; box-shadow: 0 12px 32px rgba(0,0,0,0.7);">
+          <!-- Background image slots rendered dynamically -->
+          <div id="live-thumb-bg-container" style="position: absolute; inset: 0; display: flex; width: 100%; height: 100%;">
+            <!-- Images inserted by JS -->
+          </div>
+
+          <!-- Vignette Gradients -->
+          <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(6,8,14,0.7) 0%, transparent 25%, transparent 60%, rgba(6,8,14,0.95) 100%); pointer-events: none;"></div>
+
+          <!-- Top-Left Badge -->
+          <div id="live-thumb-badge" style="position: absolute; top: 16px; left: 20px; background: #e11d48; color: #fff; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 800; letter-spacing: 0.5px; border: 1.5px solid rgba(255,255,255,0.85); box-shadow: 0 4px 12px rgba(0,0,0,0.6); display: flex; align-items: center; gap: 6px;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #fff; display: inline-block;"></span>
+            <span id="live-thumb-badge-text">OFFICIAL TRAILER</span>
+          </div>
+
+          <!-- Top-Right 4K Watermark -->
+          <div style="position: absolute; top: 16px; right: 20px; background: rgba(10,14,24,0.85); color: #cbd5e1; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; border: 1px solid rgba(255,42,75,0.5); letter-spacing: 0.5px;">
+            CINEMA DESK • 4K ULTRA HD
+          </div>
+
+          <!-- Bottom Typography Card -->
+          <div style="position: absolute; bottom: 18px; left: 24px; right: 24px; pointer-events: none;">
+            <div id="live-thumb-hook-text" style="font-family: 'Impact', 'Arial Black', sans-serif; font-size: clamp(24px, 4.2vw, 48px); font-weight: 900; color: #facc15; text-transform: uppercase; text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 4px 5px 8px rgba(0,0,0,0.9); line-height: 1.1; margin-bottom: 6px; letter-spacing: 0.5px;">
+              FAHADH MASS BLAST!
+            </div>
+            <div id="live-thumb-underline" style="height: 4px; width: 60%; background: #ff2a4b; border-radius: 2px; margin-bottom: 6px;"></div>
+            <div id="live-thumb-sub-text" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: clamp(12px, 2vw, 20px); font-weight: 800; color: #ffffff; text-transform: uppercase; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 3px 3px 6px rgba(0,0,0,0.9); letter-spacing: 0.5px;">
+              FAHADH FAASIL • BIJU MENON
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2049,6 +2167,26 @@
             if (u.toLowerCase().startsWith('http') && !sheetThumbUrls.includes(u)) {
               sheetThumbUrls.push(u);
             }
+            if (r['Main Hook']) {
+              localStorage.setItem('thumb_main_hook', r['Main Hook']);
+              if (document.getElementById('thumb-main-hook')) document.getElementById('thumb-main-hook').value = r['Main Hook'];
+            }
+            if (r['Sub Text']) {
+              localStorage.setItem('thumb_sub_text', r['Sub Text']);
+              if (document.getElementById('thumb-sub-text')) document.getElementById('thumb-sub-text').value = r['Sub Text'];
+            }
+            if (r['Badge Label']) {
+              localStorage.setItem('thumb_badge', r['Badge Label']);
+              if (document.getElementById('thumb-badge-input')) document.getElementById('thumb-badge-input').value = r['Badge Label'];
+            }
+            if (r['Color Theme']) {
+              localStorage.setItem('thumb_color_theme', r['Color Theme']);
+              if (document.getElementById('thumb-color-theme')) document.getElementById('thumb-color-theme').value = r['Color Theme'];
+            }
+            if (r['Layout Style']) {
+              localStorage.setItem('thumb_layout_style', r['Layout Style']);
+              if (document.getElementById('thumb-layout-style')) document.getElementById('thumb-layout-style').value = r['Layout Style'];
+            }
           });
           if (sheetThumbUrls.length > 0) {
             selectedPosterUrls = sheetThumbUrls;
@@ -2289,6 +2427,7 @@
         grid.appendChild(card);
       });
 
+      restoreThumbnailSettingsLocally();
       updateThumbnailSummary();
     }
 
@@ -2376,6 +2515,226 @@
           cloudSummary.innerHTML = `✨ <b>Automatic Collage</b> (Defaulting to top posters from active topics)`;
         }
       }
+      updateLiveThumbnailPreview();
+    }
+
+    function updateLiveThumbnailPreview() {
+      const hookInput = document.getElementById('thumb-main-hook');
+      const subInput = document.getElementById('thumb-sub-text');
+      const badgeInput = document.getElementById('thumb-badge-input');
+      const themeSelect = document.getElementById('thumb-color-theme');
+      const layoutSelect = document.getElementById('thumb-layout-style');
+
+      const hookVal = (hookInput && hookInput.value.trim() ? hookInput.value.trim() : "FAHADH MASS BLAST!").toUpperCase();
+      const subVal = (subInput && subInput.value.trim() ? subInput.value.trim() : "FAHADH FAASIL • BIJU MENON").toUpperCase();
+      const badgeVal = (badgeInput && badgeInput.value.trim() ? badgeInput.value.trim() : "OFFICIAL TRAILER").toUpperCase();
+      const themeVal = themeSelect ? themeSelect.value : "crimson";
+      const layoutVal = layoutSelect ? layoutSelect.value : "diagonal_clash";
+
+      const hookElem = document.getElementById('live-thumb-hook-text');
+      const subElem = document.getElementById('live-thumb-sub-text');
+      const badgeElem = document.getElementById('live-thumb-badge-text');
+      const badgeBox = document.getElementById('live-thumb-badge');
+      const underlineElem = document.getElementById('live-thumb-underline');
+
+      if (hookElem) hookElem.innerText = hookVal;
+      if (subElem) subElem.innerText = subVal;
+      if (badgeElem) badgeElem.innerText = badgeVal;
+
+      let accentColor = "#ff2a4b";
+      let badgeBg = "#e11d48";
+      let hookColor = "#facc15";
+
+      if (themeVal === "gold") {
+        accentColor = "#eab308";
+        badgeBg = "#d97706";
+        hookColor = "#fde047";
+      } else if (themeVal === "cyan") {
+        accentColor = "#06b6d4";
+        badgeBg = "#0284c7";
+        hookColor = "#38bdf8";
+      }
+
+      if (badgeBox) badgeBox.style.background = badgeBg;
+      if (underlineElem) underlineElem.style.background = accentColor;
+      if (hookElem) hookElem.style.color = hookColor;
+
+      const bgContainer = document.getElementById('live-thumb-bg-container');
+      if (bgContainer) {
+        bgContainer.innerHTML = '';
+        const imgs = (selectedPosterUrls && selectedPosterUrls.length > 0)
+          ? selectedPosterUrls.slice(0, 4)
+          : (allPostersCache || []).slice(0, 2).map(p => p.url);
+
+        if (imgs.length === 0) {
+          bgContainer.innerHTML = '<div style="width:100%; height:100%; background: #161a29; display:flex; align-items:center; justify-content:center; color:#64748b; font-size:14px;">Select posters above to preview</div>';
+        } else if (imgs.length === 1) {
+          bgContainer.innerHTML = `<img src="${imgs[0]}" style="width:100%; height:100%; object-fit:cover; object-position:top;" alt="Poster">`;
+        } else if (layoutVal === 'hero_focus' && imgs.length >= 3) {
+          bgContainer.innerHTML = `
+            <div style="width:58%; height:100%; border-right:3px solid ${accentColor}; overflow:hidden;">
+              <img src="${imgs[0]}" style="width:100%; height:100%; object-fit:cover; object-position:top;" alt="Hero">
+            </div>
+            <div style="width:42%; height:100%; display:flex; flex-direction:column;">
+              <div style="width:100%; height:50%; border-bottom:3px solid ${accentColor}; overflow:hidden;">
+                <img src="${imgs[1]}" style="width:100%; height:100%; object-fit:cover; object-position:top;" alt="Right 1">
+              </div>
+              <div style="width:100%; height:50%; overflow:hidden;">
+                <img src="${imgs[2] || imgs[0]}" style="width:100%; height:100%; object-fit:cover; object-position:top;" alt="Right 2">
+              </div>
+            </div>
+          `;
+        } else if (layoutVal === 'cinematic_duo' || imgs.length === 2) {
+          bgContainer.innerHTML = `
+            <div style="width:50%; height:100%; border-right:3px solid ${accentColor}; overflow:hidden;">
+              <img src="${imgs[0]}" style="width:100%; height:100%; object-fit:cover; object-position:top;" alt="Poster 1">
+            </div>
+            <div style="width:50%; height:100%; overflow:hidden;">
+              <img src="${imgs[1] || imgs[0]}" style="width:100%; height:100%; object-fit:cover; object-position:top;" alt="Poster 2">
+            </div>
+          `;
+        } else {
+          let imgHtml = imgs.map((u, i) => `
+            <div style="flex:1; height:100%; overflow:hidden; ${i < imgs.length-1 ? 'border-right:3px solid ' + accentColor : ''}">
+              <img src="${u}" style="width:100%; height:100%; object-fit:cover; object-position:top;" alt="Poster">
+            </div>
+          `).join('');
+          bgContainer.innerHTML = imgHtml;
+        }
+      }
+    }
+
+    async function generateThumbnailTextWithGemini() {
+      const btn = document.getElementById('btn-gemini-thumb');
+      const statusBox = document.getElementById('gemini-thumb-status');
+
+      if (btn) btn.disabled = true;
+      if (statusBox) {
+        statusBox.style.display = 'block';
+        statusBox.className = 'status-msg';
+        statusBox.style.background = '#252538';
+        statusBox.style.color = '#c084fc';
+        statusBox.innerHTML = '🤖 <b>Gemini AI is analyzing your selected movie posters & news headlines...</b>';
+      }
+
+      try {
+        let topicSummaries = [];
+        if (selectedPosterUrls && selectedPosterUrls.length > 0) {
+          selectedPosterUrls.forEach(url => {
+            let item = (allPostersCache || []).find(p => p.url === url);
+            if (item) {
+              topicSummaries.push(`- [${item.tab}] Topic #${item.topicNum}: Headline: "${item.headline || ''}", News: "${(item.text || '').substring(0, 160)}"`);
+            }
+          });
+        }
+
+        if (topicSummaries.length === 0) {
+          ['Movie Updates', 'Release Updates', 'OTT Updates'].forEach(tab => {
+            (store[tab] || []).slice(0, 3).forEach(r => {
+              if (r.headline || r.text) {
+                topicSummaries.push(`- [${tab}] Topic #${r.topicNum}: Headline: "${r.headline || ''}", News: "${(r.text || '').substring(0, 160)}"`);
+              }
+            });
+          });
+        }
+
+        const prompt = `You are an elite YouTube thumbnail creative director for Malayalam cinema entertainment.
+Analyze these cinema news topics corresponding to the selected thumbnail poster images:
+${topicSummaries.join('\n')}
+
+Create a high-impact, viral YouTube thumbnail brief. Return ONLY a valid JSON object with exactly these 5 keys:
+{
+  "main_hook": "2-4 WORD PUNCHY POWER PHRASE IN ALL CAPS ENGLISH (e.g. FAHADH MASS BLAST! or TRAILER RECORD DROP!) max 24 chars",
+  "sub_text": "2-3 STAR NAMES or MOVIE TITLES separated by bullet dots • (e.g. FAHADH FAASIL • BIJU MENON) max 42 chars",
+  "badge": "ONE URGENT BADGE TEXT (e.g. OFFICIAL TRAILER, BREAKING, EXCLUSIVE, OTT DROP) max 20 chars",
+  "color_theme": "crimson OR gold OR cyan",
+  "layout_style": "diagonal_clash OR hero_focus OR cinematic_duo"
+}
+RULES:
+1. Output strictly in 100% English. DO NOT output any Malayalam script.
+2. main_hook MUST be 2-4 punchy, emotional, urgent words in ALL CAPS.
+3. sub_text MUST feature the primary actors or movie titles from the selected topics.
+4. color_theme: choose cyan for OTT streaming topics, gold for big theatrical dates, else crimson.
+5. layout_style: choose diagonal_clash for 2 actors/posters, hero_focus for 3 posters, or cinematic_duo.`;
+
+        const res = await queryGemini([
+          { role: "user", content: prompt }
+        ], { jsonMode: true, temperature: 0.3 });
+
+        let rawText = res.choices?.[0]?.message?.content || "";
+        rawText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const data = JSON.parse(rawText);
+
+        if (data.main_hook) {
+          document.getElementById('thumb-main-hook').value = data.main_hook.toUpperCase();
+        }
+        if (data.sub_text) {
+          document.getElementById('thumb-sub-text').value = data.sub_text.toUpperCase();
+        }
+        if (data.badge) {
+          document.getElementById('thumb-badge-input').value = data.badge.toUpperCase();
+        }
+        if (data.color_theme && document.getElementById('thumb-color-theme')) {
+          document.getElementById('thumb-color-theme').value = data.color_theme.toLowerCase();
+        }
+        if (data.layout_style && document.getElementById('thumb-layout-style')) {
+          document.getElementById('thumb-layout-style').value = data.layout_style.toLowerCase();
+        }
+
+        saveThumbnailSettingsLocally();
+        updateLiveThumbnailPreview();
+
+        if (statusBox) {
+          statusBox.className = 'status-msg status-success';
+          statusBox.innerHTML = `🎉 <b>Gemini AI generated thumbnail text!</b> You can now edit the boxes below if you want to tweak anything.`;
+          setTimeout(() => { statusBox.style.display = 'none'; }, 6000);
+        }
+      } catch (err) {
+        console.error("Gemini thumbnail text error:", err);
+        if (statusBox) {
+          statusBox.className = 'status-msg status-error';
+          statusBox.innerHTML = `⚠️ <b>Gemini Error:</b> ${err.message || err}. (You can still type the text in the boxes manually!)`;
+        }
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    function saveThumbnailSettingsLocally() {
+      try {
+        const hook = document.getElementById('thumb-main-hook')?.value || "";
+        const sub = document.getElementById('thumb-sub-text')?.value || "";
+        const badge = document.getElementById('thumb-badge-input')?.value || "";
+        const theme = document.getElementById('thumb-color-theme')?.value || "crimson";
+        const layout = document.getElementById('thumb-layout-style')?.value || "diagonal_clash";
+
+        localStorage.setItem('thumb_main_hook', hook);
+        localStorage.setItem('thumb_sub_text', sub);
+        localStorage.setItem('thumb_badge', badge);
+        localStorage.setItem('thumb_color_theme', theme);
+        localStorage.setItem('thumb_layout_style', layout);
+      } catch(e) {}
+    }
+
+    function restoreThumbnailSettingsLocally() {
+      try {
+        const hook = localStorage.getItem('thumb_main_hook');
+        const sub = localStorage.getItem('thumb_sub_text');
+        const badge = localStorage.getItem('thumb_badge');
+        const theme = localStorage.getItem('thumb_color_theme');
+        const layout = localStorage.getItem('thumb_layout_style');
+
+        if (hook && document.getElementById('thumb-main-hook')) document.getElementById('thumb-main-hook').value = hook;
+        if (sub && document.getElementById('thumb-sub-text')) document.getElementById('thumb-sub-text').value = sub;
+        if (badge && document.getElementById('thumb-badge-input')) document.getElementById('thumb-badge-input').value = badge;
+        if (theme && document.getElementById('thumb-color-theme')) document.getElementById('thumb-color-theme').value = theme;
+        if (layout && document.getElementById('thumb-layout-style')) document.getElementById('thumb-layout-style').value = layout;
+      } catch(e) {}
+    }
+
+    function saveThumbnailSettingsToSheet() {
+      saveThumbnailSettingsLocally();
+      saveAndSync();
     }
 
     function switchTab(tabName) {
@@ -3225,6 +3584,12 @@
       const geminiKeyInput = document.getElementById('gemini-api-key-input');
       const geminiKeyVal = (geminiKeyInput ? geminiKeyInput.value.trim() : "") || localStorage.getItem('gemini_api_key') || DEFAULT_GEMINI_KEY;
 
+      const thumbHook = document.getElementById('thumb-main-hook')?.value || localStorage.getItem('thumb_main_hook') || "";
+      const thumbSub = document.getElementById('thumb-sub-text')?.value || localStorage.getItem('thumb_sub_text') || "";
+      const thumbBadge = document.getElementById('thumb-badge-input')?.value || localStorage.getItem('thumb_badge') || "";
+      const thumbTheme = document.getElementById('thumb-color-theme')?.value || localStorage.getItem('thumb_color_theme') || "";
+      const thumbLayout = document.getElementById('thumb-layout-style')?.value || localStorage.getItem('thumb_layout_style') || "";
+
       let payload = {
         tab_name: activeTab,
         rows: store[activeTab].map(r => ({
@@ -3236,6 +3601,11 @@
           "Image URLs": r.imgUrl
         })),
         thumbnail_urls: selectedPosterUrls.length > 0 ? selectedPosterUrls.join(",") : "",
+        thumbnail_main_hook: thumbHook,
+        thumbnail_sub_text: thumbSub,
+        thumbnail_badge: thumbBadge,
+        thumbnail_color_theme: thumbTheme,
+        thumbnail_layout_style: thumbLayout,
         groq_api_key: groqKeyVal,
         gemini_api_key: geminiKeyVal
       };
@@ -3415,9 +3785,22 @@
       // 1. Sync active table data to Google Sheets
       saveAndSync();
 
-      // Encode sections into privacy_status and drive_thumbnail_url so EVEN UN-REDEPLOYED Apps Script forwards it!
+      // Encode sections and thumbnail customization into privacy_status and drive_thumbnail_url
+      const thumbHook = document.getElementById('thumb-main-hook')?.value || localStorage.getItem('thumb_main_hook') || "";
+      const thumbSub = document.getElementById('thumb-sub-text')?.value || localStorage.getItem('thumb_sub_text') || "";
+      const thumbBadge = document.getElementById('thumb-badge-input')?.value || localStorage.getItem('thumb_badge') || "";
+      const thumbTheme = document.getElementById('thumb-color-theme')?.value || localStorage.getItem('thumb_color_theme') || "";
+      const thumbLayout = document.getElementById('thumb-layout-style')?.value || localStorage.getItem('thumb_layout_style') || "";
+
+      let thumbMetaTags = "";
+      if (thumbHook) thumbMetaTags += `|__THUMB_HOOK__:${thumbHook}`;
+      if (thumbSub) thumbMetaTags += `|__THUMB_SUB__:${thumbSub}`;
+      if (thumbBadge) thumbMetaTags += `|__THUMB_BADGE__:${thumbBadge}`;
+      if (thumbTheme) thumbMetaTags += `|__THUMB_THEME__:${thumbTheme}`;
+      if (thumbLayout) thumbMetaTags += `|__THUMB_LAYOUT__:${thumbLayout}`;
+
       const encodedPrivacy = `${privacy}#sections=${sectionsParam}`;
-      const encodedDriveUrl = (selectedUrls ? selectedUrls + "||" : "") + `__SECTIONS__:${sectionsParam}`;
+      const encodedDriveUrl = (selectedUrls ? selectedUrls + "||" : "") + `__SECTIONS__:${sectionsParam}` + thumbMetaTags;
 
       // 2. Route trigger request through Google Apps Script Server Proxy
       const payload = {

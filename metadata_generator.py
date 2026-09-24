@@ -208,8 +208,28 @@ def download_thumbnail_from_drive(
 
     # 3. Priority A: Explicit image URLs passed in drive_url (from Thumbnail Studio or parameters)
     image_urls = []
+    custom_brief = {}
+    if drive_url and "__THUMB_" in drive_url:
+        m_hook = re.search(r'__THUMB_HOOK__:([^|]+)', drive_url)
+        m_sub = re.search(r'__THUMB_SUB__:([^|]+)', drive_url)
+        m_badge = re.search(r'__THUMB_BADGE__:([^|]+)', drive_url)
+        m_theme = re.search(r'__THUMB_THEME__:([^|]+)', drive_url)
+        m_layout = re.search(r'__THUMB_LAYOUT__:([^|]+)', drive_url)
+        if m_hook:
+            custom_brief = {
+                "main_hook": m_hook.group(1).strip().upper(),
+                "sub_text": m_sub.group(1).strip().upper() if m_sub else "CINEMA EXCLUSIVE",
+                "badge": m_badge.group(1).strip().upper() if m_badge else "OFFICIAL TRAILER",
+                "color_theme": m_theme.group(1).strip().lower() if m_theme else "crimson",
+                "layout_style": m_layout.group(1).strip().lower() if m_layout else "diagonal_clash"
+            }
+            print(f"[THUMBNAIL] Unpacked user-customized brief from workflow payload: {custom_brief}")
+
     if drive_url and "http" in drive_url:
-        candidates = [re.sub(r'\|*__SECTIONS__:[a-zA-Z0-9_,]+', '', u).strip() for u in re.split(r'[\r\n,]+', drive_url)]
+        # Strip all tags before extracting URLs
+        clean_drive_str = re.sub(r'\|*__SECTIONS__:[a-zA-Z0-9_,]+', '', drive_url)
+        clean_drive_str = re.sub(r'\|*__THUMB_[A-Z]+__:[^|]+', '', clean_drive_str)
+        candidates = [u.strip() for u in re.split(r'[\r\n,]+', clean_drive_str)]
         candidates = [u for u in candidates if u.startswith("http")]
         if candidates:
             print(f"[THUMBNAIL] Using {len(candidates)} explicit image URL(s) passed from user selection.")
@@ -282,7 +302,7 @@ def download_thumbnail_from_drive(
         try:
             from thumbnail_generator import create_nextgen_thumbnail
             print(f"[THUMBNAIL] Generating AI-powered Next-Gen YouTube Thumbnail from {len(image_urls)} image(s)...")
-            brief = generate_ai_thumbnail_brief(sheet_data=sheet_data, sections=sections)
+            brief = generate_ai_thumbnail_brief(sheet_data=sheet_data, sections=sections, custom_brief=custom_brief or None)
             print(f"    [AI BRIEF] main_hook='{brief.get('main_hook')}' | badge='{brief.get('badge')}' | theme='{brief.get('color_theme')}'")
             return create_nextgen_thumbnail(image_urls, brief, save_filename)
         except Exception as e:
@@ -292,7 +312,7 @@ def download_thumbnail_from_drive(
     try:
         from thumbnail_generator import create_nextgen_thumbnail
         print("[THUMBNAIL] Generating fallback Next-Gen YouTube Thumbnail (no images)...")
-        brief = generate_ai_thumbnail_brief(sheet_data=sheet_data, sections=sections)
+        brief = generate_ai_thumbnail_brief(sheet_data=sheet_data, sections=sections, custom_brief=custom_brief or None)
         return create_nextgen_thumbnail([], brief, save_filename)
     except Exception as e:
         print(f"[!] Error generating fallback next-gen thumbnail: {e}")
@@ -570,7 +590,8 @@ def sanitize_youtube_tags(raw_tags: List[Any], max_total_chars: int = 400) -> Li
 def generate_ai_thumbnail_brief(
     sheet_data: Optional[Dict[str, Any]] = None,
     sections: Optional[List[str]] = None,
-    gemini_key: Optional[str] = None
+    gemini_key: Optional[str] = None,
+    custom_brief: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
     Uses Gemini API as Creative Art Director to analyze active video topics and generate
@@ -581,11 +602,38 @@ def generate_ai_thumbnail_brief(
       - color_theme:  mood color ("crimson", "gold", or "cyan")
       - layout_style: composition ("diagonal_clash", "hero_focus", or "cinematic_duo")
 
+    Prioritizes user-edited fields from custom_brief or the 'Thumbnail Config' sheet tab!
     Falls back to deterministic extraction if Gemini is unavailable.
     """
     global _AI_THUMBNAIL_BRIEF_CACHE
+    if custom_brief and custom_brief.get("main_hook"):
+        _AI_THUMBNAIL_BRIEF_CACHE = custom_brief
+        return _AI_THUMBNAIL_BRIEF_CACHE
+
     if _AI_THUMBNAIL_BRIEF_CACHE is not None:
         return _AI_THUMBNAIL_BRIEF_CACHE
+
+    # ── Check Google Sheet 'Thumbnail Config' tab for user custom text ──────
+    if sheet_data and isinstance(sheet_data, dict) and "Thumbnail Config" in sheet_data:
+        raw_tc = sheet_data["Thumbnail Config"]
+        tc_rows = raw_tc.to_dict(orient="records") if hasattr(raw_tc, 'to_dict') else (raw_tc if isinstance(raw_tc, list) else [])
+        for r in tc_rows:
+            if isinstance(r, dict):
+                hook = str(r.get("Main Hook") or r.get("main_hook") or "").strip()
+                sub = str(r.get("Sub Text") or r.get("sub_text") or "").strip()
+                badge = str(r.get("Badge Label") or r.get("badge") or "").strip()
+                theme = str(r.get("Color Theme") or r.get("color_theme") or "").strip()
+                layout = str(r.get("Layout Style") or r.get("layout_style") or "").strip()
+                if hook:
+                    print(f"[THUMBNAIL] Using user-customized brief from Google Sheet: hook='{hook}', sub='{sub}'")
+                    _AI_THUMBNAIL_BRIEF_CACHE = {
+                        "main_hook": hook.upper(),
+                        "sub_text": sub.upper() or "CINEMA EXCLUSIVE",
+                        "badge": badge.upper() or "OFFICIAL TRAILER",
+                        "color_theme": theme.lower() or "crimson",
+                        "layout_style": layout.lower() or "diagonal_clash"
+                    }
+                    return _AI_THUMBNAIL_BRIEF_CACHE
 
     # ── Extract active topics ──────────────────────────────────────────────
     topics_list = extract_active_topics_flat(sheet_data, sections=sections)
