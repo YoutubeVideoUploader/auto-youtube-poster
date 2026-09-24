@@ -1614,7 +1614,7 @@
         <div style="margin-bottom: 12px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
             <label style="font-size: 13px; font-weight: 700; color: #cbd5e1;">Click Posters to Select / Deselect (Multiple Allowed):</label>
-            <span id="wizard-search-status" style="font-size: 12px; color: #38bdf8;">Searching...</span>
+            <span id="wizard-search-status" style="font-size: 12px; color: #38bdf8;">Click 🔍 Search to fetch posters</span>
           </div>
           <div id="wizard-poster-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; max-height: 250px; overflow-y: auto; background: rgba(8, 12, 22, 0.9); padding: 12px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);">
             <!-- Rendered poster thumbnails -->
@@ -4732,15 +4732,14 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         if (searchBox) searchBox.value = searchQuery;
         posterWizardState.currentTopicName = englishMovieName || rawMovieName;
 
-        if (statusBox) statusBox.innerText = '⚡ Auto-searching movie posters...';
-        triggerWizardPosterSearch();
+        if (statusBox) statusBox.innerText = 'Ready. Click 🔍 Search above to find posters.';
       } catch (err) {
         console.warn("Smart search query error:", err);
         const searchBox = document.getElementById('wizard-search-input');
         if (searchBox && !searchBox.value) {
           searchBox.value = rawMovieName ? `${rawMovieName} Malayalam movie poster` : "Malayalam movie poster";
         }
-        triggerWizardPosterSearch();
+        if (statusBox) statusBox.innerText = 'Ready. Click 🔍 Search above to find posters.';
       }
     }
 
