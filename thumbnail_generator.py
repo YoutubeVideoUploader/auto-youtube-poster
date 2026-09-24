@@ -9,6 +9,10 @@ Creates broadcast-quality 1280x720 YouTube thumbnail with:
 import os
 import io
 import re
+import shutil
+import subprocess
+import base64
+import tempfile
 import requests
 from pathlib import Path
 from typing import List, Optional, Dict, Any
@@ -18,6 +22,29 @@ BASE_DIR = Path(__file__).resolve().parent
 OUTPUT_DIR = BASE_DIR / "outputs"
 THUMBNAIL_DIR = OUTPUT_DIR / "youtube_thumbnails"
 THUMBNAIL_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def find_headless_browser() -> Optional[str]:
+    """Finds a headless browser (Edge or Chrome/Chromium) for rendering high-fidelity Indic typography."""
+    for name in ["google-chrome", "google-chrome-stable", "chromium-browser", "chromium", "msedge", "chrome"]:
+        p = shutil.which(name)
+        if p:
+            return p
+    candidates = [
+        r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+        r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+        r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+        r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+        "/usr/bin/google-chrome",
+        "/usr/bin/google-chrome-stable",
+        "/usr/bin/chromium-browser",
+        "/usr/bin/chromium",
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    return None
+
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -238,6 +265,325 @@ def draw_3d_text(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# QUAD MALAYALAM BROADCAST THUMBNAIL (User-Approved 4-Topic Layout)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def create_quad_malayalam_thumbnail(
+    image_urls: List[str],
+    brief: Dict[str, Any],
+    output_filename: str = "custom_thumbnail.jpg"
+) -> Optional[str]:
+    """
+    Renders 4-panel split YouTube thumbnail with native Malayalam topic headlines,
+    matching the exact broadcast graphics approved by user.
+    """
+    save_path = THUMBNAIL_DIR / output_filename
+
+    # Resolve theme colors
+    theme = str(brief.get("color_theme", "crimson")).lower()
+    if "gold" in theme:
+        divider_glow = "#eab308"
+        emblem_border = "#eab308"
+        main_badge_bg = "#d97706"
+        top_bar_border = "#eab308"
+    elif "cyan" in theme:
+        divider_glow = "#06b6d4"
+        emblem_border = "#38bdf8"
+        main_badge_bg = "#0284c7"
+        top_bar_border = "#06b6d4"
+    else:  # crimson
+        divider_glow = "#ff2a4b"
+        emblem_border = "#ffcc00"
+        main_badge_bg = "#e11d48"
+        top_bar_border = "#ff2a4b"
+
+    center_badge = str(brief.get("center_badge", "TOP 4")).strip()
+    if " " in center_badge:
+        parts = center_badge.split(" ", 1)
+        c_line1, c_line2 = parts[0], parts[1]
+    else:
+        c_line1, c_line2 = "TOP", center_badge
+
+    main_badge = str(brief.get("badge", "BREAKING NEWS")).strip()
+
+    slot_badges = [
+        brief.get("slot1_badge") or "BREAKING NEWS",
+        brief.get("slot2_badge") or "SHOCKING SPLIT",
+        brief.get("slot3_badge") or "EXCLUSIVE",
+        brief.get("slot4_badge") or "MASS UPDATE"
+    ]
+    slot_texts = [
+        brief.get("slot1_text") or brief.get("main_hook") or "പ്രധാന വാർത്തകൾ",
+        brief.get("slot2_text") or "പ്രത്യേക റിപ്പോർട്ട്",
+        brief.get("slot3_text") or "തിയേറ്റർ വിശേഷങ്ങൾ",
+        brief.get("slot4_text") or "സിനിമാ വാർത്തകൾ"
+    ]
+    badge_colors = [
+        ("#ef4444", "#fca5a5"),  # Red
+        ("#eab308", "#fef08a"),  # Yellow
+        ("#06b6d4", "#a5f3fc"),  # Cyan
+        ("#a855f7", "#e9d5ff"),  # Purple
+    ]
+
+    data_uris = []
+    loaded_imgs = []
+    for u in image_urls[:4]:
+        img = download_image(u)
+        if img:
+            loaded_imgs.append(img)
+            buf = io.BytesIO()
+            img.save(buf, format="JPEG", quality=90)
+            b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+            data_uris.append(f"data:image/jpeg;base64,{b64}")
+
+    while len(data_uris) < 4:
+        ph = Image.new("RGB", (640, 360), (15, 20, 32))
+        buf = io.BytesIO()
+        ph.save(buf, format="JPEG")
+        b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+        data_uris.append(f"data:image/jpeg;base64,{b64}")
+
+    html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    body {{
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+      background: #0a0e18;
+      font-family: 'Nirmala UI', 'Segoe UI', Tahoma, sans-serif;
+    }}
+    .grid {{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      width: 1280px;
+      height: 720px;
+      position: relative;
+    }}
+    .cell {{
+      position: relative;
+      overflow: hidden;
+    }}
+    .cell img {{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+      filter: contrast(1.15) saturate(1.2);
+    }}
+    .gradient {{
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(6,8,14,0.4) 0%, transparent 35%, rgba(6,8,14,0.92) 100%);
+    }}
+    .badge {{
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 800;
+      background: rgba(15, 20, 32, 0.85);
+      border: 2px solid;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+      letter-spacing: 0.5px;
+    }}
+    .headline {{
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      text-align: center;
+      font-size: 32px;
+      font-weight: 900;
+      line-height: 1.25;
+      text-shadow: 
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+        -3px 0 0 #000, 3px 0 0 #000, 0 -3px 0 #000, 0 3px 0 #000,
+        4px 4px 12px rgba(0,0,0,0.95);
+    }}
+    .divider-v {{
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 640px;
+      width: 3px;
+      background: #fff;
+      box-shadow: 0 0 12px {divider_glow}, 0 0 24px {divider_glow};
+      z-index: 10;
+    }}
+    .divider-h {{
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 360px;
+      height: 3px;
+      background: #fff;
+      box-shadow: 0 0 12px {divider_glow}, 0 0 24px {divider_glow};
+      z-index: 10;
+    }}
+    .center-emblem {{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: #0f1420;
+      border: 4px solid {emblem_border};
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      box-shadow: 0 0 20px rgba(0,0,0,0.8);
+    }}
+    .top-bar-left {{
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      background: {main_badge_bg};
+      border: 2px solid #fff;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 6px 16px;
+      border-radius: 6px;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    }}
+    .top-bar-right {{
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      background: rgba(12, 16, 26, 0.9);
+      border: 1px solid {top_bar_border};
+      color: #cbd5e1;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 6px;
+      z-index: 30;
+      letter-spacing: 0.5px;
+    }}
+  </style>
+</head>
+<body>
+  <div class="grid">
+    <div class="divider-v"></div>
+    <div class="divider-h"></div>
+    
+    <div class="top-bar-left">
+      <span style="width:8px; height:8px; border-radius:50%; background:#fff;"></span>
+      <span>{main_badge}</span>
+    </div>
+    <div class="top-bar-right">CINEMA DESK • 4K ULTRA HD</div>
+
+    <!-- Cell 1 -->
+    <div class="cell">
+      <img src="{data_uris[0]}">
+      <div class="gradient"></div>
+      <div class="badge" style="border-color: {badge_colors[0][0]}; color: {badge_colors[0][1]};">{slot_badges[0]}</div>
+      <div class="headline" style="color: #fde047;">{slot_texts[0]}</div>
+    </div>
+
+    <!-- Cell 2 -->
+    <div class="cell">
+      <img src="{data_uris[1]}">
+      <div class="gradient"></div>
+      <div class="badge" style="border-color: {badge_colors[1][0]}; color: {badge_colors[1][1]};">{slot_badges[1]}</div>
+      <div class="headline" style="color: #ffffff;">{slot_texts[1]}</div>
+    </div>
+
+    <!-- Cell 3 -->
+    <div class="cell">
+      <img src="{data_uris[2]}">
+      <div class="gradient"></div>
+      <div class="badge" style="border-color: {badge_colors[2][0]}; color: {badge_colors[2][1]};">{slot_badges[2]}</div>
+      <div class="headline" style="color: #ffffff;">{slot_texts[2]}</div>
+    </div>
+
+    <!-- Cell 4 -->
+    <div class="cell">
+      <img src="{data_uris[3]}">
+      <div class="gradient"></div>
+      <div class="badge" style="border-color: {badge_colors[3][0]}; color: {badge_colors[3][1]};">{slot_badges[3]}</div>
+      <div class="headline" style="color: #fde047;">{slot_texts[3]}</div>
+    </div>
+
+    <div class="center-emblem">
+      <div style="font-size: 13px; font-weight: 800; color: {emblem_border}; letter-spacing: 0.5px;">{c_line1}</div>
+      <div style="font-size: 26px; font-weight: 900; color: #fff; line-height: 1;">{c_line2}</div>
+    </div>
+  </div>
+</body>
+</html>
+"""
+
+    browser = find_headless_browser()
+    if browser:
+        try:
+            with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False, encoding="utf-8") as tf:
+                tf.write(html_content)
+                temp_html_path = tf.name
+
+            file_url = Path(temp_html_path).as_uri()
+            cmd = [
+                browser,
+                "--headless=new",
+                "--no-sandbox",
+                "--disable-gpu",
+                "--force-device-scale-factor=1",
+                "--window-size=1280,720",
+                f"--screenshot={save_path}",
+                file_url
+            ]
+            subprocess.run(cmd, check=True, timeout=25, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            try:
+                os.remove(temp_html_path)
+            except Exception:
+                pass
+
+            if save_path.exists() and save_path.stat().st_size > 1000:
+                print(f"[OK] Quad Malayalam YouTube Thumbnail rendered via browser: {save_path}")
+                return str(save_path)
+        except Exception as e:
+            print(f"[!] Warning during headless browser quad render: {e}")
+
+    # Fallback to Pillow
+    print("[*] Browser quad rendering not available, falling back to PIL quad collage...")
+    W, H = 1280, 720
+    half_w, half_h = W // 2, H // 2
+    canvas = Image.new("RGBA", (W, H), (8, 10, 18, 255))
+    if loaded_imgs:
+        imgs = loaded_imgs[:4]
+        while len(imgs) < 4:
+            imgs.append(imgs[0])
+        canvas.paste(crop_smart(imgs[0], half_w, half_h, focus_top=True), (0, 0))
+        canvas.paste(crop_smart(imgs[1], half_w, half_h, focus_top=True), (half_w, 0))
+        canvas.paste(crop_smart(imgs[2], half_w, half_h, focus_top=True), (0, half_h))
+        canvas.paste(crop_smart(imgs[3], half_w, half_h, focus_top=True), (half_w, half_h))
+
+    draw = ImageDraw.Draw(canvas)
+    draw.line([(half_w, 0), (half_w, H)], fill=(255, 42, 75, 230), width=4)
+    draw.line([(0, half_h), (W, half_h)], fill=(255, 42, 75, 230), width=4)
+
+    final_img = canvas.convert("RGB")
+    final_img.save(save_path, "JPEG", quality=95)
+    print(f"[OK] Fallback Quad Thumbnail saved: {save_path}")
+    return str(save_path)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # NEXT-GEN BROADCAST THUMBNAIL ENGINE
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -248,12 +594,21 @@ def create_nextgen_thumbnail(
 ) -> Optional[str]:
     """
     Creates a broadcast-quality 1280x720 YouTube thumbnail using:
-    - Gemini AI brief (main_hook, sub_text, badge, color_theme, layout_style)
-    - 3D Impact typography with neon glow diagonal dividers and cinematic vignette
+    - User-customized 4-panel quad layout if slot texts are provided or layout is quad/4 images
+    - Or Gemini AI brief (main_hook, sub_text, badge, color_theme, layout_style)
     Returns absolute path to the generated JPEG thumbnail.
     """
+    # ── Check if quad layout should be used ─────────────────────────────────
+    layout_style = str(brief.get("layout_style", "")).lower()
+    has_slots = any(brief.get(f"slot{i}_text") for i in range(1, 5))
+    if has_slots or layout_style == "quad" or len(image_urls) >= 4:
+        quad_path = create_quad_malayalam_thumbnail(image_urls, brief, output_filename)
+        if quad_path and os.path.exists(quad_path):
+            return quad_path
+
     W, H = 1280, 720
     canvas = Image.new("RGBA", (W, H), (8, 10, 18, 255))
+
 
     # ── Resolve theme colors from Gemini brief ──────────────────────────────
     theme_name = str(brief.get("color_theme", "crimson")).lower()

@@ -211,28 +211,30 @@ function doPost(e) {
 
     // 1. Handle GitHub Action Trigger Request from Web App / Website
     if (data.action === "trigger_github") {
-      if (data.drive_thumbnail_url || data.thumbnail_main_hook) {
+      if (data.drive_thumbnail_url || data.thumbnail_main_hook || data.thumbnail_slots) {
         saveThumbnailConfigSheet(
-          data.drive_thumbnail_url,
+          data.drive_thumbnail_url || data.thumbnail_urls,
           data.thumbnail_main_hook,
           data.thumbnail_sub_text,
           data.thumbnail_badge,
           data.thumbnail_color_theme,
-          data.thumbnail_layout_style
+          data.thumbnail_layout_style,
+          data.thumbnail_slots
         );
       }
       return triggerGitHubActionHandler(data.privacy_status, data.drive_thumbnail_url, data.token, data.sections);
     }
 
     // 2. Handle Google Sheet Table Sync Request
-    if (data.thumbnail_urls || data.thumbnail_main_hook) {
+    if (data.thumbnail_urls || data.thumbnail_main_hook || data.thumbnail_slots) {
       saveThumbnailConfigSheet(
         data.thumbnail_urls,
         data.thumbnail_main_hook,
         data.thumbnail_sub_text,
         data.thumbnail_badge,
         data.thumbnail_color_theme,
-        data.thumbnail_layout_style
+        data.thumbnail_layout_style,
+        data.thumbnail_slots
       );
     }
 
@@ -296,7 +298,7 @@ function doPost(e) {
   }
 }
 
-function saveThumbnailConfigSheet(urlsString, mainHook, subText, badge, colorTheme, layoutStyle) {
+function saveThumbnailConfigSheet(urlsString, mainHook, subText, badge, colorTheme, layoutStyle, slotsData) {
   try {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName("Thumbnail Config");
@@ -306,25 +308,52 @@ function saveThumbnailConfigSheet(urlsString, mainHook, subText, badge, colorThe
     sheet.clearContents();
     sheet.appendRow([
       "Selected Image URLs",
-      "Main Hook",
-      "Sub Text",
-      "Badge Label",
+      "Slot 1 Text",
+      "Slot 1 Badge",
+      "Slot 2 Text",
+      "Slot 2 Badge",
+      "Slot 3 Text",
+      "Slot 3 Badge",
+      "Slot 4 Text",
+      "Slot 4 Badge",
+      "Center Badge",
       "Color Theme",
-      "Layout Style"
+      "Badge Label",
+      "Main Hook",
+      "Sub Text"
     ]);
 
     var rawStr = String(urlsString || "");
 
-    // Extract metadata from string if passed as embedded tags
-    var mHook = mainHook || (rawStr.match(/__THUMB_HOOK__:([^|]+)/) ? rawStr.match(/__THUMB_HOOK__:([^|]+)/)[1] : "");
-    var mSub = subText || (rawStr.match(/__THUMB_SUB__:([^|]+)/) ? rawStr.match(/__THUMB_SUB__:([^|]+)/)[1] : "");
-    var mBadge = badge || (rawStr.match(/__THUMB_BADGE__:([^|]+)/) ? rawStr.match(/__THUMB_BADGE__:([^|]+)/)[1] : "");
-    var mTheme = colorTheme || (rawStr.match(/__THUMB_THEME__:([^|]+)/) ? rawStr.match(/__THUMB_THEME__:([^|]+)/)[1] : "");
-    var mLayout = layoutStyle || (rawStr.match(/__THUMB_LAYOUT__:([^|]+)/) ? rawStr.match(/__THUMB_LAYOUT__:([^|]+)/)[1] : "");
+    function dec(tag) {
+      var re = new RegExp(tag + ":([^|]+)");
+      var m = rawStr.match(re);
+      if (!m) return "";
+      try {
+        return decodeURIComponent(m[1].trim());
+      } catch (e) {
+        return m[1].trim();
+      }
+    }
+
+    var s1_t = (slotsData && slotsData.slot1_text) ? slotsData.slot1_text : dec("__THUMB_S1_TEXT__");
+    var s1_b = (slotsData && slotsData.slot1_badge) ? slotsData.slot1_badge : dec("__THUMB_S1_BADGE__");
+    var s2_t = (slotsData && slotsData.slot2_text) ? slotsData.slot2_text : dec("__THUMB_S2_TEXT__");
+    var s2_b = (slotsData && slotsData.slot2_badge) ? slotsData.slot2_badge : dec("__THUMB_S2_BADGE__");
+    var s3_t = (slotsData && slotsData.slot3_text) ? slotsData.slot3_text : dec("__THUMB_S3_TEXT__");
+    var s3_b = (slotsData && slotsData.slot3_badge) ? slotsData.slot3_badge : dec("__THUMB_S3_BADGE__");
+    var s4_t = (slotsData && slotsData.slot4_text) ? slotsData.slot4_text : dec("__THUMB_S4_TEXT__");
+    var s4_b = (slotsData && slotsData.slot4_badge) ? slotsData.slot4_badge : dec("__THUMB_S4_BADGE__");
+    var center = (slotsData && slotsData.center_badge) ? slotsData.center_badge : dec("__THUMB_CENTER__");
+
+    var mHook = mainHook || s1_t || dec("__THUMB_HOOK__");
+    var mSub = subText || dec("__THUMB_SUB__");
+    var mBadge = badge || (slotsData && slotsData.main_badge) || dec("__THUMB_BADGE__");
+    var mTheme = colorTheme || (slotsData && slotsData.color_theme) || dec("__THUMB_THEME__");
 
     var cleanUrls = rawStr
       .replace(/\|*__SECTIONS__:[a-zA-Z0-9_,]+/g, '')
-      .replace(/\|*__THUMB_[A-Z]+__:[^|]+/g, '')
+      .replace(/\|*__THUMB_[A-Z0-9_]+__:[^|]+/g, '')
       .trim();
 
     var urls = [];
@@ -341,11 +370,19 @@ function saveThumbnailConfigSheet(urlsString, mainHook, subText, badge, colorThe
     var firstUrl = urls.length > 0 ? urls[0] : "";
     sheet.appendRow([
       firstUrl,
+      s1_t || mHook || "",
+      s1_b || "BREAKING NEWS",
+      s2_t || "",
+      s2_b || "SHOCKING SPLIT",
+      s3_t || "",
+      s3_b || "EXCLUSIVE",
+      s4_t || "",
+      s4_b || "MASS UPDATE",
+      center || "TOP 4",
+      mTheme || "crimson",
+      mBadge || "BREAKING NEWS",
       mHook || "",
-      mSub || "",
-      mBadge || "",
-      mTheme || "",
-      mLayout || ""
+      mSub || ""
     ]);
 
     for (var j = 1; j < urls.length; j++) {
@@ -355,6 +392,7 @@ function saveThumbnailConfigSheet(urlsString, mainHook, subText, badge, colorThe
     Logger.log("Error saving thumbnail config sheet: " + err);
   }
 }
+
 
 function saveConfigSheet(keyName, keyValue) {
   try {

@@ -210,20 +210,53 @@ def download_thumbnail_from_drive(
     image_urls = []
     custom_brief = {}
     if drive_url and "__THUMB_" in drive_url:
-        m_hook = re.search(r'__THUMB_HOOK__:([^|]+)', drive_url)
-        m_sub = re.search(r'__THUMB_SUB__:([^|]+)', drive_url)
-        m_badge = re.search(r'__THUMB_BADGE__:([^|]+)', drive_url)
-        m_theme = re.search(r'__THUMB_THEME__:([^|]+)', drive_url)
-        m_layout = re.search(r'__THUMB_LAYOUT__:([^|]+)', drive_url)
-        if m_hook:
+        import urllib.parse
+
+        def _dec(pattern):
+            m = re.search(pattern, drive_url)
+            if not m:
+                return ""
+            val = m.group(1).strip()
+            try:
+                return urllib.parse.unquote(val)
+            except Exception:
+                return val
+
+        m_hook = _dec(r'__THUMB_HOOK__:([^|]+)')
+        m_sub = _dec(r'__THUMB_SUB__:([^|]+)')
+        m_badge = _dec(r'__THUMB_BADGE__:([^|]+)')
+        m_theme = _dec(r'__THUMB_THEME__:([^|]+)')
+        m_layout = _dec(r'__THUMB_LAYOUT__:([^|]+)')
+        m_center = _dec(r'__THUMB_CENTER__:([^|]+)')
+
+        m_s1_t = _dec(r'__THUMB_S1_TEXT__:([^|]+)')
+        m_s1_b = _dec(r'__THUMB_S1_BADGE__:([^|]+)')
+        m_s2_t = _dec(r'__THUMB_S2_TEXT__:([^|]+)')
+        m_s2_b = _dec(r'__THUMB_S2_BADGE__:([^|]+)')
+        m_s3_t = _dec(r'__THUMB_S3_TEXT__:([^|]+)')
+        m_s3_b = _dec(r'__THUMB_S3_BADGE__:([^|]+)')
+        m_s4_t = _dec(r'__THUMB_S4_TEXT__:([^|]+)')
+        m_s4_b = _dec(r'__THUMB_S4_BADGE__:([^|]+)')
+
+        if m_s1_t or m_hook:
             custom_brief = {
-                "main_hook": m_hook.group(1).strip().upper(),
-                "sub_text": m_sub.group(1).strip().upper() if m_sub else "CINEMA EXCLUSIVE",
-                "badge": m_badge.group(1).strip().upper() if m_badge else "OFFICIAL TRAILER",
-                "color_theme": m_theme.group(1).strip().lower() if m_theme else "crimson",
-                "layout_style": m_layout.group(1).strip().lower() if m_layout else "diagonal_clash"
+                "main_hook": (m_s1_t or m_hook).strip(),
+                "sub_text": m_sub.strip() if m_sub else "CINEMA EXCLUSIVE",
+                "badge": m_badge.strip() if m_badge else "BREAKING NEWS",
+                "center_badge": m_center.strip() if m_center else "TOP 4",
+                "color_theme": m_theme.strip().lower() if m_theme else "crimson",
+                "layout_style": m_layout.strip().lower() if m_layout else "quad",
+                "slot1_text": m_s1_t or m_hook,
+                "slot1_badge": m_s1_b or "BREAKING NEWS",
+                "slot2_text": m_s2_t,
+                "slot2_badge": m_s2_b or "SHOCKING SPLIT",
+                "slot3_text": m_s3_t,
+                "slot3_badge": m_s3_b or "EXCLUSIVE",
+                "slot4_text": m_s4_t,
+                "slot4_badge": m_s4_b or "MASS UPDATE",
             }
-            print(f"[THUMBNAIL] Unpacked user-customized brief from workflow payload: {custom_brief}")
+            print(f"[THUMBNAIL] Unpacked user-customized quad brief from workflow payload: {custom_brief}")
+
 
     if drive_url and "http" in drive_url:
         # Strip all tags before extracting URLs
@@ -624,16 +657,37 @@ def generate_ai_thumbnail_brief(
                 badge = str(r.get("Badge Label") or r.get("badge") or "").strip()
                 theme = str(r.get("Color Theme") or r.get("color_theme") or "").strip()
                 layout = str(r.get("Layout Style") or r.get("layout_style") or "").strip()
-                if hook:
-                    print(f"[THUMBNAIL] Using user-customized brief from Google Sheet: hook='{hook}', sub='{sub}'")
+
+                s1_t = str(r.get("Slot 1 Text") or r.get("slot1_text") or "").strip()
+                s1_b = str(r.get("Slot 1 Badge") or r.get("slot1_badge") or "").strip()
+                s2_t = str(r.get("Slot 2 Text") or r.get("slot2_text") or "").strip()
+                s2_b = str(r.get("Slot 2 Badge") or r.get("slot2_badge") or "").strip()
+                s3_t = str(r.get("Slot 3 Text") or r.get("slot3_text") or "").strip()
+                s3_b = str(r.get("Slot 3 Badge") or r.get("slot3_badge") or "").strip()
+                s4_t = str(r.get("Slot 4 Text") or r.get("slot4_text") or "").strip()
+                s4_b = str(r.get("Slot 4 Badge") or r.get("slot4_badge") or "").strip()
+                center = str(r.get("Center Badge") or r.get("center_badge") or "").strip()
+
+                if s1_t or hook:
+                    print(f"[THUMBNAIL] Using user-customized brief from Google Sheet: s1='{s1_t}', hook='{hook}'")
                     _AI_THUMBNAIL_BRIEF_CACHE = {
-                        "main_hook": hook.upper(),
-                        "sub_text": sub.upper() or "CINEMA EXCLUSIVE",
-                        "badge": badge.upper() or "OFFICIAL TRAILER",
+                        "main_hook": (s1_t or hook).strip(),
+                        "sub_text": sub.strip() if sub else "CINEMA EXCLUSIVE",
+                        "badge": badge.strip() if badge else "BREAKING NEWS",
+                        "center_badge": center.strip() if center else "TOP 4",
                         "color_theme": theme.lower() or "crimson",
-                        "layout_style": layout.lower() or "diagonal_clash"
+                        "layout_style": layout.lower() or "quad",
+                        "slot1_text": s1_t or hook,
+                        "slot1_badge": s1_b or "BREAKING NEWS",
+                        "slot2_text": s2_t,
+                        "slot2_badge": s2_b or "SHOCKING SPLIT",
+                        "slot3_text": s3_t,
+                        "slot3_badge": s3_b or "EXCLUSIVE",
+                        "slot4_text": s4_t,
+                        "slot4_badge": s4_b or "MASS UPDATE"
                     }
                     return _AI_THUMBNAIL_BRIEF_CACHE
+
 
     # ── Extract active topics ──────────────────────────────────────────────
     topics_list = extract_active_topics_flat(sheet_data, sections=sections)
