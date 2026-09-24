@@ -31,10 +31,10 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: 🎬 Install FFmpeg
+      - name: 🎬 Install FFmpeg and Malayalam Fonts
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          sudo apt-get install -y ffmpeg fonts-indic fonts-lohit-mlym fonts-manjari fonts-noto-core fonts-noto-extra
 
       - name: 📦 Install Python Dependencies
         run: |

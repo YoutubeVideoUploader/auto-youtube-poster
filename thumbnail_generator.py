@@ -139,12 +139,17 @@ def download_image(url_or_path: str, timeout: int = 15) -> Optional[Image.Image]
     # 2. HTTP URL download support
     if url_or_path.startswith("http"):
         url = upgrade_image_url_quality(url_or_path)
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        }
+
+        # Build candidate URLs
+        urls_to_try = [url]
+
+        # For Wikimedia/Wikipedia URLs, strip any tracking query parameters like ?utm_source...
+        if "wikimedia.org" in url or "wikipedia.org" in url:
+            clean_wiki = url.split("?")[0]
+            if clean_wiki != url:
+                urls_to_try.insert(0, clean_wiki)
 
         # Handle Google Drive shareable links
-        urls_to_try = [url]
         if "drive.google.com" in url or "/file/d/" in url:
             match1 = re.search(r'/file/d/([a-zA-Z0-9_-]+)', url)
             match2 = re.search(r'id=([a-zA-Z0-9_-]+)', url)
@@ -156,14 +161,27 @@ def download_image(url_or_path: str, timeout: int = 15) -> Optional[Image.Image]
                     f"https://drive.google.com/uc?export=download&id={file_id}"
                 ]
 
+        header_sets = [
+            {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                'Accept': 'image/webp,image/jpeg,image/png,image/*,*/*;q=0.8',
+            },
+            {
+                # Wikimedia compliant User-Agent policy
+                'User-Agent': 'MalayalamMovieNewsBot/1.0 (https://github.com/YoutubeVideoUploader; contact@cinema.desk) Mozilla/5.0',
+                'Accept': 'image/webp,image/jpeg,image/png,image/*,*/*;q=0.8'
+            }
+        ]
+
         for u in urls_to_try:
-            try:
-                resp = requests.get(u, headers=headers, timeout=timeout, verify=False)
-                if resp.status_code == 200 and len(resp.content) > 500 and not resp.content.startswith(b'<!DOCTYPE') and not resp.content.startswith(b'<html'):
-                    img = Image.open(io.BytesIO(resp.content)).convert("RGB")
-                    return img
-            except Exception:
-                pass
+            for headers in header_sets:
+                try:
+                    resp = requests.get(u, headers=headers, timeout=timeout, verify=False)
+                    if resp.status_code == 200 and len(resp.content) > 500 and not resp.content.startswith(b'<!DOCTYPE') and not resp.content.startswith(b'<html'):
+                        img = Image.open(io.BytesIO(resp.content)).convert("RGB")
+                        return img
+                except Exception:
+                    pass
         print(f"[!] Warning: Could not download image {url_or_path[:60]}...")
     return None
 
@@ -345,28 +363,55 @@ def create_quad_malayalam_thumbnail(
         ("#a855f7", "#e9d5ff"),  # Purple
     ]
 
-    data_uris = []
+    data_uris = [None, None, None, None]
     loaded_imgs = []
-    for u in image_urls[:4]:
+
+    # 1. Download each designated image for its exact slot without shifting
+    for idx in range(min(4, len(image_urls))):
+        u = image_urls[idx]
         img = download_image(u)
         if img:
             loaded_imgs.append(img)
             buf = io.BytesIO()
             img.save(buf, format="JPEG", quality=90)
             b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
-            data_uris.append(f"data:image/jpeg;base64,{b64}")
+            data_uris[idx] = f"data:image/jpeg;base64,{b64}"
 
-    while len(data_uris) < 4:
-        ph = Image.new("RGB", (640, 360), (15, 20, 32))
-        buf = io.BytesIO()
-        ph.save(buf, format="JPEG")
-        b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
-        data_uris.append(f"data:image/jpeg;base64,{b64}")
+    # 2. Gather fallback pool from successfully loaded images or local topic image cache
+    fallback_pool = list(loaded_imgs)
+    if len(fallback_pool) < 4:
+        for p in Path("outputs").glob("**/*.jpg"):
+            if "youtube_thumbnails" not in str(p):
+                try:
+                    fallback_pool.append(Image.open(p).convert("RGB"))
+                    if len(fallback_pool) >= 6:
+                        break
+                except Exception:
+                    pass
+
+    # 3. Fill any missing slot with fallback image so slots never shift and never stay pitch black
+    for idx in range(4):
+        if data_uris[idx] is None:
+            fb_img = fallback_pool[idx % len(fallback_pool)] if fallback_pool else None
+            if fb_img:
+                buf = io.BytesIO()
+                fb_img.save(buf, format="JPEG", quality=90)
+                b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+                data_uris[idx] = f"data:image/jpeg;base64,{b64}"
+            else:
+                ph = Image.new("RGB", (640, 360), (15, 20, 32))
+                buf = io.BytesIO()
+                ph.save(buf, format="JPEG")
+                b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+                data_uris[idx] = f"data:image/jpeg;base64,{b64}"
 
     html_content = f"""<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manjari:wght@700;900&family=Noto+Sans+Malayalam:wght@700;900&display=swap" rel="stylesheet">
   <style>
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{
@@ -374,7 +419,7 @@ def create_quad_malayalam_thumbnail(
       height: 720px;
       overflow: hidden;
       background: #0a0e18;
-      font-family: 'Nirmala UI', 'Segoe UI', Tahoma, sans-serif;
+      font-family: 'Noto Sans Malayalam', 'Manjari', 'Nirmala UI', 'Segoe UI', Tahoma, sans-serif;
     }}
     .grid {{
       display: grid;
@@ -420,6 +465,7 @@ def create_quad_malayalam_thumbnail(
       left: 20px;
       right: 20px;
       text-align: center;
+      font-family: 'Noto Sans Malayalam', 'Manjari', 'Nirmala UI', sans-serif;
       font-size: 32px;
       font-weight: 900;
       line-height: 1.25;
@@ -565,6 +611,8 @@ def create_quad_malayalam_thumbnail(
                 "--disable-gpu",
                 "--force-device-scale-factor=1",
                 "--window-size=1280,720",
+                "--run-all-compositor-stages-before-draw",
+                "--virtual-time-budget=4000",
                 f"--screenshot={save_path}",
                 file_url
             ]
