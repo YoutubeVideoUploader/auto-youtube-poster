@@ -21,15 +21,15 @@ DEFAULT_TAG_PRESETS = {
         "description": "Bold, emphatic news headline delivery"
     },
     "important": {
-        "speed": 0.90,          # Slower speed for key facts & dates
+        "speed": 1.05,          # Consistent 1.05x speed prevents pitch/tone wobble
         "pitch_shift": 0.0,
         "pause_after_ms": 250,
         "description": "Deliberate, measured emphasis on critical information"
     },
     "detail": {
-        "speed": 1.00,
+        "speed": 1.05,          # Consistent 1.05x speed prevents pitch/tone wobble
         "pitch_shift": 0.0,
-        "pause_after_ms": 150,
+        "pause_after_ms": 200,
         "description": "Standard informative presenter cadence"
     },
     "transition": {
@@ -45,13 +45,13 @@ DEFAULT_TAG_PRESETS = {
         "description": "Engaging section transition intro"
     },
     "question": {
-        "speed": 0.98,
+        "speed": 1.05,
         "pitch_shift": 0.0,
         "pause_after_ms": 200,
         "description": "Interrogative cadence"
     },
     "outro": {
-        "speed": 1.00,
+        "speed": 1.05,
         "pitch_shift": 0.0,
         "pause_after_ms": 400,
         "description": "Warm, descending closing cadence"

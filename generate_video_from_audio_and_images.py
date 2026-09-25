@@ -1410,7 +1410,7 @@ def generate_video(
             filter_complex = (
                 f"[2:a]atrim=0:{trimmed_bgm_dur:.2f},aloop=loop=-1:size={int(trimmed_bgm_dur * bgm_sr)}[bgm_loop];"
                 f"[bgm_loop]volume={BGM_VOLUME},afade=t=out:st={fade_start:.2f}:d=5[bgm_ducked];"
-                f"[1:a]acompressor=threshold=-20dB:ratio=3:attack=10:release=80:makeup=4dB,volume={VOICE_VOLUME}[voice];"
+                f"[1:a]acompressor=threshold=-12dB:ratio=1.5:attack=20:release=150:makeup=1dB,volume={VOICE_VOLUME}[voice];"
                 f"[voice][bgm_ducked]amix=inputs=2:duration=first:dropout_transition=2:normalize=0[mixed];"
                 f"[mixed]alimiter=limit=0.98:attack=5:release=50[aout]"
             )
@@ -1435,7 +1435,7 @@ def generate_video(
                 "ffmpeg", "-y",
                 "-i", combined_visuals,
                 "-i", audio_path,
-                "-filter_complex", f"[1:a]acompressor=threshold=-20dB:ratio=3:attack=10:release=80:makeup=4dB,volume={VOICE_VOLUME},alimiter=limit=0.98:attack=5:release=50[aout]",
+                "-filter_complex", f"[1:a]acompressor=threshold=-12dB:ratio=1.5:attack=20:release=150:makeup=1dB,volume={VOICE_VOLUME},alimiter=limit=0.98:attack=5:release=50[aout]",
                 "-map", "0:v",
                 "-map", "[aout]",
                 "-c:v", "copy",

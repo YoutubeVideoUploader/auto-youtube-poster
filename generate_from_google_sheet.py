@@ -432,11 +432,11 @@ def build_presenter_markup_script(parsed_sections: Dict[str, List[Dict[str, Any]
         # Choose natural intro phrasing depending on whether this is the first section or a follow-up
         if idx == 0:
             if sec_slug == "release_updates":
-                sec_intro = "പുതിയ തിയേറ്റർ റിലീസ് വിശേഷങ്ങളിലേക്ക് പോകാം."
+                sec_intro = "പുതിയ തിയേറ്റർ റിലീസ് വിശേഷങ്ങളിലേക്ക്."
             elif sec_slug == "ott_updates":
-                sec_intro = "പുതിയ ഒടിടി റിലീസുകളുടെയും സ്ട്രീമിംഗ് വിശേഷങ്ങളിലേക്ക് പോകാം."
+                sec_intro = "പുതിയ ഒടിടി റിലീസുകളുടെയും സ്ട്രീമിംഗ് വിശേഷങ്ങളിലേക്ക്."
             elif sec_slug == "movie_updates":
-                sec_intro = s_cfg.get("intro", "ആദ്യം, പുതിയ സിനിമാ അപ്ഡേറ്റുകളിലേക്ക് പോകാം.")
+                sec_intro = s_cfg.get("intro", "ആദ്യം, പുതിയ സിനിമാ അപ്ഡേറ്റുകളിലേക്ക്.")
             else:
                 sec_intro = s_cfg.get("intro", "")
         else:
@@ -462,8 +462,15 @@ def build_presenter_markup_script(parsed_sections: Dict[str, List[Dict[str, Any]
                 headline_text = parts[0].strip()
                 detail_text = parts[1].strip()
             else:
-                headline_text = topic
-                detail_text = ""
+                # If no semicolon, split at the first sentence boundary so headline is punchy and detail follows smoothly
+                first_period = re.search(r'([\.\?!])\s+', topic)
+                if first_period and first_period.end() < len(topic) - 10:
+                    split_idx = first_period.end()
+                    headline_text = topic[:split_idx].strip()
+                    detail_text = topic[split_idx:].strip()
+                else:
+                    headline_text = topic
+                    detail_text = ""
 
             markup_parts.append(f"<headline>\n{ordinal} {headline_text}\n</headline>\n")
             if detail_text:

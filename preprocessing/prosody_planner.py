@@ -28,15 +28,11 @@ class ProsodyPlanner:
         importance_score = self.importance_scorer.calculate_score(clean_text, tag_name, entities)
         sentence_type = self.importance_scorer.determine_sentence_type(tag_name, importance_score, entities)
 
-        # 1. Steady 1.08x speaking speed for punchy, authentic YouTube presenter pace
-        speed = 1.08
+        # 1. Steady 1.05x speaking speed for natural, authentic YouTube presenter pace
+        speed = 1.05
 
-        # 2. Map Energy Boost (dB) for Mastering
+        # 2. Consistent 0.0 dB Energy across all segments (prevents artificial volume/tone shifts between topics)
         energy_boost_db = 0.0
-        if importance_score >= 0.90:
-            energy_boost_db = 1.5  # +1.5 dB boost for breaking news / headlines
-        elif importance_score >= 0.80:
-            energy_boost_db = 1.0  # +1.0 dB boost for key facts
 
         # 3. Map Pause Before/After
         pause_before = 100
