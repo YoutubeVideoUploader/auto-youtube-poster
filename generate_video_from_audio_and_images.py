@@ -633,19 +633,44 @@ def create_mini_cell_collage(image_paths: list, cell_w: int, cell_h: int) -> Ima
     return canvas.convert("RGB")
 
 
-def get_font(size: int, bold: bool = True):
-    font_candidates = [
+def is_malayalam_text(text: str) -> bool:
+    """Checks if text contains Malayalam Unicode characters (U+0D00 to U+0D7F)."""
+    if not text:
+        return False
+    return any('\u0d00' <= ch <= '\u0d7f' for ch in str(text))
+
+
+def get_font(size: int, bold: bool = True, text: str = ""):
+    """
+    Returns an appropriate TrueType font.
+    If text contains Malayalam characters, prioritizes Malayalam Unicode fonts.
+    Otherwise, prioritizes standard Latin/English fonts (DejaVu, Arial, Liberation)
+    to prevent Indic fonts (like NotoSansMalayalam or Meera) from replacing English
+    letters with '0' or missing-glyph symbols.
+    """
+    malayalam_mode = is_malayalam_text(text)
+
+    english_candidates = [
+        "C:/Windows/Fonts/arialbd.ttf" if bold else "C:/Windows/Fonts/arial.ttf",
+        "C:/Windows/Fonts/segoeuib.ttf" if bold else "C:/Windows/Fonts/segoeui.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+        "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf" if bold else "/usr/share/fonts/truetype/freefont/FreeSans.ttf",
+        "DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf",
+        "FreeSansBold.ttf" if bold else "FreeSans.ttf",
+        "C:/Windows/Fonts/NirmalaB.ttf" if bold else "C:/Windows/Fonts/Nirmala.ttf",
+    ]
+
+    malayalam_candidates = [
         "C:/Windows/Fonts/NirmalaB.ttf" if bold else "C:/Windows/Fonts/Nirmala.ttf",
         "/usr/share/fonts/truetype/noto/NotoSansMalayalam-Bold.ttf" if bold else "/usr/share/fonts/truetype/noto/NotoSansMalayalam-Regular.ttf",
         "/usr/share/fonts/truetype/malayalam/Meera-Regular.ttf",
         "/usr/share/fonts/truetype/lohit-malayalam/Lohit-Malayalam.ttf",
-        "C:/Windows/Fonts/arialbd.ttf" if bold else "C:/Windows/Fonts/arial.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf" if bold else "/usr/share/fonts/truetype/freefont/FreeSans.ttf",
-        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
-        "DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf",
-        "FreeSansBold.ttf" if bold else "FreeSans.ttf",
+        "/usr/share/fonts/truetype/samyak/Samyak-Malayalam.ttf",
     ]
+
+    font_candidates = (malayalam_candidates + english_candidates) if malayalam_mode else (english_candidates + malayalam_candidates)
+
     for fn in font_candidates:
         try:
             return ImageFont.truetype(fn, size)
@@ -674,13 +699,12 @@ def draw_section_countdown_badge(
 
     try:
         img = Image.open(image_path).convert("RGBA")
-        font = get_font(32, bold=True)
-
         m = max(0, int(rem_sec)) // 60
         s = max(0, int(rem_sec)) % 60
         time_str = f"{m:02d}:{s:02d}"
 
         display_label = label_text.strip() + " "
+        font = get_font(32, bold=True, text=display_label)
 
         dummy = Image.new("RGBA", (1, 1))
         d_draw = ImageDraw.Draw(dummy)
@@ -738,9 +762,9 @@ def create_headline_banner_overlay(headline_text: str, output_path: str, max_box
     Returns (output_path_str, box_w, box_h).
     """
     display_text = headline_text.strip()
-    badge_font = get_font(20, bold=True)
+    badge_font = get_font(20, bold=True, text="CINEMA UPDATE")
     font_size = 40
-    title_font = get_font(font_size, bold=True)
+    title_font = get_font(font_size, bold=True, text=display_text)
 
     dummy_img = Image.new("RGBA", (1, 1))
     dummy_draw = ImageDraw.Draw(dummy_img)
