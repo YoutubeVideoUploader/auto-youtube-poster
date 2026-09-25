@@ -1727,9 +1727,18 @@
               <h3 id="modal-news-title" style="color: #f8fafc; font-size: 18px; font-weight: 700; line-height: 1.4; margin-bottom: 10px;">
                 Story Title Loading...
               </h3>
-              <p id="modal-news-snippet" style="color: #cbd5e1; font-size: 14px; line-height: 1.6; margin-bottom: 12px;">
-                Story summary...
-              </p>
+              <!-- News Story Body Container -->
+              <div id="modal-news-story-container" style="background: rgba(15, 23, 42, 0.7); border: 1px solid #334155; border-radius: 10px; padding: 14px 16px; margin-bottom: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 6px;">
+                  <span style="font-size: 12px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px;">📰 News Story Details</span>
+                  <span id="modal-news-story-status" style="font-size: 11px; color: #94a3b8; font-weight: 600;">Story Details</span>
+                </div>
+                <div id="modal-news-full-story" style="font-size: 14px; line-height: 1.7; color: #e2e8f0; max-height: 250px; overflow-y: auto; padding-right: 6px; white-space: normal;">
+                  <p id="modal-news-snippet" style="color: #cbd5e1; font-size: 14px; line-height: 1.6; margin: 0;">
+                    Story summary...
+                  </p>
+                </div>
+              </div>
               
               <!-- Other Sources / Multi-site coverage -->
               <div id="modal-news-other-sources" style="display: none; margin-bottom: 12px; font-size: 12px; color: #94a3b8; background: rgba(15, 23, 42, 0.5); padding: 5px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05);">
@@ -6510,10 +6519,10 @@ const INDUSTRY_BOUNDARIES = {
                 reqBodyBase.tbs = timeFilter === 'qdr:d2' ? 'qdr:d' : timeFilter;
               }
 
-              // Multi-page fetch: request page 1 and page 2 concurrently to retrieve 20+ stories
+              // Multi-page fetch via /search (provides rich snippets across all approved sites)
               const pagesToFetch = [1, 2];
               const pResps = await Promise.all(pagesToFetch.map(page =>
-                fetch('https://google.serper.dev/news', {
+                fetch('https://google.serper.dev/search', {
                   method: 'POST',
                   headers: {
                     'X-API-KEY': apiKey,
@@ -6525,20 +6534,55 @@ const INDUSTRY_BOUNDARIES = {
 
               let combinedNews = [];
               for (const pr of pResps) {
-                if (pr && pr.news) combinedNews.push(...pr.news);
+                if (pr && pr.organic) {
+                  combinedNews.push(...pr.organic.map(o => ({
+                    title: (o.title || '').replace(/\s*-\s*Cinema Express$/i, '').replace(/\s*\|\s*Times of India$/i, '').replace(/\s*-\s*The Indian Express$/i, '').replace(/\s*-\s*Kerala Kaumudi$/i, '').trim(),
+                    snippet: (o.snippet || '').trim(),
+                    link: o.link || '',
+                    date: o.date || 'Today',
+                    imageUrl: (o.imageUrl || (o.sitelinks && o.sitelinks[0] && o.sitelinks[0].imageUrl) || ''),
+                    source: formatNewsSourceName(o.source, o.link),
+                    category: activeNewsSubTab,
+                    malayalamScript: null
+                  })));
+                } else if (pr && pr.news) {
+                  combinedNews.push(...pr.news.map(n => ({
+                    title: (n.title || '').trim(),
+                    snippet: (n.snippet || '').trim(),
+                    link: n.link || '',
+                    date: n.date || 'Today',
+                    imageUrl: n.imageUrl || '',
+                    source: formatNewsSourceName(n.source, n.link),
+                    category: activeNewsSubTab,
+                    malayalamScript: null
+                  })));
+                }
               }
 
               // If fewer than 18 items returned, immediately fetch page 3 to guarantee full 20-item feed
               if (combinedNews.length < 18) {
                 try {
-                  const p3Resp = await fetch('https://google.serper.dev/news', {
+                  const p3Resp = await fetch('https://google.serper.dev/search', {
                     method: 'POST',
                     headers: { 'X-API-KEY': apiKey, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ...reqBodyBase, page: 3 })
                   });
                   if (p3Resp.ok) {
                     const p3Data = await p3Resp.json();
-                    if (p3Data.news) combinedNews.push(...p3Data.news);
+                    if (p3Data.organic) {
+                      combinedNews.push(...p3Data.organic.map(o => ({
+                        title: (o.title || '').replace(/\s*-\s*Cinema Express$/i, '').replace(/\s*\|\s*Times of India$/i, '').replace(/\s*-\s*The Indian Express$/i, '').replace(/\s*-\s*Kerala Kaumudi$/i, '').trim(),
+                        snippet: (o.snippet || '').trim(),
+                        link: o.link || '',
+                        date: o.date || 'Today',
+                        imageUrl: (o.imageUrl || ''),
+                        source: formatNewsSourceName(o.source, o.link),
+                        category: activeNewsSubTab,
+                        malayalamScript: null
+                      })));
+                    } else if (p3Data.news) {
+                      combinedNews.push(...p3Data.news);
+                    }
                   }
                 } catch (p3Err) {}
                 newsCurrentOnlinePage = 3;
@@ -6550,14 +6594,27 @@ const INDUSTRY_BOUNDARIES = {
               if (combinedNews.length < 5 && timeFilter === 'qdr:d') {
                 try {
                   const broadenedResps = await Promise.all([1, 2].map(page =>
-                    fetch('https://google.serper.dev/news', {
+                    fetch('https://google.serper.dev/search', {
                       method: 'POST',
                       headers: { 'X-API-KEY': apiKey, 'Content-Type': 'application/json' },
                       body: JSON.stringify({ ...reqBodyBase, tbs: 'qdr:w', page })
                     }).then(r => r.ok ? r.json() : null).catch(() => null)
                   ));
                   for (const br of broadenedResps) {
-                    if (br && br.news) combinedNews.push(...br.news);
+                    if (br && br.organic) {
+                      combinedNews.push(...br.organic.map(o => ({
+                        title: (o.title || '').replace(/\s*-\s*Cinema Express$/i, '').replace(/\s*\|\s*Times of India$/i, '').replace(/\s*-\s*The Indian Express$/i, '').replace(/\s*-\s*Kerala Kaumudi$/i, '').trim(),
+                        snippet: (o.snippet || '').trim(),
+                        link: o.link || '',
+                        date: o.date || 'Today',
+                        imageUrl: (o.imageUrl || ''),
+                        source: formatNewsSourceName(o.source, o.link),
+                        category: activeNewsSubTab,
+                        malayalamScript: null
+                      })));
+                    } else if (br && br.news) {
+                      combinedNews.push(...br.news);
+                    }
                   }
                 } catch (bErr) {}
               }
@@ -6598,16 +6655,21 @@ const INDUSTRY_BOUNDARIES = {
         if (items.length > 0 && (items[0].category === 'theater' || items[0].category === 'ott')) {
           parsedArticles = items;
         } else {
-          parsedArticles = items.map(it => ({
-            title: it.title || 'Untitled Movie News',
-            snippet: it.snippet || 'No article summary available.',
-            link: it.link || '#',
-            date: it.date || 'Today',
-            imageUrl: it.imageUrl || '',
-            source: it.source || currentSource.name || 'Cinema Portal',
-            category: activeNewsSubTab,
-            malayalamScript: null
-          }));
+          parsedArticles = items.map(it => {
+            const cleanTitle = (it.title || 'Untitled Movie News').trim();
+            const cleanSource = formatNewsSourceName(it.source || currentSource.name, it.link);
+            const fallbackSnippet = `${cleanTitle}. Detailed cinema update from ${cleanSource} published on ${it.date || 'today'}.`;
+            return {
+              title: cleanTitle,
+              snippet: (it.snippet && it.snippet.trim().length > 10) ? it.snippet.trim() : fallbackSnippet,
+              link: it.link || '#',
+              date: it.date || 'Today',
+              imageUrl: it.imageUrl || '',
+              source: cleanSource,
+              category: activeNewsSubTab,
+              malayalamScript: null
+            };
+          });
         }
 
         // Apply Industry Boundary Filtering & Milestone Relevance Scoring
@@ -6826,8 +6888,8 @@ const INDUSTRY_BOUNDARIES = {
               <div style="font-size: 14.5px; font-weight: 700; color: #f8fafc; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px;" title="${typeof escapeHtml === 'function' ? escapeHtml(cur.title) : cur.title}">
                 ${cur.title}
               </div>
-              <div style="font-size: 12.5px; color: #94a3b8; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${typeof escapeHtml === 'function' ? escapeHtml(cur.snippet) : cur.snippet}">
-                ${cur.snippet}
+              <div style="font-size: 12.5px; color: #94a3b8; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 3px;" title="${typeof escapeHtml === 'function' ? escapeHtml(cur.snippet) : cur.snippet}">
+                ${cur.snippet || 'Loading news update...'}
               </div>
             </div>
             <div style="color: #38bdf8; font-size: 20px; font-weight: bold; padding: 0 4px; flex-shrink: 0;">›</div>
@@ -6954,7 +7016,7 @@ async function loadMoreNews() {
           }
 
           const onlineResps = await Promise.all([nextPage1, nextPage2].map(page =>
-            fetch('https://google.serper.dev/news', {
+            fetch('https://google.serper.dev/search', {
               method: 'POST',
               headers: { 'X-API-KEY': apiKey, 'Content-Type': 'application/json' },
               body: JSON.stringify({ ...reqBodyBase, page })
@@ -6962,7 +7024,20 @@ async function loadMoreNews() {
           ));
 
           for (const r of onlineResps) {
-            if (r && r.news) newItems.push(...r.news);
+            if (r && r.organic) {
+              newItems.push(...r.organic.map(o => ({
+                title: (o.title || '').replace(/\s*-\s*Cinema Express$/i, '').replace(/\s*\|\s*Times of India$/i, '').replace(/\s*-\s*The Indian Express$/i, '').replace(/\s*-\s*Kerala Kaumudi$/i, '').trim(),
+                snippet: (o.snippet || '').trim(),
+                link: o.link || '',
+                date: o.date || 'Today',
+                imageUrl: (o.imageUrl || ''),
+                source: formatNewsSourceName(o.source, o.link),
+                category: activeNewsSubTab,
+                malayalamScript: null
+              })));
+            } else if (r && r.news) {
+              newItems.push(...r.news);
+            }
           }
         }
 
@@ -7006,6 +7081,96 @@ async function loadMoreNews() {
           loadMoreBtn.innerText = `⬇️ Show More News (Showing ${Math.min(newsDisplayLimit, liveNewsArticles.length)} of ${liveNewsArticles.length})`;
         }
       }
+    }
+
+    // Clean scraped article text into crisp, readable paragraphs
+    function cleanScrapedArticleText(rawText) {
+      if (!rawText) return '';
+      const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
+      const bodyParagraphs = [];
+      let pastNav = false;
+
+      for (const line of lines) {
+        // Skip header/navigation/metadata lines
+        if (/^(menu|navigation|home|cinema|news|entertainment|updated on|published on|author|by |share|copied|facebook|twitter|whatsapp|email|reddit|telegram|advertisement|sign in|subscribe|\* )/i.test(line)) {
+          continue;
+        }
+        if (line.length < 30 && !pastNav) {
+          continue;
+        }
+        if (line.length >= 30) {
+          pastNav = true;
+        }
+        if (pastNav) {
+          // Break on footer links
+          if (/^(read also|also read|recommended stories|related articles|trending news|copyright|all rights reserved|terms of use|privacy policy|disclaimer)/i.test(line)) {
+            break;
+          }
+          if (/^(share this|follow us on|download the app|click here to|subscribe)/i.test(line)) {
+            continue;
+          }
+          bodyParagraphs.push(line);
+        }
+      }
+
+      if (bodyParagraphs.length === 0) {
+        const fallbacks = lines.filter(l => l.length >= 40 && !/^(copyright|all rights reserved)/i.test(l));
+        return fallbacks.slice(0, 6).join('\n\n');
+      }
+      return bodyParagraphs.slice(0, 8).join('\n\n');
+    }
+
+    // Auto-fetch full article story for detailed modal reading
+    async function fetchArticleStoryForModal(cur, articleIdx) {
+      if (!cur || !cur.link || !cur.link.startsWith('http') || cur._fetchingStory) return;
+      cur._fetchingStory = true;
+      const storyStatus = document.getElementById('modal-news-story-status');
+      if (storyStatus && currentNewsIndex === articleIdx) {
+        storyStatus.innerText = '⚡ Loading full story...';
+      }
+
+      const serperKeys = (typeof getActiveSerperKeys === 'function') ? getActiveSerperKeys() : [
+        '706d6e0c2e53e2d18b6f85808d560536e5d97ab7',
+        '6fd2aecf0e6a8aaba3a1e5c6f3f63d54f6779236',
+        '8cc926c37bc6a93c0a28ea9bee6e25b62655b561'
+      ];
+      let startIdx = parseInt(localStorage.getItem('active_serper_key_idx') || '0', 10);
+      if (isNaN(startIdx) || startIdx < 0 || startIdx >= serperKeys.length) startIdx = 0;
+
+      for (let attempt = 0; attempt < serperKeys.length; attempt++) {
+        const keyIdx = (startIdx + attempt) % serperKeys.length;
+        const apiKey = serperKeys[keyIdx];
+        try {
+          const resp = await fetch('https://scrape.serper.dev', {
+            method: 'POST',
+            headers: { 'X-API-KEY': apiKey, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: cur.link })
+          });
+          if (resp.ok) {
+            const data = await resp.json();
+            const raw = data.text || '';
+            const cleaned = cleanScrapedArticleText(raw);
+            if (cleaned && cleaned.length >= 60) {
+              cur.fullStoryText = cleaned;
+              if (currentNewsIndex === articleIdx) {
+                const storyDiv = document.getElementById('modal-news-full-story');
+                const stStatus = document.getElementById('modal-news-story-status');
+                if (storyDiv) {
+                  const paragraphs = cleaned.split('\n\n').filter(p => p.trim().length > 0);
+                  storyDiv.innerHTML = paragraphs.map(p => `<p style="margin-bottom: 10px; margin-top: 0;">${typeof escapeHtml === 'function' ? escapeHtml(p) : p}</p>`).join('');
+                }
+                if (stStatus) {
+                  stStatus.innerText = '✓ Full Story Loaded';
+                }
+              }
+              break;
+            }
+          }
+        } catch (e) {
+          console.warn("Story scraping error for", cur.link, e);
+        }
+      }
+      cur._fetchingStory = false;
     }
 
     function openNewsDetailModal(index) {
@@ -7158,16 +7323,44 @@ async function loadMoreNews() {
         }
       }
 
-      // Update Title & Snippet
+      // Update Title & News Story Body
       const titleElem = document.getElementById('modal-news-title');
       const snippetElem = document.getElementById('modal-news-snippet');
+      const storyDiv = document.getElementById('modal-news-full-story');
+      const storyStatus = document.getElementById('modal-news-story-status');
       const linkElem = document.getElementById('modal-news-link');
+
       if (titleElem) titleElem.innerText = cur.title;
-      if (snippetElem) snippetElem.innerText = cur.snippet;
+
+      // Populate rich story paragraphs in the modal box
+      if (storyDiv) {
+        if (cur.fullStoryText) {
+          const paragraphs = cur.fullStoryText.split('\n\n').filter(p => p.trim().length > 0);
+          storyDiv.innerHTML = paragraphs.map(p => `<p style="margin-bottom: 10px; margin-top: 0;">${typeof escapeHtml === 'function' ? escapeHtml(p) : p}</p>`).join('');
+          if (storyStatus) storyStatus.innerText = '✓ Full Story';
+        } else if (cur.category === 'ott' && (cur.platform || cur.genre || cur.date)) {
+          const ottDesc = `${cur.title} is an upcoming ${cur.genre || 'feature film'} releasing on digital streaming platform ${cur.platform || 'OTT'}. The official release date is confirmed as ${cur.date || 'upcoming date'}. Viewers can stream the movie directly on ${cur.platform || 'the streaming app'}.`;
+          storyDiv.innerHTML = `<p style="margin-bottom: 10px; margin-top: 0;">${ottDesc}</p>`;
+          if (storyStatus) storyStatus.innerText = 'Streaming Release';
+        } else if (cur.category === 'theater') {
+          const thDesc = `${cur.title} is scheduled for theatrical release on ${cur.date || 'the upcoming schedule'}. ${cur.snippet || 'The makers have confirmed the theatrical schedule across major cinema centers.'}`;
+          storyDiv.innerHTML = `<p style="margin-bottom: 10px; margin-top: 0;">${thDesc}</p>`;
+          if (storyStatus) storyStatus.innerText = 'Theatrical Release';
+        } else {
+          storyDiv.innerHTML = `<p style="margin-bottom: 10px; margin-top: 0;">${typeof escapeHtml === 'function' ? escapeHtml(cur.snippet || cur.title) : (cur.snippet || cur.title)}</p>`;
+          if (storyStatus) storyStatus.innerText = 'Story Summary';
+        }
+      }
+
       if (linkElem) {
         linkElem.href = cur.link;
         linkElem.style.display = cur.link && cur.link !== '#' ? 'inline-flex' : 'none';
         linkElem.innerText = `🔗 Read Full Article on ${cur.source || 'Source'} ↗`;
+      }
+
+      // Auto-fetch full article text in background for approved portal stories
+      if (!cur.fullStoryText && cur.link && cur.link.startsWith('http') && cur.category === 'all' && !cur._fetchingStory) {
+        fetchArticleStoryForModal(cur, currentNewsIndex);
       }
 
       // Update custom notes input
@@ -7424,7 +7617,8 @@ async function loadMoreNews() {
         isReleased = relMidnight <= todayMidnight;
       }
 
-      let promptText = `News Title: ${cur.title}\nNews Story: ${cur.snippet}`;
+      const newsStoryContent = (cur.fullStoryText || cur.snippet || cur.title).trim();
+      let promptText = `News Title: ${cur.title}\nNews Story: ${newsStoryContent}`;
       const notesElem = document.getElementById('news-card-notes');
       const customNotes = ((notesElem ? notesElem.value : '') || cur.customNotes || '').trim();
       if (customNotes) {
