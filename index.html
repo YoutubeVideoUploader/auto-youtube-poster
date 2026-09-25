@@ -5399,20 +5399,21 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       malayalam: {
         all: [
           { id: 'all', name: '🌐 All Top Portals (Aggregated)', query: 'Malayalam movie cinema news' },
+          { id: 'cinemaexpress', name: '📰 Cinema Express (Malayalam News)', query: 'site:cinemaexpress.com/malayalam/news OR site:cinemaexpress.com/malayalam' },
           { id: 'manorama', name: '📰 Manorama Online (Movies)', query: 'site:manoramaonline.com/movies Malayalam' },
           { id: 'mathrubhumi', name: '📰 Mathrubhumi Cinema', query: 'site:mathrubhumi.com/movies Malayalam' },
-          { id: 'cinemaexpress', name: '📰 Cinema Express (Malayalam)', query: 'site:cinemaexpress.com/malayalam' },
           { id: 'toi', name: '📰 Times of India (Mollywood)', query: 'site:timesofindia.indiatimes.com/entertainment/malayalam/movies/news' },
           { id: 'southfirst', name: '📰 The South First (Cinema)', query: 'site:thesouthfirst.com Malayalam cinema' }
         ],
         theater: [
           { id: 'toi_theaters', name: '🏛️ Times of India (Theatrical Releases - Scrape)', type: 'scrape', url: 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/malayalam-movies' },
+          { id: 'cinemaexpress_th', name: '📰 Cinema Express (Theatrical Releases)', query: 'site:cinemaexpress.com/malayalam/news OR site:cinemaexpress.com/malayalam release date in theatres' },
           { id: 'bookmyshow', name: '🎟️ BookMyShow (In Theatres & Upcoming)', query: 'Malayalam movies in theatres BookMyShow release date' },
-          { id: 'cinemaexpress_th', name: '📰 Cinema Express (Theatrical Releases)', query: 'site:cinemaexpress.com Malayalam movie release date in theatres' },
           { id: 'filmibeat_th', name: '📰 Filmibeat (Releasing This Week)', query: 'site:filmibeat.com/malayalam/movies Malayalam movies release dates' }
         ],
         ott: [
           { id: 'cinebuds', name: '📺 Cinebuds (Official OTT Calendar - Scrape)', type: 'scrape', url: 'https://cinebuds.com/malayalam-movies-ott-release-dates/' },
+          { id: 'cinemaexpress_ott', name: '📰 Cinema Express (Malayalam OTT Updates)', query: 'site:cinemaexpress.com/malayalam/news OR site:cinemaexpress.com/malayalam OTT streaming release date' },
           { id: 'ottplay', name: '🍿 OTTplay (Malayalam Streaming Calendar)', query: 'site:ottplay.com Malayalam OTT release date streaming' },
           { id: 'toi_ott', name: '📰 Times of India (Malayalam OTT Releases)', query: 'site:timesofindia.indiatimes.com Malayalam OTT release date streaming' },
           { id: 'filmibeat_ott', name: '📰 Filmibeat (Malayalam OTT Releases)', query: 'site:filmibeat.com Malayalam movie OTT digital premiere release date' }
@@ -5421,19 +5422,20 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       tamil: {
         all: [
           { id: 'all', name: '🌐 All Top Portals (Aggregated)', query: 'Tamil movie cinema news Kollywood' },
+          { id: 'cinemaexpress', name: '📰 Cinema Express (Tamil News)', query: 'site:cinemaexpress.com/tamil/news OR site:cinemaexpress.com/tamil' },
           { id: 'behindwoods', name: '📰 Behindwoods (Kollywood)', query: 'site:behindwoods.com Tamil cinema news' },
-          { id: 'cinemaexpress', name: '📰 Cinema Express (Tamil)', query: 'site:cinemaexpress.com/tamil' },
           { id: 'toi', name: '📰 Times of India (Kollywood)', query: 'site:timesofindia.indiatimes.com/entertainment/tamil/movies/news' },
           { id: 'indiaglitz', name: '📰 IndiaGlitz (Tamil Cinema)', query: 'site:indiaglitz.com/tamil' },
           { id: 'galatta', name: '📰 Galatta Media (Tamil)', query: 'site:galatta.com Tamil movie news' }
         ],
         theater: [
           { id: 'toi_theaters', name: '🏛️ Times of India (Theatrical Releases - Scrape)', type: 'scrape', url: 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/tamil-movies' },
-          { id: 'bookmyshow', name: '🎟️ BookMyShow (Tamil In Theatres & Upcoming)', query: 'Tamil movies in theatres BookMyShow release date' },
-          { id: 'cinemaexpress_th', name: '📰 Cinema Express (Tamil Theatrical Releases)', query: 'site:cinemaexpress.com Tamil movie release date in theatres' }
+          { id: 'cinemaexpress_th', name: '📰 Cinema Express (Tamil Theatrical Releases)', query: 'site:cinemaexpress.com/tamil/news OR site:cinemaexpress.com/tamil release date in theatres' },
+          { id: 'bookmyshow', name: '🎟️ BookMyShow (Tamil In Theatres & Upcoming)', query: 'Tamil movies in theatres BookMyShow release date' }
         ],
         ott: [
           { id: 'cinebuds', name: '📺 Cinebuds (Official OTT Calendar - Scrape)', type: 'scrape', url: 'https://cinebuds.com/tamil-movies-digital-release-dates/' },
+          { id: 'cinemaexpress_ott', name: '📰 Cinema Express (Tamil OTT Releases)', query: 'site:cinemaexpress.com/tamil/news OR site:cinemaexpress.com/tamil OTT streaming release date' },
           { id: 'ottplay', name: '🍿 OTTplay (Tamil Streaming Calendar)', query: 'site:ottplay.com Tamil OTT release date streaming' },
           { id: 'toi_ott', name: '📰 Times of India (Tamil OTT Releases)', query: 'site:timesofindia.indiatimes.com Tamil OTT release date streaming' }
         ]
@@ -5441,6 +5443,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       telugu: {
         all: [
           { id: 'all', name: '🌐 All Top Portals (Aggregated)', query: 'Telugu movie cinema news Tollywood' },
+          { id: 'cinemaexpress', name: '📰 Cinema Express (Telugu News)', query: 'site:cinemaexpress.com/telugu/news OR site:cinemaexpress.com/telugu' },
           { id: '123telugu', name: '📰 123telugu (Breaking News)', query: 'site:123telugu.com Telugu cinema news' },
           { id: 'greatandhra', name: '📰 Greatandhra Cinema', query: 'site:greatandhra.com/movies' },
           { id: 'gulte', name: '📰 Gulte Movie News', query: 'site:gulte.com Telugu movie news' },
@@ -5448,11 +5451,13 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         ],
         theater: [
           { id: 'toi_theaters', name: '🏛️ Times of India (Theatrical Releases - Scrape)', type: 'scrape', url: 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/telugu-movies' },
+          { id: 'cinemaexpress_th', name: '📰 Cinema Express (Telugu Theatrical Releases)', query: 'site:cinemaexpress.com/telugu/news OR site:cinemaexpress.com/telugu release date in theatres' },
           { id: 'bookmyshow', name: '🎟️ BookMyShow (Telugu In Theatres & Upcoming)', query: 'Telugu movies in theatres BookMyShow release date' },
           { id: '123telugu_th', name: '📰 123telugu (Theatrical Release Dates)', query: 'site:123telugu.com Telugu movie release dates' }
         ],
         ott: [
           { id: 'cinebuds', name: '📺 Cinebuds (Official OTT Calendar - Scrape)', type: 'scrape', url: 'https://cinebuds.com/telugu-movies-digital-release-dates/' },
+          { id: 'cinemaexpress_ott', name: '📰 Cinema Express (Telugu OTT Releases)', query: 'site:cinemaexpress.com/telugu/news OR site:cinemaexpress.com/telugu OTT streaming release date' },
           { id: 'ottplay', name: '🍿 OTTplay (Telugu Streaming Calendar)', query: 'site:ottplay.com Telugu OTT release date streaming' },
           { id: '123telugu_ott', name: '📰 123telugu (Telugu OTT Updates)', query: 'site:123telugu.com OTT release date streaming aha netflix' }
         ]
@@ -5460,22 +5465,25 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       kannada: {
         all: [
           { id: 'all', name: '🌐 All Top Portals (Aggregated)', query: 'Kannada movie cinema news Sandalwood' },
-          { id: 'cinemaexpress', name: '📰 Cinema Express (Kannada)', query: 'site:cinemaexpress.com/kannada' },
+          { id: 'cinemaexpress', name: '📰 Cinema Express (Kannada News)', query: 'site:cinemaexpress.com/kannada/news OR site:cinemaexpress.com/kannada' },
           { id: 'filmibeat', name: '📰 Filmibeat Kannada', query: 'site:kannada.filmibeat.com' },
           { id: 'toi', name: '📰 Times of India (Sandalwood)', query: 'site:timesofindia.indiatimes.com/entertainment/kannada/movies/news' }
         ],
         theater: [
           { id: 'toi_theaters', name: '🏛️ Times of India (Theatrical Releases - Scrape)', type: 'scrape', url: 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/kannada-movies' },
+          { id: 'cinemaexpress_th', name: '📰 Cinema Express (Kannada Theatrical Releases)', query: 'site:cinemaexpress.com/kannada/news OR site:cinemaexpress.com/kannada release date in theatres' },
           { id: 'bookmyshow', name: '🎟️ BookMyShow (Kannada In Theatres & Upcoming)', query: 'Kannada movies in theatres BookMyShow release date' }
         ],
         ott: [
           { id: 'cinebuds', name: '📺 Cinebuds (Official OTT Calendar - Scrape)', type: 'scrape', url: 'https://cinebuds.com/kannada-movies-digital-release-dates/' },
+          { id: 'cinemaexpress_ott', name: '📰 Cinema Express (Kannada OTT Releases)', query: 'site:cinemaexpress.com/kannada/news OR site:cinemaexpress.com/kannada OTT streaming release date' },
           { id: 'ottplay', name: '🍿 OTTplay (Kannada Streaming Calendar)', query: 'site:ottplay.com Kannada OTT release date streaming' }
         ]
       },
       hindi: {
         all: [
           { id: 'all', name: '🌐 All Top Portals (Aggregated)', query: 'Bollywood Hindi movie cinema news' },
+          { id: 'cinemaexpress', name: '📰 Cinema Express (Hindi / Bollywood News)', query: 'site:cinemaexpress.com/hindi/news OR site:cinemaexpress.com/hindi' },
           { id: 'pinkvilla', name: '📰 Pinkvilla (Bollywood)', query: 'site:pinkvilla.com/entertainment/bollywood' },
           { id: 'bollywoodhungama', name: '📰 Bollywood Hungama', query: 'site:bollywoodhungama.com Hindi movie news' },
           { id: 'toi', name: '📰 Times of India (Bollywood)', query: 'site:timesofindia.indiatimes.com/entertainment/hindi/bollywood/news' },
@@ -5483,11 +5491,13 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         ],
         theater: [
           { id: 'toi_theaters', name: '🏛️ Times of India (Theatrical Releases - Scrape)', type: 'scrape', url: 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/hindi-movies' },
+          { id: 'cinemaexpress_th', name: '📰 Cinema Express (Hindi Theatrical Releases)', query: 'site:cinemaexpress.com/hindi/news OR site:cinemaexpress.com/hindi release date in theatres' },
           { id: 'bookmyshow', name: '🎟️ BookMyShow (Hindi In Theatres & Upcoming)', query: 'Hindi Bollywood movies in theatres BookMyShow release date' },
           { id: 'bollywoodhungama_th', name: '📰 Bollywood Hungama (Release Dates)', query: 'site:bollywoodhungama.com movie release dates Bollywood' }
         ],
         ott: [
           { id: 'cinebuds', name: '📺 Cinebuds (Official OTT Calendar - Scrape)', type: 'scrape', url: 'https://cinebuds.com/hindi-movies-digital-release-dates/' },
+          { id: 'cinemaexpress_ott', name: '📰 Cinema Express (Hindi OTT Releases)', query: 'site:cinemaexpress.com/hindi/news OR site:cinemaexpress.com/hindi OTT streaming release date' },
           { id: 'ottplay', name: '🍿 OTTplay (Hindi Streaming Calendar)', query: 'site:ottplay.com Hindi Bollywood OTT release date streaming' },
           { id: 'toi_ott', name: '📰 Times of India (Hindi OTT Releases)', query: 'site:timesofindia.indiatimes.com Hindi movie OTT release date streaming' }
         ]
@@ -5495,6 +5505,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       global: {
         all: [
           { id: 'all', name: '🌐 All Top Portals (Aggregated)', query: 'Hollywood movie cinema entertainment news' },
+          { id: 'cinemaexpress', name: '📰 Cinema Express (Hollywood & Global News)', query: 'site:cinemaexpress.com/english/news OR site:cinemaexpress.com/english' },
           { id: 'variety', name: '📰 Variety (Film News)', query: 'site:variety.com/v/film' },
           { id: 'deadline', name: '📰 Deadline Hollywood', query: 'site:deadline.com' },
           { id: 'hollywoodreporter', name: '📰 The Hollywood Reporter', query: 'site:hollywoodreporter.com/movies' },
@@ -5502,10 +5513,12 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         ],
         theater: [
           { id: 'toi_theaters', name: '🏛️ Times of India (English/Hollywood Releases - Scrape)', type: 'scrape', url: 'https://timesofindia.indiatimes.com/entertainment/latest-new-movies/english-movies' },
+          { id: 'cinemaexpress_th', name: '📰 Cinema Express (Global Theatrical Releases)', query: 'site:cinemaexpress.com/english/news OR site:cinemaexpress.com/english box office theatrical release date' },
           { id: 'deadline_th', name: '📰 Deadline (Theatrical Box Office & Releases)', query: 'site:deadline.com box office theatrical release date Hollywood' }
         ],
         ott: [
           { id: 'whatsonnetflix', name: '🍿 What\'s on Netflix (Global Streaming)', query: 'site:whats-on-netflix.com upcoming movie release dates' },
+          { id: 'cinemaexpress_ott', name: '📰 Cinema Express (Global Streaming & OTT)', query: 'site:cinemaexpress.com/english/news OR site:cinemaexpress.com/english streaming OTT release date' },
           { id: 'ottplay_global', name: '🍿 OTTplay (Hollywood Streaming Calendar)', query: 'site:ottplay.com Hollywood English movie OTT streaming release date' },
           { id: 'deadline_ott', name: '📰 Deadline (Streaming & Digital Releases)', query: 'site:deadline.com streaming release date Netflix Disney Prime Apple' }
         ]
