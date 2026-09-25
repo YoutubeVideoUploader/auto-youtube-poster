@@ -1684,6 +1684,8 @@
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
                 <span id="news-card-date" style="font-size: 12px; color: #38bdf8; font-weight: 600;">Today</span>
                 <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                  <span id="news-platform-badge" style="display: none; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">📺 Platform</span>
+                  <span id="news-milestone-badge" style="display: none; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; background: rgba(56, 189, 248, 0.18); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4);">🎬 Milestone</span>
                   <span id="news-sheet-check-badge" style="display: none; background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">⚠️ Already in Sheet (Row #1)</span>
                   <span id="news-dedup-badge" style="display: none; background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">⚡ 2 Duplicate Reports Merged</span>
                 </div>
@@ -5591,6 +5593,216 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       return 'general_cinema_news';
     }
 
+    const INDUSTRY_PROFILES = {
+      malayalam: {
+        name: 'Malayalam Cinema (Mollywood)',
+        positive: [
+          'malayalam', 'mollywood', 'kerala', 'kochi', 'trivandrum', 'mohanlal', 'mammootty',
+          'fahadh', 'faasil', 'prithviraj', 'tovino', 'nivin', 'pauly', 'dulquer', 'salmaan',
+          'asif ali', 'basil joseph', 'dileep', 'manju warrier', 'parvathy', 'anaswara',
+          'kalyani', 'priyadarshan', 'jeethu joseph', 'lijo jose', 'amal neerad', 'vineeth',
+          'sreenivasan', 'sreenath bhasi', 'biju menon', 'suraj', 'venjaramoodu', 'joju',
+          'kunchacko', 'boban', 'unni mukundan', 'dhyan', 'shine tom', 'antony varghese',
+          'pepe', 'urvashi', 'revathi', 'sai pallavi', 'manorama', 'mathrubhumi', 'asianet',
+          'premalu', 'aavesham', 'bramayugam', 'barroz', 'empuraan', 'manjummel', 'goat life',
+          'aadujeevitham', 'arm', 'kalamkaval', 'kishkindha', 'marco'
+        ],
+        negative: ['bollywood', 'tollywood', 'kollywood', 'sandalwood']
+      },
+      tamil: {
+        name: 'Tamil Cinema (Kollywood)',
+        positive: [
+          'tamil', 'kollywood', 'chennai', 'tamil nadu', 'vijay', 'thalapathy', 'ajith', 'thala',
+          'rajinikanth', 'superstar', 'kamal haasan', 'suriya', 'dhanush', 'sivakarthikeyan',
+          'vijay sethupathi', 'karthi', 'vikram', 'chiyaan', 'silambarasan', 'str', 'simbu',
+          'nayanthara', 'trisha', 'anirudh', 'ar rahman', 'lokesh kanagaraj', 'atlee', 'shankar',
+          'nelson', 'vetrimaran', 'mari selvaraj', 'pa ranjith', 'venkat prabhu', 'karthik subbaraj',
+          'santhanam', 'vadivelu', 'soori', 'behindwoods', 'galatta', 'jailer', 'leo', 'goat',
+          'viduthalai', 'kanguva', 'amara', 'thug life', 'coolie', 'vettaiyan'
+        ],
+        negative: ['bollywood', 'mollywood', 'tollywood', 'sandalwood']
+      },
+      telugu: {
+        name: 'Telugu Cinema (Tollywood)',
+        positive: [
+          'telugu', 'tollywood', 'hyderabad', 'andhra', 'telangana', 'prabhas', 'allu arjun',
+          'mahesh babu', 'jr ntr', 'ntr', 'ram charan', 'pawan kalyan', 'chiranjeevi',
+          'nani', 'vijay deverakonda', 'nagarjuna', 'balakrishna', 'venkatesh', 'ravi teja',
+          'rajamouli', 'sukumar', 'prashanth neel', 'trivikram', 'koratala siva', 'thaman',
+          'dsp', 'devi sri prasad', 'samantha', 'rashmika', 'pooja hegde', 'sreeleela',
+          '123telugu', 'greatandhra', 'gulte', 'kalki', 'pushpa', 'devara', 'game changer',
+          'salaar', 'ssmb29', 'og'
+        ],
+        negative: ['bollywood', 'mollywood', 'kollywood', 'sandalwood']
+      },
+      kannada: {
+        name: 'Kannada Cinema (Sandalwood)',
+        positive: [
+          'kannada', 'sandalwood', 'bengaluru', 'bangalore', 'karnataka', 'yash', 'rocking star',
+          'rishab shetty', 'rakshit shetty', 'raj b shetty', 'shiva rajkumar', 'shivanna',
+          'upendra', 'sudeep', 'kichcha', 'darshan', 'dhruva sarja', 'ganesh', 'puneeth',
+          'rajkumar', 'prashanth neel', 'duniya vijay', 'ashwini', 'filmibeat kannada',
+          'kgf', 'kantara', 'toxic', 'max', 'martin', 'bagheera', 'ui'
+        ],
+        negative: ['bollywood', 'mollywood', 'kollywood', 'tollywood']
+      },
+      hindi: {
+        name: 'Hindi Cinema (Bollywood)',
+        positive: [
+          'hindi', 'bollywood', 'mumbai', 'shah rukh', 'srk', 'salman', 'aamir', 'ranbir',
+          'ranveer', 'hrithik', 'akshay', 'ajay devgn', 'kartik aaryan', 'varun dhawan',
+          'vicky kaushal', 'deepika', 'alia bhatt', 'katrina', 'shraddha', 'kareena',
+          'kiara', 'kriti sanon', 'karan johar', 'sanjay leela bhansali', 'rohit shetty',
+          'rajkumar hirani', 'ayushmann', 'bollywood hungama', 'pinkvilla', 'koimoi',
+          'stree 2', 'jawan', 'pathaan', 'animal', 'war 2', 'singham', 'bhool bhulaiyaa'
+        ],
+        negative: ['mollywood', 'kollywood', 'tollywood', 'sandalwood']
+      },
+      global: {
+        name: 'Global / Hollywood Cinema',
+        positive: [
+          'hollywood', 'global', 'marvel', 'mcu', 'dc', 'disney', 'warner bros', 'universal',
+          'paramount', 'sony pictures', 'nolan', 'christopher nolan', 'tom cruise', 'leonardo',
+          'dicaprio', 'brad pitt', 'denzel', 'spielberg', 'james cameron', 'scorsese',
+          'tarantino', 'oscar', 'academy award', 'box office mojo', 'variety', 'deadline',
+          'hollywood reporter', 'collider', 'avatar', 'oppenheimer', 'deadpool', 'gladiator',
+          'jurassic', 'mission impossible', 'batman', 'superman', 'avengers'
+        ],
+        negative: ['mollywood', 'kollywood', 'tollywood', 'sandalwood', 'bollywood']
+      }
+    };
+
+    const OTT_PLATFORMS_CONFIG = [
+      { key: 'netflix', name: 'Netflix', color: '#e50914', bg: 'rgba(229, 9, 20, 0.18)', border: 'rgba(229, 9, 20, 0.45)', terms: ['netflix'] },
+      { key: 'prime', name: 'Amazon Prime Video', color: '#00a8e1', bg: 'rgba(0, 168, 225, 0.18)', border: 'rgba(0, 168, 225, 0.45)', terms: ['prime video', 'amazon prime', 'prime'] },
+      { key: 'hotstar', name: 'JioHotstar', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.18)', border: 'rgba(56, 189, 248, 0.45)', terms: ['hotstar', 'disney+', 'disney', 'jiohotstar'] },
+      { key: 'sonyliv', name: 'SonyLIV', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.18)', border: 'rgba(244, 63, 94, 0.45)', terms: ['sonyliv', 'sony liv'] },
+      { key: 'zee5', name: 'Zee5', color: '#a855f7', bg: 'rgba(168, 85, 247, 0.18)', border: 'rgba(168, 85, 247, 0.45)', terms: ['zee5', 'zee 5'] },
+      { key: 'jiocinema', name: 'JioCinema', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.18)', border: 'rgba(236, 72, 153, 0.45)', terms: ['jiocinema', 'jio cinema'] },
+      { key: 'aha', name: 'Aha Video', color: '#f97316', bg: 'rgba(249, 115, 22, 0.18)', border: 'rgba(249, 115, 22, 0.45)', terms: ['aha video', 'aha'] },
+      { key: 'manoramamax', name: 'ManoramaMAX', color: '#eab308', bg: 'rgba(234, 179, 8, 0.18)', border: 'rgba(234, 179, 8, 0.45)', terms: ['manoramamax', 'manorama max'] },
+      { key: 'sunnxt', name: 'SunNXT', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.18)', border: 'rgba(245, 158, 11, 0.45)', terms: ['sunnxt', 'sun nxt'] },
+      { key: 'simply south', name: 'Simply South', color: '#06b6d4', bg: 'rgba(6, 182, 212, 0.18)', border: 'rgba(6, 182, 212, 0.45)', terms: ['simply south', 'simplysouth'] },
+      { key: 'apple', name: 'Apple TV+', color: '#cbd5e1', bg: 'rgba(203, 213, 225, 0.18)', border: 'rgba(203, 213, 225, 0.45)', terms: ['apple tv', 'apple tv+'] }
+    ];
+
+    function detectOttPlatformDetails(title, snippet, existingPlatform) {
+      if (existingPlatform) {
+        const lower = String(existingPlatform).toLowerCase();
+        for (const p of OTT_PLATFORMS_CONFIG) {
+          if (p.terms.some(t => lower.includes(t))) return p;
+        }
+        return { name: existingPlatform, color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.18)', border: 'rgba(56, 189, 248, 0.4)' };
+      }
+      const combined = ((title || '') + ' ' + (snippet || '')).toLowerCase();
+      for (const p of OTT_PLATFORMS_CONFIG) {
+        if (p.terms.some(t => combined.includes(t))) return p;
+      }
+      return { name: 'OTT Streaming', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.18)', border: 'rgba(56, 189, 248, 0.4)' };
+    }
+
+    function detectTheatricalDetails(title, snippet) {
+      const combined = (title || '') + ' ' + (snippet || '');
+      let date = '';
+      const dateMatch = combined.match(/(\d{1,2}\s+[A-Za-z]{3,}\s+\d{4})/i) || combined.match(/(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})/);
+      if (dateMatch) date = dateMatch[1];
+
+      let censor = '';
+      const censorMatch = combined.match(/\b(U\/A|UA|U|A)\b/);
+      if (censorMatch) censor = censorMatch[1];
+
+      return { date, censor };
+    }
+
+    function filterAndScoreArticles(articles, industry, subTab) {
+      if (!articles || articles.length === 0) return [];
+      const profile = INDUSTRY_PROFILES[industry] || INDUSTRY_PROFILES.malayalam;
+
+      const scored = [];
+
+      for (const item of articles) {
+        const text = ((item.title || '') + ' ' + (item.snippet || '')).toLowerCase();
+        let score = 50;
+
+        // 1. Industry Gating & Cross-Contamination Guardrail
+        let hasPositive = profile.positive.some(w => text.includes(w));
+        let hasNegative = profile.negative.some(w => text.includes(w));
+
+        // If from dedicated scrape or scoped path
+        if (item.source && item.source.toLowerCase().includes(industry)) {
+          hasPositive = true;
+        }
+        if (item.link && item.link.toLowerCase().includes('/' + industry + '/')) {
+          hasPositive = true;
+          hasNegative = false;
+        }
+
+        if (industry !== 'global') {
+          // Reject cross-contaminated articles that match other industries with zero local relevance
+          if (hasNegative && !hasPositive) {
+            continue;
+          }
+        }
+
+        if (hasPositive) score += 30;
+
+        // 2. Milestone Importance Weighting
+        const milestone = item.milestone || detectCinemaMilestone(item.title, item.snippet);
+        item.milestone = milestone;
+
+        const milestoneWeights = {
+          'trailer': 45,
+          'teaser': 40,
+          'ott_release': 45,
+          'theater_release': 45,
+          'box_office': 40,
+          'censor': 35,
+          'first_look': 30,
+          'shooting': 20,
+          'cast_crew': 20,
+          'song': 25,
+          'review': 25,
+          'general_cinema_news': 10
+        };
+        score += (milestoneWeights[milestone] || 10);
+
+        if (subTab === 'theater' && (milestone === 'theater_release' || item.category === 'theater')) {
+          score += 35;
+        } else if (subTab === 'ott' && (milestone === 'ott_release' || item.category === 'ott')) {
+          score += 35;
+        }
+
+        // 3. Freshness Scoring
+        const dateStr = (item.date || '').toLowerCase();
+        if (dateStr.includes('hour') || dateStr.includes('min') || dateStr.includes('sec')) {
+          score += 30;
+        } else if (dateStr.includes('today') || dateStr.includes('1 day')) {
+          score += 20;
+        } else if (dateStr.includes('2 day') || dateStr.includes('3 day')) {
+          score += 10;
+        }
+
+        // 4. Attach structured details
+        item.platformDetails = detectOttPlatformDetails(item.title, item.snippet, item.platform);
+        if (item.category === 'ott' && !item.platform) {
+          item.platform = item.platformDetails.name;
+        }
+
+        const thDet = detectTheatricalDetails(item.title, item.snippet);
+        item.theatricalDetails = thDet;
+        if (!item.date && thDet.date) {
+          item.date = thDet.date;
+        }
+
+        item.relevanceScore = score;
+        scored.push(item);
+      }
+
+      scored.sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0));
+
+      return scored.length > 0 ? scored : articles;
+    }
+
     function applyMilestoneDeduplication(articles) {
       if (!isNewsDedupEnabled) {
         return { unique: articles, duplicateCount: 0 };
@@ -6096,12 +6308,15 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           }));
         }
 
+        // Apply Industry Boundary Filtering & Milestone Relevance Scoring
+        const scoredArticles = filterAndScoreArticles(parsedArticles, industry, activeNewsSubTab);
+
         // Save raw articles before deduplication
-        rawNewsArticles = parsedArticles;
+        rawNewsArticles = scoredArticles;
 
         // Apply Milestone-aware Deduplication
-        const dedupResult = applyMilestoneDeduplication(parsedArticles);
-        liveNewsArticles = isNewsDedupEnabled ? dedupResult.unique : parsedArticles;
+        const dedupResult = applyMilestoneDeduplication(scoredArticles);
+        liveNewsArticles = isNewsDedupEnabled ? dedupResult.unique : scoredArticles;
         newsFilteredDuplicatesCount = isNewsDedupEnabled ? dedupResult.duplicateCount : 0;
         currentNewsIndex = 0;
 
@@ -6178,6 +6393,45 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           sheetBadge.style.display = 'inline-block';
         } else {
           sheetBadge.style.display = 'none';
+        }
+      }
+
+      // OTT Platform Badge
+      const platformBadge = document.getElementById('news-platform-badge');
+      if (platformBadge) {
+        if (cur.category === 'ott' || cur.platform || cur.platformDetails) {
+          const plat = cur.platformDetails || detectOttPlatformDetails(cur.title, cur.snippet, cur.platform);
+          platformBadge.innerText = `📺 ${plat.name}`;
+          platformBadge.style.background = plat.bg;
+          platformBadge.style.color = plat.color;
+          platformBadge.style.border = `1px solid ${plat.border}`;
+          platformBadge.style.display = 'inline-block';
+        } else {
+          platformBadge.style.display = 'none';
+        }
+      }
+
+      // Milestone Badge
+      const milestoneBadge = document.getElementById('news-milestone-badge');
+      if (milestoneBadge) {
+        if (cur.milestone && cur.milestone !== 'general_cinema_news') {
+          const milestoneNames = {
+            'trailer': '🔥 Official Trailer',
+            'teaser': '🎬 Teaser Released',
+            'first_look': '🖼️ First Look Poster',
+            'ott_release': '📺 OTT Streaming',
+            'theater_release': '🏛️ Theatrical Release',
+            'box_office': '💰 Box Office Record',
+            'censor': '📜 Censor Certified',
+            'shooting': '🎬 Shoot Update',
+            'cast_crew': '🌟 Cast Addition',
+            'song': '🎵 New Song / Audio',
+            'review': '⭐ Review & Rating'
+          };
+          milestoneBadge.innerText = milestoneNames[cur.milestone] || cur.milestone;
+          milestoneBadge.style.display = 'inline-block';
+        } else {
+          milestoneBadge.style.display = 'none';
         }
       }
 
@@ -6715,28 +6969,26 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       const rows = store[targetTab];
       const newTopicNum = rows.length + 1;
 
-      // Extract a clean movie headline
-      let headline = cur.title.split(/[:\-\|]/)[0].replace(/['"“”]/g, '').trim();
+      // Extract clean headline or movie name depending on target tab
+      let headline = '';
+      if (activeNewsSubTab === 'all') {
+        // Movie Updates: Full English Headline
+        headline = cur.title.replace(/['"“”]/g, '').trim();
+        headline = headline.replace(/\s*[-–—|]\s*(Cinema Express|Times of India|Behindwoods|123telugu|Bollywood Hungama|Filmibeat|Manorama Online|Mathrubhumi|Variety|Deadline).*$/i, '').trim();
+      } else {
+        // Release / OTT Updates: Clean Movie Name
+        headline = cur.entity || cur.title.split(/[:\-\|]/)[0].replace(/['"“”]/g, '').trim();
+      }
+
       if (typeof fixCommonCinemaEnglishSpellings === 'function') {
         headline = fixCommonCinemaEnglishSpellings(headline);
       }
 
-      // Detect OTT platform if applicable (prioritize Cinebuds platform)
-      let ottPlatform = cur.platform || "";
-      if (activeNewsSubTab === 'ott' && !ottPlatform) {
-        const fullText = (cur.title + " " + cur.snippet).toLowerCase();
-        if (fullText.includes('netflix')) ottPlatform = 'Netflix';
-        else if (fullText.includes('hotstar') || fullText.includes('disney')) ottPlatform = 'Disney+ Hotstar';
-        else if (fullText.includes('prime') || fullText.includes('amazon')) ottPlatform = 'Amazon Prime Video';
-        else if (fullText.includes('sonyliv') || fullText.includes('sony liv')) ottPlatform = 'SonyLIV';
-        else if (fullText.includes('zee5')) ottPlatform = 'Zee5';
-        else if (fullText.includes('aha')) ottPlatform = 'Aha';
-        else if (fullText.includes('apple')) ottPlatform = 'Apple TV+';
-        else if (fullText.includes('jiocinema') || fullText.includes('jio cinema')) ottPlatform = 'JioCinema';
-        else if (fullText.includes('manorama')) ottPlatform = 'ManoramaMAX';
-        else if (fullText.includes('simply south')) ottPlatform = 'Simply South';
-        else if (fullText.includes('paramount')) ottPlatform = 'Paramount+';
-        else if (fullText.includes('hulu')) ottPlatform = 'Hulu';
+      // Detect OTT platform if applicable (prioritize Cinebuds / platformDetails)
+      let ottPlatform = cur.platform || (cur.platformDetails ? cur.platformDetails.name : "");
+      if (activeNewsSubTab === 'ott' && (!ottPlatform || ottPlatform === 'OTT Streaming')) {
+        const platInfo = detectOttPlatformDetails(cur.title, cur.snippet, cur.platform);
+        ottPlatform = platInfo.name;
       }
 
       rows.push({
