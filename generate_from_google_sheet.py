@@ -585,7 +585,7 @@ def generate_audio_from_sheet(sheet_url: str = DEFAULT_SHEET_URL, model_key: str
 
 if __name__ == "__main__":
     url_arg = DEFAULT_SHEET_URL
-    model_arg = "edge_female"
+    model_arg = "gemini_voice"
     is_test = False
     sections_arg = os.environ.get("SECTIONS", "all")
 

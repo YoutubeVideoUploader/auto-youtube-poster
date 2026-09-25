@@ -42,8 +42,9 @@ class GeminiTTSEngine(BaseTTSEngine):
     def __init__(self, voice_name: str = "Kore", model_id: str = "gemini_voice", api_key: Optional[str] = None):
         super().__init__(model_id=model_id)
         self.voice_name = voice_name
-        # Locked strictly to Gemini 2.5 for 100% consistent presenter voice
-        self.model_name = "gemini-2.5-flash-preview-tts"
+        # Upgraded to Gemini 3.1 Flash TTS Preview for next-gen clarity & natural Malayalam delivery
+        self.model_name = "gemini-3.1-flash-tts-preview"
+        self.fallback_model_name = "gemini-2.5-flash-preview-tts"
         self.native_sample_rate = 24000
         self.api_keys = self._resolve_api_keys(api_key)
         self.current_key_idx = 0
@@ -141,7 +142,7 @@ class GeminiTTSEngine(BaseTTSEngine):
                 {
                     "parts": [
                         {
-                            "text": f"Read naturally, clearly, and expressively in Malayalam for a movie news presentation: {cleaned_text}"
+                            "text": f"Read naturally, clearly, and expressively in Malayalam as a professional cinema news anchor with crisp enunciation: {cleaned_text}"
                         }
                     ]
                 }
@@ -170,7 +171,9 @@ class GeminiTTSEngine(BaseTTSEngine):
         for attempt in range(1, max_attempts + 1):
             key = self.api_keys[self.current_key_idx % len(self.api_keys)]
             self.current_key_idx += 1
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model_name}:generateContent?key={key}"
+            # If primary model hits issues across full rotation, try fallback model
+            active_model = self.model_name if attempt <= len(self.api_keys) * 2 else self.fallback_model_name
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{active_model}:generateContent?key={key}"
 
             r = None
             try:
@@ -196,32 +199,32 @@ class GeminiTTSEngine(BaseTTSEngine):
                                         np.save(str(cache_file), waveform)
                                     except Exception:
                                         pass
-                                    _log(f"[Gemini 2.5] OK: generated {len(waveform)} samples (key ...{key[-6:]})")
+                                    _log(f"[Gemini 3.1] OK: generated {len(waveform)} samples via {active_model} (key ...{key[-6:]})")
                                     return waveform, self.native_sample_rate
                 except Exception as ex:
                     _log(f"[!] Error parsing audio response: {ex}")
                     break
 
-                _log(f"[!] Warning: Gemini 2.5 response missing audio data.")
+                _log(f"[!] Warning: Gemini 3.1 response missing audio data.")
                 break
 
             elif r.status_code in [429, 503]:
                 # If a key hits 429, immediately try next key in pool
                 if len(self.api_keys) > 1 and (attempt % len(self.api_keys) != 0):
-                    _log(f"[Gemini 2.5] Key ...{key[-6:]} hit 429. Instantly rotating to next key...")
+                    _log(f"[Gemini 3.1] Key ...{key[-6:]} hit 429. Instantly rotating to next key...")
                     continue
 
-                _log(f"[Gemini 2.5] Cooldown pause 10s (attempt {attempt}/{max_attempts})...")
+                _log(f"[Gemini 3.1] Cooldown pause 10s (attempt {attempt}/{max_attempts})...")
                 time.sleep(10)
 
             else:
-                _log(f"[!] Gemini 2.5 error {r.status_code} on key ...{key[-6:]}: {r.text[:120]}")
+                _log(f"[!] Gemini 3.1 error {r.status_code} on key ...{key[-6:]}: {r.text[:120]}")
                 if attempt < len(self.api_keys):
                     continue
                 time.sleep(2)
 
         # Fallback to Edge TTS only as an absolute last resort
-        _log(f"[!] Gemini 2.5 exhausted {max_attempts} attempts. Falling back to Edge TTS.")
+        _log(f"[!] Gemini 3.1 exhausted {max_attempts} attempts. Falling back to Edge TTS.")
         try:
             from models.edge_tts_engine import EdgeTTSEngine
             edge_engine = EdgeTTSEngine()
