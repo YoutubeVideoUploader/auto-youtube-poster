@@ -1617,6 +1617,18 @@
             </select>
           </div>
 
+          <!-- News Freshness Time Range -->
+          <div style="flex: 1; min-width: 190px;">
+            <label style="font-size: 12.5px; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 6px;">⏱️ News Freshness:</label>
+            <select id="news-time-filter" onchange="fetchLatestCinemaNews()" style="width: 100%; padding: 10px 14px; background: rgba(8, 12, 22, 0.95); border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 13.5px;">
+              <option value="qdr:d" selected>⚡ Past 24 Hours (Today's Breaking)</option>
+              <option value="qdr:d2">⏱️ Past 48 Hours</option>
+              <option value="qdr:w">📅 Past Week (Last 7 Days)</option>
+              <option value="qdr:m">🗓️ Past Month</option>
+              <option value="all">🌐 All-Time Relevance</option>
+            </select>
+          </div>
+
           <!-- Deduplication Toggle -->
           <div style="min-width: 180px;">
             <label style="font-size: 12.5px; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 6px;">🛡️ Duplicate Filter:</label>
@@ -5765,8 +5777,10 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       const statsBadge = document.getElementById('news-dedup-stats-badge');
       const industrySel = document.getElementById('news-industry-select');
       const sourceSel = document.getElementById('news-source-select');
+      const timeFilterEl = document.getElementById('news-time-filter');
       const industry = industrySel ? industrySel.value : 'malayalam';
       const selectedSourceId = sourceSel ? sourceSel.value : 'all';
+      const timeFilter = timeFilterEl ? timeFilterEl.value : 'qdr:d';
 
       const sources = (NEWS_SOURCE_MATRIX[industry] && NEWS_SOURCE_MATRIX[industry][activeNewsSubTab]) || [];
       const currentSource = sources.find(s => s.id === selectedSourceId) || sources[0] || { id: 'all', name: 'All Sources', query: 'movie news' };
@@ -5960,17 +5974,23 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
             const apiKey = serperKeys[currentIdx];
 
             try {
+              const reqBody = {
+                q: searchQuery,
+                gl: 'in',
+                hl: 'en',
+                num: 20
+              };
+              if (timeFilter && timeFilter !== 'all') {
+                reqBody.tbs = timeFilter === 'qdr:d2' ? 'qdr:d' : timeFilter;
+              }
+
               const resp = await fetch('https://google.serper.dev/news', {
                 method: 'POST',
                 headers: {
                   'X-API-KEY': apiKey,
                   'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                  q: searchQuery,
-                  gl: 'in',
-                  hl: 'en'
-                })
+                body: JSON.stringify(reqBody)
               });
 
               if (resp.status === 403 || resp.status === 429) {
@@ -5988,20 +6008,28 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
                   localStorage.setItem('active_serper_key_idx', String(currentIdx));
                 }
 
-                // Fallback if fewer than 3 items returned
-                if (items.length < 3 && fallbackQuery) {
+                // Fallback if fewer than 3 items returned: broaden time filter or query
+                if (items.length < 3) {
                   try {
+                    const fallbackBody = {
+                      q: fallbackQuery || searchQuery,
+                      gl: 'in',
+                      hl: 'en',
+                      num: 20
+                    };
+                    if (timeFilter === 'qdr:d') {
+                      fallbackBody.tbs = 'qdr:w'; // Broaden 24h to past week
+                    } else if (timeFilter && timeFilter !== 'all') {
+                      fallbackBody.tbs = timeFilter;
+                    }
+
                     const respFallback = await fetch('https://google.serper.dev/news', {
                       method: 'POST',
                       headers: {
                         'X-API-KEY': apiKey,
                         'Content-Type': 'application/json'
                       },
-                      body: JSON.stringify({
-                        q: fallbackQuery,
-                        gl: 'in',
-                        hl: 'en'
-                      })
+                      body: JSON.stringify(fallbackBody)
                     });
                     if (respFallback.ok) {
                       const fbData = await respFallback.json();
