@@ -1655,25 +1655,67 @@
         </p>
       </div>
 
-      <!-- Main News Carousel Card Box -->
-      <div id="news-carousel-wrapper" style="display: none;">
-        <!-- Mobile Swipe Hint & Badges -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: #94a3b8; font-size: 12px; flex-wrap: wrap; gap: 6px;">
-          <span>👈 Swipe left/right on mobile or use arrows 👉</span>
-          <div style="display: flex; gap: 6px; align-items: center;">
-            <span id="news-source-tag" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 2px 8px; border-radius: 4px; font-weight: 600;">Times of India</span>
+      <!-- Main News List View (20 stories per batch) -->
+      <div id="news-list-container" style="display: none;">
+        <!-- Meta summary header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding: 12px 18px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <span style="font-size: 14px; font-weight: 700; color: #38bdf8;">⚡ Latest Cinema News Feed</span>
+            <span id="news-list-count-badge" style="font-size: 12px; font-weight: 600; color: #94a3b8; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 9999px;">Showing 0 stories</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 12px; color: #94a3b8; flex-wrap: wrap;">
+            <span style="display: flex; align-items: center; gap: 4px;">⏱️ <b>Sorted by:</b> Newest to Oldest</span>
+            <span id="news-list-source-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 8px; border-radius: 4px; font-weight: 600;">Cinema Express</span>
           </div>
         </div>
 
-        <!-- The Swipeable Card Container -->
-        <div id="news-swipe-card" style="background: #0b1120; border: 1px solid #1e293b; border-radius: 16px; padding: 20px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); touch-action: pan-y;">
-          
+        <!-- The 20-item list container -->
+        <div id="news-items-list" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px;">
+          <!-- Dynamically populated rows -->
+        </div>
+
+        <!-- Load More News Button -->
+        <div id="news-load-more-wrap" style="text-align: center; margin-top: 14px; margin-bottom: 24px;">
+          <button id="btn-load-more-news" class="btn btn-secondary" onclick="loadMoreNews()" style="padding: 12px 30px; font-size: 14px; font-weight: 700; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; border-radius: 10px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+            ⬇️ Show More News
+          </button>
+          <div id="news-all-loaded-msg" style="display: none; font-size: 13px; color: #64748b; font-weight: 600; padding: 10px;">
+            ✓ All latest stories loaded
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DETAILED NEWS STORY MODAL -->
+    <div id="news-detail-modal" class="image-modal-overlay" onclick="onNewsModalBackdropClick(event)" style="z-index: 10006; display: none; align-items: center; justify-content: center; padding: 16px;">
+      <div style="background: #0b1120; border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 16px; width: 100%; max-width: 820px; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 70px rgba(0,0,0,0.85), 0 0 35px rgba(56, 189, 248, 0.15); animation: fadeInLightbox 0.2s ease-out;">
+        
+        <!-- Modal Header -->
+        <div style="background: rgba(15, 23, 42, 0.95); padding: 12px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span id="modal-news-counter" style="font-size: 12px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); padding: 3px 10px; border-radius: 9999px;">Story 1 of 20</span>
+            <span id="modal-news-source-tag" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 2px 8px; border-radius: 4px; font-size: 11.5px; font-weight: 600;">Times of India</span>
+            <span id="modal-news-date" style="font-size: 12px; color: #94a3b8; font-weight: 600;">Today</span>
+            <span id="modal-news-platform-badge" style="display: none; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">📺 Platform</span>
+            <span id="modal-news-milestone-badge" style="display: none; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; background: rgba(56, 189, 248, 0.18); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4);">🎬 Milestone</span>
+            <span id="modal-news-sheet-badge" style="display: none; background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">⚠️ In Sheet</span>
+            <span id="modal-news-dedup-badge" style="display: none; background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">⚡ Merged</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button onclick="prevNewsStoryModal()" class="btn btn-secondary" style="padding: 4px 10px; font-size: 12px;" title="Previous Story (Left Arrow)">◀ Prev</button>
+            <button onclick="nextNewsStoryModal()" class="btn btn-secondary" style="padding: 4px 10px; font-size: 12px;" title="Next Story (Right Arrow)">Next ▶</button>
+            <button onclick="closeNewsDetailModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; font-weight: bold; padding: 0 6px; line-height: 1; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'" title="Close (ESC)">✕</button>
+          </div>
+        </div>
+
+        <!-- Modal Body (Scrollable) -->
+        <div style="padding: 20px; overflow-y: auto; flex: 1;">
           <!-- Card Content Grid: Thumbnail Image + Story Details -->
-          <div class="news-card-layout" style="display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start;">
-            <!-- Thumbnail Poster (if available) -->
-            <div id="news-card-img-wrap" style="width: 150px; min-width: 130px; height: 190px; border-radius: 10px; overflow: hidden; background: #1e293b; border: 1px solid #334155; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-              <img id="news-card-img" src="" alt="Story Poster" style="width: 100%; height: 100%; object-fit: cover; display: none;" onerror="this.style.display='none'; document.getElementById('news-card-img-placeholder').style.display='flex';">
-              <div id="news-card-img-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; color: #64748b; font-size: 28px;">
+          <div class="news-card-layout" style="display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; margin-bottom: 18px;">
+            <!-- Thumbnail Poster -->
+            <div id="modal-news-img-wrap" style="width: 150px; min-width: 130px; height: 190px; border-radius: 10px; overflow: hidden; background: #1e293b; border: 1px solid #334155; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <img id="modal-news-img" src="" alt="Story Poster" style="width: 100%; height: 100%; object-fit: cover; display: none;" onerror="this.style.display='none'; document.getElementById('modal-news-img-placeholder').style.display='flex';">
+              <div id="modal-news-img-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; color: #64748b; font-size: 28px;">
                 🎬
                 <span style="font-size: 11px; margin-top: 4px; color: #94a3b8;">Cinema News</span>
               </div>
@@ -1681,57 +1723,37 @@
 
             <!-- Text Content -->
             <div style="flex: 1; min-width: 250px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
-                <span id="news-card-date" style="font-size: 12px; color: #38bdf8; font-weight: 600;">Today</span>
-                <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-                  <span id="news-platform-badge" style="display: none; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">📺 Platform</span>
-                  <span id="news-milestone-badge" style="display: none; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; background: rgba(56, 189, 248, 0.18); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4);">🎬 Milestone</span>
-                  <span id="news-sheet-check-badge" style="display: none; background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">⚠️ Already in Sheet (Row #1)</span>
-                  <span id="news-dedup-badge" style="display: none; background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">⚡ 2 Duplicate Reports Merged</span>
-                </div>
-              </div>
-              <h3 id="news-card-title" style="color: #f8fafc; font-size: 18px; font-weight: 700; line-height: 1.4; margin-bottom: 10px;">
+              <h3 id="modal-news-title" style="color: #f8fafc; font-size: 18px; font-weight: 700; line-height: 1.4; margin-bottom: 10px;">
                 Story Title Loading...
               </h3>
-              <p id="news-card-snippet" style="color: #cbd5e1; font-size: 14px; line-height: 1.6; margin-bottom: 10px;">
+              <p id="modal-news-snippet" style="color: #cbd5e1; font-size: 14px; line-height: 1.6; margin-bottom: 12px;">
                 Story summary...
               </p>
               
               <!-- Other Sources / Multi-site coverage -->
-              <div id="news-card-other-sources" style="display: none; margin-bottom: 12px; font-size: 12px; color: #94a3b8; background: rgba(15, 23, 42, 0.5); padding: 5px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05);">
-                🌐 Also reported by: <span id="news-other-sources-list" style="color: #38bdf8; font-weight: 600;"></span>
+              <div id="modal-news-other-sources" style="display: none; margin-bottom: 12px; font-size: 12px; color: #94a3b8; background: rgba(15, 23, 42, 0.5); padding: 5px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                🌐 Also reported by: <span id="modal-news-other-sources-list" style="color: #38bdf8; font-weight: 600;"></span>
               </div>
 
               <div>
-                <a id="news-card-link" href="#" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 6px; color: #38bdf8; text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 12px; background: rgba(56, 189, 248, 0.1); border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.25);">
+                <a id="modal-news-link" href="#" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 6px; color: #38bdf8; text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 12px; background: rgba(56, 189, 248, 0.1); border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.25);">
                   🔗 Read Full Article ↗
                 </a>
               </div>
 
               <!-- User Custom Correction / Note Box -->
-              <div style="margin-top: 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 8px; padding: 8px 10px;">
+              <div style="margin-top: 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 8px; padding: 8px 10px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                   <label style="font-size: 11px; font-weight: 700; color: #38bdf8;">✏️ Add / Correct Details (e.g. Director, Lead Cast):</label>
                   <span style="font-size: 10px; color: #94a3b8;">Overrides AI guesswork</span>
                 </div>
-                <input type="text" id="news-card-notes" placeholder="e.g. Directed by Ranjith, starring Prakash Varma" style="width: 100%; padding: 7px 10px; background: rgba(8, 12, 22, 0.95); border: 1px solid rgba(255, 255, 255, 0.12); color: #fff; border-radius: 6px; font-size: 12.5px;" oninput="saveCurrentNewsNote(this.value)">
+                <input type="text" id="modal-news-notes" placeholder="e.g. Directed by Ranjith, starring Prakash Varma" style="width: 100%; padding: 7px 10px; background: rgba(8, 12, 22, 0.95); border: 1px solid rgba(255, 255, 255, 0.12); color: #fff; border-radius: 6px; font-size: 12.5px;" oninput="saveCurrentNewsNote(this.value)">
               </div>
             </div>
           </div>
 
-          <!-- Carousel Arrow Navigation Bar -->
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #1e293b; flex-wrap: wrap; gap: 10px;">
-            <button class="btn btn-secondary" onclick="prevNewsStory()" style="padding: 8px 16px; font-size: 13px; font-weight: 600;">
-              ◀ Previous Story
-            </button>
-            <span id="news-bottom-counter" style="font-size: 13px; color: #94a3b8; font-weight: 600;">Story 1 of 10</span>
-            <button class="btn btn-secondary" onclick="nextNewsStory()" style="padding: 8px 16px; font-size: 13px; font-weight: 600;">
-              Next Story ▶
-            </button>
-          </div>
-
           <!-- Convert to Malayalam Button with Engine Toggle -->
-          <div style="margin-top: 18px;">
+          <div style="margin-top: 16px; border-top: 1px solid #1e293b; padding-top: 16px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
               <span style="font-size: 12px; font-weight: 700; color: #94a3b8;">Select AI Model:</span>
               <div style="display: flex; gap: 6px;">
@@ -1761,9 +1783,21 @@
               </button>
             </div>
           </div>
-
         </div>
+
+        <!-- Modal Footer -->
+        <div style="background: rgba(15, 23, 42, 0.95); padding: 12px 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; gap: 8px;">
+            <button onclick="prevNewsStoryModal()" class="btn btn-secondary" style="padding: 8px 16px; font-size: 13px; font-weight: 600;">◀ Previous Story</button>
+            <button onclick="nextNewsStoryModal()" class="btn btn-secondary" style="padding: 8px 16px; font-size: 13px; font-weight: 600;">Next Story ▶</button>
+          </div>
+          <button onclick="closeNewsDetailModal()" class="btn btn-secondary" style="padding: 8px 20px; font-size: 13px; font-weight: 600;">
+            ✕ Close Window
+          </button>
+        </div>
+
       </div>
+    </div>
     </div>
 
   </div>
@@ -5380,6 +5414,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
     let activeNewsSubTab = 'all'; // 'all' | 'theater' | 'ott'
     let isNewsDedupEnabled = true;
     let newsFilteredDuplicatesCount = 0;
+    let newsDisplayLimit = 20;
 
     // Cinema Milestones for Smart Deduplication (Differentiates distinct milestones for the same film)
     const CINEMA_MILESTONES = [
@@ -5877,6 +5912,9 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       if (rawNewsArticles && rawNewsArticles.length > 0) {
         const dedup = applyMilestoneDeduplication(rawNewsArticles);
         liveNewsArticles = isNewsDedupEnabled ? dedup.unique : rawNewsArticles;
+        if (typeof sortArticlesNewestFirst === 'function') {
+          liveNewsArticles = sortArticlesNewestFirst(liveNewsArticles);
+        }
         newsFilteredDuplicatesCount = isNewsDedupEnabled ? dedup.duplicateCount : 0;
         currentNewsIndex = 0;
 
@@ -5890,7 +5928,8 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           }
         }
 
-        renderCurrentNewsCard();
+        if (typeof renderNewsListView === 'function') renderNewsListView();
+        if (typeof renderNewsDetailModal === 'function') renderNewsDetailModal();
       }
     }
 
@@ -5997,7 +6036,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       const status = document.getElementById('news-fetch-status');
       const fetchBtn = document.getElementById('btn-fetch-news');
       const emptyState = document.getElementById('news-empty-state');
-      const carouselWrap = document.getElementById('news-carousel-wrapper');
+      const listWrap = document.getElementById('news-list-container');
       const badge = document.getElementById('news-counter-badge');
       const statsBadge = document.getElementById('news-dedup-stats-badge');
       const industrySel = document.getElementById('news-industry-select');
@@ -6203,7 +6242,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
                 q: searchQuery,
                 gl: 'in',
                 hl: 'en',
-                num: 20
+                num: 40
               };
               if (timeFilter && timeFilter !== 'all') {
                 reqBody.tbs = timeFilter === 'qdr:d2' ? 'qdr:d' : timeFilter;
@@ -6240,7 +6279,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
                       q: fallbackQuery || searchQuery,
                       gl: 'in',
                       hl: 'en',
-                      num: 20
+                      num: 40
                     };
                     if (timeFilter === 'qdr:d') {
                       fallbackBody.tbs = 'qdr:w'; // Broaden 24h to past week
@@ -6311,14 +6350,18 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
         // Apply Industry Boundary Filtering & Milestone Relevance Scoring
         const scoredArticles = filterAndScoreArticles(parsedArticles, industry, activeNewsSubTab);
 
+        // Sort strictly by newest first (chronological order)
+        const sortedArticles = sortArticlesNewestFirst(scoredArticles);
+
         // Save raw articles before deduplication
-        rawNewsArticles = scoredArticles;
+        rawNewsArticles = sortedArticles;
 
         // Apply Milestone-aware Deduplication
-        const dedupResult = applyMilestoneDeduplication(scoredArticles);
-        liveNewsArticles = isNewsDedupEnabled ? dedupResult.unique : scoredArticles;
+        const dedupResult = applyMilestoneDeduplication(sortedArticles);
+        liveNewsArticles = isNewsDedupEnabled ? dedupResult.unique : sortedArticles;
         newsFilteredDuplicatesCount = isNewsDedupEnabled ? dedupResult.duplicateCount : 0;
         currentNewsIndex = 0;
+        newsDisplayLimit = 20;
 
         if (status) {
           const dedupMsg = (isNewsDedupEnabled && newsFilteredDuplicatesCount > 0)
@@ -6337,11 +6380,12 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
           }
         }
 
+        const listContainer = document.getElementById('news-list-container');
         if (emptyState) emptyState.style.display = 'none';
-        if (carouselWrap) carouselWrap.style.display = 'block';
+        if (listContainer) listContainer.style.display = 'block';
         if (badge) badge.style.display = 'inline-block';
 
-        renderCurrentNewsCard();
+        renderNewsListView();
         initNewsSection();
 
       } catch (err) {
@@ -6363,7 +6407,221 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       }
     }
 
-    function renderCurrentNewsCard() {
+    // Chronological Timestamp Parser (Supports "2h ago", "15m ago", "1 day ago", "Yesterday", "Today", etc.)
+    function parseArticleTimestamp(dateStr) {
+      if (!dateStr || typeof dateStr !== 'string') return 0;
+      const s = dateStr.trim().toLowerCase();
+      const now = Date.now();
+
+      const minMatch = s.match(/(\d+)\s*(?:mins?|minutes?|m)\s*ago/);
+      if (minMatch) return now - parseInt(minMatch[1], 10) * 60 * 1000;
+
+      const hrMatch = s.match(/(\d+)\s*(?:hours?|hrs?|h)\s*ago/);
+      if (hrMatch) return now - parseInt(hrMatch[1], 10) * 3600 * 1000;
+
+      if (s.includes('today')) return now - 2 * 3600 * 1000;
+      if (s.includes('yesterday')) return now - 24 * 3600 * 1000;
+
+      const dayMatch = s.match(/(\d+)\s*(?:days?|d)\s*ago/);
+      if (dayMatch) return now - parseInt(dayMatch[1], 10) * 86400 * 1000;
+
+      const wkMatch = s.match(/(\d+)\s*(?:weeks?|wks?|w)\s*ago/);
+      if (wkMatch) return now - parseInt(wkMatch[1], 10) * 7 * 86400 * 1000;
+
+      const moMatch = s.match(/(\d+)\s*(?:months?|mos?)\s*ago/);
+      if (moMatch) return now - parseInt(moMatch[1], 10) * 30 * 86400 * 1000;
+
+      const parsed = Date.parse(dateStr);
+      if (!isNaN(parsed)) return parsed;
+
+      return 0;
+    }
+
+    function sortArticlesNewestFirst(articles) {
+      if (!articles || !Array.isArray(articles)) return [];
+      return articles.slice().sort((a, b) => {
+        const timeA = parseArticleTimestamp(a.date);
+        const timeB = parseArticleTimestamp(b.date);
+        if (timeA !== timeB) {
+          return timeB - timeA; // newest first
+        }
+        return (b._finalScore || 0) - (a._finalScore || 0);
+      });
+    }
+
+    // Render 20-Item List Feed with Thumbnails and One-Line Snippets
+    function renderNewsListView() {
+      const listContainer = document.getElementById('news-list-container');
+      const itemsList = document.getElementById('news-items-list');
+      const countBadge = document.getElementById('news-list-count-badge');
+      const sourceTag = document.getElementById('news-list-source-tag');
+      const loadMoreBtn = document.getElementById('btn-load-more-news');
+      const allLoadedMsg = document.getElementById('news-all-loaded-msg');
+      const sourceSel = document.getElementById('news-source-select');
+
+      if (!listContainer || !itemsList) return;
+
+      if (!liveNewsArticles || liveNewsArticles.length === 0) {
+        itemsList.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 30px; background: rgba(15, 23, 42, 0.5); border-radius: 10px;">No verified cinema news found for this criteria. Try switching categories or news portal.</div>';
+        if (countBadge) countBadge.innerText = '0 stories';
+        if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+        if (allLoadedMsg) allLoadedMsg.style.display = 'none';
+        return;
+      }
+
+      const total = liveNewsArticles.length;
+      const visibleCount = Math.min(newsDisplayLimit, total);
+
+      if (countBadge) {
+        countBadge.innerText = `Showing ${visibleCount} of ${total} stories`;
+      }
+      if (sourceTag && sourceSel) {
+        const selText = sourceSel.options[sourceSel.selectedIndex]?.text || 'Cinema Portal';
+        sourceTag.innerText = selText;
+      }
+
+      let html = '';
+      for (let i = 0; i < visibleCount; i++) {
+        const cur = liveNewsArticles[i];
+        if (!cur) continue;
+
+        // In sheet check badge
+        const sheetMatch = checkNewsItemInSheet(cur);
+        const sheetBadgeHtml = sheetMatch
+          ? `<span style="background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 1px 7px; border-radius: 4px; font-size: 11px; font-weight: 700;">⚠️ In Sheet (#${sheetMatch.rowNum})</span>`
+          : '';
+
+        // OTT platform badge
+        let platBadgeHtml = '';
+        if (cur.category === 'ott' || cur.platform || cur.platformDetails) {
+          const plat = cur.platformDetails || detectOttPlatformDetails(cur.title, cur.snippet, cur.platform);
+          platBadgeHtml = `<span style="background: ${plat.bg}; color: ${plat.color}; border: 1px solid ${plat.border}; padding: 1px 7px; border-radius: 4px; font-size: 11px; font-weight: 700;">📺 ${plat.name}</span>`;
+        }
+
+        // Milestone badge
+        let milestoneBadgeHtml = '';
+        if (cur.milestone && cur.milestone !== 'general_cinema_news') {
+          const milestoneNames = {
+            'trailer': '🔥 Trailer',
+            'teaser': '🎬 Teaser',
+            'first_look': '🖼️ First Look',
+            'ott_release': '📺 OTT Streaming',
+            'theater_release': '🏛️ Theatrical Release',
+            'box_office': '💰 Box Office',
+            'censor': '📜 Censor',
+            'shooting': '🎬 Shoot Update',
+            'cast_crew': '🌟 Cast Addition',
+            'song': '🎵 New Song',
+            'review': '⭐ Review'
+          };
+          const mLabel = milestoneNames[cur.milestone] || cur.milestone;
+          milestoneBadgeHtml = `<span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 1px 7px; border-radius: 4px; font-size: 11px; font-weight: 700;">${mLabel}</span>`;
+        }
+
+        // Converted badge
+        const mlScriptBadge = cur.malayalamScript
+          ? `<span style="background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 1px 7px; border-radius: 4px; font-size: 11px; font-weight: 700;">🎙️ Malayalam Ready</span>`
+          : '';
+
+        // Clean poster image or fallback icon
+        const hasImg = cur.imageUrl && cur.imageUrl.startsWith('http');
+        const imgHtml = hasImg
+          ? `<img src="${cur.imageUrl}" alt="Poster" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 24px; color: #64748b;">🎬</div>`
+          : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #64748b;">🎬</div>`;
+
+        html += `
+          <div class="news-list-row" onclick="openNewsDetailModal(${i})" style="display: flex; gap: 14px; align-items: center; padding: 12px 14px; background: #0b1120; border: 1px solid #1e293b; border-radius: 12px; cursor: pointer; transition: all 0.18s ease; user-select: none;" onmouseover="this.style.borderColor='#38bdf8'; this.style.background='rgba(14, 165, 233, 0.06)';" onmouseout="this.style.borderColor='#1e293b'; this.style.background='#0b1120';">
+            <div style="width: 70px; height: 70px; min-width: 70px; border-radius: 8px; overflow: hidden; background: #1e293b; border: 1px solid #334155; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              ${imgHtml}
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 5px;">
+                <span style="font-size: 11px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); padding: 1px 7px; border-radius: 9999px;">#${i + 1}</span>
+                <span style="font-size: 11px; font-weight: 600; color: #f87171; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); padding: 1px 7px; border-radius: 4px;">${cur.source || 'Portal'}</span>
+                <span style="font-size: 11px; color: #94a3b8; font-weight: 600;">⏱️ ${cur.date || 'Today'}</span>
+                ${platBadgeHtml}
+                ${milestoneBadgeHtml}
+                ${sheetBadgeHtml}
+                ${mlScriptBadge}
+              </div>
+              <div style="font-size: 14.5px; font-weight: 700; color: #f8fafc; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px;" title="${typeof escapeHtml === 'function' ? escapeHtml(cur.title) : cur.title}">
+                ${cur.title}
+              </div>
+              <div style="font-size: 12.5px; color: #94a3b8; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${typeof escapeHtml === 'function' ? escapeHtml(cur.snippet) : cur.snippet}">
+                ${cur.snippet}
+              </div>
+            </div>
+            <div style="color: #38bdf8; font-size: 20px; font-weight: bold; padding: 0 4px; flex-shrink: 0;">›</div>
+          </div>
+        `;
+      }
+
+      itemsList.innerHTML = html;
+
+      // Handle Load More Button
+      if (loadMoreBtn && allLoadedMsg) {
+        if (visibleCount < total) {
+          loadMoreBtn.style.display = 'inline-block';
+          loadMoreBtn.innerText = `⬇️ Show More News (Showing ${visibleCount} of ${total})`;
+          allLoadedMsg.style.display = 'none';
+        } else {
+          loadMoreBtn.style.display = 'none';
+          allLoadedMsg.style.display = 'block';
+          allLoadedMsg.innerText = `✓ All ${total} latest stories loaded`;
+        }
+      }
+    }
+
+    function loadMoreNews() {
+      newsDisplayLimit += 20;
+      renderNewsListView();
+    }
+
+    function openNewsDetailModal(index) {
+      if (!liveNewsArticles || index < 0 || index >= liveNewsArticles.length) return;
+      currentNewsIndex = index;
+      renderNewsDetailModal();
+      const modal = document.getElementById('news-detail-modal');
+      if (modal) {
+        modal.style.display = 'flex';
+      }
+    }
+
+    function closeNewsDetailModal() {
+      const modal = document.getElementById('news-detail-modal');
+      if (modal) {
+        modal.style.display = 'none';
+      }
+      renderNewsListView();
+    }
+
+    function onNewsModalBackdropClick(e) {
+      if (e.target.id === 'news-detail-modal') {
+        closeNewsDetailModal();
+      }
+    }
+
+    function prevNewsStoryModal() {
+      if (!liveNewsArticles || liveNewsArticles.length === 0) return;
+      currentNewsIndex = (currentNewsIndex - 1 + liveNewsArticles.length) % liveNewsArticles.length;
+      renderNewsDetailModal();
+    }
+
+    function nextNewsStoryModal() {
+      if (!liveNewsArticles || liveNewsArticles.length === 0) return;
+      currentNewsIndex = (currentNewsIndex + 1) % liveNewsArticles.length;
+      renderNewsDetailModal();
+    }
+
+    function nextNewsStory() {
+      nextNewsStoryModal();
+    }
+
+    function prevNewsStory() {
+      prevNewsStoryModal();
+    }
+
+    function renderNewsDetailModal() {
       if (!liveNewsArticles || liveNewsArticles.length === 0) return;
       const cur = liveNewsArticles[currentNewsIndex];
       if (!cur) return;
@@ -6372,19 +6630,17 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       const idxDisplay = currentNewsIndex + 1;
 
       // Update counters
-      const counterBadge = document.getElementById('news-counter-badge');
-      const bottomCounter = document.getElementById('news-bottom-counter');
+      const counterBadge = document.getElementById('modal-news-counter');
       if (counterBadge) counterBadge.innerText = `Story ${idxDisplay} of ${total}`;
-      if (bottomCounter) bottomCounter.innerText = `Story ${idxDisplay} of ${total}`;
 
       // Update source & date
-      const dateElem = document.getElementById('news-card-date');
-      const sourceTag = document.getElementById('news-source-tag');
+      const dateElem = document.getElementById('modal-news-date');
+      const sourceTag = document.getElementById('modal-news-source-tag');
       if (dateElem) dateElem.innerText = `📅 ${cur.date || 'Today'}`;
       if (sourceTag) sourceTag.innerText = cur.source || 'Times of India';
 
       // Sheet Cross-Check
-      const sheetBadge = document.getElementById('news-sheet-check-badge');
+      const sheetBadge = document.getElementById('modal-news-sheet-badge');
       const sheetMatch = checkNewsItemInSheet(cur);
       if (sheetBadge) {
         if (sheetMatch) {
@@ -6397,7 +6653,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       }
 
       // OTT Platform Badge
-      const platformBadge = document.getElementById('news-platform-badge');
+      const platformBadge = document.getElementById('modal-news-platform-badge');
       if (platformBadge) {
         if (cur.category === 'ott' || cur.platform || cur.platformDetails) {
           const plat = cur.platformDetails || detectOttPlatformDetails(cur.title, cur.snippet, cur.platform);
@@ -6412,7 +6668,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       }
 
       // Milestone Badge
-      const milestoneBadge = document.getElementById('news-milestone-badge');
+      const milestoneBadge = document.getElementById('modal-news-milestone-badge');
       if (milestoneBadge) {
         if (cur.milestone && cur.milestone !== 'general_cinema_news') {
           const milestoneNames = {
@@ -6436,12 +6692,12 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       }
 
       // Merged duplicate reports badge & other sources
-      const dedupBadge = document.getElementById('news-dedup-badge');
-      const otherSourcesWrap = document.getElementById('news-card-other-sources');
-      const otherSourcesList = document.getElementById('news-other-sources-list');
+      const dedupBadge = document.getElementById('modal-news-dedup-badge');
+      const otherSourcesWrap = document.getElementById('modal-news-other-sources');
+      const otherSourcesList = document.getElementById('modal-news-other-sources-list');
       if (dedupBadge) {
         if (cur.duplicateReports && cur.duplicateReports > 1) {
-          dedupBadge.innerText = `⚡ ${cur.duplicateReports} Duplicate Reports Merged`;
+          dedupBadge.innerText = `⚡ ${cur.duplicateReports} Duplicates Merged`;
           dedupBadge.style.display = 'inline-block';
         } else {
           dedupBadge.style.display = 'none';
@@ -6457,9 +6713,9 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       }
 
       // Update Title & Snippet
-      const titleElem = document.getElementById('news-card-title');
-      const snippetElem = document.getElementById('news-card-snippet');
-      const linkElem = document.getElementById('news-card-link');
+      const titleElem = document.getElementById('modal-news-title');
+      const snippetElem = document.getElementById('modal-news-snippet');
+      const linkElem = document.getElementById('modal-news-link');
       if (titleElem) titleElem.innerText = cur.title;
       if (snippetElem) snippetElem.innerText = cur.snippet;
       if (linkElem) {
@@ -6469,14 +6725,14 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       }
 
       // Update custom notes input
-      const notesElem = document.getElementById('news-card-notes');
+      const notesElem = document.getElementById('modal-news-notes');
       if (notesElem) {
         notesElem.value = cur.customNotes || '';
       }
 
       // Update Image
-      const imgElem = document.getElementById('news-card-img');
-      const placeholder = document.getElementById('news-card-img-placeholder');
+      const imgElem = document.getElementById('modal-news-img');
+      const placeholder = document.getElementById('modal-news-img-placeholder');
       if (cur.imageUrl && cur.imageUrl.startsWith('http')) {
         imgElem.src = cur.imageUrl;
         imgElem.style.display = 'block';
@@ -6544,6 +6800,11 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       }
     }
 
+    // Compatibility alias
+    function renderCurrentNewsCard() {
+      renderNewsDetailModal();
+    }
+
     function saveCurrentNewsNote(val) {
       if (!liveNewsArticles || liveNewsArticles.length === 0) return;
       const cur = liveNewsArticles[currentNewsIndex];
@@ -6552,46 +6813,23 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
       }
     }
 
-    function nextNewsStory() {
-      if (!liveNewsArticles || liveNewsArticles.length === 0) return;
-      currentNewsIndex = (currentNewsIndex + 1) % liveNewsArticles.length;
-      renderCurrentNewsCard();
-    }
-
-    function prevNewsStory() {
-      if (!liveNewsArticles || liveNewsArticles.length === 0) return;
-      currentNewsIndex = (currentNewsIndex - 1 + liveNewsArticles.length) % liveNewsArticles.length;
-      renderCurrentNewsCard();
-    }
-
-    function initNewsSwipe() {
-      const card = document.getElementById('news-swipe-card');
-      if (!card) return;
-
-      let startX = 0;
-      let startY = 0;
-
-      card.addEventListener('touchstart', (e) => {
-        if (e.touches && e.touches.length > 0) {
-          startX = e.touches[0].clientX;
-          startY = e.touches[0].clientY;
-        }
-      }, { passive: true });
-
-      card.addEventListener('touchend', (e) => {
-        if (!e.changedTouches || e.changedTouches.length === 0) return;
-        const diffX = e.changedTouches[0].clientX - startX;
-        const diffY = e.changedTouches[0].clientY - startY;
-
-        // If horizontal motion exceeds 40px and is predominantly horizontal
-        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
-          if (diffX < 0) {
-            nextNewsStory(); // swipe left -> next
-          } else {
-            prevNewsStory(); // swipe right -> prev
+    function initNewsSection() {
+      updateNewsSourceDropdown();
+      if (!window._newsKeysBound) {
+        window._newsKeysBound = true;
+        document.addEventListener('keydown', (e) => {
+          const modal = document.getElementById('news-detail-modal');
+          if (modal && modal.style.display === 'flex') {
+            if (e.key === 'Escape') {
+              closeNewsDetailModal();
+            } else if (e.key === 'ArrowRight') {
+              nextNewsStoryModal();
+            } else if (e.key === 'ArrowLeft') {
+              prevNewsStoryModal();
+            }
           }
-        }
-      }, { passive: true });
+        });
+      }
     }
 
     function parseMovieReleaseDate(dateStr, contextText) {
@@ -7007,6 +7245,7 @@ Return ONLY a valid JSON object with keys: "movie_name", "industry", "actors", "
 
       alert(`✅ Added as Topic #${newTopicNum} to ${targetTab}! You can view it in the 'Input & Data Editor' tab.`);
       renderCurrentNewsCard(); // Re-render to update the in-sheet indicator badge immediately
+      if (typeof renderNewsListView === 'function') renderNewsListView();
     }
 
     // Auto load on page start
