@@ -81,7 +81,7 @@ SHEET_ORDER = [
     {
         "name": "Movie Updates",
         "slug": "movie_updates",
-        "intro": "ആദ്യം, പുതിയ സിനിമാ അപ്ഡേറ്റുകളിലേക്ക്."
+        "intro": "ആദ്യം, പുതിയ സിനിമാ വാർത്തകളിലേക്ക് പോകാം."
     },
     {
         "name": "Release Updates",

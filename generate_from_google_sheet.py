@@ -436,7 +436,7 @@ def build_presenter_markup_script(parsed_sections: Dict[str, List[Dict[str, Any]
             elif sec_slug == "ott_updates":
                 sec_intro = "പുതിയ ഒടിടി റിലീസുകളുടെയും സ്ട്രീമിംഗ് വിശേഷങ്ങളിലേക്ക്."
             elif sec_slug == "movie_updates":
-                sec_intro = s_cfg.get("intro", "ആദ്യം, പുതിയ സിനിമാ അപ്ഡേറ്റുകളിലേക്ക്.")
+                sec_intro = s_cfg.get("intro", "ആദ്യം, പുതിയ സിനിമാ വാർത്തകളിലേക്ക് പോകാം.")
             else:
                 sec_intro = s_cfg.get("intro", "")
         else:
