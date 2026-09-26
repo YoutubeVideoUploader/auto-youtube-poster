@@ -1227,6 +1227,7 @@ def generate_video(
                 "sec_slides": sec_slides,
                 "duration": seg_duration,
                 "segment_index": i,
+                "topic_index": topic_idx,
                 "banner_overlay": banner_overlay_path,
                 "banner_width": banner_width,
                 "banner_height": banner_height,
@@ -1242,11 +1243,19 @@ def generate_video(
                 "vpath": entry["vpath"],
                 "duration": entry["duration"]
             })
+        elif (chunks and chunks[-1]["kind"] == "animated_slide"
+                and chunks[-1].get("topic_index") == entry.get("topic_index")
+                and entry.get("topic_index") is not None):
+            # Same topic as the active animated_slide chunk -> merge seamlessly so banner stays persistent!
+            chunks[-1]["slides"].append(entry)
+            chunks[-1]["duration"] += entry["duration"]
         elif entry.get("banner_overlay"):
             chunks.append({
                 "kind": "animated_slide",
+                "topic_index": entry.get("topic_index"),
                 "slides": [entry],
                 "duration": entry["duration"],
+                "banner_overlay": entry.get("banner_overlay"),
                 "banner_width": entry.get("banner_width", 1840),
                 "banner_height": entry.get("banner_height", 125)
             })
@@ -1292,22 +1301,32 @@ def generate_video(
             subprocess.run(cmd, check=True)
 
         elif chunk["kind"] == "animated_slide":
-            slide_entry = chunk["slides"][0]
             dur = chunk_dur
-            banner_img = slide_entry["banner_overlay"].replace("\\", "/")
+            banner_overlay_p = chunk.get("banner_overlay") or next((s.get("banner_overlay") for s in chunk["slides"] if s.get("banner_overlay")), None)
+            banner_img = banner_overlay_p.replace("\\", "/") if banner_overlay_p else ""
             banner_w = chunk.get("banner_width", 1840)
             banner_h = chunk.get("banner_height", 125)
-            sec_slides = slide_entry.get("sec_slides", [slide_entry["image"]])
 
             concat_txt = str(slides_dir / f"concat_slide_{k:02d}.txt")
             with open(concat_txt, "w", encoding="utf-8") as f:
-                for s_img in sec_slides:
-                    esp = s_img.replace("\\", "/")
-                    f.write(f"file '{esp}'\n")
-                    f.write("duration 1.0\n")
-                if sec_slides:
-                    esp_last = sec_slides[-1].replace("\\", "/")
-                    f.write(f"file '{esp_last}'\n")
+                last_img = None
+                for s in chunk["slides"]:
+                    sec_slides = s.get("sec_slides", [s["image"]])
+                    has_timer = len(sec_slides) > 1 or s.get("timer_info")
+                    if has_timer:
+                        per_sec_dur = s["duration"] / max(len(sec_slides), 1)
+                        for s_img in sec_slides:
+                            esp = s_img.replace("\\", "/")
+                            f.write(f"file '{esp}'\n")
+                            f.write(f"duration {per_sec_dur:.3f}\n")
+                            last_img = esp
+                    else:
+                        esp = s["image"].replace("\\", "/")
+                        f.write(f"file '{esp}'\n")
+                        f.write(f"duration {s['duration']:.3f}\n")
+                        last_img = esp
+                if last_img:
+                    f.write(f"file '{last_img}'\n")
 
             t_out = max(1.5, dur - 1.0)
             t_out_end = t_out + 0.4
@@ -1322,7 +1341,8 @@ def generate_video(
                 f"[bg][banner]overlay=x='if(lt(t,1.0),{offscreen_x},if(lt(t,1.4),{offscreen_x}+(t-1.0)*{slide_speed:.2f},if(lt(t,{t_out:.2f}),40,if(lt(t,{t_out_end:.2f}),40-(t-{t_out:.2f})*{slide_speed:.2f},{offscreen_x}))))':y={banner_y}[v]"
             )
 
-            print(f"    - Chunk {k:02d} [ANIMATED HEADLINE SLIDE]: ({dur:.2f}s, Left Slide Banner width={banner_w}px + PIL Per-Sec Timer)")
+            has_timer = any(s.get("timer_info") for s in chunk["slides"])
+            print(f"    - Chunk {k:02d} [ANIMATED HEADLINE SLIDE]: ({dur:.2f}s, Left Slide Banner width={banner_w}px across {len(chunk['slides'])} sentence slide(s){' + PIL Per-Sec Timer' if has_timer else ''})")
             cmd = [
                 "ffmpeg", "-y",
                 "-f", "concat", "-safe", "0", "-i", concat_txt,
