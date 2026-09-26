@@ -43,9 +43,8 @@ class GeminiTTSEngine(BaseTTSEngine):
     def __init__(self, voice_name: str = "Kore", model_id: str = "gemini_voice", api_key: Optional[str] = None):
         super().__init__(model_id=model_id)
         self.voice_name = voice_name
-        # Upgraded to Gemini 3.1 Flash TTS Preview for next-gen clarity & natural Malayalam delivery
+        # Locked strictly to Gemini 3.1 Flash TTS Preview for next-gen clarity & 100% voice uniformity
         self.model_name = "gemini-3.1-flash-tts-preview"
-        self.fallback_model_name = "gemini-2.5-flash-preview-tts"
         self.native_sample_rate = 24000
         self.api_keys = self._resolve_api_keys(api_key)
         self.current_key_idx = 0
@@ -180,27 +179,26 @@ class GeminiTTSEngine(BaseTTSEngine):
         }
         headers = {"Content-Type": "application/json"}
 
-        # 3. Pacing: brief pause between calls (Paid tier allows rapid throughput)
+        # 3. Pacing: 2.5s pause between calls to respect Google API rate limits safely
         elapsed = time.time() - self._last_call_time
-        if elapsed < 0.5:
-            time.sleep(0.5 - elapsed)
+        if elapsed < 2.5:
+            time.sleep(2.5 - elapsed)
         self._last_call_time = time.time()
 
-        max_attempts = len(self.api_keys) * 4
+        max_attempts = max(len(self.api_keys) * 3, 6)
 
         for attempt in range(1, max_attempts + 1):
             key = self.api_keys[self.current_key_idx % len(self.api_keys)]
             self.current_key_idx += 1
-            # If primary model hits issues across full rotation, try fallback model
-            active_model = self.model_name if attempt <= len(self.api_keys) * 2 else self.fallback_model_name
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{active_model}:generateContent?key={key}"
+            # Strict model lock: Always gemini-3.1-flash-tts-preview for 100% voice uniformity
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model_name}:generateContent?key={key}"
 
             r = None
             try:
                 r = requests.post(url, json=payload, headers=headers, timeout=40)
             except Exception as e:
                 _log(f"[!] Network exception on key ...{key[-6:]}: {e}")
-                time.sleep(1)
+                time.sleep(2)
                 continue
 
             if r.status_code == 200:
@@ -222,7 +220,7 @@ class GeminiTTSEngine(BaseTTSEngine):
                                         np.save(str(cache_file), waveform)
                                     except Exception:
                                         pass
-                                    _log(f"[Gemini 3.1] OK: generated {len(waveform)} samples via {active_model} (speed={speed:.2f}x, key ...{key[-6:]})")
+                                    _log(f"[Gemini 3.1] OK: generated {len(waveform)} samples via {self.model_name} (speed={speed:.2f}x, key ...{key[-6:]})")
                                     return waveform, self.native_sample_rate
                 except Exception as ex:
                     _log(f"[!] Error parsing audio response: {ex}")
@@ -232,13 +230,15 @@ class GeminiTTSEngine(BaseTTSEngine):
                 break
 
             elif r.status_code in [429, 503]:
-                # If a key hits 429, immediately try next key in pool
+                # If multiple keys are available and we haven't rotated through all in this cycle, try next key immediately
                 if len(self.api_keys) > 1 and (attempt % len(self.api_keys) != 0):
-                    _log(f"[Gemini 3.1] Key ...{key[-6:]} hit 429. Instantly rotating to next key...")
+                    _log(f"[Gemini 3.1] Key ...{key[-6:]} hit 429. Instantly rotating to next key ({attempt}/{max_attempts})...")
                     continue
 
-                _log(f"[Gemini 3.1] Cooldown pause 10s (attempt {attempt}/{max_attempts})...")
-                time.sleep(10)
+                # Adaptive backoff: pause to allow rate-limit quota window to reset
+                backoff_sec = min(15 + (attempt // len(self.api_keys)) * 10, 45)
+                _log(f"[Gemini 3.1] Quota limit hit on all keys. Adaptive backoff pause {backoff_sec}s (attempt {attempt}/{max_attempts})...")
+                time.sleep(backoff_sec)
 
             else:
                 _log(f"[!] Gemini 3.1 error {r.status_code} on key ...{key[-6:]}: {r.text[:120]}")
@@ -246,13 +246,10 @@ class GeminiTTSEngine(BaseTTSEngine):
                     continue
                 time.sleep(2)
 
-        # Fallback to Edge TTS only as an absolute last resort
-        _log(f"[!] Gemini 3.1 exhausted {max_attempts} attempts. Falling back to Edge TTS.")
-        try:
-            from models.edge_tts_engine import EdgeTTSEngine
-            edge_engine = EdgeTTSEngine()
-            return edge_engine.synthesize(cleaned_text, speed=speed, pitch=pitch)
-        except Exception as e:
-            _log(f"[!] Fallback failed: {e}")
-            fallback_silence = np.zeros(int(self.native_sample_rate * 0.5), dtype=np.float32)
-            return fallback_silence, self.native_sample_rate
+        # Enforce voice consistency: Do NOT fall back to Edge TTS Sobhana mid-video!
+        _log(f"[!] Error: Gemini 3.1 exhausted {max_attempts} attempts across {len(self.api_keys)} key(s).")
+        raise RuntimeError(
+            f"Gemini 3.1 Flash TTS rate limit / quota exhausted after {max_attempts} attempts. "
+            f"To protect voice consistency, model downgrade was blocked. "
+            f"Please check your Gemini API keys or add more keys to GEMINI_API_KEYS."
+        )
