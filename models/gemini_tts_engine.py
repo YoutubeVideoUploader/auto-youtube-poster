@@ -13,6 +13,7 @@ import time
 import base64
 import hashlib
 import requests
+import subprocess
 import numpy as np
 from pathlib import Path
 from typing import Tuple, Optional
@@ -49,6 +50,25 @@ class GeminiTTSEngine(BaseTTSEngine):
         self.api_keys = self._resolve_api_keys(api_key)
         self.current_key_idx = 0
         self._last_call_time = 0.0
+
+    def _apply_time_stretch(self, waveform: np.ndarray, speed: float) -> np.ndarray:
+        """Applies pitch-preserved time-stretch using FFmpeg atempo filter in-memory."""
+        if len(waveform) == 0 or abs(speed - 1.0) < 0.01 or speed < 0.5 or speed > 2.0:
+            return waveform
+        try:
+            cmd = [
+                'ffmpeg', '-y', '-f', 'f32le', '-ar', str(self.native_sample_rate),
+                '-ac', '1', '-i', 'pipe:0',
+                '-filter:a', f'atempo={speed:.3f}',
+                '-f', 'f32le', '-ar', str(self.native_sample_rate), '-ac', '1', 'pipe:1'
+            ]
+            res = subprocess.run(cmd, input=waveform.tobytes(), capture_output=True, check=True)
+            stretched = np.frombuffer(res.stdout, dtype=np.float32)
+            if len(stretched) > 0:
+                return stretched
+        except Exception as e:
+            _log(f"[!] Time stretch exception (fallback to original): {e}")
+        return waveform
 
     def _resolve_api_keys(self, single_key: Optional[str] = None) -> list:
         keys = []
@@ -122,16 +142,16 @@ class GeminiTTSEngine(BaseTTSEngine):
         cleaned_text = re.sub(r'ലേക്ക്\s+കടക്കാം', 'ലേക്ക് പോകാം', cleaned_text)
         cleaned_text = re.sub(r'(?<![\u0d00-\u0d7f])കടക്കാം(?![\u0d00-\u0d7f])', 'പോകാം', cleaned_text)
 
-        # 1. Check local persistent disk cache (model-specific hash)
+        # 1. Check local persistent disk cache (model-specific hash including speed)
         cache_dir = OUTPUT_DIR / "gemini_voice_cache"
         cache_dir.mkdir(parents=True, exist_ok=True)
-        text_hash = hashlib.md5((cleaned_text + "_" + self.voice_name + "_" + self.model_name).encode('utf-8')).hexdigest()
+        text_hash = hashlib.md5((cleaned_text + "_" + self.voice_name + "_" + self.model_name + f"_sp{speed:.2f}").encode('utf-8')).hexdigest()
         cache_file = cache_dir / f"{text_hash}.npy"
 
         if cache_file.exists():
             try:
                 waveform = np.load(str(cache_file))
-                _log(f"[Gemini 2.5] Cache Hit: loaded {len(waveform)} samples")
+                _log(f"[Gemini 3.1] Cache Hit: loaded {len(waveform)} samples (speed={speed:.2f}x)")
                 return waveform, self.native_sample_rate
             except Exception:
                 pass
@@ -195,11 +215,14 @@ class GeminiTTSEngine(BaseTTSEngine):
                                 if raw_b64:
                                     pcm_bytes = base64.b64decode(raw_b64)
                                     waveform = np.frombuffer(pcm_bytes, dtype=np.int16).astype(np.float32) / 32768.0
+                                    # Apply pitch-preserved speed adjustment if speed != 1.0
+                                    if abs(speed - 1.0) >= 0.01:
+                                        waveform = self._apply_time_stretch(waveform, speed)
                                     try:
                                         np.save(str(cache_file), waveform)
                                     except Exception:
                                         pass
-                                    _log(f"[Gemini 3.1] OK: generated {len(waveform)} samples via {active_model} (key ...{key[-6:]})")
+                                    _log(f"[Gemini 3.1] OK: generated {len(waveform)} samples via {active_model} (speed={speed:.2f}x, key ...{key[-6:]})")
                                     return waveform, self.native_sample_rate
                 except Exception as ex:
                     _log(f"[!] Error parsing audio response: {ex}")

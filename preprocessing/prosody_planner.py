@@ -28,8 +28,8 @@ class ProsodyPlanner:
         importance_score = self.importance_scorer.calculate_score(clean_text, tag_name, entities)
         sentence_type = self.importance_scorer.determine_sentence_type(tag_name, importance_score, entities)
 
-        # 1. Steady 1.05x speaking speed for natural, authentic YouTube presenter pace
-        speed = 1.05
+        # 1. Steady 1.15x speaking speed for brisk, energetic YouTube presenter pace
+        speed = 1.15
 
         # 2. Consistent 0.0 dB Energy across all segments (prevents artificial volume/tone shifts between topics)
         energy_boost_db = 0.0

@@ -9,49 +9,49 @@ from typing import List, Dict, Any
 
 DEFAULT_TAG_PRESETS = {
     "intro": {
-        "speed": 1.05,
+        "speed": 1.15,
         "pitch_shift": 0.0,
         "pause_after_ms": 250,
         "description": "Engaging, high-energy presenter intro"
     },
     "headline": {
-        "speed": 1.05,
+        "speed": 1.15,
         "pitch_shift": 0.0,
         "pause_after_ms": 300,
         "description": "Bold, emphatic news headline delivery"
     },
     "important": {
-        "speed": 1.05,          # Consistent 1.05x speed prevents pitch/tone wobble
+        "speed": 1.15,          # Consistent 1.15x speed prevents pitch/tone wobble
         "pitch_shift": 0.0,
         "pause_after_ms": 250,
         "description": "Deliberate, measured emphasis on critical information"
     },
     "detail": {
-        "speed": 1.05,          # Consistent 1.05x speed prevents pitch/tone wobble
+        "speed": 1.15,          # Consistent 1.15x speed prevents pitch/tone wobble
         "pitch_shift": 0.0,
         "pause_after_ms": 200,
         "description": "Standard informative presenter cadence"
     },
     "transition": {
-        "speed": 1.05,
+        "speed": 1.15,
         "pitch_shift": 0.0,
         "pause_after_ms": 350,
         "description": "Smooth transition between news topics"
     },
     "section_intro": {
-        "speed": 1.05,
+        "speed": 1.15,
         "pitch_shift": 0.0,
         "pause_after_ms": 350,
         "description": "Engaging section transition intro"
     },
     "question": {
-        "speed": 1.05,
+        "speed": 1.15,
         "pitch_shift": 0.0,
         "pause_after_ms": 200,
         "description": "Interrogative cadence"
     },
     "outro": {
-        "speed": 1.05,
+        "speed": 1.15,
         "pitch_shift": 0.0,
         "pause_after_ms": 400,
         "description": "Warm, descending closing cadence"

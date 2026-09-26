@@ -29,6 +29,7 @@ BGM_VOLUME = 0.20            # Background music volume level (reduced slightly f
 DEFAULT_MODEL_ID = "mms_malayalam"
 DEFAULT_GEMINI_TTS_MODEL = "gemini-3.1-flash-tts-preview"
 DEFAULT_GEMINI_VOICE_NAME = "Kore"
+DEFAULT_VOICE_SPEED = 1.15       # Brisk, energetic presenter speed (1.15x)
 AVAILABLE_MODELS = {
     "mms_malayalam": {
         "name": "Meta MMS-TTS Malayalam",
